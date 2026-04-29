@@ -107,14 +107,7 @@ async function unlockApp() {
         
         renderApp();
     }
-    //time 5mi
-    setInterval(async () => {
-    if (realToken) { // Login ဝင်ထားမှ အလုပ်လုပ်စေရန်
-        console.log("Auto-syncing from cloud...");
-        await fetchCloudData(); 
-    }
-}, 300000); // 300000 ms = ၅ မိနစ် တစ်ကြိမ်
-// tinme 5mi
+    
 catch (e) { 
         alert("Wrong Password!"); 
     }
