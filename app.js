@@ -106,9 +106,7 @@ async function unlockApp() {
         document.getElementById('app-screen').style.display = 'block';
         
         renderApp();
-    }
-    
-catch (e) { 
+    } catch (e) { 
         alert("Wrong Password!"); 
     }
 }
@@ -685,6 +683,33 @@ function copyVaultCode() {
     alert("Copied!");
 }
 
+//38 Toolbar အုပ်စုများကို ဖုန်းမှာ ပွင့်/ပိတ် လုပ်ပေးမည့် Function
+function toggleMobileGroup(el) {
+    // ၁။ ဖုန်းဟုတ်မဟုတ် အရင်စစ်မယ် (Screen အကျယ် 768 အောက်ဆိုမှ အလုပ်လုပ်မယ်)
+    if (window.innerWidth >= 768) return;
+
+    // ၂။ လက်ရှိနှိပ်လိုက်တဲ့ အုပ်စု ပွင့်နေသလား စစ်မယ်
+    const isActive = el.classList.contains('mobile-active');
+
+    // ၃။ တခြားပွင့်နေတဲ့ အုပ်စုတွေအကုန် အရင်ပိတ်မယ်
+    document.querySelectorAll('.toolbar-group').forEach(group => {
+        group.classList.remove('mobile-active');
+    });
+
+    // ၄။ မူလက ပိတ်နေတာဆိုရင် အခုနှိပ်တဲ့ဟာကို ဖွင့်မယ်
+    if (!isActive) {
+        el.classList.add('mobile-active');
+    }
+}
+
+// Toolbar အပြင်ဘက်ကို နှိပ်ရင် အလိုအလျောက် ပြန်ပိတ်သွားအောင် လုပ်မယ်
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.toolbar-group')) {
+        document.querySelectorAll('.toolbar-group').forEach(group => {
+            group.classList.remove('mobile-active');
+        });
+    }
+});
 
 // 1: saveToLocal
 // 2: unlockApp
@@ -730,6 +755,6 @@ function copyVaultCode() {
 //37 copyVaultCode
 //keyထုတ်ဆ
 
-//38 
+//38 toggleMobileGroup
 //39 
 //40 
