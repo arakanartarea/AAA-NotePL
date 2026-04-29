@@ -261,18 +261,72 @@ header {
     color: #94a3b8;
 }
 /* Toolbar အုပ်စုများအတွက် Styling */
+/* အဟောင်းနေရာမှာ အစားထိုးရန် */
 .toolbar-group {
     display: flex;
     align-items: center;
     gap: 5px;
     padding: 0 10px;
-    border-right: 1px solid #e2e8f0; /* အုပ်စုတစ်ခုစီရဲ့ ညာဘက်မှာ မျဉ်းလေးခွဲမယ် */
 }
 
-/* နောက်ဆုံးအုပ်စုရဲ့ ညာဘက်မျဉ်းကို ဖျောက်မယ် */
-.toolbar-group:last-child {
-    border-right: none;
+/* Desktop & Tablet အတွက် (မျဉ်းမှိန်လေးတွေ ပြန်ထည့်တာ) */
+@media (min-width: 768px) {
+    .toolbar-group {
+        border-right: 1px solid #cbd5e1; 
+        padding: 0 12px;
+    }
+    .toolbar-group:last-child {
+        border-right: none;
+    }
 }
+/* CSS ရဲ့ အောက်ဆုံးမှာ အသစ်ထပ်ပေါင်းရန် */
+@media (max-width: 767px) {
+    /* ၁။ Toolbar ကို ခလုတ်တွေ အများကြီး ဆန့်အောင် ညှိမယ် */
+    .toolbar {
+        justify-content: flex-start; /* ဘယ်ဘက်ကနေပဲ စီမယ် */
+        gap: 2px; /* ခလုတ်အုပ်စုကြား အကွာအဝေး အနည်းဆုံးထားမယ် */
+        padding: 0 5px;
+        overflow-x: auto; /* တကယ်လို့ ၈ ခုထက်ကျော်ရင် ဘေးကို scroll ဆွဲလို့ရအောင် */
+    }
+
+    .toolbar-group {
+        min-width: 40px; /* အုပ်စုတစ်ခုရဲ့ အကျယ်ကို ကျဉ်းချလိုက်မယ် */
+        border-right: none;
+    }
+
+    /* ၂။ Sub-menu (Drop-up) ကို အလွှာအပေါ်ဆုံးရောက်အောင် တင်မယ် */
+    .toolbar-group.mobile-active .group-content {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        bottom: 55px; /* toolbar ရဲ့ အပေါ်မှာ ကပ်ရက်ပေါ်စေဖို့ */
+        left: 50%;
+        transform: translateX(-50%); /* အလယ်တည့်တည့်မှာ ပေါ်ဖို့ */
+        background: #ffffff;
+        box-shadow: 0 -5px 15px rgba(0,0,0,0.25); /* အရိပ်ကို ပိုထင်ရှားစေမယ် */
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 6px;
+        z-index: 9999 !important; /* Editor ရဲ့ အပေါ်ဆုံးမှာ ရှိနေစေဖို့ အရေးကြီးဆုံးအချက် */
+        min-width: 50px;
+    }
+
+    /* Sub-menu ထဲက ခလုတ်တွေ တစ်ခုနဲ့တစ်ခု မကပ်စေဖို့ */
+    .toolbar-group.mobile-active .group-content button {
+        margin: 3px 0;
+    }
+}
+
+@media (min-width: 768px) {
+    .group-label { display: none; } /* PC မှာ Label မပြဘူး */
+    .group-content { display: flex; gap: 5px; } /* PC မှာ ခလုတ်တွေ တန်းပြမယ် */
+}
+
+@media (max-width: 767px) {
+    .group-content { display: none; } /* ဖုန်းမှာ ခလုတ်တွေကို အရင်ဖျောက်ထားမယ် */
+    .toolbar-group.mobile-active .group-content { display: flex; flex-direction: column; } /* နှိပ်မှ ပြမယ် */
+}
+
 
 /* Toolbar ပိုသပ်ရပ်သွားအောင် CSS အနည်းငယ် ထပ်ဖြည့်မယ် */
 .toolbar {
