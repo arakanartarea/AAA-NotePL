@@ -3,183 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KLW Note</title>
-    ​<link rel="stylesheet" href="style.css">
+    <title>Flexible Vault Table</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 15px; background: #f0f4f8; }
+        .box { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 1000px; margin: auto; }
+        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        
+        /* Table Scroll CSS */
+        .table-container { width: 100%; overflow-x: auto; margin-top: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; background: #fff; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; min-width: 120px; }
+        th { background-color: #007bff; color: white; white-space: nowrap; }
+        
+        .btn { padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px 0; font-size: 14px; }
+        .btn-blue { background: #007bff; color: white; }
+        .btn-green { background: #28a745; color: white; }
+        .btn-red { background: #dc3545; color: white; }
+        .btn-gray { background: #6c757d; color: white; }
+        .btn-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+        #list-page, #token-tool-section { display: none; }
+        #status { font-size: 13px; text-align: center; margin-top: 10px; font-weight: bold; }
+    </style>
 </head>
 <body>
 
-    <div id="login-screen" style="padding: 100px 20px; text-align: center;">
-        <h2>📔 KLW Note Pad</h2>
-        <input type="password" id="master-pass" placeholder="Password" style="padding:12px; width:80%; border-radius:10px; border:1px solid #ddd;">
-        <br><br>
-        <button onclick="unlockApp()" class="btn-main" style="width:85%;">Unlock</button>
-    </div>
-
-    <div id="app-screen" style="display:none;">
-<header style="display: flex; align-items: center; justify-content: space-between;">
-    <div style="flex: 0 0 15%; display: flex; justify-content: center;">
-        <button id="main-action-btn" class="icon-btn" onclick="showEditor()">➕</button>
-    </div>
-
-    <div class="search-wrap" style="flex: 0 0 55%;">
-        <input type="text" id="search-input" placeholder="ရှာဖွေရန်..." onkeyup="handleSearch()">
-        <button id="clear-search" onclick="clearSearch()">×</button>
-    </div>
-
-    <div style="flex: 0 0 15%; display: flex; justify-content: center;">
-        <button id="sync-btn" class="icon-btn" onclick="syncCloud()" title="Sync to Cloud">☁️</button>
-    </div>
-
-    <div id="sync-form">
-    <h3>New Pass Sync</h3>
-    
-    <input type="password" id="new-pass-1" placeholder="New Pass (၁)">
-    <input type="password" id="new-pass-2" placeholder="Confirm Pass (၂)">
-    
-    <select id="sec-hint" onchange="updateHintPlaceholder()">
-        <option value="">Security Hint ရွေးပါ</option>
-        <option value="Nick Name">အမည်ပြောင်</option>
-        <option value="Father Name">အဖေအမည်</option>
-        <option value="Birth City">မွေးရပ်မြေ</option>
-        <option value="First School">ပထမဆုံးကျောင်း</option>
-        <option value="Favorite Food">အကြိုက်ဆုံးအစားအစာ</option>
-    </select>
-
-    <input type="text" id="hint-answer" placeholder="အဖြေကို ဖြည့်ပါ">
-
-    <button onclick="processSync()">Sync စတင်မည်</button>
-</div>
-
-    <div style="flex: 0 0 15%; display: flex; justify-content: center;">
-        <div class="menu-dropdown">
-            <button class="icon-btn" onclick="toggleMenu(event)">⋮</button>
-            
-            <div id="dropdown-menu" class="dropdown-content" style="display: none; position: absolute; right: 0; top: 45px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px; width: 180px; z-index: 101; overflow: hidden;">
-                
-                <div style="padding: 12px; border-bottom: 1px solid #eee; background: #f9f9f9;">
-                    <label style="font-size: 11px; color: #888; display: block; margin-bottom: 5px;">SORT BY:</label>
-                    <select id="sort-select" 
-        onclick="event.stopPropagation()" 
-        onchange="changeSort(this.value)" 
-        style="width: 100%; padding: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; background: white;">
-    <option value="newest">🕒 Newest First</option>
-    <option value="oldest">🕒 Oldest First</option>
-    <option value="az">🔤 Title (A-Z)</option>
-    <option value="za">🔤 Title (Z-A)</option>
-    <option value="most">📊 Child (High-Low)</option>
-    <option value="least">📊 Child (Low-High)</option>
-</select>
-
-                </div>
-<div class="menu-item" onclick="fetchFromCloud()">📥 ဒေတာရယူရန်</div>
-<button onclick="openVaultManager()">🔑 Key Manager</button>
-
-                <a href="#" id="menu-trash-btn" onclick="showTrash()" style="display:block; padding:12px; text-decoration:none; color:#333; font-size: 14px;">🗑️ Recycle Bin</a>
-                <hr style="margin:0; border:0; border-top:1px solid #eee;">
-                <a href="#" onclick="location.reload()" style="display:block; padding:12px; text-decoration:none; color:red; font-size: 14px;">🔒 Logout</a>
-            </div>
-        </div>
-    </div>
-</header>
-
-
-        <main id="note-list" class="accordion-container"></main>
-
-        <div id="editor-container" class="editor-modal" style="display:none;">
-            
-    <div class="editor-header">
-    <button onclick="hideEditor()" style="background:none; border:none; font-size:20px; cursor:pointer;">❌</button>
-    
-    <h3 id="modal-title" style="margin:0; flex-grow: 1; text-align: center; font-size: 16px;">New Note</h3>
-    
-    <div style="display: flex; gap: 15px; align-items: center;">
-        <button id="fav-btn" onclick="toggleFavorite()" style="background:none; border:none; font-size:22px; cursor:pointer; padding:0;">🤍</button>
-        <button id="edit-mode-btn" onclick="toggleEditMode()" style="background:none; border:none; font-size:20px; cursor:pointer; padding:0;">📝</button>
-        <button id="trash-btn" onclick="moveToTrash()" style="background:none; border:none; font-size:20px; cursor:pointer; padding:0;">🗑️</button>
-        <button onclick="saveNote()" style="background:none; border:none; font-size:20px; cursor:pointer;">✅</button>
+<div id="login-page" class="box" style="max-width: 450px;">
+    <h2 style="text-align:center;"> 𝕶𝖍𝖆𝖎𝖓𝖌 𝕳𝖑𝖆 𝖂𝖔𝖗𝖓 📔 </h2>
+    <input type="password" id="p1" placeholder="💖လှ ဝင်း နု 💖">
+    <input type="password" id="p2" placeholder="MPY Day ">
+    <input type="password" id="p3" placeholder="MM Name ">
+    <input type="password" id="p4" placeholder="MID">
+    <input type="password" id="p5" placeholder="ANNAME">
+    <button class="btn btn-blue" style="width:100%" onclick="unlock()">Unlock & Sync</button>
+    <button class="btn btn-gray" style="width:100%; margin-top:20px; font-size:11px;" onclick="toggleTokenTool()">🛠️ Tool</button>
+    <div id="token-tool-section" style="background:#f9f9f9; padding:15px; border-radius:10px; margin-top:10px; border: 1px dashed #ccc;">
+        <input type="text" id="rawToken" placeholder="GitHub Token">
+        <input type="text" id="rawPass" placeholder="5Pass">
+        <button class="btn btn-green" style="width:100%" onclick="generateEncryptedToken()">Generate</button>
+        <textarea id="tokenResult" rows="3" readonly style="width:100%; margin-top:10px; font-size:12px;"></textarea>
     </div>
 </div>
 
-
-    <div class="editor-body">
-        <input type="text" id="group-input" list="group-suggestions" placeholder="အုပ်စုအမည် (Group Name)">
-        <datalist id="group-suggestions"></datalist>
-        <input type="text" id="title-input" placeholder="ခေါင်းစဉ် (Title)">
-        <div id="rich-editor" contenteditable="true" placeholder="မှတ်စုရေးရန်..."></div>
+<div id="list-page" class="box">
+    <h2 style="margin-top:0;">Flexible Data Table</h2>
+    
+    <div class="table-container">
+        <table id="mainTable">
+            <thead id="tableHead">
+                <tr>
+                    <th>ID</th>
+                    <th>Name </th>
+                    <th>Mail </th>
+                    <th style="min-width:50px;">Action</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
     </div>
     
-
-            
-            <div class="toolbar">
-    <div class="toolbar-group">
-        <button onclick="execCmd('bold')"><b>B</b></button>
-        <button onclick="execCmd('italic')"><i>I</i></button>
-        <button onclick="execCmd('underline')"><u>U</u></button>
+    <div class="btn-group">
+        <button class="btn btn-green" onclick="addRow()">🔽 Row </button>
+        <button class="btn btn-blue" onclick="addColumn()">▶️ Column </button>
+        <button class="btn btn-blue" style="background:#17a2b8;" onclick="saveToGitHub()">Cloud Sync (သိမ်းမည်)</button>
     </div>
 
-    <div class="toolbar-group">
-    <input type="color" onchange="execCmd('foreColor', this.value)" title="Text Color" style="width: 35px; padding: 0;">
+    <div id="status"></div>
+    <button class="btn btn-red" onclick="location.reload()" style="margin-top:20px; width:100px;">Logout</button>
+</div>
+
+<script>
+    const ENCRYPTED_TOKEN = 'U2FsdGVkX18L3QmAwQ5/34Dt9UW72Ni9dkwtvVSZKogQeoPRvIgFH5d9L0g73hAluZPluIG/JTgeu815BVZBwA=='; 
+    const USER = 'arakanartarea';
+    const REPO = 'AAA-NotePL';
+    const FILE = 'data.txt';
     
-    <button onclick="changeFontSize('decrease')">A-</button>
-    <button onclick="changeFontSize('increase')">A+</button>
-</div>
+    let masterKey = "";
+    let realToken = "";
+    let fileSHA = "";
 
-
-    <div class="toolbar-group">
-        <button onclick="execCmd('insertUnorderedList')">• List</button>
-        <button onclick="execCmd('insertOrderedList')">1. List</button>
-    </div>
-
-    <div class="toolbar-group">
-        <button onclick="execCmd('justifyLeft')">⏮</button>
-        <button onclick="execCmd('justifyCenter')">↔</button>
-        <button onclick="execCmd('justifyRight')">⏭</button>
-    </div>
-
-    <div class="toolbar-group">
-    <button onclick="undoCustom()">↩</button>
-    <button onclick="redoCustom()">↪</button>
-</div>
-
-</div>
-
-
-    </div>
-        <div id="vaultModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; overflow-y:auto; padding:20px; box-sizing:border-box;">
-    <div style="background:white; padding:20px; border-radius:12px; max-width:500px; margin:auto; color:#333;">
-        <h3 style="margin-top:0;">🔑 Vault Generator</h3>
+    // Column အသစ်တိုးရန်
+    function addColumn(title = "အသစ်") {
+        const thead = document.querySelector('#tableHead tr');
+        const rows = document.querySelectorAll('#tableBody tr');
         
-        <label><b>Master Pass (Login သော့):</b></label>
-        <input type="password" id="mPass" placeholder="Enter Master Password" style="width:100%; padding:10px; margin:10px 0; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+        // Header မှာ ကော်လံတိုး (Action column ရဲ့ အရှေ့မှာ ထည့်မယ်)
+        const th = document.createElement('th');
+        th.contentEditable = true; // ကော်လံခေါင်းစဉ်ကို ပြင်လို့ရအောင်
+        th.innerText = title;
+        thead.insertBefore(th, thead.children[thead.children.length - 1]);
 
-        <div id="mKeysContainer">
-            <label><b>သော့နာမည် နှင့် Password များ:</b></label>
-            <div class="m-key-row" style="display:flex; gap:5px; margin-bottom:10px;">
-                <input type="text" class="m-key-name" placeholder="ဥပမာ- note" style="flex:1; padding:8px;">
-                <input type="text" class="m-key-val" placeholder="ဥပမာ- 123456" style="flex:1; padding:8px;">
-                <button onclick="this.parentElement.remove()" style="background:red; color:white; border:none; border-radius:4px;">❌</button>
-            </div>
-        </div>
+        // ရှိပြီးသား Row တွေမှာ အကွက်အသစ်တွေလိုက်ထည့်
+        rows.forEach(row => {
+            const td = row.insertCell(row.cells.length - 1);
+            td.innerHTML = `<input type="text" class="t-cell">`;
+        });
+    }
 
-        <button onclick="addMRow()" style="width:100%; padding:10px; margin-bottom:10px; background:#007bff; color:white; border:none; border-radius:6px;">+ သော့အသစ်ထည့်ရန်</button>
-        <button onclick="doGenerateVault()" style="width:100%; padding:12px; background:#28a745; color:white; border:none; border-radius:6px; font-weight:bold;">Generate Vault Code</button>
+    // Row အသစ်တိုးရန်
+    function addRow(dataArray = null) {
+        const tbody = document.getElementById('tableBody');
+        const colCount = document.querySelector('#tableHead tr').children.length;
+        const row = tbody.insertRow();
 
-        <textarea id="mResult" readonly style="width:100%; height:80px; margin-top:15px; font-size:12px; padding:10px; box-sizing:border-box;"></textarea>
-        <button onclick="copyVaultCode()" style="width:100%; padding:10px; margin-top:5px; background:#6c757d; color:white; border:none; border-radius:6px;">📋 Copy Code</button>
-        
-        <button onclick="closeVaultManager()" style="width:100%; margin-top:20px; padding:10px; background:#ddd; border:none; border-radius:6px;">Close</button>
-    </div>
-</div>
-
-
-    ​<script src="app.js"></script>
-    <script>
-        // Dropdown toggle simple logic
-        document.querySelector('.menu-dropdown').onclick = function() {
-            let content = this.querySelector('.dropdown-content');
-            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        for (let i = 0; i < colCount - 1; i++) {
+            const td = row.insertCell();
+            const val = dataArray ? (dataArray[i] || "") : "";
+            td.innerHTML = `<input type="text" class="t-cell" value="${val}">`;
         }
-    </script>
+        
+        // ဖျက်တဲ့ခလုတ်
+        const actionTd = row.insertCell();
+        actionTd.innerHTML = `<button class="btn btn-red" onclick="this.parentElement.parentElement.remove()" style="padding:2px 8px;">X</button>`;
+    }
+
+    async function unlock() {
+        masterKey = ["p1","p2","p3","p4","p5"].map(id => document.getElementById(id).value).join('');
+
+        try {
+            const bytes = CryptoJS.AES.decrypt(ENCRYPTED_TOKEN, masterKey);
+            realToken = bytes.toString(CryptoJS.enc.Utf8);
+            if (!realToken.startsWith('ghp_')) throw new Error();
+
+            const response = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`, {
+                headers: { 'Authorization': `token ${realToken}` }
+            });
+            const data = await response.json();
+            fileSHA = data.sha;
+            const encryptedContent = atob(data.content).trim();
+
+            if (encryptedContent !== "initial" && encryptedContent !== "") {
+                const contentBytes = CryptoJS.AES.decrypt(encryptedContent, masterKey);
+                const fullData = JSON.parse(contentBytes.toString(CryptoJS.enc.Utf8));
+                
+                // ၁။ Header ကို အရင်တည်ဆောက်မယ်
+                const headerRow = document.querySelector('#tableHead tr');
+                headerRow.innerHTML = "";
+                fullData.headers.forEach(h => {
+                    const th = document.createElement('th');
+                    th.contentEditable = true;
+                    th.innerText = h;
+                    headerRow.appendChild(th);
+                });
+                const actionTh = document.createElement('th');
+                actionTh.innerText = "Action";
+                headerRow.appendChild(actionTh);
+
+                // ၂။ ဒေတာတွေကို ထည့်မယ်
+                document.getElementById('tableBody').innerHTML = "";
+                fullData.rows.forEach(r => addRow(r));
+            } else {
+                addRow();
+            }
+            
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('list-page').style.display = 'block';
+        } catch (e) { alert("ဝင်ရောက်ရန် မအောင်မြင်ပါ"); }
+    }
+
+    async function saveToGitHub() {
+        const status = document.getElementById('status');
+        status.innerText = "Syncing...";
+        
+        // Headers စုဆောင်းမယ်
+        const headers = [];
+        document.querySelectorAll('#tableHead th').forEach((th, index, arr) => {
+            if (index < arr.length - 1) headers.push(th.innerText);
+        });
+
+        // Rows စုဆောင်းမယ်
+        const rowsData = [];
+        document.querySelectorAll('#tableBody tr').forEach(row => {
+            const rowCells = [];
+            row.querySelectorAll('.t-cell').forEach(input => rowCells.push(input.value));
+            rowsData.push(rowCells);
+        });
+
+        const finalJSON = JSON.stringify({ headers: headers, rows: rowsData });
+        const encrypted = CryptoJS.AES.encrypt(finalJSON, masterKey).toString();
+
+        try {
+            const response = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`, {
+                method: 'PUT',
+                headers: { 'Authorization': `token ${realToken}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: "Sync Flex Table", content: btoa(encrypted), sha: fileSHA })
+            });
+            const resData = await response.json();
+            fileSHA = resData.content.sha;
+            status.innerText = "အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ။";
+            status.style.color = "green";
+        } catch (e) { status.innerText = "Sync မအောင်မြင်ပါ"; status.style.color = "red"; }
+    }
+
+    function toggleTokenTool() {
+        const t = document.getElementById('token-tool-section');
+        t.style.display = t.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function generateEncryptedToken() {
+        const t = document.getElementById('rawToken').value;
+        const p = document.getElementById('rawPass').value;
+        document.getElementById('tokenResult').value = CryptoJS.AES.encrypt(t, p).toString();
+    }
+</script>
 </body>
 </html>
