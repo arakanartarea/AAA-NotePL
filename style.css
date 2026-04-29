@@ -1,0 +1,385 @@
+:root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --bg: #f3f4f6;
+    --text: #1f2937;
+    --white: #ffffff; 
+}
+
+/* တစ် App လုံးမှာ စာသားရွေးတာ (Select) နဲ့ Long Click တွေကို ပိတ်မယ် */
+* {
+    -webkit-user-select: none;  /* Safari/Chrome/WebView */
+    -moz-user-select: none;     /* Firefox */
+    -ms-user-select: none;      /* IE/Edge */
+    user-select: none;          /* Standard */
+    -webkit-touch-callout: none; /* iOS မှာ ဖိနှိပ်ထားရင် Menu ပေါ်တာကို ပိတ်မယ် */
+}
+/* စာရိုက်ရမယ့် နေရာတွေနဲ့ ပြန်ပြင်ရမယ့် နေရာတွေကိုပဲ Select လုပ်ခွင့် ပြန်ပေးမယ် */
+input[type="text"], 
+input[type="password"], 
+[contenteditable="true"], 
+#rich-editor {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    margin: 0;
+    color: var(--text);
+}
+
+/* Header UI */
+/* Header ကို Flex စနစ်နဲ့ အချိုးချမယ် */
+header {
+    background: var(--white);
+    padding: 10px;
+    gap: 8px; /* ခလုတ်နဲ့ Search box ကြား အနည်းငယ် ခွာမယ် */
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+/* New (+) ခလုတ် - 20% */
+.header-left {
+    flex: 0 0 20%;
+    display: flex;
+    justify-content: center;
+}
+/* New (+) ခလုတ်ကို ပိုသိသာချင်ရင် အရောင်လေး ထည့်နိုင်ပါတယ် */
+.header-left .icon-btn {
+    color: var(--primary); /* ခလုတ်ကို အပြာရောင် (သို့မဟုတ်) သတ်မှတ်အရောင် ပေးမယ် */
+    font-weight: bold;
+}
+
+/* Search Box - 60% */
+.search-wrap {
+    flex: 0 0 60%;
+    position: relative;
+  display: flex;
+  align-items: center;
+  
+}
+/* Clear Button ဒီဇိုင်း */
+#clear-search {
+    position: absolute;
+    right: 10px;
+    background: #ccc;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    display: none; /* အစပိုင်းမှာ ဖျောက်ထားမယ် */
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+}
+
+/* စာရိုက်လိုက်တဲ့အခါ ပေါ်လာအောင် လုပ်မယ် */
+#search-input:not(:placeholder-shown) + #clear-search {
+    display: block;
+}
+
+.search-wrap input {
+    width: 100%;
+    padding: 10px 10px 10px 35px; /* ဘယ်ဘက်မှာ မှန်ဘီလူးအတွက် နေရာချန်မယ် */
+    border-radius: 20px;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
+    outline: none;
+    box-sizing: border-box; /* padding ကြောင့် search box ကြီးမလာအောင် */
+}
+
+/* Menu (⋮) ခလုတ် - 20% */
+.header-right {
+    flex: 0 0 20%;
+    display: flex;
+    justify-content: center;
+    position: relative; /* Dropdown အတွက် */
+}
+
+/* Header ခလုတ်များကို ခလုတ်စစ်စစ်ပုံစံ ပြုပြင်ခြင်း */
+.icon-btn {
+    background-color: #f1f5f9; /* ခလုတ်နောက်ခံအရောင် မှိန်မှိန် */
+    border: 1px solid #e2e8f0; /* ခလုတ်ဘောင် */
+    color: var(--primary);     /* သင်္ကေတအရောင် (အပြာ) */
+    font-size: 18px;
+    font-weight: bold;
+    width: 45px;               /* ခလုတ် အကျယ် */
+    height: 45px;              /* ခလုတ် အမြင့် */
+    border-radius: 10px;       /* ထောင့်လေးတွေ အနည်းငယ်ဝိုင်းမယ် */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* ခလုတ်မှန်းသိသာအောင် အရိပ်အနည်းငယ်ထည့်မယ် */
+    transition: all 0.2s;
+}
+
+/* နှိပ်လိုက်ရင် (သို့မဟုတ်) Mouse တင်ရင် အရောင်ရင့်သွားမယ် */
+.icon-btn:hover {
+    background-color: #e2e8f0;
+    border-color: #cbd5e1;
+}
+
+/* နှိပ်လိုက်တဲ့ ခံစားချက် (Click effect) */
+.icon-btn:active {
+    background-color: #cbd5e1;
+    transform: scale(0.95);
+}
+
+.search-wrap::before {
+    content: '🔍';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+}
+
+/* Accordion List */
+.accordion-container {
+    padding: 15px;
+}
+
+.group-item {
+    background: transparent;
+    margin-bottom: 10px;
+}
+
+
+/* အစပိုင်းမှာ Child List ကို ဖျောက်ထားမယ် */
+.child-list {
+    display: none; 
+    margin-top: 5px;
+    padding-left: 10px;
+    transition: all 0.3s ease; /* ပွင့်လာရင် နည်းနည်းလေး ငြိမ့်သွားအောင် */
+}
+
+/* active class ရှိတဲ့ Group ရဲ့ Child List ကိုပဲ ပြမယ် */
+.group-item.active .child-list {
+    display: block;
+}
+
+/* Group Header ကို နှိပ်လို့ရမှန်း သိသာအောင် pointer ထည့်မယ် */
+.group-header {
+    background: var(--white);
+    padding: 15px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    user-select: none; /* စာသားကို ဆလစ်မဖြစ်သွားအောင် */
+}
+
+/* ပွင့်နေတဲ့ Group ရဲ့ Arrow ကို လှည့်လိုက်မယ် */
+.group-item.active .group-header span:last-child {
+    transform: rotate(180deg);
+}
+
+
+.note-card {
+    background: var(--white);
+    margin: 8px 0;
+    padding: 12px 15px;
+    border-radius: 10px;
+    border-left: 4px solid var(--primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Editor Modal (Full Screen feel) */
+/* Editor Modal ကို Screen အပြည့် နေရာယူခိုင်းမယ် */
+.editor-modal {
+    position: fixed;
+    inset: 0;
+    background: #f1f5f9; /* ခပ်မှိန်မှိန် နောက်ခံ */
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Screen အမြင့် ၁၀၀% ယူမယ် */
+}
+
+/* Header (Title, Save ခလုတ်ရှိတဲ့နေရာ) */
+.editor-header {
+    flex: 0 0 auto; /* အမြင့်ကို ပုံသေထားမယ် */
+    background: white;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Editor Body (Group, Title နဲ့ Content ရှိတဲ့နေရာ) */
+.editor-body {
+    flex: 1; /* ကျန်တဲ့ နေရာလွတ်အကုန် ယူမယ် */
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden; /* Body တစ်ခုလုံး Scroll မဖြစ်အောင် တားမယ် */
+}
+
+/* Group နဲ့ Title Input များ */
+.editor-body input[type="text"] {
+    flex: 0 0 auto;
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+/* စာရေးတဲ့ Content Box (Scroll ရမယ့်နေရာ) */
+#rich-editor {
+    flex: 1; /* Body ထဲမှာ ကျန်သမျှ နေရာအကုန်ယူမယ် */
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 15px;
+    overflow-y: auto; /* စာများလာရင် ဒီ Box ထဲမှာပဲ Scroll ဆွဲမယ် */
+    outline: none;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Placeholder စာသားလေးတွေကို အရောင်မှိန်ပေးမယ် (ပိုသပ်ရပ်အောင်) */
+[contenteditable]:empty:before {
+    content: attr(placeholder);
+    color: #94a3b8;
+}
+/* Toolbar အုပ်စုများအတွက် Styling */
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0 10px;
+    border-right: 1px solid #e2e8f0; /* အုပ်စုတစ်ခုစီရဲ့ ညာဘက်မှာ မျဉ်းလေးခွဲမယ် */
+}
+
+/* နောက်ဆုံးအုပ်စုရဲ့ ညာဘက်မျဉ်းကို ဖျောက်မယ် */
+.toolbar-group:last-child {
+    border-right: none;
+}
+
+/* Toolbar ပိုသပ်ရပ်သွားအောင် CSS အနည်းငယ် ထပ်ဖြည့်မယ် */
+.toolbar {
+  flex: 0 0 auto; /* အောက်ခြေမှာ ပုံသေကပ်နေမယ် */
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 5px 0;
+    height: 50px;
+}
+
+
+/* Scrollbar ကို ဖျောက်ထားချင်ရင် (အမြင်ရှင်းအောင်) */
+.toolbar::-webkit-scrollbar {
+    display: none;
+}
+/* toolbar hide-show */
+.toolbar.hidden {
+    display: none !important;
+}
+
+
+/* Toolbar ခလုတ်များကို စနစ်တကျဖြစ်အောင် */
+.toolbar button, .toolbar select, .toolbar input[type="color"] {
+    flex: 0 0 auto; /* ခလုတ်တွေ ပိန်မသွားအောင် */
+    height: 36px;
+    min-width: 40px;
+    padding: 0 10px;
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toolbar button:active {
+    background: #e2e8f0;
+}
+
+
+.btn-main {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+/* Sync Form ကို မူလမှာ ဖျောက်ထားရန် */
+#sync-form {
+    display: none; 
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ffffff;
+    width: 90%; /* ဖုန်း screen အတွက် */
+    max-width: 350px;
+    padding: 25px;
+    border-radius: 15px; /* ထောင့်လေးတွေ ဝိုင်းသွားမယ် */
+    z-index: 1000;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    text-align: center;
+    font-family: sans-serif;
+}
+
+#sync-form h3 {
+    margin-top: 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+#sync-form input, #sync-form select {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box; /* padding ကြောင့် ဘောင်မထွက်အောင် */
+    outline: none;
+}
+
+#sync-form input:focus {
+    border-color: #007bff;
+}
+
+#sync-form button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#sync-form button:active {
+    background-color: #0056b3;
+    transform: scale(0.98);
+}
