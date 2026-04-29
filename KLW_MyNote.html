@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KLW Note</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<body>
+
+    <div id="login-screen" style="padding: 100px 20px; text-align: center;">
+        <h2>📔 KLW Note Pad</h2>
+        <input type="password" id="master-pass" placeholder="Password" style="padding:12px; width:80%; border-radius:10px; border:1px solid #ddd;">
+        <br><br>
+        <button onclick="unlockApp()" class="btn-main" style="width:85%;">Unlock</button>
+    </div>
+
+    <div id="app-screen" style="display:none;">
+<header style="display: flex; align-items: center; justify-content: space-between;">
+    <div style="flex: 0 0 15%; display: flex; justify-content: center;">
+        <button id="main-action-btn" class="icon-btn" onclick="showEditor()">➕</button>
+    </div>
+
+    <div class="search-wrap" style="flex: 0 0 55%;">
+        <input type="text" id="search-input" placeholder="ရှာဖွေရန်..." onkeyup="handleSearch()">
+        <button id="clear-search" onclick="clearSearch()">×</button>
+    </div>
+
+    <div style="flex: 0 0 15%; display: flex; justify-content: center;">
+        <button id="sync-btn" class="icon-btn" onclick="syncCloud()" title="Sync to Cloud">☁️</button>
+    </div>
+
+    <div id="sync-form">
+    <h3>New Pass Sync</h3>
+    
+    <input type="password" id="new-pass-1" placeholder="New Pass (၁)">
+    <input type="password" id="new-pass-2" placeholder="Confirm Pass (၂)">
+    
+    <select id="sec-hint" onchange="updateHintPlaceholder()">
+        <option value="">Security Hint ရွေးပါ</option>
+        <option value="Nick Name">အမည်ပြောင်</option>
+        <option value="Father Name">အဖေအမည်</option>
+        <option value="Birth City">မွေးရပ်မြေ</option>
+        <option value="First School">ပထမဆုံးကျောင်း</option>
+        <option value="Favorite Food">အကြိုက်ဆုံးအစားအစာ</option>
+    </select>
+
+    <input type="text" id="hint-answer" placeholder="အဖြေကို ဖြည့်ပါ">
+
+    <button onclick="processSync()">Sync စတင်မည်</button>
+</div>
+
+    <div style="flex: 0 0 15%; display: flex; justify-content: center;">
+        <div class="menu-dropdown">
+            <button class="icon-btn" onclick="toggleMenu(event)">⋮</button>
+            
+            <div id="dropdown-menu" class="dropdown-content" style="display: none; position: absolute; right: 0; top: 45px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px; width: 180px; z-index: 101; overflow: hidden;">
+                
+                <div style="padding: 12px; border-bottom: 1px solid #eee; background: #f9f9f9;">
+                    <label style="font-size: 11px; color: #888; display: block; margin-bottom: 5px;">SORT BY:</label>
+                    <select id="sort-select" 
+        onclick="event.stopPropagation()" 
+        onchange="changeSort(this.value)" 
+        style="width: 100%; padding: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; background: white;">
+    <option value="newest">🕒 Newest First</option>
+    <option value="oldest">🕒 Oldest First</option>
+    <option value="az">🔤 Title (A-Z)</option>
+    <option value="za">🔤 Title (Z-A)</option>
+    <option value="most">📊 Child (High-Low)</option>
+    <option value="least">📊 Child (Low-High)</option>
+</select>
+
+                </div>
+<div class="menu-item" onclick="fetchFromCloud()">📥 ဒေတာရယူရန်</div>
+<button onclick="openVaultManager()">🔑 Key Manager</button>
+
+                <a href="#" id="menu-trash-btn" onclick="showTrash()" style="display:block; padding:12px; text-decoration:none; color:#333; font-size: 14px;">🗑️ Recycle Bin</a>
+                <hr style="margin:0; border:0; border-top:1px solid #eee;">
+                <a href="#" onclick="location.reload()" style="display:block; padding:12px; text-decoration:none; color:red; font-size: 14px;">🔒 Logout</a>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+        <main id="note-list" class="accordion-container"></main>
+
+        <div id="editor-container" class="editor-modal" style="display:none;">
+            
+    <div class="editor-header">
+    <button onclick="hideEditor()" style="background:none; border:none; font-size:20px; cursor:pointer;">❌</button>
+    
+    <h3 id="modal-title" style="margin:0; flex-grow: 1; text-align: center; font-size: 16px;">New Note</h3>
+    
+    <div style="display: flex; gap: 15px; align-items: center;">
+        <button id="fav-btn" onclick="toggleFavorite()" style="background:none; border:none; font-size:22px; cursor:pointer; padding:0;">🤍</button>
+        <button id="edit-mode-btn" onclick="toggleEditMode()" style="background:none; border:none; font-size:20px; cursor:pointer; padding:0;">📝</button>
+        <button id="trash-btn" onclick="moveToTrash()" style="background:none; border:none; font-size:20px; cursor:pointer; padding:0;">🗑️</button>
+        <button onclick="saveNote()" style="background:none; border:none; font-size:20px; cursor:pointer;">✅</button>
+    </div>
+</div>
+
+
+    <div class="editor-body">
+        <input type="text" id="group-input" list="group-suggestions" placeholder="အုပ်စုအမည် (Group Name)">
+        <datalist id="group-suggestions"></datalist>
+        <input type="text" id="title-input" placeholder="ခေါင်းစဉ် (Title)">
+        <div id="rich-editor" contenteditable="true" placeholder="မှတ်စုရေးရန်..."></div>
+    </div>
+    
+
+            
+            <div class="toolbar">
+    <div class="toolbar-group">
+        <button onclick="execCmd('bold')"><b>B</b></button>
+        <button onclick="execCmd('italic')"><i>I</i></button>
+        <button onclick="execCmd('underline')"><u>U</u></button>
+    </div>
+
+    <div class="toolbar-group">
+    <input type="color" onchange="execCmd('foreColor', this.value)" title="Text Color" style="width: 35px; padding: 0;">
+    
+    <button onclick="changeFontSize('decrease')">A-</button>
+    <button onclick="changeFontSize('increase')">A+</button>
+</div>
+
+
+    <div class="toolbar-group">
+        <button onclick="execCmd('insertUnorderedList')">• List</button>
+        <button onclick="execCmd('insertOrderedList')">1. List</button>
+    </div>
+
+    <div class="toolbar-group">
+        <button onclick="execCmd('justifyLeft')">⏮</button>
+        <button onclick="execCmd('justifyCenter')">↔</button>
+        <button onclick="execCmd('justifyRight')">⏭</button>
+    </div>
+
+    <div class="toolbar-group">
+    <button onclick="undoCustom()">↩</button>
+    <button onclick="redoCustom()">↪</button>
+</div>
+
+</div>
+
+
+    </div>
+        <div id="vaultModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; overflow-y:auto; padding:20px; box-sizing:border-box;">
+    <div style="background:white; padding:20px; border-radius:12px; max-width:500px; margin:auto; color:#333;">
+        <h3 style="margin-top:0;">🔑 Vault Generator</h3>
+        
+        <label><b>Master Pass (Login သော့):</b></label>
+        <input type="password" id="mPass" placeholder="Enter Master Password" style="width:100%; padding:10px; margin:10px 0; border:1px solid #ddd; border-radius:6px; box-sizing:border-box;">
+
+        <div id="mKeysContainer">
+            <label><b>သော့နာမည် နှင့် Password များ:</b></label>
+            <div class="m-key-row" style="display:flex; gap:5px; margin-bottom:10px;">
+                <input type="text" class="m-key-name" placeholder="ဥပမာ- note" style="flex:1; padding:8px;">
+                <input type="text" class="m-key-val" placeholder="ဥပမာ- 123456" style="flex:1; padding:8px;">
+                <button onclick="this.parentElement.remove()" style="background:red; color:white; border:none; border-radius:4px;">❌</button>
+            </div>
+        </div>
+
+        <button onclick="addMRow()" style="width:100%; padding:10px; margin-bottom:10px; background:#007bff; color:white; border:none; border-radius:6px;">+ သော့အသစ်ထည့်ရန်</button>
+        <button onclick="doGenerateVault()" style="width:100%; padding:12px; background:#28a745; color:white; border:none; border-radius:6px; font-weight:bold;">Generate Vault Code</button>
+
+        <textarea id="mResult" readonly style="width:100%; height:80px; margin-top:15px; font-size:12px; padding:10px; box-sizing:border-box;"></textarea>
+        <button onclick="copyVaultCode()" style="width:100%; padding:10px; margin-top:5px; background:#6c757d; color:white; border:none; border-radius:6px;">📋 Copy Code</button>
+        
+        <button onclick="closeVaultManager()" style="width:100%; margin-top:20px; padding:10px; background:#ddd; border:none; border-radius:6px;">Close</button>
+    </div>
+</div>
+
+
+    <script src="app.js"></script>
+    <script>
+        // Dropdown toggle simple logic
+        document.querySelector('.menu-dropdown').onclick = function() {
+            let content = this.querySelector('.dropdown-content');
+            content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        }
+    </script>
+</body>
+</html>
