@@ -31,55 +31,40 @@
         <button id="sync-btn" class="icon-btn" onclick="syncCloud()" title="Sync to Cloud">☁️</button>
     </div>
 
-    <div id="sync-form">
-    <h3>New Pass Sync</h3>
-    
-    <input type="password" id="new-pass-1" placeholder="New Pass (၁)">
-    <input type="password" id="new-pass-2" placeholder="Confirm Pass (၂)">
-    
-    <select id="sec-hint" onchange="updateHintPlaceholder()">
-        <option value="">Security Hint ရွေးပါ</option>
-        <option value="Nick Name">အမည်ပြောင်</option>
-        <option value="Father Name">အဖေအမည်</option>
-        <option value="Birth City">မွေးရပ်မြေ</option>
-        <option value="First School">ပထမဆုံးကျောင်း</option>
-        <option value="Favorite Food">အကြိုက်ဆုံးအစားအစာ</option>
-    </select>
-
-    <input type="text" id="hint-answer" placeholder="အဖြေကို ဖြည့်ပါ">
-
-    <button onclick="processSync()">Sync စတင်မည်</button>
-</div>
-
     <div style="flex: 0 0 15%; display: flex; justify-content: center;">
         <div class="menu-dropdown">
             <button class="icon-btn" onclick="toggleMenu(event)">⋮</button>
             
-            <div id="dropdown-menu" class="dropdown-content" style="display: none; position: absolute; right: 0; top: 45px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px; width: 180px; z-index: 101; overflow: hidden;">
-                
-                <div style="padding: 12px; border-bottom: 1px solid #eee; background: #f9f9f9;">
-                    <label style="font-size: 11px; color: #888; display: block; margin-bottom: 5px;">SORT BY:</label>
-                    <select id="sort-select" 
-        onclick="event.stopPropagation()" 
-        onchange="changeSort(this.value)" 
-        style="width: 100%; padding: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; background: white;">
-    <option value="newest">🕒 Newest First</option>
-    <option value="oldest">🕒 Oldest First</option>
-    <option value="az">🔤 Title (A-Z)</option>
-    <option value="za">🔤 Title (Z-A)</option>
-    <option value="most">📊 Child (High-Low)</option>
-    <option value="least">📊 Child (Low-High)</option>
-</select>
-
-                </div>
-<div class="menu-item" onclick="fetchFromCloud()">📥 ဒေတာရယူရန်</div>
-<button onclick="openVaultManager()">🔑 Key Manager</button>
-
-                <a href="#" id="menu-trash-btn" onclick="showTrash()" style="display:block; padding:12px; text-decoration:none; color:#333; font-size: 14px;">🗑️ Recycle Bin</a>
-                <hr style="margin:0; border:0; border-top:1px solid #eee;">
-                <a href="#" onclick="location.reload()" style="display:block; padding:12px; text-decoration:none; color:red; font-size: 14px;">🔒 Logout</a>
-            </div>
+            <div class="menu-dropdown">
+    <button class="icon-btn" onclick="toggleMenu(event)">⋮</button>
+    
+    <div id="dropdown-menu" class="dropdown-content" style="display: none; position: absolute; right: 0; top: 45px; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 8px; width: 180px; z-index: 101; overflow: hidden;">
+        
+        <div style="padding: 12px; border-bottom: 1px solid #eee; background: #f9f9f9;">
+            <label style="font-size: 11px; color: #888; display: block; margin-bottom: 5px;">SORT BY:</label>
+            <select id="sort-select" 
+                    onclick="event.stopPropagation()" 
+                    onchange="changeSort(this.value)" 
+                    style="width: 100%; padding: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; background: white;">
+                <option value="newest">🕒 Newest First</option>
+                <option value="oldest">🕒 Oldest First</option>
+                <option value="az">🔤 Title (A-Z)</option>
+                <option value="za">🔤 Title (Z-A)</option>
+                <option value="most">📊 Child (High-Low)</option>
+                <option value="least">📊 Child (Low-High)</option>
+            </select>
         </div>
+
+        <a href="#" class="menu-item" onclick="fetchFromCloud(); event.preventDefault();" style="display:block; padding:12px; text-decoration:none; color:#333; font-size: 14px; border-bottom: 1px solid #eee;">📥 ဒေတာရယူရန်</a>
+
+        <a href="#" class="menu-item" onclick="openVaultManager(); event.preventDefault();" style="display:block; padding:12px; text-decoration:none; color:#333; font-size: 14px; border-bottom: 1px solid #eee;">🔑 Key Manager</a>
+
+        <a href="#" id="menu-trash-btn" onclick="showTrash(); event.preventDefault();" style="display:block; padding:12px; text-decoration:none; color:#333; font-size: 14px; border-bottom: 1px solid #eee;">🗑️ Recycle Bin</a>
+
+        <a href="#" onclick="location.reload(); event.preventDefault();" style="display:block; padding:12px; text-decoration:none; color:red; font-size: 14px;">🔒 Logout</a>
+    </div>
+</div>
+
     </div>
 </header>
 
