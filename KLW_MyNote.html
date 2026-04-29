@@ -31,6 +31,26 @@
         <button id="sync-btn" class="icon-btn" onclick="syncCloud()" title="Sync to Cloud">☁️</button>
     </div>
 
+    <div id="sync-form">
+    <h3>New Pass Sync</h3>
+    
+    <input type="password" id="new-pass-1" placeholder="New Pass (၁)">
+    <input type="password" id="new-pass-2" placeholder="Confirm Pass (၂)">
+    
+    <select id="sec-hint" onchange="updateHintPlaceholder()">
+        <option value="">Security Hint ရွေးပါ</option>
+        <option value="Nick Name">အမည်ပြောင်</option>
+        <option value="Father Name">အဖေအမည်</option>
+        <option value="Birth City">မွေးရပ်မြေ</option>
+        <option value="First School">ပထမဆုံးကျောင်း</option>
+        <option value="Favorite Food">အကြိုက်ဆုံးအစားအစာ</option>
+    </select>
+
+    <input type="text" id="hint-answer" placeholder="အဖြေကို ဖြည့်ပါ">
+
+    <button onclick="processSync()">Sync စတင်မည်</button>
+</div>
+
     <div style="flex: 0 0 15%; display: flex; justify-content: center;">
         <div class="menu-dropdown">
     <button class="icon-btn" onclick="toggleMenu(event)">⋮</button>
@@ -62,7 +82,6 @@
     </div>
 </div>
 
-
     </div>
 </header>
 
@@ -91,44 +110,54 @@
         <input type="text" id="title-input" placeholder="ခေါင်းစဉ် (Title)">
         <div id="rich-editor" contenteditable="true" placeholder="မှတ်စုရေးရန်..."></div>
     </div>
-    
-
-            
-            <div class="toolbar">
-    <div class="toolbar-group">
-        <button onclick="execCmd('bold')"><b>B</b></button>
-        <button onclick="execCmd('italic')"><i>I</i></button>
-        <button onclick="execCmd('underline')"><u>U</u></button>
+    <div class="toolbar">
+    <div class="toolbar-group" onclick="toggleMobileGroup(this)">
+        <span class="group-label">Aa</span> <div class="group-content">
+            <button onclick="execCmd('bold')"><b>B</b></button>
+            <button onclick="execCmd('italic')"><i>I</i></button>
+            <button onclick="execCmd('underline')"><u>U</u></button>
+        </div>
     </div>
 
-    <div class="toolbar-group">
-    <input type="color" onchange="execCmd('foreColor', this.value)" title="Text Color" style="width: 35px; padding: 0;">
-    
-    <button onclick="changeFontSize('decrease')">A-</button>
-    <button onclick="changeFontSize('increase')">A+</button>
+    <div class="toolbar-group" onclick="toggleMobileGroup(this)">
+        <span class="group-label">🎨</span>
+        <div class="group-content">
+            <input type="color" onchange="execCmd('foreColor', this.value)" title="Text Color" style="width: 35px; padding: 0;">
+            <button onclick="changeFontSize('decrease')">A-</button>
+            <button onclick="changeFontSize('increase')">A+</button>
+        </div>
+    </div>
+
+    <div class="toolbar-group" onclick="toggleMobileGroup(this)">
+        <span class="group-label">≡</span>
+        <div class="group-content">
+            <button onclick="execCmd('insertUnorderedList')">• List</button>
+            <button onclick="execCmd('insertOrderedList')">1. List</button>
+        </div>
+    </div>
+
+    <div class="toolbar-group" onclick="toggleMobileGroup(this)">
+        <span class="group-label">📑</span>
+        <div class="group-content">
+            <button onclick="execCmd('justifyLeft')">⏮</button>
+            <button onclick="execCmd('justifyCenter')">↔</button>
+            <button onclick="execCmd('justifyRight')">⏭</button>
+        </div>
+    </div>
+
+    <div class="toolbar-group" onclick="toggleMobileGroup(this)">
+        <span class="group-label">↩</span>
+        <div class="group-content">
+            <button onclick="undoCustom()">↩</button>
+            <button onclick="redoCustom()">↪</button>
+        </div>
+    </div>
 </div>
 
 
-    <div class="toolbar-group">
-        <button onclick="execCmd('insertUnorderedList')">• List</button>
-        <button onclick="execCmd('insertOrderedList')">1. List</button>
-    </div>
-
-    <div class="toolbar-group">
-        <button onclick="execCmd('justifyLeft')">⏮</button>
-        <button onclick="execCmd('justifyCenter')">↔</button>
-        <button onclick="execCmd('justifyRight')">⏭</button>
-    </div>
-
-    <div class="toolbar-group">
-    <button onclick="undoCustom()">↩</button>
-    <button onclick="redoCustom()">↪</button>
 </div>
-
 </div>
-
-
-    </div>
+        
         <div id="vaultModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; overflow-y:auto; padding:20px; box-sizing:border-box;">
     <div style="background:white; padding:20px; border-radius:12px; max-width:500px; margin:auto; color:#333;">
         <h3 style="margin-top:0;">🔑 Vault Generator</h3>
