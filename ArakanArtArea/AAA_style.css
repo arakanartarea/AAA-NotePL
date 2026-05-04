@@ -1,0 +1,197 @@
+/* ==========================================
+   [GROUP 1] GLOBAL STYLES & ROOT
+   ========================================== */
+:root { --bg: #f4f4f4; --text: #333; --primary: #cf0000; --card: #fff; }
+.dark-mode { --bg: #1a1a1a; --text: #f4f4f4; --card: #2d2d2d; }
+
+body { 
+    font-family: sans-serif; 
+    background: var(--bg); 
+    color: var(--text); 
+    margin: 0; 
+    padding-bottom: 80px; 
+    transition: 0.3s; 
+    overflow-x: hidden;
+}
+
+/* ==========================================
+   [GROUP 2] MAIN LAYOUT FRAME (SPLIT SCREEN)
+   ========================================== */
+.container { 
+    display: flex;
+    width: 100%;
+    max-width: 100% !important;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    align-items: flex-start;
+}
+
+#master-panel {
+    flex: 0 0 350px; 
+    background: var(--bg);
+    border-right: 1px solid #ddd;
+    height: calc(100vh - 60px); 
+    overflow-y: auto;
+    padding: 10px;
+    position: sticky;
+    top: 60px;
+}
+
+#group-list {
+    flex: 1; 
+    padding: 15px;
+    background: var(--bg);
+    min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+    .container { display: block; }
+    #master-panel { width: 100%; height: auto; position: static; border-right: none; }
+    #group-list { width: 100%; }
+}
+
+/* ==========================================
+   [GROUP 3] NAVIGATION & TOOLBARS
+   ========================================== */
+nav { 
+    background: var(--primary); 
+    color: white; 
+    padding: 1rem; 
+    display: flex; 
+    justify-content: space-between; 
+    position: sticky; 
+    top: 0; 
+    z-index: 100; 
+}
+
+.search-box { 
+    width: 100%; 
+    padding: 12px; 
+    border-radius: 25px; 
+    border: 1px solid #ddd; 
+    margin-bottom: 15px; 
+    box-sizing: border-box; 
+    background: var(--card); 
+    color: var(--text); 
+}
+
+.bottom-toolbar { 
+    position: fixed; bottom: 0; left: 0; right: 0; 
+    background: var(--card); display: flex; 
+    justify-content: space-around; align-items: center; 
+    padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); 
+    z-index: 1000; border-top: 1px solid #ddd; 
+}
+
+.tool-btn { 
+    background: none; border: none; color: var(--text); 
+    font-size: 12px; display: flex; flex-direction: column; 
+    align-items: center; cursor: pointer; flex: 1; 
+}
+
+.tool-btn span.icon { font-size: 20px; margin-bottom: 4px; }
+
+/* ==========================================
+   [GROUP 4] EXPANDABLE ARTIST LIST
+   ========================================== */
+.artist-header { 
+    background: #cf0000; color: white; 
+    margin-top: 8px; border-radius: 5px; 
+    display: flex; align-items: center; overflow: hidden; 
+}
+
+.artist-info { padding: 12px; flex-grow: 1; cursor: pointer; font-weight: bold; }
+
+.expand-btn { 
+    padding: 12px 20px; cursor: pointer; 
+    border-left: 1px solid rgba(255,255,255,0.3); 
+    font-size: 18px; background: #90EE90; color: #333; 
+    transition: 0.3s; 
+}
+
+.expand-btn.active { background: #ff4444; color: white; }
+
+.song-list { display: none; background: var(--card); border: 1px solid #ddd; border-top: none; }
+
+/* ==========================================
+   [GROUP 5] RESPONSIVE SONG GRID & CARDS
+   ========================================== */
+.song-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    width: 100%;
+}
+
+.artist-card {
+    background: var(--card);
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    overflow: hidden;
+    border: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.card-header { padding: 10px; border-bottom: 1px solid #f9f9f9; }
+.card-title { font-size: 14px; font-weight: bold; color: var(--primary); margin: 0; }
+
+.card-main-info { padding: 8px 10px; }
+.info-item { font-size: 12.5px; color: #555; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
+
+.card-rating { 
+    padding: 10px 15px; background: #fafafa; 
+    border-top: 1px solid #eee; display: flex; 
+    justify-content: space-between; align-items: center; 
+}
+
+.stars { color: #FFD700; font-size: 13px; }
+
+.card-actions { 
+    padding: 10px 15px; display: flex; 
+    flex-direction: column; gap: 8px; border-top: 1px solid #eee; 
+}
+
+.btn-expand, .btn-full { 
+    width: 100%; padding: 6px; border-radius: 8px; 
+    font-size: 10.5px; cursor: pointer; border: 1px solid #ddd; 
+}
+
+.btn-full { background: var(--primary); color: white; border: none; }
+
+/* ==========================================
+   [GROUP 6] MODALS & OVERLAYS
+   ========================================== */
+.extra-details { display: none; padding: 10px 15px; background: #fdfdfd; border-top: 1px dashed #ddd; font-size: 12px; }
+
+.modal-overlay { 
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0,0,0,0.8); display: none; z-index: 3000; 
+    align-items: center; justify-content: center; 
+}
+
+.modal-content { 
+    background: var(--card); width: 90%; max-width: 500px; 
+    max-height: 85vh; border-radius: 20px; overflow-y: auto; 
+    position: relative; padding: 25px; 
+}
+
+.close-modal { position: absolute; top: 10px; right: 20px; font-size: 30px; cursor: pointer; }
+
+.sort-menu { 
+    position: fixed; bottom: -100%; left: 0; right: 0; 
+    background: var(--card); box-shadow: 0 -5px 15px rgba(0,0,0,0.2); 
+    transition: 0.3s; z-index: 2000; border-radius: 20px 20px 0 0; 
+    padding: 15px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; 
+}
+
+.sort-menu.show { bottom: 70px; }
+
+.menu-overlay { 
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+    background: rgba(0,0,0,0.5); display: none; z-index: 1500; 
+}
+
+.loading { text-align: center; padding: 20px; }
