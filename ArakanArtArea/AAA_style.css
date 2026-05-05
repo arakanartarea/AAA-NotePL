@@ -27,6 +27,7 @@ body {
     align-items: flex-start;
 }
 
+/* Tablet & PC အတွက် ဘယ်ဘက်ခြမ်း Panel */
 #master-panel {
     flex: 0 0 350px; 
     background: var(--bg);
@@ -38,6 +39,7 @@ body {
     top: 60px;
 }
 
+/* Tablet & PC အတွက် ညာဘက်ခြမ်း Panel */
 #group-list {
     flex: 1; 
     padding: 15px;
@@ -45,11 +47,32 @@ body {
     min-height: 100vh;
 }
 
+/* Phone View (768px အောက်) အတွက် ပြင်ဆင်ချက် */
 @media (max-width: 768px) {
-    .container { display: block; }
-    #master-panel { width: 100%; height: auto; position: static; border-right: none; }
-    #group-list { width: 100%; }
+    .container { 
+        display: block; /* Flex ကို ဖြုတ်ပြီး အပေါ်အောက် ပြောင်းမယ် */
+    }
+
+    /* Mobile မှာ တစ်ခုခုကို ဖျောက်ဖို့ Class */
+    .hidden-mobile {
+        display: none !important;
+    }
+
+    #master-panel { 
+        width: 100%; 
+        height: auto; 
+        position: static; 
+        border-right: none;
+        padding: 10px;
+    }
+
+    #group-list { 
+        width: 100%; 
+        padding: 10px;
+        min-height: auto;
+    }
 }
+
 
 /* ==========================================
    [GROUP 3] NAVIGATION & TOOLBARS
