@@ -16,31 +16,44 @@ function mapSheetRow(row) {
 }
 
 function updateToolbarUI(isDetailView, key = 'artist') {
-    // ၁။ Back ခလုတ်နဲ့ Sort ခလုတ်ကို အဖွင့်အပိတ်လုပ်မယ်
-    document.getElementById('backBtn').style.display = isDetailView ? 'flex' : 'none';
-    document.getElementById('sortBtn').style.display = isDetailView ? 'none' : 'flex';
-    
-    // ၂။ Detail View ရောက်ရင် Search Box ကို ဖျောက်မယ်၊ အပြင်စာမျက်နှာမှာပဲ ပြန်ပြမယ်
-    const searchBox = document.getElementById('search');
-    if (searchBox) {
-        searchBox.style.display = isDetailView ? 'none' : 'block';
+    const isMobile = window.innerWidth <= 768; // Screen ဆိုဒ်ကို အရင်စစ်မယ်
+
+    // ၁။ Back ခလုတ်
+    // ဖုန်းဖြစ်ပြီး Detail View (Card View) ရောက်နေမှသာ ပြမယ်။ ကျန်ရင် (Tablet ရော List ရော) ဖျောက်ထားမယ်။
+    const backBtn = document.getElementById('backBtn');
+    if (backBtn) {
+        backBtn.style.display = (isMobile && isDetailView) ? 'flex' : 'none';
     }
 
-    // ၃။ အပြင်စာမျက်နှာမှာပဲ စီနည်းစာသားတွေကို Update လုပ်မယ်
-    if (!isDetailView) {
-        const labels = {
-            'artist': 'တေးဆိုအလိုက်',
-            'writer': 'တေးရွီးအလိုက်',
-            'album': 'အယ်ဘမ်အလိုက်',
-            'oc': 'O/C အလိုက်',
-            'tradition': 'ရိုးရာအလိုက်'
-        };
-        const sortLabel = document.querySelector('#sortBtn span:last-child');
-        if (sortLabel) {
-            sortLabel.innerText = labels[key] || 'စီနည်း';
-        }
+    // ၂။ Sort ခလုတ်
+    // ဖုန်းဖြစ်ပြီး Detail View ရောက်နေရင် ဖျောက်မယ်။ Tablet မှာဆိုရင်တော့ အမြဲပြနေမယ်။
+    const sortBtn = document.getElementById('sortBtn');
+    if (sortBtn) {
+        sortBtn.style.display = (isMobile && isDetailView) ? 'none' : 'flex';
+    }
+    
+    // ၃။ Search Box
+    // ဖုန်းဖြစ်ပြီး Detail View ရောက်နေရင် ဖျောက်မယ်။ Tablet မှာဆိုရင်တော့ အမြဲပြနေမယ်။
+    const searchBox = document.getElementById('search');
+    if (searchBox) {
+        searchBox.style.display = (isMobile && isDetailView) ? 'none' : 'block';
+    }
+
+    // ၄။ Sort Label Update လုပ်တဲ့အပိုင်း
+    // ဒါကတော့ ဘယ် Device ဖြစ်ဖြစ် Sort Key ပြောင်းရင် Label လိုက်ပြောင်းပေးရမယ်
+    const labels = {
+        'artist': 'တေးဆိုအလိုက်',
+        'writer': 'တေးရွီးအလိုက်',
+        'album': 'အယ်ဘမ်အလိုက်',
+        'oc': 'O/C အလိုက်',
+        'tradition': 'ရိုးရာအလိုက်'
+    };
+    const sortLabel = document.querySelector('#sortBtn span:last-child');
+    if (sortLabel) {
+        sortLabel.innerText = labels[key] || 'စီနည်း';
     }
 }
+
 
 
 async function loadData() {
@@ -102,11 +115,9 @@ function handleSort(key) {
 // ကဒ် ကုဒ် စ
 // ၁။ Card View ပြသခြင်း (၈ ခုပါသော မျက်နှာစာ)
 function showGroupDetail(name, key) {
-    // updateToolbarUI(true); // Tablet မှာဆိုရင် ဒါကို ပိတ်ထားလို့ရတယ် (Search မဖျောက်ချင်ရင်)
-    
     const songs = allData.filter(s => (s[key] || 'အမည်မသိ') === name);
     
-    // ညာဘက်ခြမ်း Card တွေရဲ့ ခေါင်းစဉ်
+    // ခေါင်းစဉ်နဲ့ Grid စတင်ခြင်း
     let html = `<h2 style="padding:10px; border-bottom: 2px solid var(--primary);">${name}</h2>`;
     html += `<div class="song-grid">`;
     
@@ -127,14 +138,39 @@ function showGroupDetail(name, key) {
 
     html += `</div>`;
 
-    // ညာဘက်ခြမ်း (group-list) ထဲကို ထည့်မယ်
-    document.getElementById('group-list').innerHTML = html;
+    // ညာဘက်ခြမ်းကို Data ထည့်မယ်
+    const detailPanel = document.getElementById('group-list');
+    detailPanel.innerHTML = html;
     
-    // Tablet/Mobile မှာဆိုရင် ကလစ်လိုက်တဲ့အခါ ညာဘက်ခြမ်းဆီ အလိုအလျောက် Scroll ဆင်းပေးမယ်
-    if(window.innerWidth <= 768) {
-        document.getElementById('group-list').scrollIntoView({ behavior: 'smooth' });
+    // Mobile View Logic
+    if (window.innerWidth <= 768) {
+        document.getElementById('master-panel').classList.add('hidden-mobile');
+        detailPanel.classList.remove('hidden-mobile');
+        window.scrollTo(0, 0); // Card View ထိပ်ဆုံးကို ပြန်ပို့ပေးတာ
     }
+    
+    updateToolbarUI(true); // Toolbar ပြောင်းမယ်
 }
+
+function goBackToGroup() { 
+    // Mobile View Logic
+    if (window.innerWidth <= 768) {
+        document.getElementById('master-panel').classList.remove('hidden-mobile');
+        document.getElementById('group-list').classList.add('hidden-mobile');
+    }
+    
+    updateToolbarUI(false); // Toolbar ပြန်ပြောင်းမယ်
+    window.scrollTo(0, 0);
+
+    // Tablet/PC အတွက် maxWidth ကို none ဖြစ်နေအောင် ထားတာက ပိုကောင်းတယ် (Side by Side မို့လို့)
+    // ဒါပေမဲ့ မင်းအဟောင်းအတိုင်း ၁၀၀၀ ပြန်ထားချင်ရင်တော့ အောက်က စာကြောင်းကို ထားခဲ့ပါ
+    const container = document.querySelector('.container');
+    if(container) container.style.maxWidth = (window.innerWidth > 768) ? '100%' : '1000px'; 
+    
+    // စာရင်းဟောင်းကို ပြန်မဆွဲချင်ရင် handleSort(currentSortKey) ကို ဖြုတ်ထားလို့ရတယ် 
+    // (Master panel က ပျောက်မသွားဘဲ ဖုံးနေတာပဲ ရှိတာမို့လို့ပါ)
+}
+
 
 
 // ၂။ Card Expand လုပ်ခြင်း
@@ -194,13 +230,20 @@ function toggleSortOrder() {
     document.getElementById('orderBtn').innerText = isAscending ? "🔡 က - အ" : "🔡 အ - က";
     handleSort(currentSortKey);
 }
-
+/* 
 function goBackToGroup() { 
+     // Phone မှာဆိုရင် ဘယ်ဘက်စာရင်းကို ပြန်ပြပြီး Card တွေကို ဖျောက်မယ်
+    if (window.innerWidth <= 768) {
+        document.getElementById('master-panel').classList.remove('hidden-mobile');
+        document.getElementById('group-list').classList.add('hidden-mobile');
+    }
+    
     updateToolbarUI(false);
+    window.scrollTo(0,0);
     const container = document.querySelector('.container');
     if(container) container.style.maxWidth = '1000px'; 
     handleSort(currentSortKey); }
-
+*/
 function filterData() {
     const val = document.getElementById('search').value.toLowerCase();
     const filtered = allData.filter(i => i.title.toLowerCase().includes(val) || i.artist.toLowerCase().includes(val));
@@ -208,3 +251,4 @@ function filterData() {
 }
 
 loadData();
+ 
