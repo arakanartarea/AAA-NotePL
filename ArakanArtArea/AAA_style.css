@@ -2,7 +2,25 @@
    [GROUP 1] GLOBAL STYLES & ROOT
    ========================================== */
 :root { --bg: #f4f4f4; --text: #333; --primary: #cf0000; --card: #fff; }
-.dark-mode { --bg: #1a1a1a; --text: #f4f4f4; --card: #2d2d2d; }
+/* Dark Mode Colors */
+body.dark-mode {
+    --bg: #121212;
+    --card: #1e1e1e;
+    --text: #ffffff;
+    --primary: #ff5252; /* Dark mode မှာ အနီရောင်ကို နည်းနည်းလေး ပိုလင်းစေတာပေါ့ */
+    background-color: var(--bg);
+    color: var(--text);
+}
+
+/* Toolbar က Dark Mode မှာလည်း ပေါ်လွင်နေအောင် */
+body.dark-mode .bottom-toolbar {
+    background: #1e1e1e;
+    border-top: 1px solid #333;
+}
+
+body.dark-mode .tool-btn {
+    color: #ddd;
+}
 
 body { 
     font-family: sans-serif; 
@@ -77,16 +95,74 @@ body {
 /* ==========================================
    [GROUP 3] NAVIGATION & TOOLBARS
    ========================================== */
-nav { 
-    background: var(--primary); 
-    color: white; 
-    padding: 1rem; 
-    display: flex; 
-    justify-content: space-between; 
-    position: sticky; 
-    top: 0; 
-    z-index: 100; 
+/* nav အဟောင်းကို ဖျက်ပြီး ဒါလေးပဲ ထားပါ */
+.nav-flag {
+    height: 30px; /* အလံအမြင့် (စာသားနဲ့ တော်ရုံပဲ ထားမယ်) */
+    width: auto;
+    object-fit: contain;
+    padding: 0 10px; /* စာသားနဲ့ အလံကြား နေရာလွတ် */
+    flex-shrink: 0; /* ပုံကို ပိန်မသွားအောင် ထိန်းထားမယ် */
 }
+nav {
+    height: 60px; /* ဘောင်အမြင့် */
+    background: var(--card); /* နောက်ခံအရောင် */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    justify-content: center; /* အရာအားလုံးကို အလယ်မှာ အရင်စုမယ် */
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.header-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 600px; /* Tablet မှာတောင် စာသားနဲ့ အလံကြား ၆၀၀ ထက် ပိုမဝေးစေရဘူး */
+    margin: 0 auto;
+    gap: 15px; /* အလံနဲ့ စာသားကြား အကွာအဝေး (ကိုကို စိတ်ကြိုက် တိုး/လျော့ လုပ်နိုင်တယ်) */
+}
+
+.brand-container {
+    flex-grow: 1; /* အလယ်က နေရာအလွတ်ကို အကုန်ယူမယ် */
+    height: 45px; /* စာသားတွေအတွက် နေရာအကျယ် */
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 300px; /* စာသားဘောင်ကိုလည်း အကန့်အသတ်လေး ထားပေးမယ် */
+}
+
+.scrolling-text {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    /* ၁၂ စက္ကန့်အတွင်း ၃ မျိုးလုံးကို ပတ်ချာလည်ပြမယ် */
+    animation: slideUp 12s infinite cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+.text-item {
+    height: 45px;
+    line-height: 45px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: var(--primary) !important; /* စာသားအရောင်ကို ကိုကို့ရဲ့ အဓိကအနီရောင် ဖြစ်အောင် အတင်းသတ်မှတ်မယ် */
+    white-space: nowrap;
+    display: block;
+}
+
+/* စာသားတစ်ခုချင်းစီကို အပေါ်တွန်းတင်မယ့် Logic */
+@keyframes slideUp {
+    0%, 25% { transform: translateY(0); }             /* Arakan Art Area */
+    33%, 58% { transform: translateY(-45px); }        /* အာရက္ခ အနုပညာ နယ်မြီ */
+    66%, 91% { transform: translateY(-90px); }        /* ရခိုင် အနုပညာ နယ်မြေ */
+    100% { transform: translateY(0); }                /* ပြန်စမယ် */
+}
+
+/* ‌ေခါင်းစီး ဆ */
 
 .search-box { 
     width: 100%; 
@@ -371,3 +447,191 @@ nav {
 }
 
 .loading { text-align: center; padding: 20px; }
+
+/* setting menu စ */
+.settings-menu {
+    position: fixed; bottom: -100%; left: 0; right: 0;
+    background: var(--card); z-index: 2000;
+    border-radius: 25px 25px 0 0; padding: 20px;
+    transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 80vh; overflow-y: auto;
+}
+
+.settings-menu.show { bottom: 0; } /* Toolbar ရဲ့ အပေါ်မှာ ကပ်ချင်ရင် 70px ထားပါ */
+
+.menu-title-main { text-align: center; font-weight: bold; font-size: 1.1rem; margin-bottom: 15px; color: var(--primary); }
+
+.settings-item {
+    display: flex; align-items: center; padding: 14px 18px;
+    background: #f8f9fa; border-radius: 15px; margin-bottom: 8px;
+    cursor: pointer; transition: 0.2s;
+}
+
+/* Sub-menu အတွက် ပုံစံ */
+.sub-menu-container {
+    background: rgba(0,0,0,0.02); border-radius: 15px;
+    padding: 5px; margin-bottom: 10px; border-left: 3px solid var(--primary);
+}
+
+.sub-item { background: transparent !important; border-bottom: 1px solid #eee; border-radius: 0; }
+.sub-item:last-child { border-bottom: none; }
+
+.disabled { opacity: 0.5; cursor: not-allowed; }
+.icon { margin-right: 12px; font-size: 1.2rem; }
+
+.settings-label { font-size: 11px; color: #999; margin: 15px 0 5px 10px; text-transform: uppercase; }
+
+
+/* setting menu ဆ */
+/* ‌ေဒတာ အားလုံးပြ  စ */
+/* Stats Grid Layout */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* ဘေးတိုက် ၂ ခုစီ စီမယ် */
+    gap: 15px;
+    margin-top: 20px;
+    padding: 10px 5px;
+}
+
+.stat-card {
+    background: #f8f9fa;
+    border-radius: 15px;
+    padding: 20px 10px;
+    text-align: center;
+    border-bottom: 3px solid var(--primary); /* အောက်နားလေးကို primary အရောင်လေးနဲ့ လှအောင် */
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+}
+
+/* အားလုံးပြတဲ့ ခလုတ် Style */
+.btn-show-all {
+    width: 100%;
+    margin-top: 20px;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    background: var(--primary);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-show-all:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+}
+.full-screen-modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: white; z-index: 4000; overflow-y: auto;
+    padding: 0px;
+}
+
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 18px; /* ဒီနေရာမှာမှ Padding ကို ထည့်ပါ */
+    background: white;
+    width: 100%;
+    box-sizing: border-box; /* ဒါလေးက အရေးကြီးတယ်၊ အနားသတ်ကို အတွင်းထဲ သိမ်းပေးမှာ */
+}
+
+.list-content-area { margin-top: 20px; }
+
+.btn-view-small {
+    padding: 8px 15px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.simple-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    background: #fff;
+}
+
+
+.simple-list-item:hover { background: #f9f9f9; }
+/* Modal Toolbar စတိုင် */
+.modal-toolbar {
+    background: #fdfdfd;
+    border-bottom: 1px solid #eee;
+    overflow: hidden;
+    position: sticky;
+    top: 60px; /* Header အောက်မှာ ကပ်နေဖို့ */
+    z-index: 5005;
+}
+
+.toolbar-scroll-container {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 10px;
+    gap: 10px;
+    scrollbar-width: none; /* Firefox မှာ scrollbar ဖျောက်မယ် */
+}
+
+.toolbar-scroll-container::-webkit-scrollbar {
+    display: none; /* Chrome/Safari မှာ scrollbar ဖျောက်မယ် */
+}
+
+.m-tool-btn {
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    background: white;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.m-tool-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* ပိတ်တဲ့ခလုတ် အနီရောင်သန်းသန်းလေး */
+.close-btn-style {
+    background: #fff0f0 !important;
+    color: #d32f2f !important;
+    border-color: #ffcdd2 !important;
+    font-weight: bold;
+}
+
+/* Sort ခလုတ်တွေအတွက် သီးသန့် */
+.sort-btn {
+    background: #f0f7ff !important;
+    color: #1976d2 !important;
+}
+
+.sort-divider {
+    display: flex;
+    align-items: center;
+    color: #ddd;
+    margin: 0 5px;
+}
+
+/* Active ဖြစ်တဲ့ ခလုတ်ကို အရောင်တောက်အောင် */
+
+/* ‌ေဒတာ အားလုံးပြ ဆ */

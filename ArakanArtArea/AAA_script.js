@@ -84,8 +84,12 @@ function handleSort(key) {
     const groups = allData.reduce((acc, item) => {
         let rawName = item[key] || 'အမည်မသိ';
         let groupName = rawName;
-        if (rawName.includes(',')) groupName = rawName.split(',')[0].trim();
+        // အဆိုတော် နာမည် တစ်ဦးထက်ပိုရင် ပထမဆုံး တစ်ယောက်ကိုပဲ Group Name ယူမယ်
+        if (typeof rawName === 'string' && rawName.includes(',')) {
+            groupName = rawName.split(',')[0].trim();
+        }
         if (groupName === '-' || groupName === '') groupName = 'အမည်မသိ';
+        
         if (!acc[groupName]) acc[groupName] = [];
         acc[groupName].push(item);
         return acc;
@@ -95,41 +99,36 @@ function handleSort(key) {
 
     const listElement = document.getElementById('artist-list-container');
     if(listElement) {
-        listElement.innerHTML = sortedNames.map((name, index) => `
+        listElement.innerHTML = sortedNames.map((name, index) => {
+            // ဒီနေရာမှာ JSON.stringify သုံးပြီး Group တစ်ခုလုံးရဲ့ ဒေတာကို တန်းပို့ဖို့ ပြင်လိုက်တယ်
+            const groupDataEncoded = encodeURIComponent(JSON.stringify(groups[name]));
+            return `
             <div class="artist-group-container">
                 <div class="artist-header">
-                    <div class="artist-info" onclick="showGroupDetail('${name.replace(/'/g, "\\'")}', '${key}')">
+                    <div class="artist-info" onclick="renderCardView('${name.replace(/'/g, "\\'")}', '${groupDataEncoded}')">
                         ${name}
                     </div>
-                    
                     <div style="display: flex; align-items: center;">
                         <span class="count-badge">${groups[name].length}</span>
-        
-<div id="btn-${index}" class="expand-btn" onclick="toggleSongs('songs-${index}', 'btn-${index}')">
-    ❯
-</div>
-
+                        <div id="btn-${index}" class="expand-btn" onclick="toggleSongs('songs-${index}', 'btn-${index}')">❯</div>
                     </div>
                 </div>
-                
                 <div id="songs-${index}" class="song-list">
-                    ${groups[name].map(song => {
-                        // JavaScript Object ကို HTML String ထဲထည့်ဖို့ သေချာ ပြောင်းလိုက်တာပါရှင်
-                        const songData = JSON.stringify(song).replace(/"/g, '&quot;');
-                        return `
-                            <div class="song-list-item" onclick="openFullModal(${songData})" style="cursor:pointer;">
-                                🎵 ${song.title}
-                            </div>
-                        `;
-                    }).join('')}
+                    ${groups[name].map(song => `
+                        <div class="song-list-item" onclick='openFullModal(${JSON.stringify(song).replace(/'/g, "&apos;")})'>
+                            🎵 ${song.title}
+                        </div>
+                    `).join('')}
                 </div>
-            </div>`).join('');
+            </div>`;
+        }).join('');
     }
 }
 
 
 // ကဒ် ကုဒ် စ
 // ၁။ Card View ပြသခြင်း (၈ ခုပါသော မျက်နှာစာ)
+/*
 function showGroupDetail(name, key) {
     const songs = allData.filter(s => (s[key] || 'အမည်မသိ') === name);
     
@@ -181,6 +180,45 @@ function showGroupDetail(name, key) {
     
     // ဒီနေရာလေးမှာ key ထည့်ပေးလိုက်ပြီနော် ကိုကို
     updateToolbarUI(true, key);
+}
+*/
+function renderCardView(name, encodedData) {
+    const songs = JSON.parse(decodeURIComponent(encodedData));
+    
+    let html = `<h2 style="padding:10px; border-bottom: 2px solid var(--primary);">${name}</h2>`;
+    html += `<div class="song-grid">`;
+    
+    html += songs.map((song, idx) => `
+        <div class="artist-card">
+            <div class="card-header"><p class="card-title">${song.title}</p></div>
+            <div class="card-main-info">
+                <div class="info-item">🎙️ ${song.artist}</div>
+                <div class="info-item">✍️ ${song.writer}</div>
+                <div class="info-item">💿 ${song.album}</div>
+                <div class="info-item">🎸 ${song.oc || '-'}</div>
+                <div class="info-item">🌸 ${song.tradition || '-'}</div>
+            </div>
+            <div id="extra-${idx}" class="extra-details" style="display:none; padding:10px; background:#f9f9f9; border-top:1px dashed #ddd; font-size:11px;">
+                <div>🆔 ID: ${song.id || '-'}</div>
+                <div>📝 Remark: ${song.remark || '-'}</div>
+            </div>
+            <div class="card-actions">
+                <button class="btn-expand" onclick="toggleCardExtra('extra-${idx}')">အချက်အလက် ↓</button>
+                <button class="btn-full" onclick='openFullModal(${JSON.stringify(song).replace(/'/g, "&apos;")})'>အပြည့်အစုံ 👁️</button>
+            </div>
+        </div>
+    `).join('');
+    html += `</div>`;
+
+    const detailPanel = document.getElementById('group-list');
+    detailPanel.innerHTML = html;
+    
+    if (window.innerWidth <= 768) {
+        document.getElementById('master-panel').classList.add('hidden-mobile');
+        detailPanel.classList.remove('hidden-mobile');
+        window.scrollTo(0, 0);
+    }
+    updateToolbarUI(true, currentSortKey);
 }
 
 
@@ -366,5 +404,196 @@ function clearSearch() {
     handleSort(currentSortKey); // မူလ အဆိုတော်စာရင်းကို ပြန်ဖော်မယ်
     window.scrollTo(0, 0);
 }
+function toggleSettings() {
+    const menu = document.getElementById('settingsMenu');
+    const overlay = document.getElementById('settingsOverlay');
+    const isShowing = menu.classList.contains('show');
 
-loadData();
+    if (isShowing) {
+        menu.classList.remove('show');
+        overlay.style.display = 'none';
+    } else {
+        // Sort Menu ပွင့်နေရင် ပိတ်လိုက်မယ်
+        const sortMenu = document.getElementById('sortMenu');
+        if(sortMenu) sortMenu.classList.remove('show');
+        
+        menu.classList.add('show');
+        overlay.style.display = 'block';
+    }
+}
+function toggleAddSubMenu() {
+    const subMenu = document.getElementById('add-sub-menu');
+    const arrow = document.getElementById('add-arrow');
+    
+    if (subMenu.style.display === "none") {
+        subMenu.style.display = "block";
+        arrow.style.transform = "rotate(90deg)"; // မျှားလေးကို အောက်စိုက်ခိုင်းမယ်
+    } else {
+        subMenu.style.display = "none";
+        arrow.style.transform = "rotate(0deg)"; // မျှားလေးကို မူလအတိုင်း ပြန်ထားမယ်
+    }
+}
+
+// Settings menu ကို ပိတ်လိုက်ရင် Sub-menu ကိုလည်း တစ်ခါတည်း ပြန်ပိတ်ထားမယ်
+function toggleSettings() {
+    const menu = document.getElementById('settingsMenu');
+    const overlay = document.getElementById('settingsOverlay');
+    const isShowing = menu.classList.contains('show');
+
+    if (isShowing) {
+        menu.classList.remove('show');
+        overlay.style.display = 'none';
+        // ပိတ်တဲ့အချိန်မှာ Sub-menu ကိုပါ ပြန်ဝှက်ထားမယ် (နောက်တစ်ခါဖွင့်ရင် ရှင်းနေအောင်)
+        document.getElementById('add-sub-menu').style.display = "none";
+        document.getElementById('add-arrow').style.transform = "rotate(0deg)";
+    } else {
+        menu.classList.add('show');
+        overlay.style.display = 'block';
+    }
+}
+
+loadData(); // ‌‌ေဒတာ စစ်
+// အားလုံး စစ်ပြ စ
+function showStats() {
+    // ၁။ ဒေတာ တွက်ချက်မယ်
+    const totalSongs = allData.length;
+    
+    // ထပ်နေတဲ့ နာမည်တွေကို ဖယ်ပြီး အဆိုတော် အရေအတွက် တွက်မယ်
+    const artists = new Set(allData.map(s => s.artist).filter(a => a && a !== '-'));
+    const totalArtists = artists.size;
+
+    // အယ်ဘမ် အရေအတွက် တွက်မယ်
+    const albums = new Set(allData.map(s => s.album).filter(a => a && a !== '-'));
+    const totalAlbums = albums.size;
+
+    // ခုနှစ် အပိုင်းအခြား (ဥပမာ ၁၉၉၀ - ၂၀၂၄)
+    const years = allData.map(s => parseInt(s.year)).filter(y => !isNaN(y));
+    const yearRange = years.length > 0 ? `${Math.min(...years)} - ${Math.max(...years)}` : "-";
+
+    // ၂။ HTML မှာ ဒေတာတွေ သွားထည့်မယ်
+    document.getElementById('stat-total-songs').innerText = totalSongs;
+    document.getElementById('stat-total-artists').innerText = totalArtists;
+    document.getElementById('stat-total-albums').innerText = totalAlbums;
+    document.getElementById('stat-total-years').innerText = yearRange;
+
+    // ၃။ Modal ကို ဖွင့်မယ်
+    document.getElementById('statsModal').classList.add('show');
+    document.getElementById('statsOverlay').style.display = 'block';
+}
+
+function closeStats() {
+    document.getElementById('statsModal').classList.remove('show');
+    document.getElementById('statsOverlay').style.display = 'none';
+}
+
+// ၁။ အဆိုတော် အရေအတွက်ကို နှိပ်ရင် အဆိုတော်စာရင်းဆီ ပြန်ပို့ပေးမယ့် function
+// ၁။ အဆိုတော်များကို နှိပ်ရင် အဆိုတော်စာရင်းချည်းပဲ သီးသန့် Modal နဲ့ပြမယ်
+let listType = 'songs'; // လက်ရှိ ဘာကြည့်နေလဲ မှတ်ထားဖို့
+let listDisplayData = []; // လက်ရှိ စာရင်းထဲမှာ ရှိနေတဲ့ ဒေတာ
+
+function showFullList(type) {
+    listType = type;
+    const content = document.getElementById('list-content');
+    const title = document.getElementById('list-title');
+    
+    // ခလုတ်တွေကို အရောင်ပြောင်းမယ်
+    document.querySelectorAll('.m-tool-btn').forEach(btn => btn.classList.remove('active'));
+    const activeBtn = document.getElementById('btn-' + type);
+    if(activeBtn) activeBtn.classList.add('active');
+
+    // --- ဒီအပိုင်းက ကိုကို အသစ်တိုးချင်တဲ့ နေရာ ---
+    const config = {
+        'songs':   { key: 'title',  label: 'သီချင်းများ' },
+        'artists': { key: 'artist', label: 'အဆိုတော်များ' },
+        'writers': { key: 'writer', label: 'တေးရေးများ' },
+        'albums':  { key: 'album',  label: 'အယ်ဘမ်များ' },
+        'studios': { key: 'studio', label: 'စတူဒီယိုများ' } // <--- ဒီလိုမျိုး တစ်ကြောင်းချင်း တိုးသွားရုံပဲ!
+    };
+
+    const current = config[type] || config['songs'];
+    title.innerText = current.label + " စာရင်း";
+
+        if (type === 'songs') {
+        listDisplayData = [...allData];
+    } else {
+        // ၁။ ဒေတာအားလုံးထဲကနေ သက်ဆိုင်ရာ Key (ဥပမာ artist) တွေကို အကုန်ယူမယ်
+        let allNames = [];
+        
+        allData.forEach(s => {
+            const value = s[current.key];
+            if (value && value !== '-') {
+                // ၂။ ပုဒ်ဖြတ်ပုဒ်ရပ် ( , ) ပါရင် ခွဲထုတ်မယ်
+                // ဥပမာ - "ဝင်းကိုခိုင်, ညှာစိမ်းခိုင်" ကို ["ဝင်းကိုခိုင်", "ညှာစိမ်းခိုင်"] ဖြစ်သွားစေမယ်
+                const separatedNames = value.split(',').map(name => name.trim());
+                allNames.push(...separatedNames);
+            }
+        });
+
+        // ၃။ ခွဲထုတ်ပြီးသား နာမည်တွေထဲကမှ အမည်တူတာတွေကို ဖယ်ထုတ်မယ် (Unique ဖြစ်အောင်လုပ်မယ်)
+        listDisplayData = [...new Set(allNames)].sort((a, b) => a.localeCompare(b, 'my'));
+    }
+
+    renderList();
+    document.getElementById('fullListModal').style.display = 'block';
+}
+
+
+// စာရင်းကို Sort လုပ်မည့် function
+function sortListData(dir) {
+    if (dir === 'AZ') {
+        listDisplayData.sort((a, b) => {
+            let valA = typeof a === 'string' ? a : a.title;
+            let valB = typeof b === 'string' ? b : b.title;
+            return valA.localeCompare(valB, 'my'); // မြန်မာစာရော အင်္ဂလိပ်စာရော စီမယ်
+        });
+    } else {
+        listDisplayData.sort((a, b) => {
+            let valA = typeof a === 'string' ? a : a.title;
+            let valB = typeof b === 'string' ? b : b.title;
+            return valB.localeCompare(valA, 'my');
+        });
+    }
+    renderList();
+}
+
+// စာရင်းကို မျက်နှာပြင်ပေါ် ထုတ်ပြမည့် function
+function renderList() {
+    const content = document.getElementById('list-content');
+    content.innerHTML = listDisplayData.map(item => {
+        if (typeof item === 'string') {
+            // အဆိုတော် သို့မဟုတ် တေးရေး စာရင်း
+            return `
+                <div class="simple-list-item">
+                    <span>${item}</span>
+                    <button class="btn-view-small" onclick="filterBySelectedType('${listType === 'artists' ? 'artist' : 'writer'}', '${item.replace(/'/g, "\\'")}')">ကြည့်မည်</button>
+                </div>`;
+        } else {
+            // သီချင်းစာရင်း
+            return `
+                <div class="simple-list-item">
+                    <div style="flex:1;"><strong>${item.title}</strong><br><small>${item.artist}</small></div>
+                    <button class="btn-view-small" onclick='openFullModal(${JSON.stringify(item).replace(/'/g, "&apos;")})'>ဖွင့်ကြည့်</button>
+                </div>`;
+        }
+    }).join('');
+}
+
+
+// ဒီ Function လေးကိုလည်း Stats ထဲက ခလုတ်တွေမှာ ပြောင်းပေးပါ ကိုကို
+function goToArtistList() { showFullList('artists'); closeStats(); }
+function showAllSongsFromStats() { showFullList('songs'); closeStats(); }
+
+// Modal ပိတ်တဲ့ function
+function closeFullList() {
+    document.getElementById('fullListModal').style.display = 'none';
+}
+
+// အဆိုတော်တစ်ယောက်ကို ရွေးလိုက်ရင် သူ့သီချင်းတွေကို Card View မှာ သွားပြပေးမယ့် function
+function filterByArtist(name) {
+    closeFullList();
+    handleSort('artist'); // Sort ကို အဆိုတော်အလိုက် ပြောင်းမယ်
+    renderCardView(name, encodeURIComponent(JSON.stringify(allData.filter(s => s.artist === name))));
+}
+
+
+// အားလုံး စစ်ပြ ဆ

@@ -8,10 +8,25 @@
 </head>
 <body class="light-mode">
 
-    <nav>
-        <strong>Rakhine Archive</strong>
-        <button onclick="document.body.classList.toggle('dark-mode')">🌙/☀️</button>
-    </nav>
+<nav>
+    <div class="header-wrapper">
+        <img src="https://media.tenor.com/_EreiMKqzs4AAAAj/arakan-flag-rakhine-flag.gif" 
+             class="nav-flag" alt="Flag">
+        
+        <div class="brand-container">
+            <div class="scrolling-text">
+                <span class="text-item">Arakan Art Area</span>
+                <span class="text-item">အာရက္ခ အနုပညာ နယ်မြီ</span>
+                <span class="text-item">ရခိုင် အနုပညာ နယ်မြေ</span>
+            </div>
+        </div>
+
+        <img src="https://media.tenor.com/_EreiMKqzs4AAAAj/arakan-flag-rakhine-flag.gif" 
+             class="nav-flag" alt="Flag">
+    </div>
+</nav>
+
+
     
 <div class="container">
     <div id="master-panel">
@@ -49,21 +64,131 @@
             </div>
     </div>
 </div>
-
-    <div class="bottom-toolbar">
-        <button id="backBtn" class="tool-btn" onclick="goBackToGroup()" style="display:none; color: #cf0000;">
-            <span class="icon">⬅️</span>
-            <span>ပြန်ထွက်ရန်</span>
-        </button>
-        <button id="sortBtn" class="tool-btn" onclick="toggleSortMenu()">
-            <span class="icon">🔃</span>
-            <span>စီနည်း</span>
-        </button>
-        <button class="tool-btn" onclick="location.reload()">
-            <span class="icon">🔄</span>
-            <span>Update</span>
-        </button>
+    
+<div id="statsModal" class="settings-menu"> <div class="menu-header">
+        <h3 style="margin:0; color: var(--primary);">Archive Statistics 📊</h3>
+        <span onclick="closeStats()" style="cursor:pointer; font-size: 24px;">✕</span>
     </div>
+
+<div class="stats-grid">
+    <div class="stat-card" onclick="showAllSongsFromStats()" style="cursor: pointer;">
+        <div class="stat-value" id="stat-total-songs">0</div>
+        <div class="stat-label">သီချင်းစုစုပေါင်း 🖱️</div>
+    </div>
+
+    <div class="stat-card" onclick="goToArtistList()" style="cursor: pointer;">
+        <div class="stat-value" id="stat-total-artists">0</div>
+        <div class="stat-label">အဆိုတော်များ 🖱️</div>
+    </div>
+    
+    <div class="stat-card">
+        <div class="stat-value" id="stat-total-albums">0</div>
+        <div class="stat-label">အယ်ဘမ်များ</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" id="stat-total-years">0</div>
+        <div class="stat-label">ခုနှစ်အပိုင်းအခြား</div>
+    </div>
+</div>
+
+    <button class="btn-show-all" onclick="showAllData(); closeStats();">
+        📂 ဒေတာအားလုံး တစ်ဆက်တည်းကြည့်ရန်
+    </button>
+</div>
+<div id="statsOverlay" class="menu-overlay" onclick="closeStats()"></div>
+
+
+<div class="bottom-toolbar">
+    <button id="backBtn" class="tool-btn" onclick="goBackToGroup()" style="display:none; color: #cf0000;">
+        <span class="icon">⬅️</span>
+        <span>ပြန်ထွက်ရန်</span>
+    </button>
+
+    <button id="sortBtn" class="tool-btn" onclick="toggleSortMenu()">
+        <span class="icon">🔃</span>
+        <span>စီနည်း</span>
+    </button>
+
+    <button class="tool-btn" onclick="toggleSettings()">
+        <span class="icon">⚙️</span>
+        <span>ဆက်တင်</span>
+    </button>
+    
+    <button class="tool-btn" onclick="location.reload()">
+        <span class="icon">🔄</span>
+        <span>Update</span>
+    </button>
+    <button class="tool-btn" onclick="showStats()">
+        <span class="icon">📊</span>
+        <span>အချက်အလက်</span>
+    </button>
+</div>
+
+<div id="settingsMenu" class="settings-menu">
+    <div class="menu-title-main">ဆက်တင်များ</div>
+
+    <div class="settings-item highlight" onclick="document.body.classList.toggle('dark-mode')">
+        <span class="icon">🌓</span> <span>နေ့/ည မုဒ်ပြောင်းရန်</span>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+
+    <div class="settings-item dropdown-trigger" onclick="toggleAddSubMenu()">
+        <span class="icon">📥</span> 
+        <span style="flex: 1;">ဒေတာများ ရယူရန် (ADD)</span>
+        <span id="add-arrow" style="transition: 0.3s;">❯</span>
+    </div>
+
+    <div id="add-sub-menu" class="sub-menu-container" style="display: none;">
+        <div class="settings-item sub-item" onclick="downloadJSON()">
+            <span class="icon">📄</span> <span>JSON Format ဖြင့် ရယူရန်</span>
+        </div>
+        <div class="settings-item sub-item" onclick="downloadCSV()">
+            <span class="icon">📊</span> <span>CSV (Excel) Format ဖြင့် ရယူရန်</span>
+        </div>
+        <div class="settings-item sub-item disabled">
+            <span class="icon">📑</span> <span>PDF (Coming Soon)</span>
+        </div>
+    </div>
+
+    <div class="settings-label">အထွေထွေ</div>
+    <div class="settings-item disabled">
+        <span class="icon">ℹ️</span> <span>အချက်အလက်များ</span>
+    </div>
+</div>
+<div id="settingsOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
+
+<div id="fullListModal" class="full-screen-modal" style="display:none;">
+    <div class="list-header">
+        <h3 id="list-title" style="margin:0;">စာရင်း</h3>
+    </div>
+
+    <div class="modal-toolbar">
+        <div class="toolbar-scroll-container">
+            <button class="m-tool-btn close-btn-style" onclick="closeFullList()">✕ ပိတ်ရန်</button>
+            
+            <button id="btn-songs" class="m-tool-btn" onclick="showFullList('songs')">🎵 သီချင်းများ</button>
+            <button id="btn-artists" class="m-tool-btn" onclick="showFullList('artists')">👤 အဆိုတော်များ</button>
+            <button id="btn-writers" class="m-tool-btn" onclick="showFullList('writers')">✍️ တေးရေးများ</button>
+             <button id="btn-albums" class="m-tool-btn" onclick="showFullList('albums')">💿 အယ်ဘမ်များ</button>
+    <button id="btn-genres" class="m-tool-btn" onclick="showFullList('genres')">🎭 အမျိုးအစား</button>
+    <button id="btn-studios" class="m-tool-btn" onclick="showFullList('studios')">🎙️ စတူဒီယို</button>
+            <div class="sort-divider">|</div>
+            <button class="m-tool-btn sort-btn" onclick="sortListData('AZ')">🔠 A-Z</button>
+            <button class="m-tool-btn sort-btn" onclick="sortListData('ZA')">🔡 Z-A</button>
+        </div>
+    </div>
+
+    <div class="list-search-box" style="padding: 10px 15px;">
+        <input type="text" id="listSearch" placeholder="ဒီစာရင်းထဲမှာ ရှာမယ်..." oninput="filterFullList()">
+    </div>
+
+    <div id="list-content" class="list-content-area"></div>
+</div>
+
+
+
+
 
     <script src="AAA_script.js"></script>
 </body>
