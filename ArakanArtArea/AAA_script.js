@@ -93,44 +93,76 @@ function handleSort(key) {
 
     const sortedNames = Object.keys(groups).sort((a, b) => isAscending ? a.localeCompare(b) : b.localeCompare(a));
 
-    // ပြင်ရမည့်နေရာ- group-list အစား master-panel ထဲက element ဆီ ပို့ရမယ်
-    // ငါတို့ HTML မှာ master-panel ထဲမှာ artist-list-container လို့ နာမည်ပေးထားရအောင်
     const listElement = document.getElementById('artist-list-container');
     if(listElement) {
         listElement.innerHTML = sortedNames.map((name, index) => `
             <div class="artist-group-container">
                 <div class="artist-header">
                     <div class="artist-info" onclick="showGroupDetail('${name.replace(/'/g, "\\'")}', '${key}')">
-                        ${name} (${groups[name].length})
+                        ${name}
                     </div>
-                    <div id="btn-${index}" class="expand-btn" onclick="toggleSongs('songs-${index}', 'btn-${index}')">▼</div>
+                    
+                    <div style="display: flex; align-items: center;">
+                        <span class="count-badge">${groups[name].length}</span>
+        
+<div id="btn-${index}" class="expand-btn" onclick="toggleSongs('songs-${index}', 'btn-${index}')">
+    ❯
+</div>
+
+                    </div>
                 </div>
+                
                 <div id="songs-${index}" class="song-list">
-                    ${groups[name].map(song => `<div style="padding:10px; border-bottom:1px solid #eee;">${song.title}</div>`).join('')}
+                    ${groups[name].map(song => {
+                        // JavaScript Object ကို HTML String ထဲထည့်ဖို့ သေချာ ပြောင်းလိုက်တာပါရှင်
+                        const songData = JSON.stringify(song).replace(/"/g, '&quot;');
+                        return `
+                            <div class="song-list-item" onclick="openFullModal(${songData})" style="cursor:pointer;">
+                                🎵 ${song.title}
+                            </div>
+                        `;
+                    }).join('')}
                 </div>
             </div>`).join('');
     }
 }
+
 
 // ကဒ် ကုဒ် စ
 // ၁။ Card View ပြသခြင်း (၈ ခုပါသော မျက်နှာစာ)
 function showGroupDetail(name, key) {
     const songs = allData.filter(s => (s[key] || 'အမည်မသိ') === name);
     
-    // ခေါင်းစဉ်နဲ့ Grid စတင်ခြင်း
     let html = `<h2 style="padding:10px; border-bottom: 2px solid var(--primary);">${name}</h2>`;
     html += `<div class="song-grid">`;
     
     html += songs.map((song, idx) => `
         <div class="artist-card">
-            <div class="card-header"><p class="card-title">${song.title}</p></div>
+            <div class="card-header">
+                <p class="card-title">${song.title}</p>
+            </div>
+            
             <div class="card-main-info">
                 <div class="info-item">🎙️ ${song.artist}</div>
                 <div class="info-item">✍️ ${song.writer}</div>
                 <div class="info-item">💿 ${song.album}</div>
                 <div class="info-item">📅 ${song.year || '-'}</div>
+                <div class="info-item">🎸 ${song.oc || '-'}</div>
+                <div class="info-item">🌸 ${song.tradition || '-'}</div>
+                <div class="info-item">🇲🇲 ${song.language || '-'}</div>
             </div>
+
+            <div id="extra-${idx}" class="extra-details" style="display:none; padding:10px; background:#fdfdfd; border-top:1px dashed #ddd; font-size:11px;">
+                <div>🆔 ID: ${song.id || '-'}</div>
+                <div>📝 Remark: ${song.remark || '-'}</div>
+            </div>
+
+            <div class="card-rating">
+                <div class="stars">⭐⭐⭐⭐⭐ <small style="color:gray;">(5.0)</small></div>
+            </div>
+
             <div class="card-actions">
+                <button class="btn-expand" onclick="toggleCardExtra('extra-${idx}')">အချက်အလက် ↓</button>
                 <button class="btn-full" onclick="openFullModal(${JSON.stringify(song).replace(/"/g, '&quot;')})">အပြည့်အစုံ 👁️</button>
             </div>
         </div>
@@ -138,38 +170,49 @@ function showGroupDetail(name, key) {
 
     html += `</div>`;
 
-    // ညာဘက်ခြမ်းကို Data ထည့်မယ်
     const detailPanel = document.getElementById('group-list');
     detailPanel.innerHTML = html;
     
-    // Mobile View Logic
     if (window.innerWidth <= 768) {
         document.getElementById('master-panel').classList.add('hidden-mobile');
         detailPanel.classList.remove('hidden-mobile');
-        window.scrollTo(0, 0); // Card View ထိပ်ဆုံးကို ပြန်ပို့ပေးတာ
+        window.scrollTo(0, 0);
     }
     
-    updateToolbarUI(true); // Toolbar ပြောင်းမယ်
+    // ဒီနေရာလေးမှာ key ထည့်ပေးလိုက်ပြီနော် ကိုကို
+    updateToolbarUI(true, key);
 }
 
+
+// ခလုတ်နှိပ်ရင် ပေါ်/ပျောက် လုပ်ပေးတဲ့ function
+function toggleCardExtra(id) {
+    const el = document.getElementById(id);
+    el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+}
+
+
 function goBackToGroup() { 
-    // Mobile View Logic
+    // ၁။ Mobile View Logic (ဖုန်းမှာ panel ပြန်ဖွင့်မယ်)
     if (window.innerWidth <= 768) {
         document.getElementById('master-panel').classList.remove('hidden-mobile');
         document.getElementById('group-list').classList.add('hidden-mobile');
     }
     
-    updateToolbarUI(false); // Toolbar ပြန်ပြောင်းမယ်
+    // ၂။ Toolbar ပြန်ပြောင်းမယ် (currentSortKey ထည့်လိုက်လို့ စာသားမလွဲတော့ဘူးနော်)
+    updateToolbarUI(false, currentSortKey); 
+    
     window.scrollTo(0, 0);
 
-    // Tablet/PC အတွက် maxWidth ကို none ဖြစ်နေအောင် ထားတာက ပိုကောင်းတယ် (Side by Side မို့လို့)
-    // ဒါပေမဲ့ မင်းအဟောင်းအတိုင်း ၁၀၀၀ ပြန်ထားချင်ရင်တော့ အောက်က စာကြောင်းကို ထားခဲ့ပါ
+    // ၃။ Tablet/PC အတွက် maxWidth ညှိမယ်
     const container = document.querySelector('.container');
-    if(container) container.style.maxWidth = (window.innerWidth > 768) ? '100%' : '1000px'; 
+    if(container) {
+        container.style.maxWidth = (window.innerWidth > 768) ? '100%' : '1000px'; 
+    }
     
-    // စာရင်းဟောင်းကို ပြန်မဆွဲချင်ရင် handleSort(currentSortKey) ကို ဖြုတ်ထားလို့ရတယ် 
-    // (Master panel က ပျောက်မသွားဘဲ ဖုံးနေတာပဲ ရှိတာမို့လို့ပါ)
+    // ၄။ စာရင်းဟောင်းကို ပြန်ဆွဲဖို့ လိုအပ်ရင် (Optional)
+    // handleSort(currentSortKey); 
 }
+
 
 
 
@@ -184,38 +227,69 @@ function openFullModal(song) {
     const modal = document.getElementById('fullModal');
     const body = document.getElementById('modal-body');
     
+    // Modal ပွင့်ရင် နောက်ကစာမျက်နှာ Scroll ပိတ်မယ်
+    document.body.style.overflow = 'hidden';
+
     body.innerHTML = `
-        <h2 style="color:var(--primary);">${song.title}</h2>
-        <p><strong>တေးဆို:</strong> ${song.artist}</p>
-        <hr>
-        <div style="background:#f9f9f9; padding:15px; border-radius:10px; min-height:200px;">
-            <h4>သီချင်းစာသား</h4>
-            <p style="white-space: pre-line;">${song.lyrics || 'သီချင်းစာသား မရှိသေးပါ။'}</p>
-        </div>
-        <div style="margin-top:20px;">
-            <h4>ဗီဒီယို</h4>
-            <div style="width:100%; height:200px; background:#eee; display:flex; align-items:center; justify-content:center; border-radius:10px;">
-                ${song.youtube ? 'YouTube Player Here' : 'ဗီဒီယို မရှိသေးပါ'}
+        <div class="close-modal" onclick="closeModal()">✕</div>
+        
+        <div class="detail-container">
+            <div class="lyrics-section">
+                <h1 style="font-size: 32px; margin-bottom: 10px;">${song.title}</h1>
+                <div style="margin-bottom: 30px; color: #666;">
+                    <span style="margin-right: 20px;">🎙️ တေးဆို: <strong>${song.artist}</strong></span>
+                    <span>✍️ တေးရေး: <strong>${song.writer}</strong></span>
+                </div>
+                
+                <div style="background: #fdfdfd; padding: 30px; border-radius: 20px; border: 1px solid #eee;">
+                    <h3 style="margin-top:0; border-bottom: 2px solid var(--primary); display:inline-block;">သီချင်းစာသား</h3>
+                    <p style="white-space: pre-line; line-height: 2; font-size: 17px; color: #333; margin-top: 20px;">
+                        ${song.lyrics || 'သီချင်းစာသား မရှိသေးပါ။'}
+                    </p>
+                </div>
+            </div>
+
+            <div class="media-section">
+                <div style="width:100%; aspect-ratio: 16/9; background:#000; border-radius: 20px; overflow:hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+                    ${song.youtube ? 
+                        `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${song.youtube}" frameborder="0" allowfullscreen></iframe>` 
+                        : '<div style="color:white; height:100%; display:flex; align-items:center; justify-content:center;">ဗီဒီယို မရှိသေးပါ</div>'}
+                </div>
+                
+                <div style="margin-top: 30px; padding: 25px; background: var(--primary); color: white; border-radius: 20px;">
+                    <h4>သီချင်းအချက်အလက်</h4>
+                    <p>💿 အယ်ဘမ်: ${song.album || '-'}</p>
+                    <p>📅 ခုနှစ်: ${song.year || '-'}</p>
+                    <p>🎸 အမျိုးအစား: ${song.oc || '-'}</p>
+                    <button style="width:100%; padding: 12px; margin-top: 15px; border-radius: 10px; border:none; background: #fff; color: var(--primary); font-weight: bold; cursor: pointer;">
+                        Rating ပေးမယ် ⭐⭐⭐⭐⭐
+                    </button>
+                </div>
             </div>
         </div>
-        <button class="btn-full" style="width:100%; margin-top:20px;" onclick="alert('Voting System Coming Soon!')">ဒီသီချင်းကို Rating ပေးမယ် ⭐</button>
     `;
-    modal.style.display = 'flex';
+    modal.style.display = 'block';
 }
 
 function closeModal() {
     document.getElementById('fullModal').style.display = 'none';
+    document.body.style.overflow = 'auto'; // Scroll ပြန်ဖွင့်မယ်
 }
 
+
 // ကဒ်ကုဒ် ဆ
+
 function toggleSongs(id, btnId) {
     const el = document.getElementById(id);
     const btn = document.getElementById(btnId);
     const isOpen = el.style.display === "block";
+    
     el.style.display = isOpen ? "none" : "block";
+    
+    // Class တပ်လိုက်တာနဲ့ CSS က မျှားကို လှည့်ပေးမှာပါ
     btn.classList.toggle('active', !isOpen);
-    btn.innerText = isOpen ? "▼" : "▲";
 }
+
 
 function toggleSortMenu(show) {
     const menu = document.getElementById('sortMenu');
@@ -245,10 +319,52 @@ function goBackToGroup() {
     handleSort(currentSortKey); }
 */
 function filterData() {
-    const val = document.getElementById('search').value.toLowerCase();
-    const filtered = allData.filter(i => i.title.toLowerCase().includes(val) || i.artist.toLowerCase().includes(val));
-    document.getElementById('group-list').innerHTML = filtered.map(song => `<div style="padding:12px; border-bottom:1px solid #eee; background:white;"><strong>${song.title}</strong><br><small>${song.artist}</small></div>`).join('');
+    const searchInput = document.getElementById('search');
+    const clearBtn = document.getElementById('clearSearch');
+    const val = searchInput.value.toLowerCase();
+    
+    clearBtn.style.display = (val.length > 0) ? 'block' : 'none';
+
+    const filtered = allData.filter(i => 
+        (i.title && i.title.toLowerCase().includes(val)) || 
+        (i.artist && i.artist.toLowerCase().includes(val))
+    );
+
+    if (val === "") {
+        clearSearch(); // စာမရှိရင် clearSearch ထဲက logic အတိုင်း master-panel ကို ပြန်ပြမယ်
+    } else {
+        // Search Result မှာ နှိပ်လိုက်ရင် openFullModal ကို တန်းသွားဖို့ ပြင်ထားပါတယ်
+        document.getElementById('group-list').innerHTML = filtered.map(song => `
+            <div class="song-list-item" 
+                 onclick='openFullModal(${JSON.stringify(song).replace(/"/g, '&quot;')})'
+                 style="padding:12px; border-bottom:1px solid #eee; background:white; cursor:pointer;">
+                <strong>🎵 ${song.title}</strong><br>
+                <small style="color:#666; margin-left:20px;">${song.artist}</small>
+            </div>
+        `).join('');
+        
+        if (window.innerWidth <= 768) {
+            document.getElementById('master-panel').classList.add('hidden-mobile');
+            document.getElementById('group-list').classList.remove('hidden-mobile');
+            updateToolbarUI(true, currentSortKey);
+        }
+    }
+}
+
+function clearSearch() {
+    const searchInput = document.getElementById('search');
+    searchInput.value = "";
+    document.getElementById('clearSearch').style.display = 'none';
+
+    // Phone မှာဆိုရင် ဘယ်ဘက်စာရင်း (Master Panel) ကို ပြန်ပြမယ်
+    if (window.innerWidth <= 768) {
+        document.getElementById('master-panel').classList.remove('hidden-mobile');
+        document.getElementById('group-list').classList.add('hidden-mobile');
+        updateToolbarUI(false, currentSortKey);
+    }
+    
+    handleSort(currentSortKey); // မူလ အဆိုတော်စာရင်းကို ပြန်ဖော်မယ်
+    window.scrollTo(0, 0);
 }
 
 loadData();
- 

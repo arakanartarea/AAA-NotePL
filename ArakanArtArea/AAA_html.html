@@ -15,7 +15,11 @@
     
 <div class="container">
     <div id="master-panel">
-        <input type="text" id="search" class="search-box" placeholder="ရှာဖွေရန်..." onkeyup="filterData()">
+        <div style="position: relative; width: 100%; margin-bottom: 15px;">
+            <input type="text" id="search" class="search-box" placeholder="ရှာဖွေရန်..." onkeyup="filterData()">
+            <span id="clearSearch" onclick="clearSearch()" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; display: none; color: #999; font-size: 22px;">&times;</span>
+        </div>
+        
         <div id="loading" class="loading">ဒေတာများ ဆွဲယူနေပါသည်...</div>
         <div id="artist-list-container"></div> 
     </div>
@@ -26,6 +30,7 @@
         </div>
     </div>
 </div>
+
 
     <div id="overlay" class="menu-overlay" onclick="toggleSortMenu(false)"></div>
 
