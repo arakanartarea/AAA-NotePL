@@ -9,11 +9,16 @@ let isAscending = true;
 function mapSheetRow(row) {
     const getValue = (index) => (row.c && row.c[index] && row.c[index].v) ? row.c[index].v : '';
     return {
-        id: getValue(0), title: getValue(1), artist: getValue(2), writer: getValue(3),
-        album: getValue(4), albumType: getValue(5), newOld: getValue(6), oc: getValue(7),
-        tradition: getValue(8), year: getValue(11), language: getValue(13), remark: getValue(20)
+        id: getValue(0),       title: getValue(1),    artist: getValue(2),    writer: getValue(3),
+        album: getValue(4),    albumType: getValue(5), newOld: getValue(6),    oc: getValue(7),
+        tradition: getValue(8), star: getValue(9),     voters: getValue(10),   year: getValue(11),
+        studio: getValue(12),  language: getValue(13), harmony: getValue(14),  mixing: getValue(15),
+        director: getValue(16), guitar: getValue(17),  gender: getValue(18),   karaoke: getValue(19),
+        remark: getValue(20),  s1: getValue(21),      s2: getValue(22),       s3: getValue(23),
+        s4: getValue(24),      s5: getValue(25)
     };
 }
+
 
 function updateToolbarUI(isDetailView, key = 'artist') {
     const isMobile = window.innerWidth <= 768; // Screen ဆိုဒ်ကို အရင်စစ်မယ်
@@ -189,25 +194,35 @@ function renderCardView(name, encodedData) {
     html += `<div class="song-grid">`;
     
     html += songs.map((song, idx) => `
-        <div class="artist-card">
-            <div class="card-header"><p class="card-title">${song.title}</p></div>
-            <div class="card-main-info">
-                <div class="info-item">🎙️ ${song.artist}</div>
-                <div class="info-item">✍️ ${song.writer}</div>
-                <div class="info-item">💿 ${song.album}</div>
-                <div class="info-item">🎸 ${song.oc || '-'}</div>
-                <div class="info-item">🌸 ${song.tradition || '-'}</div>
-            </div>
-            <div id="extra-${idx}" class="extra-details" style="display:none; padding:10px; background:#f9f9f9; border-top:1px dashed #ddd; font-size:11px;">
-                <div>🆔 ID: ${song.id || '-'}</div>
-                <div>📝 Remark: ${song.remark || '-'}</div>
-            </div>
-            <div class="card-actions">
-                <button class="btn-expand" onclick="toggleCardExtra('extra-${idx}')">အချက်အလက် ↓</button>
-                <button class="btn-full" onclick='openFullModal(${JSON.stringify(song).replace(/'/g, "&apos;")})'>အပြည့်အစုံ 👁️</button>
-            </div>
+    <div class="artist-card">
+        <div class="card-header"><p class="card-title">${song.title}</p></div>
+        <div class="card-main-info">
+            <div class="info-item">🎙️ ${song.artist}</div>
+            <div class="info-item">✍️ ${song.writer}</div>
+<div class="info-item rating-click" onclick='showStarDetail("${song.id}", ${JSON.stringify(song).replace(/'/g, "&apos;")})' style="cursor:pointer; color:var(--primary);">
+    <div>${song.star || '❌'}</div>
+    <div style="font-size:10px;">(${song.voters || 0} votes)</div>
+</div>
+
+            
+            <div class="info-item">💿 ${song.album}</div>
+            <div class="info-item">🎸 ${song.oc || '-'}</div>
         </div>
-    `).join('');
+        
+        <div id="extra-${idx}" class="extra-details" style="display:none; padding:10px; background:#f9f9f9; border-top:1px dashed #ddd; font-size:11px;">
+            <div>🆔 ID: ${song.id || '-'}</div>
+            <div>🌸 Tradition: ${song.tradition || '-'}</div>
+            <div>📝 Remark: ${song.remark || '-'}</div>
+            <div>📅 Year: ${song.year || '-'}</div>
+        </div>
+        
+        <div class="card-actions">
+            <button class="btn-expand" onclick="toggleCardExtra('extra-${idx}')">အချက်အလက် ↓</button>
+            <button class="btn-full" onclick='openFullModal(${JSON.stringify(song).replace(/'/g, "&apos;")})'>အပြည့်အစုံ 👁️</button>
+        </div>
+    </div>
+`).join('');
+
     html += `</div>`;
 
     const detailPanel = document.getElementById('group-list');
@@ -597,3 +612,112 @@ function filterByArtist(name) {
 
 
 // အားလုံး စစ်ပြ ဆ
+
+function showStarDetail(id, song) {
+    const modalHtml = `
+        <div id="starModal" class="modal-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:flex; justify-content:center; align-items:center; z-index:9999;">
+            <div style="background:white; padding:20px; border-radius:10px; width:280px; position:relative;">
+                <span onclick="document.getElementById('starModal').remove()" style="position:absolute; right:15px; top:10px; cursor:pointer; font-size:24px;">×</span>
+                <h4 style="margin-bottom:15px; border-bottom:2px solid var(--primary);">Rating Details</h4>
+                <div style="font-size:14px; line-height:2; margin-bottom:20px;">
+                    <div>⭐ (1): <b>${song.s1 || 0}</b></div>
+                    <div>⭐⭐ (2): <b>${song.s2 || 0}</b></div>
+                    <div>⭐⭐⭐ (3): <b>${song.s3 || 0}</b></div>
+                    <div>⭐⭐⭐⭐ (4): <b>${song.s4 || 0}</b></div>
+                    <div>⭐⭐⭐⭐⭐ (5): <b>${song.s5 || 0}</b></div>
+                </div>
+                
+                <button onclick="document.getElementById('starModal').remove(); openRatingModal('${id}', '${song.title.replace(/'/g, "\\'")}')" 
+                    style="width:100%; padding:10px; background:var(--primary); color:white; border:none; border-radius:5px; cursor:pointer;">
+                    Rating ပေးမည် 🌟
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+function openRatingModal(id, title) {
+    // အဆင့်အလိုက် အဓိပ္ပာယ်သတ်မှတ်ချက်များ
+    const ratingLabels = {
+        1: "😟 အညံ့ဆုံး (စိတ်ပျက်ဖွယ်)",
+        2: "🙁 ညံ့သည် (အားမရပါ)",
+        3: "😐 ကြိုးစားပါဦး (မကျေနပ်သေး)",
+        4: "😶 မပြည့်စုံသေး (ပုံမှန်ပဲ)",
+        5: "🙂 သင့်တင့်သည် (နားထောင်ကောင်း)",
+        6: "😊 ကောင်းမွန်သည် (နှစ်သက်သည်)",
+        7: "😃 အလွန်ကောင်းသည် (ထပ်ခါထပ်ခါ)",
+        8: "🤩 ကောင်းမွန်ပြီး စွဲမက်ဖွယ်ရာ",
+        9: "👑 အလွန်ကောင်းမွန်ပြီး ဂန္တဝင်စာရင်းဝင်"
+    };
+
+    const ratingHtml = `
+        <div id="ratingModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:10000; overflow-y:auto; animation: slideUp 0.3s ease-out;">
+            <div style="padding:20px; max-width:600px; margin:auto;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary); padding-bottom:10px; margin-bottom:20px;">
+                    <h3 style="margin:0; font-size:1.2rem;">Rating ပေးမည်</h3>
+                    <span onclick="document.getElementById('ratingModal').remove()" style="cursor:pointer; font-size:30px;">×</span>
+                </div>
+                
+                <p style="background:#f0f0f0; padding:10px; border-radius:5px; font-weight:bold; color:#333;">🎵 ${title}</p>
+                <p style="font-size:13px; color:#666;">သင့်အကြိုက်ဆုံးအဆင့်ကို ရွေးချယ်ပေးပါ -</p>
+
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-top:15px;">
+                    ${[9, 8, 7, 6, 5, 4, 3, 2, 1].map(num => `
+                        <button onclick="confirmVote('${id}', ${num}, '${ratingLabels[num]}')" 
+                            style="text-align:left; padding:15px; border:1px solid #eee; border-radius:10px; background:#fafafa; cursor:pointer; font-size:14px; transition:0.2s; display:flex; align-items:center;">
+                            <span style="background:var(--primary); color:white; width:25px; height:25px; display:inline-flex; justify-content:center; align-items:center; border-radius:50%; margin-right:15px; font-size:12px;">${num}</span>
+                            ${ratingLabels[num]}
+                        </button>
+                    `).join('')}
+                </div>
+                
+                <div style="height:50px;"></div> </div>
+        </div>
+        <style>
+            @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        </style>
+    `;
+    document.body.insertAdjacentHTML('beforeend', ratingHtml);
+}
+
+function confirmVote(id, rate, label) {
+    const isSure = confirm(`သီချင်းအတွက် "${label}" အဆင့် သတ်မှတ်မှာ သေချာပါသလား ကိုကို?`);
+    
+    if (isSure) {
+        submitVote(id, rate);
+        // Vote ပြီးရင် Modal ကို ပိတ်လိုက်မယ်
+        if (document.getElementById('ratingModal')) {
+            document.getElementById('ratingModal').remove();
+        }
+    }
+}
+
+function submitVote(id, rate) {
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzWXWfRmhGv44H1aVgB6qq071O2DntJc7R30a385OSTzaQD0iocAPLCFbGOicJ_opIw/exec";
+
+    // ပို့မယ့် ဒေတာ
+    const payload = JSON.stringify({ id: id, rate: rate });
+
+    fetch(scriptURL, {
+        method: "POST",
+        mode: "no-cors", // CORS error မတက်အောင်
+        cache: "no-cache",
+        headers: { "Content-Type": "application/json" },
+        body: payload
+    })
+        .then(() => {
+        localStorage.setItem('voted_' + id, 'true'); // ဘုတ်ပေးပြီးကြောင်းမှတ်မယ်
+        alert("ဘုတ်ပေးတာ အောင်မြင်ပါတယ် ကိုကို! ကျေးဇူးတင်ပါတယ်။");
+        location.reload(); // စာမျက်နှာကို အလိုအလျောက် Refresh လုပ်ပြီး ဒေတာအသစ်ဆွဲမယ်
+    })
+
+    .catch(err => {
+        alert("ဒေတာပို့တာ အမှားရှိနေတယ် ကိုကိုရယ် - " + err);
+    });
+
+    // Rating Modal ကို ပိတ်လိုက်မယ်
+    if (document.getElementById('ratingModal')) {
+        document.getElementById('ratingModal').remove();
+    }
+}
+

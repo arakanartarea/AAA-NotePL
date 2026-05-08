@@ -635,3 +635,29 @@ nav {
 /* Active ဖြစ်တဲ့ ခလုတ်ကို အရောင်တောက်အောင် */
 
 /* ‌ေဒတာ အားလုံးပြ ဆ */
+
+/* star စ */
+.star-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+}
+.rate-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    border: 1px solid #ff9800; /* ရွှေရောင်လိုင်းလေး */
+    background: #fff3e0;
+    cursor: pointer;
+    font-weight: bold;
+    color: #e65100;
+    transition: 0.2s;
+}
+.rate-btn:active {
+    background: #ff9800;
+    color: white;
+    transform: scale(0.9); /* နှိပ်လိုက်ရင် တုန်သွားတဲ့ effect */
+}
+
+/* star ဆ */
