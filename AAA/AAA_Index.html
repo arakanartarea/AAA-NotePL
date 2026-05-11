@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ရခိုင်အနုပညာမှတ်တမ်း</title>
+    <link rel="stylesheet" href="AAA_style.css">
+</head>
+<body class="light-mode">
+
+<nav>
+    <div class="header-wrapper">
+        <div class="nav-left" onclick="alert('ကိုကို့အကြောင်း သိချင်လို့လား?')">
+            <div class="nav-icon-circle">
+                <span style="font-size: 18px;">☰</span> </div>
+        </div>
+
+        <div class="nav-center">
+            <img src="https://media.tenor.com/_EreiMKqzs4AAAAj/arakan-flag-rakhine-flag.gif" class="nav-flag" alt="Flag">
+            <div class="brand-container">
+                <div class="scrolling-text">
+                    <span class="text-item">Arakan Art Area</span>
+                    <span class="text-item">အာရက္ခ အနုပညာ နယ်မြီ</span>
+                    <span class="text-item">ရခိုင် အနုပညာ နယ်မြေ</span>
+                </div>
+            </div>
+            <img src="https://media.tenor.com/_EreiMKqzs4AAAAj/arakan-flag-rakhine-flag.gif" class="nav-flag" alt="Flag">
+        </div>
+
+        <div class="nav-right" id="userProfileArea" onclick="promptGoogleLogin()">
+    <div class="nav-icon-circle" id="userIcon">
+        <span id="userInitial">👤</span>
+    </div>
+</div>
+
+    </div>
+</nav>
+
+    
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<div id="loginOverlay" class="login-overlay" style="display: none;">
+    <div class="login-modal">
+        <h3>🎵 Arakan Art Area</h3>
+        <p>သင်ကြိုက်နှစ်သက်တဲ့ သီချင်းတွေကို Vote ပေးနိုင်ဖို့နဲ့ မှတ်တမ်းတွေ သိမ်းဆည်းဖို့ အကောင့်ဝင်ထားမလားခင်ဗျာ။</p>
+        <div class="login-btn-group">
+            <button class="login-confirm-btn" onclick="confirmLogin()">အကောင့်ဝင်မယ်</button>
+            <button class="login-decline-btn" onclick="closeLoginModal()">မဝင်သေးပါ</button>
+        </div>
+    </div>
+</div>
+
+    
+<div class="container">
+    <div id="master-panel">
+        <div style="position: relative; width: 100%; margin-bottom: 15px;">
+            <input type="text" id="search" class="search-box" placeholder="ရှာဖွေရန်..." onkeyup="filterData()">
+            <span id="clearSearch" onclick="clearSearch()" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; display: none; color: #999; font-size: 22px;">&times;</span>
+        </div>
+        
+        <div id="loading" class="loading">ဒေတာများ ဆွဲယူနေပါသည်...</div>
+        <div id="artist-list-container"></div> 
+    </div>
+
+    <div id="group-list">
+        <div style="padding: 20px; text-align: center; color: #888;">
+            <p>ကြည့်ရှုလိုသည့် အဆိုတော်ကို ဘယ်ဘက်မှ ရွေးချယ်ပါ။</p>
+        </div>
+    </div>
+</div>
+
+<div id="mainRatingModal" class="rating-overlay" style="display: none;">
+    <div class="rating-modal-content">
+        <span class="rating-close" onclick="closeRatingModal()">×</span>
+        <h3 id="ratingSongTitle" style="margin-top:0; border-bottom:2px solid var(--primary); padding-bottom:10px;">🌟 Rating</h3>
+
+        <div id="starDetailSection">
+            <div id="starCounts" style="font-size:14px; line-height:2; margin-bottom:20px;"></div>
+            <button onclick="switchToVoteForm()" class="btn-primary">ကိုယ်တိုင် Vote ပေးရန် 🌟</button>
+        </div>
+
+        <div id="voteFormSection" style="display: none;">
+            <div id="authSection" style="margin-bottom:15px; padding:10px; border-radius:8px; border:1px solid #ddd; text-align:center;">
+                <div id="userInfoDisplay" style="display:none; color:var(--primary); font-weight:bold;"></div>
+                <div id="google_login_btn" style="display:flex; justify-content:center; margin-top:5px;"></div>
+            </div>
+            
+            <div style="margin-bottom:15px;">
+                <label style="font-size:13px;">ရမှတ်ရွေးချယ်ပါ (0-9):</label>
+                <select id="voteRateSelect" class="form-input">
+                    <option value="">ရွေးချယ်ပါ</option>
+                    <option value="9">9 မှတ်</option><option value="8">8 မှတ်</option>
+                    <option value="7">7 မှတ်</option><option value="6">6 မှတ်</option>
+                    <option value="5">5 မှတ်</option><option value="4">4 မှတ်</option>
+                    <option value="3">3 မှတ်</option><option value="2">2 မှတ်</option>
+                    <option value="1">1 မှတ်</option><option value="0">0 မှတ်</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom:15px;">
+                <label style="font-size:13px;">မှတ်ချက် (စာလုံး ၇၀ အထိ):</label>
+                <textarea id="voteComment" maxlength="70" class="form-input" placeholder="မှတ်ချက်ရေးပါ..."></textarea>
+            </div>
+
+            <button onclick="submitFinalVote()" class="btn-primary">Vote ပေးမည်</button>
+        </div>
+    </div>
+</div>
+
+<div id="overlay" class="menu-overlay" onclick="toggleSortMenu(false)"></div>
+
+<div id="sortMenu" class="sort-menu">
+    <button class="sort-item" onclick="handleSort('artist')">👥 တေးဆို</button>
+    <button class="sort-item" onclick="handleSort('writer')">✍️ တေးရွီး</button>
+    <button class="sort-item" onclick="handleSort('album')">💿 အယ်ဘမ်</button>
+    <button class="sort-item" onclick="handleSort('oc')">🎸 O / C</button>
+    <button class="sort-item" onclick="handleSort('tradition')">🌸 သင်္ကြန်/ရိုးရာ</button>
+    <button class="sort-item" onclick="toggleSortOrder()" id="orderBtn">🔡 က - အ</button>
+    <button class="sort-item" onclick="toggleCountSort()" id="countSortBtn">📊 အရေအတွက်အလိုက်</button>
+
+</div>
+
+<div id="fullModal" class="modal-overlay">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <div id="modal-body"></div>
+    </div>
+</div>
+    
+<div id="statsModal" class="settings-menu"> 
+    <div class="menu-header">
+        <h3 style="margin:0; color: var(--primary);">Archive Statistics 📊</h3>
+        <span onclick="closeStats()" style="cursor:pointer; font-size: 24px;">✕</span>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card" onclick="showAllSongsFromStats()" style="cursor: pointer;">
+            <div class="stat-value" id="stat-total-songs">0</div>
+            <div class="stat-label">သီချင်းစုစုပေါင်း 🖱️</div>
+        </div>
+        <div class="stat-card" onclick="goToArtistList()" style="cursor: pointer;">
+            <div class="stat-value" id="stat-total-artists">0</div>
+            <div class="stat-label">အဆိုတော်များ 🖱️</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="stat-total-albums">0</div>
+            <div class="stat-label">အယ်ဘမ်များ</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="stat-total-years">0</div>
+            <div class="stat-label">ခုနှစ်အပိုင်းအခြား</div>
+        </div>
+    </div>
+
+    <button class="btn-show-all" onclick="showAllData(); closeStats();">
+        📂 ဒေတာအားလုံး တစ်ဆက်တည်းကြည့်ရန်
+    </button>
+</div>
+<div id="statsOverlay" class="menu-overlay" onclick="closeStats()"></div>
+
+<div class="bottom-toolbar">
+    <button id="backBtn" class="tool-btn" onclick="goBackToGroup()" style="display:none; color: #cf0000;">
+        <span class="icon">⬅️</span>
+        <span>ပြန်ထွက်ရန်</span>
+    </button>
+    <button id="sortBtn" class="tool-btn" onclick="toggleSortMenu()">
+        <span class="icon">🔃</span>
+        <span>စီနည်း</span>
+    </button>
+    <button class="tool-btn" onclick="toggleSettings()">
+        <span class="icon">⚙️</span>
+        <span>ဆက်တင်</span>
+    </button>
+    <button class="tool-btn" onclick="location.reload()">
+        <span class="icon">🔄</span>
+        <span>Update</span>
+    </button>
+    <button class="tool-btn" onclick="showStats()">
+        <span class="icon">📊</span>
+        <span>အချက်အလက်</span>
+    </button>
+</div>
+
+<div id="settingsMenu" class="settings-menu">
+    <div class="menu-title-main">ဆက်တင်များ</div>
+    <div class="setting-item">
+    <span>မျက်နှာပြင် အပြင်အဆင်</span>
+    <select id="themeSelect" onchange="changeTheme(this.value)" style="padding: 5px; border-radius: 5px;">
+        <option value="light">☀️ နေ့မုဒ် (Light)</option>
+        <option value="dark">🌙 ညမုဒ် (Dark)</option>
+        <option value="system">💻 စက်အတိုင်း (System)</option>
+    </select>
+</div>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+    <div class="settings-item dropdown-trigger" onclick="toggleAddSubMenu()">
+        <span class="icon">📥</span> 
+        <span style="flex: 1;">ဒေတာများ ရယူရန် (ADD)</span>
+        <span id="add-arrow" style="transition: 0.3s;">❯</span>
+    </div>
+    <div id="add-sub-menu" class="sub-menu-container" style="display: none;">
+        <div class="settings-item sub-item" onclick="downloadJSON()">
+            <span class="icon">📄</span> <span>JSON Format ဖြင့် ရယူရန်</span>
+        </div>
+        <div class="settings-item sub-item" onclick="downloadCSV()">
+            <span class="icon">📊</span> <span>CSV (Excel) Format ဖြင့် ရယူရန်</span>
+        </div>
+        <div class="settings-item sub-item disabled">
+            <span class="icon">📑</span> <span>PDF (Coming Soon)</span>
+        </div>
+    </div>
+    <div class="settings-label">အထွေထွေ</div>
+    <div class="settings-item disabled">
+        <span class="icon">ℹ️</span> <span>အချက်အလက်များ</span>
+    </div>
+</div>
+<div id="settingsOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
+
+<div id="fullListModal" class="full-screen-modal" style="display:none;">
+    <div class="list-header">
+        <h3 id="list-title" style="margin:0;">စာရင်း</h3>
+    </div>
+    <div class="modal-toolbar">
+        <div class="toolbar-scroll-container">
+            <button class="m-tool-btn close-btn-style" onclick="closeFullList()">✕ ပိတ်ရန်</button>
+            <button id="btn-songs" class="m-tool-btn" onclick="showFullList('songs')">🎵 သီချင်းများ</button>
+            <button id="btn-artists" class="m-tool-btn" onclick="showFullList('artists')">👤 အဆိုတော်များ</button>
+            <button id="btn-writers" class="m-tool-btn" onclick="showFullList('writers')">✍️ တေးရေးများ</button>
+            <button id="btn-albums" class="m-tool-btn" onclick="showFullList('albums')">💿 အယ်ဘမ်များ</button>
+            <button id="btn-genres" class="m-tool-btn" onclick="showFullList('genres')">🎭 အမျိုးအစား</button>
+            <button id="btn-studios" class="m-tool-btn" onclick="showFullList('studios')">🎙️ စတူဒီယို</button>
+            <div class="sort-divider">|</div>
+            <button class="m-tool-btn sort-btn" onclick="sortListData('AZ')">🔠 A-Z</button>
+            <button class="m-tool-btn sort-btn" onclick="sortListData('ZA')">🔡 Z-A</button>
+        </div>
+    </div>
+    <div class="list-search-box" style="padding: 10px 15px;">
+        <input type="text" id="listSearch" placeholder="ဒီစာရင်းထဲမှာ ရှာမယ်..." oninput="filterFullList()">
+    </div>
+    <div id="list-content" class="list-content-area"></div>
+</div>
+
+<script src="AAA_script.js"></script>
+</body>
+</html>
