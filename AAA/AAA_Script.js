@@ -74,7 +74,7 @@ async function loadData() {
         document.getElementById('loading').style.display = 'none';
     } catch (e) { console.error(e); }
 }
-/* 
+/* klw 
 function handleSort(key) {
     currentSortKey = key;
     localStorage.setItem('preferredSort', key);
@@ -261,49 +261,46 @@ function goBackToGroup() {
 function openFullModal(song) {
     const modal = document.getElementById('fullModal');
     const body = document.getElementById('modal-body');
-    
     document.body.style.overflow = 'hidden';
 
     body.innerHTML = `
         <div class="close-modal" onclick="closeModal()">✕</div>
         
-        <div class="detail-container">
-            <div class="lyrics-section">
-                <h1 style="font-size: 32px; margin-bottom: 10px;">${song.title}</h1>
-                <div style="margin-bottom: 30px; color: #666;">
-                    <span style="margin-right: 20px;">🎙️ တေးဆို: <strong>${song.artist}</strong></span>
-                    <span>✍️ တေးရေး: <strong>${song.writer}</strong></span>
+        <div class="new-detail-grid">
+            <div class="info-section">
+                <h1 class="song-main-title">${song.title}</h1>
+                <div class="full-info-list">
+                    <p>🎙️ <strong>တေးဆို:</strong> ${song.artist}</p>
+                    <p>✍️ <strong>တေးရေး:</strong> ${song.writer}</p>
+                    <p>💿 <strong>အယ်ဘမ်:</strong> ${song.album || '-'}</p>
+                    <p>📅 <strong>ခုနှစ်:</strong> ${song.year || '-'}</p>
+                    <p>🎸 <strong>အမျိုးအစား:</strong> ${song.oc || '-'}</p>
                 </div>
-                
-                <div style="background: #fdfdfd; padding: 30px; border-radius: 20px; border: 1px solid #eee;">
-                    <h3 style="margin-top:0; border-bottom: 2px solid var(--primary); display:inline-block;">သီချင်းစာသား</h3>
-                    <p style="white-space: pre-line; line-height: 2; font-size: 17px; color: #333; margin-top: 20px;">
-                        ${song.lyrics || 'သီချင်းစာသား မရှိသေးပါ။'}
-                    </p>
+                <button class="vote-btn" onclick="openMainRatingModal('${song.id}')">
+                    Rating ပေးမယ် ⭐⭐⭐⭐⭐
+                </button>
+            </div>
+
+            <div class="lyrics-section-new">
+                <h3 class="section-title">သီချင်းစာသား</h3>
+                <div class="lyrics-box">
+                    ${song.lyrics || 'သီချင်းစာသား မရှိသေးပါ။'}
                 </div>
             </div>
 
-            <div class="media-section">
-                <div style="width:100%; aspect-ratio: 16/9; background:#000; border-radius: 20px; overflow:hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
+            <div class="video-section-new">
+                <h3 class="section-title">သီချင်းဗီဒီယို</h3>
+                <div class="video-container">
                     ${song.youtube ? 
-                        `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${song.youtube}" frameborder="0" allowfullscreen></iframe>` 
-                        : '<div style="color:white; height:100%; display:flex; align-items:center; justify-content:center;">ဗီဒီယို မရှိသေးပါ</div>'}
-                </div>
-                
-                <div style="margin-top: 30px; padding: 25px; background: var(--primary); color: white; border-radius: 20px;">
-                    <h4>သီချင်းအချက်အလက်</h4>
-                    <p>💿 အယ်ဘမ်: ${song.album || '-'}</p>
-                    <p>📅 ခုနှစ်: ${song.year || '-'}</p>
-                    <p>🎸 အမျိုးအစား: ${song.oc || '-'}</p>
-                    <button onclick="openMainRatingModal('${song.id}')" style="width:100%; padding: 12px; margin-top: 15px; border-radius: 10px; border:none; background: #fff; color: var(--primary); font-weight: bold; cursor: pointer;">
-                        Rating ပေးမယ် ⭐⭐⭐⭐⭐
-                    </button>
+                        `<iframe src="https://www.youtube.com/embed/${song.youtube}" frameborder="0" allowfullscreen></iframe>` 
+                        : '<div class="no-video">ဗီဒီယို မရှိသေးပါ</div>'}
                 </div>
             </div>
         </div>
     `;
     modal.style.display = 'block';
 }
+
 
 function closeModal() {
     document.getElementById('fullModal').style.display = 'none';
