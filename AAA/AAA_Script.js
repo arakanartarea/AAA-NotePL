@@ -1,6 +1,7 @@
 const sheetId = '1MnRxfu3BhlTnB6IlvtEfik2FfY-d22SOeaBTKAqfFCY';
 const sheetName = 'AAAview';
 const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+const webAppUrl = "https://script.google.com/macros/s/AKfycbxQ7bvhUS6xd1ejCC2ovPt-6kHvAxnNgK08n7Adrqj3HuhMEQKo28mNB-2JPaSg9P2Y/exec"; 
 
 let allData = [];
 let currentSortKey = localStorage.getItem('preferredSort') || 'artist';
@@ -809,20 +810,39 @@ function closeRatingModal() {
     document.getElementById('voteComment').value = "";
 }
 
-function submitFinalVote() {
-    if (!userEmail) return alert("မေးလ်အရင်ဝင်ပေးပါ");
+async function submitFinalVote() {
+    if (!userEmail) return alert("မေးလ်အရင်ဝင်ပေးပါ ကိုကို");
+    
     const rate = document.getElementById('voteRateSelect').value;
     if (rate === "") return alert("ရမှတ်တစ်ခုခု အရင်ရွေးပေးပါ");
     
     const comment = document.getElementById('voteComment').value;
-    const payload = JSON.stringify({ id: currentVoteSongId, rate: rate, email: userEmail, userName: userName, content: comment });
     
-    fetch("", { method: "POST", mode: "no-cors", body: payload })
-    .then(() => {
-        alert("ဘုတ်ပေးခြင်း အောင်မြင်ပါပြီ။");
+    // ပို့မယ့် ဒေတာ (Script ထဲက နာမည်တွေနဲ့ တူရမယ်)
+    const voteData = {
+        id: currentVoteSongId,
+        rate: rate,
+        email: userEmail,
+        userName: userName,
+        content: comment
+    };
+
+    try {
+        // Loading ပြချင်ရင် ဒီမှာ ပြလို့ရတယ်
+        const response = await fetch(webAppUrl, {
+            method: "POST",
+            mode: "no-cors", // Google Apps Script အတွက် no-cors သုံးရင် response ဖတ်လို့မရပေမယ့် data တော့ ရောက်ပါတယ်
+            body: JSON.stringify(voteData)
+        });
+
+        alert("ဘုတ်ပေးခြင်း အောင်မြင်ပါပြီ ကိုကို။");
         closeRatingModal();
-    });
+        // ဒေတာ အသစ်ပြန်ဆွဲချင်ရင် loadData() ကို ခေါ်နိုင်ပါတယ်
+    } catch (error) {
+        alert("Error တက်သွားပါတယ်: " + error.message);
+    }
 }
+
 /*
 applyTheme(); // Theme အရင်စစ်မယ်
 
