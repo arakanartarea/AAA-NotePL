@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sync Login Project</title>
+    <!-- Google Sign-In Library -->
+    <script src="https://accounts.google.com/gsi/client" onload="initGoogle()" async defer></script>
+    
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .login-card {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            text-align: center;
+            width: 320px;
+        }
+
+        #userImg {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            cursor: pointer;
+            object-fit: cover;
+            border: 4px solid #4285F4;
+            transition: all 0.3s ease;
+            background-color: #eee;
+        }
+
+        #userImg:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(66, 133, 244, 0.3);
+        }
+
+        .status-info h2 {
+            margin: 20px 0 5px;
+            font-size: 22px;
+            color: #202124;
+        }
+
+        .status-info p {
+            margin: 0;
+            color: #5f6368;
+            font-size: 14px;
+        }
+
+        .hint {
+            margin-top: 25px;
+            font-size: 12px;
+            color: #9aa0a6;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <!-- နှိပ်ရမည့် Image Button -->
+    <img id="userImg" src="https://cdn-icons-png.flaticon.com/512/295/295128.png" alt="User Profile">
+    
+    <div class="status-info">
+        <h2 id="nameTag">Guest</h2>
+        <p id="emailTag">Please sign in to continue</p>
+    </div>
+
+    <p class="hint">ပုံကိုနှိပ်ပြီး အကောင့်ရွေးချယ်ပါ</p>
+</div>
+
+<script>
+    const userImg = document.getElementById('userImg');
+    const nameTag = document.getElementById('nameTag');
+    const emailTag = document.getElementById('emailTag');
+
+    const DEFAULT_ICON = "https://cdn-icons-png.flaticon.com/512/295/295128.png";
+    const CLIENT_ID = "750089996822-76hj5pfvrf8ui70eu6cimv0lb9lg6su3.apps.googleusercontent.com";
+
+    // ၁။ Google Library Load ဖြစ်လျှင် အလုပ်လုပ်မည့် Function
+    function initGoogle() {
+        google.accounts.id.initialize({
+            client_id: CLIENT_ID,
+            callback: handleCredentialResponse
+        });
+        updateUI(); // Page စဖွင့်ချင်း UI စစ်မည်
+    }
+
+    // ၂။ ပုံကိုနှိပ်လျှင် Google Account Picker ခေါ်မည်
+    userImg.onclick = () => {
+        const session = localStorage.getItem('user_session');
+        if (!session) {
+            google.accounts.id.prompt(); 
+        } else {
+            if(confirm("Logout ထွက်မှာ သေချာပါသလား?")) {
+                localStorage.removeItem('user_session');
+                updateUI();
+            }
+        }
+    };
+
+    // ၃။ Login ဝင်ပြီးနောက် Data လက်ခံယူခြင်း
+    function handleCredentialResponse(response) {
+        const payload = decodeJwtResponse(response.credential);
+        
+        const userData = {
+            name: payload.name,
+            email: payload.email,
+            picture: payload.picture
+        };
+
+        // Local Storage တွင်သိမ်းဆည်း
+        localStorage.setItem('user_session', JSON.stringify(userData));
+        updateUI();
+    }
+
+    // ၄။ UI ကို သိမ်းထားသော Data ဖြင့် Update လုပ်ခြင်း
+    function updateUI() {
+        const data = JSON.parse(localStorage.getItem('user_session'));
+        
+        if (data) {
+            userImg.src = data.picture;
+            nameTag.innerText = data.name;
+            emailTag.innerText = data.email;
+        } else {
+            userImg.src = DEFAULT_ICON;
+            nameTag.innerText = "Guest";
+            emailTag.innerText = "Please sign in to continue";
+        }
+    }
+
+    // ၅။ Google Token (JWT) ကို Decode လုပ်သည့် Function
+    function decodeJwtResponse(token) {
+        let base64Url = token.split('.')[1];
+        let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        let jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    }
+
+    // ၆။ တခြား Tab များတွင် Login လုပ်လျှင် ချက်ချင်းလိုက်ပြောင်းရန် (Tab Synchronization)
+    window.addEventListener('storage', (event) => {
+        if (event.key === 'user_session') {
+            updateUI();
+        }
+    });
+</script>
+
+</body>
+</html>
