@@ -1,25 +1,20 @@
 const sheetId = '1MnRxfu3BhlTnB6IlvtEfik2FfY-d22SOeaBTKAqfFCY';
 const sheetName = 'AAAview';
 const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
-const webAppUrl = "https://script.google.com/macros/s/AKfycbxQ7bvhUS6xd1ejCC2ovPt-6kHvAxnNgK08n7Adrqj3HuhMEQKo28mNB-2JPaSg9P2Y/exec"; 
+const webAppUrl = "https://script.google.com/macros/s/AKfycbxXyXTGGO4yVqmqAfqnb5RIIgNMbM57PBgLO5gz_5JvKcIU7G5hrPdkBtf6mP0s8bI1/exec"; 
 
 let allData = [];
 let currentSortKey = localStorage.getItem('preferredSort') || 'artist';
 let isAscending = localStorage.getItem('isAscending') === 'false' ? false : true;
 let countSortMode = localStorage.getItem('countSortMode') || 'none'; // 'none', 'desc', 'asc'
 
-let declinedLogin = localStorage.getItem('declinedLogin') === 'true'; // အ‌ေကာင့် ငြင်းထားလား စစ်မယ်
-let isUserLoggedIn = false; // လက်ရှိ login ဝင်ထားလား
-let payload = null; // Google ကရတဲ့ အချက်အလက် သိမ်းဖို့
-
-// မူလ code ကို ဒီလိုပြင်ပါ
-let userEmail = localStorage.getItem('userEmail') || ""; 
-let userName = localStorage.getItem('userName') || "";
-let userPicture = localStorage.getItem('userPicture') || ""; // ပုံလေးပါ သိမ်းမယ်
-
 let currentVoteSongId = "";
 let listType = 'songs'; 
 let listDisplayData = []; 
+
+let userSession = JSON.parse(localStorage.getItem('user_session')) || null;
+let selectedVoteNum = null;
+let currentTargetSong = null; // သီချင်း ID ပါ သိမ်းဖို့ object တစ်ခုလုံး ယူထားမယ်
 
 function mapSheetRow(row) {
     const getValue = (index) => (row.c && row.c[index] && row.c[index].v) ? row.c[index].v : '';
@@ -75,54 +70,7 @@ async function loadData() {
         document.getElementById('loading').style.display = 'none';
     } catch (e) { console.error(e); }
 }
-/* klw 
-function handleSort(key) {
-    currentSortKey = key;
-    localStorage.setItem('preferredSort', key);
-    updateToolbarUI(false, key);
-    toggleSortMenu(false);
 
-    const groups = allData.reduce((acc, item) => {
-        let rawName = item[key] || 'အမည်မသိ';
-        let groupName = rawName;
-        if (typeof rawName === 'string' && rawName.includes(',')) {
-            groupName = rawName.split(',')[0].trim();
-        }
-        if (groupName === '-' || groupName === '') groupName = 'အမည်မသိ';
-        
-        if (!acc[groupName]) acc[groupName] = [];
-        acc[groupName].push(item);
-        return acc;
-    }, {});
-
-    const sortedNames = Object.keys(groups).sort((a, b) => isAscending ? a.localeCompare(b) : b.localeCompare(a));
-
-    const listElement = document.getElementById('artist-list-container');
-    if(listElement) {
-        listElement.innerHTML = sortedNames.map((name, index) => {
-            const groupDataEncoded = encodeURIComponent(JSON.stringify(groups[name]));
-            return `
-            <div class="artist-group-container">
-                <div class="artist-header">
-                    <div class="artist-info" onclick="renderCardView('${name.replace(/'/g, "\\'")}', '${groupDataEncoded}')">
-                        ${name}
-                    </div>
-                    <div style="display: flex; align-items: center;">
-                        <span class="count-badge">${groups[name].length}</span>
-                        <div id="btn-${index}" class="expand-btn" onclick="toggleSongs('songs-${index}', 'btn-${index}')">❯</div>
-                    </div>
-                </div>
-                <div id="songs-${index}" class="song-list">
-                    ${groups[name].map(song => `
-                        <div class="song-list-item" onclick='openFullModal(${JSON.stringify(song).replace(/'/g, "&apos;")})'>
-                            🎵 ${song.title}
-                        </div>
-                    `).join('')}
-                </div>
-            </div>`;
-        }).join('');
-    }
-} */
 function handleSort(key) {
     currentSortKey = key;
     localStorage.setItem('preferredSort', key);
@@ -580,272 +528,148 @@ function filterByArtist(name) {
     handleSort('artist'); 
     renderCardView(name, encodeURIComponent(JSON.stringify(allData.filter(s => s.artist && s.artist.includes(name)))));
 }
-/*
-// Google Auth & Voting System
-window.onload = function () {
-    google.accounts.id.initialize({
-        client_id: "750089996822-76hj5pfvrf8ui70eu6cimv0lb9lg6su3.apps.googleusercontent.com", 
-        callback: handleCredentialResponse
-    });
-};
-*/
+
 window.onload = function () {
     // ၁။ UI ပိုင်းကို အမြန်ဆုံးပြမယ်
     applyTheme();
     updateAuthUI();
 
-    // ၂။ Google Login ကို Initialize လုပ်မယ်
-    if (typeof google !== 'undefined') {
-        google.accounts.id.initialize({
-            client_id: "750089996822-76hj5pfvrf8ui70eu6cimv0lb9lg6su3.apps.googleusercontent.com", 
-            callback: handleCredentialResponse,
-            auto_select: false
-        });
-    }
 
     // ၃။ ဒေတာတွေကို ဆွဲမယ်
     loadData();
 
-    // ၄။ အကောင့်မရှိရင် Modal ပြမယ်
-    if (!userEmail && !declinedLogin) {
-        setTimeout(showLoginModal, 3000); // ၃ စက္ကန့် စောင့်မယ်
-    }
+
 };
 
-function showLoginModal() {
-    document.getElementById('loginOverlay').style.display = 'flex';
-}
-
-function closeLoginModal() {
-    document.getElementById('loginOverlay').style.display = 'none';
-    declinedLogin = true;
-    localStorage.setItem('declinedLogin', 'true'); // ငြင်းလိုက်ပြီဖြစ်လို့ မှတ်ထားမယ်
-}
-// အကောင့်ဝင်ဖို့ prompt ခေါ်ခြင်း
-function promptGoogleLogin() {
-    try {
-        if (typeof google !== 'undefined') {
-            google.accounts.id.prompt((notification) => {
-                if (notification.isNotDisplayed()) {
-                    console.warn("Prompt not displayed:", notification.getNotDisplayedReason());
-                }
-            });
-        } else {
-            console.error("Google library not loaded yet.");
-        }
-    } catch (err) {
-        console.error("Login Error:", err);
-    }
-}
-
-function handleCredentialResponse(response) {
-    payload = JSON.parse(atob(response.credential.split('.')[1]));
-    userEmail = payload.email;
-    userName = payload.name;
-    let userPic = payload.picture;
-    
-    // Local Storage ထဲမှာ အချက်အလက် သိမ်းမယ်
-    localStorage.setItem('userEmail', userEmail);
-    localStorage.setItem('userName', userName);
-    localStorage.setItem('userPicture', userPic);
-    localStorage.setItem('declinedLogin', 'false');
-    
-    declinedLogin = false;
-    updateAuthUI();
-}
-
-function updateAuthUI() {
-    const userIconArea = document.getElementById('userIcon');
-    if (!userIconArea) return;
-
-    // Local storage မှာ ရှိနေရင် ပုံပြမယ်
-    const savedPic = localStorage.getItem('userPicture');
-
-    if (userEmail && savedPic) {
-        userIconArea.innerHTML = `<img src="${savedPic}" alt="User" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-    } else {
-        userIconArea.innerHTML = `<span style="font-size: 18px;">👤</span>`;
-    }
-}
 
 
-function confirmLogin() {
-    // Modal ကို အရင်ပိတ်မယ်
-    document.getElementById('loginOverlay').style.display = 'none';
-    
-    // ပြီးမှ Google Login Prompt ကို ခေါ်မယ်
-    google.accounts.id.prompt((notification) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-            // အကြောင်းအမျိုးမျိုးကြောင့် Prompt မတက်ရင် standard button ကို ခေါ်လို့ရအောင်
-            console.log("Prompt not displayed, trying alternative...");
-        }
-    });
-}
 
-
-/*
-function handleCredentialResponse(response) {
-    const payload = JSON.parse(atob(response.credential.split('.')[1]));
-    userEmail = payload.email;
-    userName = payload.name;
-    updateAuthUI();
-}
-*/
-
-/*
-function handleCredentialResponse(response) {
-    // payload ကို global variable ထဲ ထည့်လိုက်မယ်
-    payload = JSON.parse(atob(response.credential.split('.')[1]));
-    userEmail = payload.email;
-    userName = payload.name;
-    
-    localStorage.setItem('declinedLogin', 'false');
-    declinedLogin = false;
-    
-    updateAuthUI(); // UI ကို update လုပ်မယ်
-}
-*/
-
-/*
-function updateAuthUI() {
-    const userIconArea = document.getElementById('userIcon');
-    if (!userIconArea) return;
-
-    if (userEmail && payload && payload.picture) {
-        userIconArea.innerHTML = `<img src="${payload.picture}" alt="User" style="width:100%; height:100%; border-radius:50%; object-fit:cover;">`;
-    } else {
-        userIconArea.innerHTML = `<span style="font-size: 18px;">👤</span>`;
-    }
-}
-*/
-/*
-function updateAuthUI() {
-    const infoDiv = document.getElementById('userInfoDisplay');
-    const loginBtn = document.getElementById('google_login_btn');
-    if (userEmail) {
-        infoDiv.innerHTML = `👤 ${userName} <br> <span style="font-size:12px; color:#666;">📧 ${userEmail}</span>`;
-        infoDiv.style.display = "block";
-        loginBtn.style.display = "none";
-    } else {
-        infoDiv.style.display = "none";
-        loginBtn.style.display = "flex";
-        google.accounts.id.renderButton(loginBtn, { theme: "outline", size: "large", width: 250 });
-    }
-}
-*/
-/*
-function updateAuthUI() {
-    const userIconArea = document.getElementById('userIcon');
-    
-    if (userEmail && payload) { // payload က handleCredentialResponse ကရတဲ့ data
-        // အကောင့်ဝင်ထားရင် ပုံလေးပြမယ်
-        userIconArea.innerHTML = `<img src="${payload.picture}" alt="User">`;
-        isUserLoggedIn = true;
-    } else {
-        // အကောင့်မဝင်ရသေးရင် icon ပဲပြမယ်
-        userIconArea.innerHTML = `<span style="font-size: 18px;">👤</span>`;
-        isUserLoggedIn = false;
-    }
-}
-*/
-/*
-// အကောင့်ဝင်ဖို့ တောင်းဆိုတဲ့ function
-function promptGoogleLogin() {
-    // Google ရဲ့ Standard Login ခလုတ်ကို ရှာပြီး အလုပ်လုပ်ခိုင်းတာ
-    const loginBtn = document.querySelector('.g_id_signin div[role="button"]');
-    if (loginBtn) {
-        loginBtn.click();
-    } else {
-        // ခလုတ်ရှာမတွေ့ရင် (ဥပမာ-စာမျက်နှာမပွင့်သေးရင်) Google Login Prompt ကို တိုက်ရိုက်ခေါ်မယ်
-        google.accounts.id.prompt();
-    }
-}
-*/
-// User က Login မဝင်ဘဲ ပိတ်လိုက်တဲ့အခါ ဒါမှမဟုတ် ငြင်းလိုက်တဲ့အခါ
-function handleLoginDecline() {
-    declinedLogin = true;
-    localStorage.setItem('declinedLogin', 'true');
-    console.log("User declined login. Won't ask again automatically.");
-}
-
-function openMainRatingModal(id) {
-    const targetSong = allData.find(s => s.id == id);
-    if (!targetSong) return;
-
-    currentVoteSongId = id; 
-    
-    document.getElementById('mainRatingModal').style.display = 'flex';
-    document.getElementById('starDetailSection').style.display = 'block';
-    document.getElementById('voteFormSection').style.display = 'none';
-    
-    document.getElementById('ratingSongTitle').innerText = "🎵 " + targetSong.title;
-    document.getElementById('starCounts').innerHTML = `
-        <div>⭐ (1): <b>${targetSong.s1 || 0}</b></div>
-        <div>⭐⭐ (2): <b>${targetSong.s2 || 0}</b></div>
-        <div>⭐⭐⭐ (3): <b>${targetSong.s3 || 0}</b></div>
-        <div>⭐⭐⭐⭐ (4): <b>${targetSong.s4 || 0}</b></div>
-        <div>⭐⭐⭐⭐⭐ (5): <b>${targetSong.s5 || 0}</b></div>
-    `;
-}
-/*
-function switchToVoteForm() {
-    document.getElementById('starDetailSection').style.display = 'none';
-    document.getElementById('voteFormSection').style.display = 'block';
-    updateAuthUI(); 
-}
-*/
-function switchToVoteForm() {
-    if (!userEmail) {
-        alert("Vote ပေးရန်အတွက် အကောင့်ဝင်ပေးဖို့ လိုအပ်ပါတယ်ခင်ဗျာ။");
-        promptGoogleLogin();
-        return; // အကောင့်မရှိရင် ရှေ့ဆက်မသွားဘူး
-    }
-    document.getElementById('starDetailSection').style.display = 'none';
-    document.getElementById('voteFormSection').style.display = 'block';
-}
-
-function closeRatingModal() {
-    document.getElementById('mainRatingModal').style.display = 'none';
-    document.getElementById('voteRateSelect').value = "";
-    document.getElementById('voteComment').value = "";
-}
-
-async function submitFinalVote() {
-    if (!userEmail) return alert("မေးလ်အရင်ဝင်ပေးပါ ကိုကို");
-    
-    const rate = document.getElementById('voteRateSelect').value;
-    if (rate === "") return alert("ရမှတ်တစ်ခုခု အရင်ရွေးပေးပါ");
-    
-    const comment = document.getElementById('voteComment').value;
-    
-    // ပို့မယ့် ဒေတာ (Script ထဲက နာမည်တွေနဲ့ တူရမယ်)
-    const voteData = {
-        id: currentVoteSongId,
-        rate: rate,
-        email: userEmail,
-        userName: userName,
-        content: comment
-    };
-
-    try {
-        // Loading ပြချင်ရင် ဒီမှာ ပြလို့ရတယ်
-        const response = await fetch(webAppUrl, {
-            method: "POST",
-            mode: "no-cors", // Google Apps Script အတွက် no-cors သုံးရင် response ဖတ်လို့မရပေမယ့် data တော့ ရောက်ပါတယ်
-            body: JSON.stringify(voteData)
-        });
-
-        alert("ဘုတ်ပေးခြင်း အောင်မြင်ပါပြီ ကိုကို။");
-        closeRatingModal();
-        // ဒေတာ အသစ်ပြန်ဆွဲချင်ရင် loadData() ကို ခေါ်နိုင်ပါတယ်
-    } catch (error) {
-        alert("Error တက်သွားပါတယ်: " + error.message);
-    }
-}
-
-/*
 applyTheme(); // Theme အရင်စစ်မယ်
 
 loadData();   // ပြီးမှ ဒေတာဆွဲမယ်
 
-*/
+
+// Vote Modal ဖွင့်တဲ့ function (ဟိုဘက်က ခလုတ်မှာ ဒါနဲ့ အစားထိုးမယ်)
+function openMainRatingModal(songId) {
+    // အရင်ဆုံး login ဝင်ထားလား စစ်မယ်
+    if (!userSession) {
+        document.getElementById('newLoginModal').style.display = 'flex';
+        initGoogleLogin(); // Google ခလုတ် စတင်မယ်
+        return;
+    }
+
+    // သီချင်း ID နဲ့ ဒေတာကို ရှာမယ်
+    currentTargetSong = allData.find(s => s.id === songId);
+    if (!currentTargetSong) return;
+
+    document.getElementById('voteSongTitle').innerText = currentTargetSong.title;
+    document.getElementById('newVoteModal').style.display = 'flex';
+    renderVoteButtons(); // ၀-၉ ခလုတ်တွေ ဆွဲမယ်
+}
+
+function closeNewVoteModal() {
+    document.getElementById('newVoteModal').style.display = 'none';
+    selectedVoteNum = null;
+    document.getElementById('voteReason').value = "";
+}
+function closeLoginModal() {
+    document.getElementById('newLoginModal').style.display = 'none';
+}
+/* လော့အင်ဝင် စ */
+// Google Login စတင်ရန်
+function initGoogleLogin() {
+    if (typeof google === 'undefined') return;
+    
+    google.accounts.id.initialize({
+        client_id: "788091873113-at7cl7b8atpld6c0v547p071t3c4q88p.apps.googleusercontent.com", // မင်းရဲ့ Client ID
+        callback: handleLoginResponse
+    });
+    
+    google.accounts.id.renderButton(
+        document.getElementById("googleBtnContainer"),
+        { theme: "outline", size: "large", width: 250 }
+    );
+}
+
+function handleLoginResponse(response) {
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    userSession = {
+        email: payload.email,
+        name: payload.name,
+        picture: payload.picture
+    };
+    localStorage.setItem('user_session', JSON.stringify(userSession));
+    
+    closeLoginModal(); // Login အောင်မြင်ရင် modal ပိတ်မယ်
+    alert("မင်္ဂလာပါ " + userSession.name + "။ အကောင့်ဝင်ပြီးပါပြီ။");
+    
+    // Login ဝင်ပြီးမှ Vote Modal ကို ပြန်ဖွင့်ပေးမယ်
+    if (currentTargetSong) {
+        openMainRatingModal(currentTargetSong.id);
+    }
+}
+const voteLabels = {
+    0: "အဆိုးဆုံး", 1: "အလွန်ညံ့သည်", 2: "ညံ့သည်", 3: "အားနည်းသည်", 
+    4: "သင့်တင့်သည်", 5: "ကောင်းသည်", 6: "အလွန်ကောင်း", 
+    7: "ထူးချွန်သည်", 8: "အလွန်ထူးချွန်", 9: "အပြည့်စုံဆုံးနဲ့ အကောင်းဆုံး"
+};
+
+function renderVoteButtons() {
+    const grid = document.querySelector('.vote-number-grid');
+    grid.innerHTML = "";
+    
+    for (let i = 0; i <= 9; i++) {
+        const btn = document.createElement('button');
+        btn.className = "vote-num-btn";
+        btn.innerText = i;
+        btn.onclick = () => {
+            selectedVoteNum = i;
+            // ခလုတ်အားလုံးကို ပုံမှန်အရောင်ပြောင်းပြီး ရွေးထားတဲ့တစ်ခုကို အရောင်တောက်ပေးမယ်
+            document.querySelectorAll('.vote-num-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            document.getElementById('voteLabel').innerText = voteLabels[i];
+        };
+        grid.appendChild(btn);
+    }
+}
+async function submitNewVote() {
+    if (selectedVoteNum === null) return alert("ရမှတ်တစ်ခုခု အရင်ရွေးပေးပါဦး။");
+    const reason = document.getElementById('voteReason').value;
+    if (reason.length < 5) return alert("မှတ်ချက်ကို စာလုံးအနည်းငယ် ပိုရေးပေးပါ (အနည်းဆုံး ၅ လုံး)။");
+
+    const voteData = {
+        action: "submit_vote", // Script ဘက်မှာ ခွဲခြားဖို့
+        songId: currentTargetSong.id,
+        songTitle: currentTargetSong.title,
+        rating: selectedVoteNum,
+        reason: reason,
+        userEmail: userSession.email,
+        userName: userSession.name,
+        timestamp: new Date().toISOString()
+    };
+
+    // ပို့နေစဉ် ခလုတ်ကို နှိပ်မရအောင် လုပ်ထားမယ်
+    const submitBtn = document.querySelector("button[onclick='submitNewVote()']");
+    submitBtn.innerText = "ခေတ္တစောင့်ပါ...";
+    submitBtn.disabled = true;
+
+    try {
+        await fetch(webAppUrl, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(voteData)
+        });
+
+        alert("အမှတ်ပေးခြင်း အောင်မြင်ပါပြီ။ ကျေးဇူးတင်ပါတယ် ကိုကို။");
+        closeNewVoteModal();
+    } catch (error) {
+        console.error(error);
+        alert("ပို့လို့မရဖြစ်သွားပါတယ်၊ ခေတ္တနေပြီးမှ ပြန်စမ်းကြည့်ပါ။");
+    } finally {
+        submitBtn.innerText = "ပို့မည်";
+        submitBtn.disabled = false;
+    }
+}
+
+/* ဆလာ့အင်ဝင် ဆ */
