@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ရခိုင်အနုပညာမှတ်တမ်း</title>
- <link rel="stylesheet" href="AAA_Style.css?v=2.2.5">
+ <link rel="stylesheet" href="AAA_Style.css?v=2.2.7">
 </head>
 <body class="light-mode">
 
@@ -39,16 +39,6 @@
     
 <script src="https://accounts.google.com/gsi/client" async defer></script> 
 
-<div id="loginOverlay" class="login-overlay" style="display: none;">
-    <div class="login-modal">
-        <h3>🎵 Arakan Art Area</h3>
-        <p>သင်ကြိုက်နှစ်သက်တဲ့ သီချင်းတွေကို Vote ပေးနိုင်ဖို့နဲ့ မှတ်တမ်းတွေ သိမ်းဆည်းဖို့ အကောင့်ဝင်ထားမလားခင်ဗျာ။</p>
-        <div class="login-btn-group">
-            <button class="login-confirm-btn" onclick="confirmLogin()">အကောင့် ဝင်မယ်</button>
-            <button class="login-decline-btn" onclick="closeLoginModal()">မဝင်သေးပါ</button>
-        </div>
-    </div>
-</div>
 <div id="newLoginModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; justify-content:center; align-items:center;">
     <div style="background:var(--card); padding:30px; border-radius:15px; text-align:center; max-width:320px; width:90%; position:relative;">
         
@@ -103,15 +93,6 @@
     </div>
 </div>
 
-<div id="mainRatingModal" class="rating-overlay" style="display: none;">
-    <div class="rating-modal-content">
-        <span class="rating-close" onclick="closeRatingModal()">×</span>
-        <h3 id="ratingSongTitle" style="margin-top:0; border-bottom:2px solid var(--primary); padding-bottom:10px;">🌟 Rating</h3>
-
-        <div id="starDetailSection">
-            <div id="starCounts" style="font-size:14px; line-height:2; margin-bottom:20px;"></div>
-            <button onclick="switchToVoteForm()" class="btn-primary">ကိုယ်တိုင် Vote ပေးရန် 🌟</button>
-        </div>
 
         <div id="voteFormSection" style="display: none;">
             <div id="authSection" style="margin-bottom:15px; padding:10px; border-radius:8px; border:1px solid #ddd; text-align:center;">
@@ -275,7 +256,7 @@
 </div>
 
 
-<script src="AAA_Script.js?v=2.2.6"></script>
+<script src="AAA_Script.js?v=2.2.7"></script>
 
 </body>
 </html>
