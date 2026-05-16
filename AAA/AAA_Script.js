@@ -529,21 +529,6 @@ function filterByArtist(name) {
     renderCardView(name, encodeURIComponent(JSON.stringify(allData.filter(s => s.artist && s.artist.includes(name)))));
 }
 
-window.onload = function () {
-    // ၁။ UI ပိုင်းကို အမြန်ဆုံးပြမယ်
-    applyTheme();
-    updateAuthUI();
-
-
-    // ၃။ ဒေတာတွေကို ဆွဲမယ်
-    loadData();
-
-
-};
-
-
-
-
 applyTheme(); // Theme အရင်စစ်မယ်
 
 loadData();   // ပြီးမှ ဒေတာဆွဲမယ်
@@ -581,7 +566,7 @@ function initGoogleLogin() {
     if (typeof google === 'undefined') return;
     
     google.accounts.id.initialize({
-        client_id: "788091873113-at7cl7b8atpld6c0v547p071t3c4q88p.apps.googleusercontent.com", // မင်းရဲ့ Client ID
+        client_id: "750089996822-76hj5pfvrf8ui70eu6cimv0lb9lg6su3.apps.googleusercontent.com", // မင်းရဲ့ Client ID
         callback: handleLoginResponse
     });
     
