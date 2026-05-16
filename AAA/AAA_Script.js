@@ -536,20 +536,25 @@ loadData();   // ပြီးမှ ဒေတာဆွဲမယ်
 
 // Vote Modal ဖွင့်တဲ့ function (ဟိုဘက်က ခလုတ်မှာ ဒါနဲ့ အစားထိုးမယ်)
 function openMainRatingModal(songId) {
-    // အရင်ဆုံး login ဝင်ထားလား စစ်မယ်
-    if (!userSession) {
-        document.getElementById('newLoginModal').style.display = 'flex';
-        initGoogleLogin(); // Google ခလုတ် စတင်မယ်
+    // ၁။ ID ကို String ပြောင်းပြီး သီချင်းဒေတာကို အရင်ရှာဖွေသိမ်းဆည်းမည်
+    currentTargetSong = allData.find(s => String(s.id) === String(songId));
+    
+    if (!currentTargetSong) {
+        alert("သီချင်းဒေတာ ရှာမတွေ့ပါ။ ID: " + songId);
         return;
     }
 
-    // သီချင်း ID နဲ့ ဒေတာကို ရှာမယ်
-    currentTargetSong = allData.find(s => s.id === songId);
-    if (!currentTargetSong) return;
+    // ၂။ အကောင့်ဝင်ထားခြင်း ရှိမရှိ စစ်ဆေးမည်
+    if (!userSession) {
+        document.getElementById('newLoginModal').style.display = 'flex';
+        initGoogleLogin();
+        return;
+    }
 
+    // ၃။ အကောင့်ရှိပါက Vote Modal ကို ဖွင့်မည်
     document.getElementById('voteSongTitle').innerText = currentTargetSong.title;
     document.getElementById('newVoteModal').style.display = 'flex';
-    renderVoteButtons(); // ၀-၉ ခလုတ်တွေ ဆွဲမယ်
+    renderVoteButtons();
 }
 
 function closeNewVoteModal() {
@@ -560,6 +565,7 @@ function closeNewVoteModal() {
 function closeLoginModal() {
     document.getElementById('newLoginModal').style.display = 'none';
 }
+
 /* လော့အင်ဝင် စ */
 // Google Login စတင်ရန်
 function initGoogleLogin() {
@@ -577,22 +583,31 @@ function initGoogleLogin() {
 }
 
 function handleLoginResponse(response) {
-    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    let base64Url = response.credential.split('.')[1];
+    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    let jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    let payload = JSON.parse(jsonPayload);
+
     userSession = {
-        email: payload.email,
         name: payload.name,
+        email: payload.email,
         picture: payload.picture
     };
+
+    // Session သိမ်းဆည်းခြင်း
     localStorage.setItem('user_session', JSON.stringify(userSession));
     
-    closeLoginModal(); // Login အောင်မြင်ရင် modal ပိတ်မယ်
-    alert("မင်္ဂလာပါ " + userSession.name + "။ အကောင့်ဝင်ပြီးပါပြီ။");
-    
-    // Login ဝင်ပြီးမှ Vote Modal ကို ပြန်ဖွင့်ပေးမယ်
+    // Login Modal ပိတ်ခြင်း
+    document.getElementById('newLoginModal').style.display = 'none';
+
+    // ရွေးချယ်ထားသော သီချင်းရှိနေပါက Vote Modal ကို တိုက်ရိုက်ဆက်ဖွင့်မည်
     if (currentTargetSong) {
         openMainRatingModal(currentTargetSong.id);
     }
 }
+
 const voteLabels = {
     0: "အဆိုးဆုံး", 1: "အလွန်ညံ့သည်", 2: "ညံ့သည်", 3: "အားနည်းသည်", 
     4: "သင့်တင့်သည်", 5: "ကောင်းသည်", 6: "အလွန်ကောင်း", 
