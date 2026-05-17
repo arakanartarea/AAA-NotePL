@@ -1,7 +1,7 @@
 const sheetId = '1MnRxfu3BhlTnB6IlvtEfik2FfY-d22SOeaBTKAqfFCY';
 const sheetName = 'AAAview';
 const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
-const webAppUrl = "https://script.google.com/macros/s/AKfycbwZlhxYX0KqGWS75oDAiY0GTofBnuCSNz8x15cpOjqEh0sak06Q2oLky7Zc7_G41JG8/exec"; 
+const webAppUrl = "https://script.google.com/macros/s/AKfycbyEbG9qUAw3Mb6BrycGRkv-BxyOShJ3843UG9B0RCOYUZN3k4gpYcjUqf8O0BzoqayQ/exec"; 
 
 let allData = [];
 let currentSortKey = localStorage.getItem('preferredSort') || 'artist';
