@@ -1,7 +1,7 @@
 const sheetId = '1MnRxfu3BhlTnB6IlvtEfik2FfY-d22SOeaBTKAqfFCY';
 const sheetName = 'AAAview';
 const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
-const webAppUrl = "https://script.google.com/macros/s/AKfycbxXyXTGGO4yVqmqAfqnb5RIIgNMbM57PBgLO5gz_5JvKcIU7G5hrPdkBtf6mP0s8bI1/exec"; 
+const webAppUrl = "https://script.google.com/macros/s/AKfycbwZlhxYX0KqGWS75oDAiY0GTofBnuCSNz8x15cpOjqEh0sak06Q2oLky7Zc7_G41JG8/exec"; 
 
 let allData = [];
 let currentSortKey = localStorage.getItem('preferredSort') || 'artist';
@@ -395,7 +395,6 @@ function closeStats() {
     document.getElementById('statsModal').classList.remove('show');
     document.getElementById('statsOverlay').style.display = 'none';
 }
-
 function showFullList(type) {
     listType = type;
     const title = document.getElementById('list-title');
@@ -494,8 +493,6 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
         applyTheme();
     }
 });
-
-
 function renderList() {
     const content = document.getElementById('list-content');
     content.innerHTML = listDisplayData.map(item => {
