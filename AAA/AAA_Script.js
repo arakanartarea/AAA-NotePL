@@ -1,7 +1,7 @@
 const sheetId = '1MnRxfu3BhlTnB6IlvtEfik2FfY-d22SOeaBTKAqfFCY';
 const sheetName = 'AAAview';
 const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
-const webAppUrl = "https://script.google.com/macros/s/AKfycbyEbG9qUAw3Mb6BrycGRkv-BxyOShJ3843UG9B0RCOYUZN3k4gpYcjUqf8O0BzoqayQ/exec"; 
+const webAppUrl = "https://script.google.com/macros/s/AKfycbyACUywhkiXjIYQLXx3i5EM11kiLAOyBaAdBYIW6gWQeKx5QAqhDgH-hIkoRqqOe3RX/exec"; 
 
 let allData = [];
 let currentSortKey = localStorage.getItem('preferredSort') || 'artist';
@@ -584,23 +584,17 @@ function handleLoginResponse(response) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
     let payload = JSON.parse(jsonPayload);
-
-    userSession = {
-        name: payload.name,
-        email: payload.email,
-        picture: payload.picture
-    };
-
+    
+    userSession = { name: payload.name, email: payload.email, picture: payload.picture };
     localStorage.setItem('user_session', JSON.stringify(userSession));
     
-    if (typeof updateUI === "function") updateUI();
     document.getElementById('newLoginModal').style.display = 'none';
-
-    // 🌟 ဤနေရာသည် ဒေတာကို AAA_User_List ထဲသို့ တိုက်ရိုက်ပို့ပေးမည့် အပိုင်းဖြစ်သည်
+    
+    // 🌟 အပြောင်းအလဲ: application/json အစား text/plain သုံးရပါမည်
     fetch(webAppUrl, {
         method: "POST",
         mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({
             action: "save_user",
             userEmail: userSession.email,
@@ -608,10 +602,8 @@ function handleLoginResponse(response) {
             picture: userSession.picture
         })
     });
-
-    if (currentTargetSong) {
-        openMainRatingModal(currentTargetSong.id);
-    }
+    
+    if (currentTargetSong) openMainRatingModal(currentTargetSong.id);
 }
 const voteLabels = {
     0: "အဆိုးဆုံး", 1: "အလွန်ညံ့သည်", 2: "ညံ့သည်", 3: "အားနည်းသည်", 
@@ -639,50 +631,37 @@ function renderVoteButtons() {
 }
 // ၂။ ဘုတ်မဲပေးခလုတ်နှိပ်လျှင် AAA_Songs_Rate ထဲ တန်းပို့မည့်အပိုင်း
 async function submitNewVote() {
-    if (!userSession || !userSession.email) {
-        alert("အမှတ်ပေးရန် အရင်ဆုံး Google Login ဝင်ပေးပါရန်။");
-        return;
-    }
-    if (selectedVoteNum === null) return alert("ရမှတ်တစ်ခုခု အရင်ရွေးပေးပါဦး။");
+    if (!userSession || !userSession.email) return alert("အမှတ်ပေးရန် Login ဝင်ပါ။");
+    if (selectedVoteNum === null) return alert("ရမှတ်ရွေးပါ။");
     const reason = document.getElementById('voteReason').value;
-    if (reason.length < 5) return alert("မှတ်ချက်ကို အနည်းဆုံး ၅ လုံး ရေးပေးပါ။");
-    if (!currentTargetSong) return alert("သီချင်းဒေတာ မရှိပါ။");
-    
-    // 🌟 စာရင်းထဲ အတိအကျဝင်ရန် Action ကို submit_vote ဟု သတ်မှတ်သည်
+    if (reason.length < 5) return alert("မှတ်ချက် အနည်းဆုံး ၅ လုံးရေးပါ။");
+
     const voteData = {
-        action: "submit_vote",
+        action: "submit_vote", 
         songId: String(currentTargetSong.id),
         userEmail: userSession.email,
         userName: userSession.name,
         rating: selectedVoteNum,
         reason: reason
     };
-    
+
     const submitBtn = document.querySelector("button[onclick='submitNewVote()']");
-    if (submitBtn) {
-        submitBtn.innerText = "ခေတ္တစောင့်ပါ...";
-        submitBtn.disabled = true;
-    }
-    
+    if (submitBtn) { submitBtn.innerText = "စောင့်ပါ..."; submitBtn.disabled = true; }
+
     try {
-        // 🌟 ဤနေရာသည် ဒေတာကို AAA_Songs_Rate ထဲသို့ တိုက်ရိုက်ပို့ပေးမည့် အပိုင်းဖြစ်သည်
+        // 🌟 အပြောင်းအလဲ: text/plain မဖြစ်မနေ သုံးရပါမည်
         await fetch(webAppUrl, {
             method: "POST",
             mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(voteData)
         });
-        
-        alert("အမှတ်ပေးခြင်း အောင်မြင်ပါပြီ။");
+        alert("အောင်မြင်ပါတယ်။");
         closeNewVoteModal();
     } catch (error) {
-        console.error(error);
-        alert("အမှားအယွင်းရှိနေပါသည်။");
+        alert("Error");
     } finally {
-        if (submitBtn) {
-            submitBtn.innerText = "ဘုတ်ပေးမည်";
-            submitBtn.disabled = false;
-        }
+        if (submitBtn) { submitBtn.innerText = "ပို့မည်"; submitBtn.disabled = false; }
     }
 }
 
