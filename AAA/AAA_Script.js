@@ -576,6 +576,7 @@ function initGoogleLogin() {
     );
 }
 
+// ၁။ Google Login ဝင်ပြီးတာနဲ့ ဒေတာကို User List ထဲ တန်းပို့မည့်အပိုင်း
 function handleLoginResponse(response) {
     let base64Url = response.credential.split('.')[1];
     let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -591,9 +592,11 @@ function handleLoginResponse(response) {
     };
 
     localStorage.setItem('user_session', JSON.stringify(userSession));
+    
+    if (typeof updateUI === "function") updateUI();
     document.getElementById('newLoginModal').style.display = 'none';
 
-    // 🌟 အကောင့်အသစ်ကို Google Sheet ထဲသို့ လှမ်းသိမ်းခြင်း
+    // 🌟 ဤနေရာသည် ဒေတာကို AAA_User_List ထဲသို့ တိုက်ရိုက်ပို့ပေးမည့် အပိုင်းဖြစ်သည်
     fetch(webAppUrl, {
         method: "POST",
         mode: "no-cors",
@@ -602,7 +605,7 @@ function handleLoginResponse(response) {
             action: "save_user",
             userEmail: userSession.email,
             userName: userSession.name,
-            timestamp: new Date().toISOString()
+            picture: userSession.picture
         })
     });
 
@@ -634,49 +637,48 @@ function renderVoteButtons() {
         grid.appendChild(btn);
     }
 }
+// ၂။ ဘုတ်မဲပေးခလုတ်နှိပ်လျှင် AAA_Songs_Rate ထဲ တန်းပို့မည့်အပိုင်း
 async function submitNewVote() {
+    if (!userSession || !userSession.email) {
+        alert("အမှတ်ပေးရန် အရင်ဆုံး Google Login ဝင်ပေးပါရန်။");
+        return;
+    }
     if (selectedVoteNum === null) return alert("ရမှတ်တစ်ခုခု အရင်ရွေးပေးပါဦး။");
     const reason = document.getElementById('voteReason').value;
-    if (reason.length < 5) return alert("မှတ်ချက်ကို စာလုံးအနည်းငယ် ပိုရေးပေးပါ (အနည်းဆုံး ၅ လုံး)။");
-    if (!currentTargetSong) return alert("သီချင်းဒေတာ မရှိပါ။ ကြယ်ကို ပြန်နှိပ်ပေးပါ။");
-
+    if (reason.length < 5) return alert("မှတ်ချက်ကို အနည်းဆုံး ၅ လုံး ရေးပေးပါ။");
+    if (!currentTargetSong) return alert("သီချင်းဒေတာ မရှိပါ။");
+    
+    // 🌟 စာရင်းထဲ အတိအကျဝင်ရန် Action ကို submit_vote ဟု သတ်မှတ်သည်
     const voteData = {
-        action: "submit_vote", 
+        action: "submit_vote",
         songId: String(currentTargetSong.id),
-        songTitle: currentTargetSong.title,
+        userEmail: userSession.email,
+        userName: userSession.name,
         rating: selectedVoteNum,
-        reason: reason,
-        userEmail: userSession ? userSession.email : "",
-        userName: userSession ? userSession.name : "Guest",
-        timestamp: new Date().toISOString()
+        reason: reason
     };
-
+    
     const submitBtn = document.querySelector("button[onclick='submitNewVote()']");
     if (submitBtn) {
         submitBtn.innerText = "ခေတ္တစောင့်ပါ...";
         submitBtn.disabled = true;
     }
-
+    
     try {
-        // 🌟 ဘုတ်မဲဒေတာကို Google Sheet ထဲသို့ လှမ်းသိမ်းခြင်း
+        // 🌟 ဤနေရာသည် ဒေတာကို AAA_Songs_Rate ထဲသို့ တိုက်ရိုက်ပို့ပေးမည့် အပိုင်းဖြစ်သည်
         await fetch(webAppUrl, {
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(voteData)
-            
         });
-
-        alert("အမှတ်ပေးခြင်း အောင်မြင်ပါပြီ။ ကျေးဇူးတင်ပါတယ် ကိုကို။");
-        closeNewVoteModal();
         
-        if (submitBtn) {
-            submitBtn.innerText = "ဘုတ်ပေးမည်";
-            submitBtn.disabled = false;
-        }
+        alert("အမှတ်ပေးခြင်း အောင်မြင်ပါပြီ။");
+        closeNewVoteModal();
     } catch (error) {
         console.error(error);
         alert("အမှားအယွင်းရှိနေပါသည်။");
+    } finally {
         if (submitBtn) {
             submitBtn.innerText = "ဘုတ်ပေးမည်";
             submitBtn.disabled = false;
