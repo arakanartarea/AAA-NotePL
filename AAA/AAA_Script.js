@@ -1,7 +1,10 @@
 const sheetId = '1MnRxfu3BhlTnB6IlvtEfik2FfY-d22SOeaBTKAqfFCY';
 const sheetName = 'AAAview';
 const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
-const webAppUrl = "https://script.google.com/macros/s/AKfycbyACUywhkiXjIYQLXx3i5EM11kiLAOyBaAdBYIW6gWQeKx5QAqhDgH-hIkoRqqOe3RX/exec"; 
+const webAppUrl = "https://script.google.com/macros/s/AKfycbxXyXTGGO4yVqmqAfqnb5RIIgNMbM57PBgLO5gz_5JvKcIU7G5hrPdkBtf6mP0s8bI1/exec"; 
+
+const CLIENT_ID = "750089996822-76hj5pfvrf8ui70eu6cimv0lb9lg6su3.apps.googleusercontent.com";
+const userIcon = document.getElementById('userIcon');
 
 let allData = [];
 let currentSortKey = localStorage.getItem('preferredSort') || 'artist';
@@ -395,6 +398,7 @@ function closeStats() {
     document.getElementById('statsModal').classList.remove('show');
     document.getElementById('statsOverlay').style.display = 'none';
 }
+
 function showFullList(type) {
     listType = type;
     const title = document.getElementById('list-title');
@@ -515,7 +519,6 @@ function renderList() {
 function goToArtistList() { showFullList('artists'); closeStats(); }
 function showAllSongsFromStats() { showFullList('songs'); closeStats(); }
 function showAllData() { showFullList('songs'); closeStats(); }
-
 function closeFullList() {
     document.getElementById('fullListModal').style.display = 'none';
 }
@@ -525,14 +528,13 @@ function filterByArtist(name) {
     handleSort('artist'); 
     renderCardView(name, encodeURIComponent(JSON.stringify(allData.filter(s => s.artist && s.artist.includes(name)))));
 }
-
 applyTheme(); // Theme အရင်စစ်မယ်
-
 loadData();   // ပြီးမှ ဒေတာဆွဲမယ်
 
 
 // Vote Modal ဖွင့်တဲ့ function (ဟိုဘက်က ခလုတ်မှာ ဒါနဲ့ အစားထိုးမယ်)
 function openMainRatingModal(songId) {
+    // ၁။ ID ကို String ပြောင်းပြီး သီချင်းဒေတာကို အရင်ရှာဖွေသိမ်းဆည်းမည်
     currentTargetSong = allData.find(s => String(s.id) === String(songId));
     
     if (!currentTargetSong) {
@@ -540,12 +542,14 @@ function openMainRatingModal(songId) {
         return;
     }
 
+    // ၂။ အကောင့်ဝင်ထားခြင်း ရှိမရှိ စစ်ဆေးမည်
     if (!userSession) {
         document.getElementById('newLoginModal').style.display = 'flex';
         initGoogleLogin();
         return;
     }
 
+    // ၃။ အကောင့်ရှိပါက Vote Modal ကို ဖွင့်မည်
     document.getElementById('voteSongTitle').innerText = currentTargetSong.title;
     document.getElementById('newVoteModal').style.display = 'flex';
     renderVoteButtons();
@@ -556,11 +560,12 @@ function closeNewVoteModal() {
     selectedVoteNum = null;
     document.getElementById('voteReason').value = "";
 }
+
 function closeLoginModal() {
     document.getElementById('newLoginModal').style.display = 'none';
 }
 
-/* လော့အင်ဝင် စ */
+/* လော့အင်ဝင် စ 
 // Google Login စတင်ရန်
 function initGoogleLogin() {
     if (typeof google === 'undefined') return;
@@ -576,7 +581,6 @@ function initGoogleLogin() {
     );
 }
 
-// ၁။ Google Login ဝင်ပြီးတာနဲ့ ဒေတာကို User List ထဲ တန်းပို့မည့်အပိုင်း
 function handleLoginResponse(response) {
     let base64Url = response.credential.split('.')[1];
     let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -584,27 +588,25 @@ function handleLoginResponse(response) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
     let payload = JSON.parse(jsonPayload);
-    
-    userSession = { name: payload.name, email: payload.email, picture: payload.picture };
+
+    userSession = {
+        name: payload.name,
+        email: payload.email,
+        picture: payload.picture
+    };
+
+    // Session သိမ်းဆည်းခြင်း
     localStorage.setItem('user_session', JSON.stringify(userSession));
     
+    // Login Modal ပိတ်ခြင်း
     document.getElementById('newLoginModal').style.display = 'none';
-    
-    // 🌟 အပြောင်းအလဲ: application/json အစား text/plain သုံးရပါမည်
-    fetch(webAppUrl, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({
-            action: "save_user",
-            userEmail: userSession.email,
-            userName: userSession.name,
-            picture: userSession.picture
-        })
-    });
-    
-    if (currentTargetSong) openMainRatingModal(currentTargetSong.id);
+
+    // ရွေးချယ်ထားသော သီချင်းရှိနေပါက Vote Modal ကို တိုက်ရိုက်ဆက်ဖွင့်မည်
+    if (currentTargetSong) {
+        openMainRatingModal(currentTargetSong.id);
+    }
 }
+
 const voteLabels = {
     0: "အဆိုးဆုံး", 1: "အလွန်ညံ့သည်", 2: "ညံ့သည်", 3: "အားနည်းသည်", 
     4: "သင့်တင့်သည်", 5: "ကောင်းသည်", 6: "အလွန်ကောင်း", 
@@ -629,41 +631,88 @@ function renderVoteButtons() {
         grid.appendChild(btn);
     }
 }
-// ၂။ ဘုတ်မဲပေးခလုတ်နှိပ်လျှင် AAA_Songs_Rate ထဲ တန်းပို့မည့်အပိုင်း
 async function submitNewVote() {
-    if (!userSession || !userSession.email) return alert("အမှတ်ပေးရန် Login ဝင်ပါ။");
-    if (selectedVoteNum === null) return alert("ရမှတ်ရွေးပါ။");
+    if (selectedVoteNum === null) return alert("ရမှတ်တစ်ခုခု အရင်ရွေးပေးပါဦး။");
     const reason = document.getElementById('voteReason').value;
-    if (reason.length < 5) return alert("မှတ်ချက် အနည်းဆုံး ၅ လုံးရေးပါ။");
+    if (reason.length < 5) return alert("မှတ်ချက်ကို စာလုံးအနည်းငယ် ပိုရေးပေးပါ (အနည်းဆုံး ၅ လုံး)။");
 
     const voteData = {
-        action: "submit_vote", 
-        songId: String(currentTargetSong.id),
+        action: "submit_vote", // Script ဘက်မှာ ခွဲခြားဖို့
+        songId: currentTargetSong.id,
+        songTitle: currentTargetSong.title,
+        rating: selectedVoteNum,
+        reason: reason,
         userEmail: userSession.email,
         userName: userSession.name,
-        rating: selectedVoteNum,
-        reason: reason
+        timestamp: new Date().toISOString()
     };
 
+    // ပို့နေစဉ် ခလုတ်ကို နှိပ်မရအောင် လုပ်ထားမယ်
     const submitBtn = document.querySelector("button[onclick='submitNewVote()']");
-    if (submitBtn) { submitBtn.innerText = "စောင့်ပါ..."; submitBtn.disabled = true; }
+    submitBtn.innerText = "ခေတ္တစောင့်ပါ...";
+    submitBtn.disabled = true;
 
     try {
-        // 🌟 အပြောင်းအလဲ: text/plain မဖြစ်မနေ သုံးရပါမည်
         await fetch(webAppUrl, {
             method: "POST",
             mode: "no-cors",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(voteData)
         });
-        alert("အောင်မြင်ပါတယ်။");
+
+        alert("အမှတ်ပေးခြင်း အောင်မြင်ပါပြီ။ ကျေးဇူးတင်ပါတယ် ကိုကို။");
         closeNewVoteModal();
     } catch (error) {
-        alert("Error");
+        console.error(error);
+        alert("ပို့လို့မရဖြစ်သွားပါတယ်၊ ခေတ္တနေပြီးမှ ပြန်စမ်းကြည့်ပါ။");
     } finally {
-        if (submitBtn) { submitBtn.innerText = "ပို့မည်"; submitBtn.disabled = false; }
+        submitBtn.innerText = "ပို့မည်";
+        submitBtn.disabled = false;
+    }
+}
+ ဆလာ့အင်ဝင် ဆ */
+ 
+ /* login 2 */
+
+// Google စနစ် စတင်ပြီး UI အခြေအနေကို စစ်ဆေးခြင်း
+function initGoogle() {
+    google.accounts.id.initialize({
+        client_id: CLIENT_ID,
+        callback: handleCredentialResponse
+    });
+    updateNavUI();
+}
+
+// Icon ကို နှိပ်ရင် Login ခေါ်ခြင်း သို့မဟုတ် Logout ထွက်ခြင်း
+function promptGoogleLogin() {
+    const session = localStorage.getItem('user_session');
+    if (!session) {
+        google.accounts.id.prompt(); 
+    } else {
+        if (confirm("Logout ထွက်မှာ သေჩာပါသလား?")) {
+            localStorage.removeItem('user_session');
+            updateNavUI();
+        }
     }
 }
 
+// Login ဝင်ပြီးနောက် ရလာတဲ့ ဒေတာကို သိမ်းဆည်းခြင်း
+function handleCredentialResponse(response) {
+    let base64Url = response.credential.split('.')[1];
+    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    let jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+    
+    localStorage.setItem('user_session', jsonPayload);
+    updateNavUI();
+}
 
-/* ဆလာ့အင်ဝင် ဆ */
+// Login အခြေအနေအလိုက် 👤 နေရာမှာ ပရိုဖိုင်ပုံ အစားထိုးခြင်း
+function updateNavUI() {
+    const data = JSON.parse(localStorage.getItem('user_session'));
+    if (data && data.picture) {
+        userIcon.innerHTML = `<img src="${data.picture}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">`;
+    } else {
+        userIcon.innerHTML = `<span id="userInitial" style="font-size: 18px;">👤</span>`;
+    }
+}
+/* login 1*/
