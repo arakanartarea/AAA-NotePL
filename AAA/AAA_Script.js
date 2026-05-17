@@ -536,7 +536,6 @@ loadData();   // ပြီးမှ ဒေတာဆွဲမယ်
 
 // Vote Modal ဖွင့်တဲ့ function (ဟိုဘက်က ခလုတ်မှာ ဒါနဲ့ အစားထိုးမယ်)
 function openMainRatingModal(songId) {
-    // ၁။ ID ကို String ပြောင်းပြီး သီချင်းဒေတာကို အရင်ရှာဖွေသိမ်းဆည်းမည်
     currentTargetSong = allData.find(s => String(s.id) === String(songId));
     
     if (!currentTargetSong) {
@@ -544,14 +543,12 @@ function openMainRatingModal(songId) {
         return;
     }
 
-    // ၂။ အကောင့်ဝင်ထားခြင်း ရှိမရှိ စစ်ဆေးမည်
     if (!userSession) {
         document.getElementById('newLoginModal').style.display = 'flex';
         initGoogleLogin();
         return;
     }
 
-    // ၃။ အကောင့်ရှိပါက Vote Modal ကို ဖွင့်မည်
     document.getElementById('voteSongTitle').innerText = currentTargetSong.title;
     document.getElementById('newVoteModal').style.display = 'flex';
     renderVoteButtons();
@@ -596,18 +593,26 @@ function handleLoginResponse(response) {
         picture: payload.picture
     };
 
-    // Session သိမ်းဆည်းခြင်း
     localStorage.setItem('user_session', JSON.stringify(userSession));
-    
-    // Login Modal ပိတ်ခြင်း
     document.getElementById('newLoginModal').style.display = 'none';
 
-    // ရွေးချယ်ထားသော သီချင်းရှိနေပါက Vote Modal ကို တိုက်ရိုက်ဆက်ဖွင့်မည်
+    // 🌟 အကောင့်အသစ်ကို Google Sheet ထဲသို့ လှမ်းသိမ်းခြင်း
+    fetch(webAppUrl, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            action: "save_user",
+            userEmail: userSession.email,
+            userName: userSession.name,
+            timestamp: new Date().toISOString()
+        })
+    });
+
     if (currentTargetSong) {
         openMainRatingModal(currentTargetSong.id);
     }
 }
-
 const voteLabels = {
     0: "အဆိုးဆုံး", 1: "အလွန်ညံ့သည်", 2: "ညံ့သည်", 3: "အားနည်းသည်", 
     4: "သင့်တင့်သည်", 5: "ကောင်းသည်", 6: "အလွန်ကောင်း", 
@@ -636,40 +641,51 @@ async function submitNewVote() {
     if (selectedVoteNum === null) return alert("ရမှတ်တစ်ခုခု အရင်ရွေးပေးပါဦး။");
     const reason = document.getElementById('voteReason').value;
     if (reason.length < 5) return alert("မှတ်ချက်ကို စာလုံးအနည်းငယ် ပိုရေးပေးပါ (အနည်းဆုံး ၅ လုံး)။");
+    if (!currentTargetSong) return alert("သီချင်းဒေတာ မရှိပါ။ ကြယ်ကို ပြန်နှိပ်ပေးပါ။");
 
     const voteData = {
-        action: "submit_vote", // Script ဘက်မှာ ခွဲခြားဖို့
-        songId: currentTargetSong.id,
+        action: "submit_vote", 
+        songId: String(currentTargetSong.id),
         songTitle: currentTargetSong.title,
         rating: selectedVoteNum,
         reason: reason,
-        userEmail: userSession.email,
-        userName: userSession.name,
+        userEmail: userSession ? userSession.email : "",
+        userName: userSession ? userSession.name : "Guest",
         timestamp: new Date().toISOString()
     };
 
-    // ပို့နေစဉ် ခလုတ်ကို နှိပ်မရအောင် လုပ်ထားမယ်
     const submitBtn = document.querySelector("button[onclick='submitNewVote()']");
-    submitBtn.innerText = "ခေတ္တစောင့်ပါ...";
-    submitBtn.disabled = true;
+    if (submitBtn) {
+        submitBtn.innerText = "ခေတ္တစောင့်ပါ...";
+        submitBtn.disabled = true;
+    }
 
     try {
+        // 🌟 ဘုတ်မဲဒေတာကို Google Sheet ထဲသို့ လှမ်းသိမ်းခြင်း
         await fetch(webAppUrl, {
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(voteData)
+            
         });
 
         alert("အမှတ်ပေးခြင်း အောင်မြင်ပါပြီ။ ကျေးဇူးတင်ပါတယ် ကိုကို။");
         closeNewVoteModal();
+        
+        if (submitBtn) {
+            submitBtn.innerText = "ဘုတ်ပေးမည်";
+            submitBtn.disabled = false;
+        }
     } catch (error) {
         console.error(error);
-        alert("ပို့လို့မရဖြစ်သွားပါတယ်၊ ခေတ္တနေပြီးမှ ပြန်စမ်းကြည့်ပါ။");
-    } finally {
-        submitBtn.innerText = "ပို့မည်";
-        submitBtn.disabled = false;
+        alert("အမှားအယွင်းရှိနေပါသည်။");
+        if (submitBtn) {
+            submitBtn.innerText = "ဘုတ်ပေးမည်";
+            submitBtn.disabled = false;
+        }
     }
 }
+
 
 /* ဆလာ့အင်ဝင် ဆ */
