@@ -1,7 +1,7 @@
 const sheetId = '1MnRxfu3BhlTnB6IlvtEfik2FfY-d22SOeaBTKAqfFCY';
 const sheetName = 'AAAview';
 const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
-const webAppUrl = "https://script.google.com/macros/s/AKfycbxUU_vK8AuJmvyLhESYzolxllcfkZhFSCUF8zaUYDbdmXZ9UFMRIXwviCU2aPN-UBDJ/exec"; 
+const webAppUrl = "https://script.google.com/macros/s/AKfycbxUU_vK8AuJmvyLhESYzolxllcfkZhFSCUF8zaUYDbdmXZ9UFMRIXwviCU2aPN-UBDJ/exec"; //20260519
 
 const CLIENT_ID = "750089996822-76hj5pfvrf8ui70eu6cimv0lb9lg6su3.apps.googleusercontent.com";
 const userIcon = document.getElementById('userIcon');
