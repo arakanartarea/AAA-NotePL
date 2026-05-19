@@ -1,7 +1,7 @@
 const sheetId = '1MnRxfu3BhlTnB6IlvtEfik2FfY-d22SOeaBTKAqfFCY';
 const sheetName = 'AAAview';
 const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
-const webAppUrl = "https://script.google.com/macros/s/AKfycbxXyXTGGO4yVqmqAfqnb5RIIgNMbM57PBgLO5gz_5JvKcIU7G5hrPdkBtf6mP0s8bI1/exec"; 
+const webAppUrl = "https://script.google.com/macros/s/AKfycbx8TRzCXoeaz2NtxD_EZ2H_t7axpJ8TzHpqGB13h1ktTvKQBxYhCeRafEYQloW5f0YI/exec"; 
 
 const CLIENT_ID = "750089996822-76hj5pfvrf8ui70eu6cimv0lb9lg6su3.apps.googleusercontent.com";
 const userIcon = document.getElementById('userIcon');
@@ -672,3 +672,114 @@ async function submitNewVote() {
 }
  ဆလာ့အင်ဝင် ဆ */
  
+ // Login စ 0519 
+ // Nav Profile အကောင့်ဝင်ရန် နှိပ်သည့်အခါ လုပ်ဆောင်ချက်
+function promptGoogleLogin() {
+    if (userSession) {
+        alert(`အကောင့်ဝင်ထားပြီးပါပြီ - ${userSession.name}`);
+        return;
+    }
+    document.getElementById('newLoginModal').style.display = 'flex';
+    initGoogleLogin();
+}
+
+// Google Login စတင်ရန်နှင့် Pop-up ပြသခြင်း စနစ်
+function initGoogleLogin() {
+    if (typeof google === 'undefined') {
+        console.error("Google API မတက်သေးပါ");
+        return;
+    }
+    
+    google.accounts.id.initialize({
+        client_id: CLIENT_ID,
+        callback: handleLoginResponse
+    });
+    
+    // ဘရောက်ဆာမှာ ရှိသမျှ အကောင့်စာရင်းပြပြီး ရွေးခိုင်းမည့် standard ခလုတ်ဆွဲခြင်း
+    google.accounts.id.renderButton(
+        document.getElementById("googleBtnContainer"),
+        { theme: "outline", size: "large", width: 250 }
+    );
+}
+
+// Login အောင်မြင်ပြီးနောက် Payload ဖတ်ယူခြင်းနှင့် ချက်ချင်းသိမ်းဆည်းခြင်း
+async function handleLoginResponse(response) {
+    try {
+        let base64Url = response.credential.split('.')[1];
+        let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        let jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        let payload = JSON.parse(jsonPayload);
+
+        // ဒေတာအချက်အလက်များ စုဆောင်းခြင်း
+        userSession = {
+            id: payload.sub,        // UserID (Google Unique Sub ID)
+            name: payload.name,      // UserName
+            email: payload.email,    // UserMail
+            picture: payload.picture // User Image Link
+        };
+
+        // Local Storage တွင် Session မှတ်သားမည် (ဘယ် Tab မှာဖွင့်ဖွင့် အကောင့်သိနေစေရန်)
+        localStorage.setItem('user_session', JSON.stringify(userSession));
+        
+        // UI ကို ပရိုဖိုင်းပုံ ချက်ချင်းပြောင်းရန်
+        updateUserUI();
+
+        // Login Modal ပိတ်မည်
+        closeLoginModal();
+
+        // AAA_User_List သို့ ကမ္ဘာ့အချိန်ဖြင့် ဒေတာလှမ်းသိမ်းမည်
+        await saveUserToSheet(userSession);
+
+        // အမှတ်ပေးလက်စ သီချင်းရှိလျှင် Rating Modal ကို ဆက်ဖွင့်ပေးမည်
+        if (currentTargetSong) {
+            openMainRatingModal(currentTargetSong.id);
+        }
+    } catch (err) {
+        console.error("Login handling error:", err);
+    }
+}
+
+// Login icon နေရာတွင် User Profile Image အဝိုင်းလေး ပြောင်းလဲပြသရန်
+function updateUserUI() {
+    const uIcon = document.getElementById('userIcon');
+    if (userSession && userSession.picture && uIcon) {
+        uIcon.innerHTML = `<img src="${userSession.picture}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;" alt="Profile" />`;
+    }
+}
+
+// User ဒေတာကို Google Sheet ဆီ Background မှ လှမ်းပို့သိမ်းမည့်စနစ်
+async function saveUserToSheet(user) {
+    const userData = {
+        action: "save_user",
+        targetTab: "AAA_User_List", 
+        userId: user.id,
+        userName: user.name,
+        userEmail: user.email,
+        userImage: user.picture,
+        timestamp: new Date().toISOString(), // ကမ္ဘာ့အချိန် UTC စနစ် (Date + Time ပေါင်းလျက်)
+        userAgent: navigator.userAgent       // အသုံးပြုသည့် ဖုန်း / Device အမျိုးအစား
+    };
+
+    try {
+        await fetch(webAppUrl, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(userData)
+        });
+        console.log("User data synced to AAA_User_List");
+    } catch (error) {
+        console.error("Error syncing user:", error);
+    }
+}
+
+// Window စပွင့်ချိန်မှာတင် LocalStorage ကိုစစ်ပြီး ပရိုဖိုင်းပုံ တန်းပြောင်းထားရန်
+window.addEventListener('DOMContentLoaded', () => {
+    if (userSession) {
+        updateUserUI();
+    }
+});
+
+ // Login 0519
