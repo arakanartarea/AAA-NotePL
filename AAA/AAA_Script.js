@@ -1,7 +1,7 @@
 const sheetId = '1MnRxfu3BhlTnB6IlvtEfik2FfY-d22SOeaBTKAqfFCY';
 const sheetName = 'AAAview';
 const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
-const webAppUrl = "https://script.google.com/macros/s/AKfycbx8TRzCXoeaz2NtxD_EZ2H_t7axpJ8TzHpqGB13h1ktTvKQBxYhCeRafEYQloW5f0YI/exec"; 
+const webAppUrl = "https://script.google.com/macros/s/AKfycbxUU_vK8AuJmvyLhESYzolxllcfkZhFSCUF8zaUYDbdmXZ9UFMRIXwviCU2aPN-UBDJ/exec"; 
 
 const CLIENT_ID = "750089996822-76hj5pfvrf8ui70eu6cimv0lb9lg6su3.apps.googleusercontent.com";
 const userIcon = document.getElementById('userIcon');
@@ -673,38 +673,56 @@ async function submitNewVote() {
  ဆလာ့အင်ဝင် ဆ */
  
  // Login စ 0519 
- // Nav Profile အကောင့်ဝင်ရန် နှိပ်သည့်အခါ လုပ်ဆောင်ချက်
+// Nav Profile အကောင့်ဝင်ရန် နှိပ်သည့်အခါ လုပ်ဆောင်ချက်
 function promptGoogleLogin() {
     if (userSession) {
         alert(`အကောင့်ဝင်ထားပြီးပါပြီ - ${userSession.name}`);
         return;
     }
-    document.getElementById('newLoginModal').style.display = 'flex';
-    initGoogleLogin();
+    // Modal ကို ဖွင့်ပြီး Google Button ကို ဆွဲခိုင်းမည်
+    const modal = document.getElementById('newLoginModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        initGoogleLogin();
+    }
 }
 
-// Google Login စတင်ရန်နှင့် Pop-up ပြသခြင်း စနစ်
+// Modal ပိတ်ရန် function 
+function closeLoginModal() {
+    const modal = document.getElementById('newLoginModal');
+    if (modal) modal.style.display = 'none';
+}
+
+// Google Login စတင်ရန်နှင့် Setup လုပ်ခြင်း
 function initGoogleLogin() {
     if (typeof google === 'undefined') {
-        console.error("Google API မတက်သေးပါ");
+        console.error("Google API စနစ် မတက်သေးပါ");
         return;
     }
     
+    // Google GIS API ကို Initialize လုပ်ခြင်း
     google.accounts.id.initialize({
         client_id: CLIENT_ID,
         callback: handleLoginResponse
     });
     
-    // ဘရောက်ဆာမှာ ရှိသမျှ အကောင့်စာရင်းပြပြီး ရွေးခိုင်းမည့် standard ခလုတ်ဆွဲခြင်း
+    // ခလုတ်ကို standard ပုံစံအတိုင်း ပေါ်လာအောင် လုပ်ခြင်း (ရှိသမျှ အကောင့်စာရင်းပြ စနစ်)
     google.accounts.id.renderButton(
         document.getElementById("googleBtnContainer"),
-        { theme: "outline", size: "large", width: 250 }
+        { 
+            theme: "outline", 
+            size: "large", 
+            width: "250",
+            text: "signin_with",
+            shape: "rectangular"
+        }
     );
 }
 
-// Login အောင်မြင်ပြီးနောက် Payload ဖတ်ယူခြင်းနှင့် ချက်ချင်းသိမ်းဆည်းခြင်း
+// Login အောင်မြင်ပြီးနောက် Payload ဖတ်ယူခြင်းနှင့် ဒေတာသိမ်းဆည်းခြင်း
 async function handleLoginResponse(response) {
     try {
+        // JWT Token ကို ဖတ်ပြီး ဖြည်ချခြင်း
         let base64Url = response.credential.split('.')[1];
         let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         let jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
@@ -712,36 +730,32 @@ async function handleLoginResponse(response) {
         }).join(''));
         let payload = JSON.parse(jsonPayload);
 
-        // ဒေတာအချက်အလက်များ စုဆောင်းခြင်း
+        // စုဆောင်းရရှိလာသော အသုံးပြုသူ အချက်အလက်များ
         userSession = {
-            id: payload.sub,        // UserID (Google Unique Sub ID)
-            name: payload.name,      // UserName
-            email: payload.email,    // UserMail
-            picture: payload.picture // User Image Link
+            id: payload.sub,         // User ID (Google Unique ID)
+            name: payload.name,       // User Name
+            email: payload.email,     // User Mail
+            picture: payload.picture  // User Image Link
         };
 
-        // Local Storage တွင် Session မှတ်သားမည် (ဘယ် Tab မှာဖွင့်ဖွင့် အကောင့်သိနေစေရန်)
+        // Local Storage မှာ သိမ်းဆည်းခြင်း (ဘယ် Tab မှာဖွင့်ဖွင့် အကောင့်သိနေစေရန်)
         localStorage.setItem('user_session', JSON.stringify(userSession));
         
-        // UI ကို ပရိုဖိုင်းပုံ ချက်ချင်းပြောင်းရန်
+        // UI ပရိုဖိုင်းပုံ ချက်ချင်းပြောင်းလဲရန်
         updateUserUI();
 
         // Login Modal ပိတ်မည်
         closeLoginModal();
 
-        // AAA_User_List သို့ ကမ္ဘာ့အချိန်ဖြင့် ဒေတာလှမ်းသိမ်းမည်
+        // AAA_User_List ဆီသို့ ကမ္ဘာ့အချိန်ဖြင့် ဒေတာလှမ်းသိမ်းမည်
         await saveUserToSheet(userSession);
 
-        // အမှတ်ပေးလက်စ သီချင်းရှိလျှင် Rating Modal ကို ဆက်ဖွင့်ပေးမည်
-        if (currentTargetSong) {
-            openMainRatingModal(currentTargetSong.id);
-        }
     } catch (err) {
-        console.error("Login handling error:", err);
+        console.error("Login Handling Error:", err);
     }
 }
 
-// Login icon နေရာတွင် User Profile Image အဝိုင်းလေး ပြောင်းလဲပြသရန်
+// Header Login icon နေရာတွင် User Profile Image ပြောင်းလဲရန်
 function updateUserUI() {
     const uIcon = document.getElementById('userIcon');
     if (userSession && userSession.picture && uIcon) {
@@ -749,29 +763,29 @@ function updateUserUI() {
     }
 }
 
-// User ဒေတာကို Google Sheet ဆီ Background မှ လှမ်းပို့သိမ်းမည့်စနစ်
+// User ဒေတာကို Google Sheet ဆီ Background ကနေ လှမ်းပို့သိမ်းမည့်စနစ်
 async function saveUserToSheet(user) {
     const userData = {
         action: "save_user",
-        targetTab: "AAA_User_List", 
         userId: user.id,
         userName: user.name,
         userEmail: user.email,
         userImage: user.picture,
         timestamp: new Date().toISOString(), // ကမ္ဘာ့အချိန် UTC စနစ် (Date + Time ပေါင်းလျက်)
-        userAgent: navigator.userAgent       // အသုံးပြုသည့် ဖုန်း / Device အမျိုးအစား
+        userAgent: navigator.userAgent       // အသုံးပြုသည့် ဖုန်း / စက် အမျိုးအစား
     };
 
     try {
+        // Mode: 'no-cors' သည် Redirect Error များကို ကျော်ဖြတ်ပြီး Sheet ထဲ ဒေတာ တိုက်ရိုက်ဝင်စေသည်
         await fetch(webAppUrl, {
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(userData)
         });
-        console.log("User data synced to AAA_User_List");
+        console.log("အသုံးပြုသူ ဒေတာကို Sheet ထဲသို့ အောင်မြင်စွာ ပို့ပြီးပါပြီ။");
     } catch (error) {
-        console.error("Error syncing user:", error);
+        console.error("Fetch Error:", error);
     }
 }
 
