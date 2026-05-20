@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ရခိုင်အနုပညာမှတ်တမ်း</title>
- <link rel="stylesheet" href="AAA_Style.css">
+ <link rel="stylesheet" href="AAA_Style.cssv?=1.0">
 </head>
 <body class="light-mode">
 
@@ -192,6 +192,10 @@
         <span class="icon">⚙️</span>
         <span>ဆက်တင်</span>
     </button>
+    <button id="fontMenuBtn" class="tool-btn">
+    <span class="icon">🔤</span>
+    <span>ဖောင့်စနစ်</span>
+</button>
     <button class="tool-btn" onclick="location.reload()">
         <span class="icon">🔄</span>
         <span>Update</span>
@@ -260,6 +264,46 @@
     </div>
     <div id="list-content" class="list-content-area"></div>
 </div>
+<div class="overlay" id="fontOverlay"></div>
+<div class="font-modal" id="fontModal">
+    <h3 style="margin-bottom: 15px; text-align: center; color: var(--text);">အသုံးပြုမည့် ဖောင့်ကို ရွေးပါ</h3>
+    <div class="font-item" data-font="Arakan_Danyawaddy" style="font-family: 'Arakan_Danyawaddy';" onclick="changeGlobalFont('Arakan_Danyawaddy', this)">Arakan - စမ်းသပ်စာသား</div>
+    <div class="font-item" data-font="BeautiUNI-7" style="font-family: 'BeautiUNI-7';" onclick="changeGlobalFont('BeautiUNI-7', this)">BeautiUNI-7 (လက်ရေး) - စမ်းသပ်စာသား</div>
+    <div class="font-item" data-font="Hsi-Hseng" style="font-family: 'Hsi-Hseng';" onclick="changeGlobalFont('Hsi-Hseng', this)">Hsi-Hseng (လက်ရေးလှ) - စမ်းသပ်စာသား</div>
+    <div class="font-item" data-font="KyaungChee" style="font-family: 'KyaungChee';" onclick="changeGlobalFont('KyaungChee', this)">KyaungChee (ပုံဖျက်) - စမ်းသပ်စာသား</div>
+    <div class="font-item" data-font="Hopone" style="font-family: 'Hopone';" onclick="changeGlobalFont('Hopone', this)">Hopone - စမ်းသပ်စာသား</div>
+    
+    <div class="font-item" data-font="MM_Jasmine_v1.01" style="font-family: 'MM_Jasmine_v1.01';" onclick="changeGlobalFont('MM_Jasmine_v1.01', this)">MM_Jasmine_v1.01 - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_PhikselSmooth" style="font-family: 'Myanmar_PhikselSmooth';" onclick="changeGlobalFont('Myanmar_PhikselSmooth', this)">Myanmar_PhikselSmooth - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Bagan_v1.0" style="font-family: 'Myanmar_Bagan_v1.0';" onclick="changeGlobalFont('Myanmar_Bagan_v1.0', this)">Myanmar_Bagan_v1.0 - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Jojar_v2.0_2017" style="font-family: 'Myanmar_Jojar_v2.0_2017';" onclick="changeGlobalFont('Myanmar_Jojar_v2.0_2017', this)">Myanmar_Jojar_v2.0_2017 - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Kalay_v2.0_2017" style="font-family: 'Myanmar_Kalay_v2.0_2017';" onclick="changeGlobalFont('Myanmar_Kalay_v2.0_2017', this)">Myanmar_Kalay_v2.0_2017 - နမူနာစာသား </div>
+    
+    <div class="font-item" data-font="Myanmar_Love_2.0_2017" style="font-family: 'Myanmar_Love_2.0_2017';" onclick="changeGlobalFont('Myanmar_Love_2.0_2017', this)">Myanmar_Love_2.0_2017 - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Pixel.ttf" style="font-family: 'Myanmar_Pixel.ttf';" onclick="changeGlobalFont('Myanmar_Pixel.ttf', this)">Myanmar_Pixel.ttf - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Ponenyet.ttf" style="font-family: 'Myanmar_Ponenyet.ttf';" onclick="changeGlobalFont('Myanmar_Ponenyet.ttf', this)">Myanmar_Ponenyet.ttf - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Pyay_v2.0_2017" style="font-family: 'Myanmar_Pyay_v2.0_2017';" onclick="changeGlobalFont('Myanmar_Pyay_v2.0_2017', this)">Myanmar_Pyay_v2.0_2017 - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Pyu_Pro_2.0_2017" style="font-family: 'Myanmar_Pyu_Pro_2.0_2017';" onclick="changeGlobalFont('Myanmar_Pyu_Pro_2.0_2017', this)">Myanmar_Pyu_Pro_2.0_2017 - နမူနာစာသား </div>
+    
+    <div class="font-item" data-font="Myanmar_Pyu_v2.0_2017" style="font-family: 'Myanmar_Pyu_v2.0_2017';" onclick="changeGlobalFont('Myanmar_Pyu_v2.0_2017', this)">Myanmar_Pyu_v2.0_2017 - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Tagu.ttf" style="font-family: 'Myanmar_Tagu.ttf';" onclick="changeGlobalFont('Myanmar_Tagu.ttf', this)">Myanmar_Tagu.ttf - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Taunggyi_v1.00" style="font-family: 'Myanmar_Taunggyi_v1.00';" onclick="changeGlobalFont('Myanmar_Taunggyi_v1.00', this)">Myanmar_Taunggyi_v1.00 - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Thuriya" style="font-family: 'Myanmar_Thuriya';" onclick="changeGlobalFont('Myanmar_Thuriya', this)">Myanmar_Thuriya - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Waso" style="font-family: 'Myanmar_Waso';" onclick="changeGlobalFont('Myanmar_Waso', this)">Myanmar_Waso - နမူနာစာသား </div>
+    
+    <div class="font-item" data-font="Myanmar_Yinmar" style="font-family: 'Myanmar_Yinmar';" onclick="changeGlobalFont('Myanmar_Yinmar', this)">Myanmar_Yinmar - နမူနာစာသား </div>
+    <div class="font-item" data-font="NK_SSmart_3" style="font-family: 'NK_SSmart_3';" onclick="changeGlobalFont('NK_SSmart_3', this)">NK_SSmart_3 - နမူနာစာသား </div>
+    <div class="font-item" data-font="Roboto_Bold" style="font-family: 'Roboto_Bold';" onclick="changeGlobalFont('Roboto_Bold', this)">Roboto_Bold - နမူနာစာသား </div>
+    <div class="font-item" data-font="Samsung_Myanmar" style="font-family: 'Samsung_Myanmar';" onclick="changeGlobalFont('Samsung_Myanmar', this)">Samsung_Myanmar - နမူနာစာသား </div>
+    <div class="font-item" data-font="YoeYar_One_Bold" style="font-family: 'YoeYar_One_Bold';" onclick="changeGlobalFont('YoeYar_One_Bold', this)">YoeYar_One_Bold - နမူနာစာသား </div>
+    
+    <div class="font-item" data-font="YoeYar_One_Light" style="font-family: 'YoeYar_One_Light';" onclick="changeGlobalFont('YoeYar_One_Light', this)">YoeYar_One_Light - နမူနာစာသား </div>
+    <div class="font-item" data-font="notosan_grand_pro" style="font-family: 'notosan_grand_pro';" onclick="changeGlobalFont('notosan_grand_pro', this)">notosan_grand_pro - နမူနာစာသား </div>
+    <div class="font-item" data-font="notosans_myanmar" style="font-family: 'notosans_myanmar';" onclick="changeGlobalFont('notosans_myanmar', this)">notosans_myanmar - နမူနာစာသား </div>
+    <div class="font-item" data-font="yaungki" style="font-family: 'yaungki';" onclick="changeGlobalFont('yaungki', this)">yaungki - နမူနာစာသား </div>
+
+    
+</div>
 
 
 <script>
@@ -273,7 +317,7 @@
 
     // JS အသစ်ဆွဲရန်
     const script = document.createElement('script');
-    script.src = 'AAA_Script.js?v=' + uniqueTime;
+    script.src = 'AAA_Script.js?v=1.0' + uniqueTime;
     document.head.appendChild(script);
 </script>
 

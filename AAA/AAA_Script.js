@@ -774,4 +774,77 @@ window.addEventListener('DOMContentLoaded', () => {
     if (userSession) updateUserUI();
 });
 
- // Login 0519
+ // Login 0519 
+ 
+// font စ
+// --- Font Changer JavaScript System ---
+
+const fontMenuBtn = document.getElementById('fontMenuBtn');
+const fontModal = document.getElementById('fontModal');
+const fontOverlay = document.getElementById('fontOverlay');
+
+// ဖောင့် List Popup ဖွင့်ရန်
+if (fontMenuBtn) {
+    fontMenuBtn.addEventListener('click', () => {
+        fontModal.style.display = 'block';
+        fontOverlay.style.display = 'block';
+    });
+}
+
+// Popup ပြန်ပိတ်ရန်
+if (fontOverlay) {
+    fontOverlay.addEventListener('click', () => {
+        fontModal.style.display = 'none';
+        fontOverlay.style.display = 'none';
+    });
+}
+
+// ဝက်ဘ်ဆိုက်တစ်ခုလုံး ဖောင့်ပြောင်းပေးပြီး Local Storage တွင် သိမ်းမည့် အဓိက Function
+function changeGlobalFont(fontName, element) {
+    // ၁။ Dynamic Style ထည့်သွင်းခြင်း
+    let fontStyle = document.getElementById('global-font-style');
+    if (!fontStyle) {
+        fontStyle = document.createElement('style');
+        fontStyle.id = 'global-font-style';
+        document.head.appendChild(fontStyle);
+    }
+    // !important ပါဝင်၍ တစ်ဝက်ဘ်ဆိုက်လုံး ဇွတ်ပြောင်းလဲမည်
+    fontStyle.innerHTML = `body, body *:not(.font-item):not(.font-item *) { font-family: '${fontName}' !important; }`;
+
+    
+    // ၂။ Local Storage တွင် ဒေတာသိမ်းခြင်း (ဒါထည့်မှ အမြဲမှတ်မိမှာဗျ)
+    localStorage.setItem('aaaUserFont', fontName);
+
+    // ၃။ Active Item အား အရောင်ပြောင်းလဲခြင်း
+    const items = document.querySelectorAll('.font-item');
+    items.forEach(item => item.classList.remove('active'));
+    
+    if (element) {
+        element.classList.add('active');
+    } else {
+        const activeItem = document.querySelector(`.font-item[data-font="${fontName}"]`);
+        if (activeItem) activeItem.classList.add('active');
+    }
+    
+    // ၄။ မိုဒယ်လ် ပိတ်ခြင်း
+    setTimeout(() => {
+        if(fontModal) fontModal.style.display = 'none';
+        if(fontOverlay) fontOverlay.style.display = 'none';
+    }, 200);
+}
+
+// ၅။ Webpage စဖွင့်ဖွင့်ချင်း (သို့မဟုတ် Update ဖြစ်တိုင်း) Local Storage မှ ဖောင့်ဟောင်းကို ဆွဲထုတ်ပြီး တန်းသုံးပေးခြင်း
+function applySavedFont() {
+    const savedFont = localStorage.getItem('aaaUserFont');
+    if (savedFont) {
+        changeGlobalFont(savedFont, null);
+    }
+}
+
+// စာမျက်နှာစပွင့်ချိန်မှာ တစ်ခါ အလုပ်လုပ်ခိုင်းခြင်း
+document.addEventListener("DOMContentLoaded", applySavedFont);
+// တကယ်လို့ မင်းရဲ့ အခြားကုဒ်တွေကြောင့် နှောင့်နှေးခဲ့ရင် သေချာအောင် ချက်ချင်းတစ်ကြိမ် ထပ်မံ run ခိုင်းခြင်း
+applySavedFont();
+
+// font ဆ
+
