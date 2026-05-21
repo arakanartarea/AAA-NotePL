@@ -48,7 +48,14 @@ body {
     #master-panel { width: 100%; height: auto; position: static; border-right: none; padding: 10px; }
     #group-list { width: 100%; padding: 10px; min-height: auto; }
 }
-.nav-flag { height: 30px; width: auto; object-fit: contain; padding: 0 10px; flex-shrink: 0; }
+.nav-flag { 
+    height: 27px; 
+    width: auto; 
+    object-fit: contain; 
+    padding: 0 5px; 
+    flex-shrink: 0; 
+    
+}
 
 /* nav မှာ center ကို ဖြုတ်ပြီး width အပြည့်ယူမယ် */
 nav {
@@ -78,6 +85,7 @@ nav {
     align-items: center;
     justify-content: center;
     flex-grow: 1;
+    min-width: 0;
 }
 .nav-left, .nav-right {
     display: flex;
@@ -108,7 +116,14 @@ nav {
 
 .brand-container { flex-grow: 1; height: 45px; overflow: hidden; display: flex; flex-direction: column; align-items: center; max-width: 300px; }
 .scrolling-text { display: flex; flex-direction: column; text-align: center; animation: slideUp 12s infinite cubic-bezier(0.645, 0.045, 0.355, 1); }
-.text-item { height: 45px; line-height: 45px; font-weight: bold; font-size: 1.2rem; color: var(--primary) !important; white-space: nowrap; display: block; }
+.text-item { 
+    height: 45px; 
+    line-height: 45px; 
+    font-weight: bold; 
+    font-size: clamp(14px, 4vw, 18px);
+    color: var(--primary) !important; 
+    white-space: nowrap; 
+    display: block; }
 
 @keyframes slideUp {
     0%, 25% { transform: translateY(0); }

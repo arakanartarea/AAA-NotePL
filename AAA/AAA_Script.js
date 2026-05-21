@@ -300,27 +300,32 @@ function filterData() {
     
     clearBtn.style.display = (val.length > 0) ? 'block' : 'none';
 
-    const filtered = allData.filter(i => 
-        (i.title && i.title.toLowerCase().includes(val)) || 
-        (i.artist && i.artist.toLowerCase().includes(val))
-    );
-
     if (val === "") {
         clearSearch(); 
     } else {
-        document.getElementById('group-list').innerHTML = filtered.map(song => `
+        const filtered = allData.filter(i => 
+            (i.title && i.title.toLowerCase().includes(val)) || 
+            (i.artist && i.artist.toLowerCase().includes(val)) ||
+            (i.writer && i.writer.toLowerCase().includes(val))
+        );
+
+                document.getElementById('group-list').innerHTML = filtered.map(song => `
             <div class="song-list-item" 
                  onclick='openFullModal(${JSON.stringify(song).replace(/"/g, '&quot;')})'
-                 style="padding:12px; border-bottom:1px solid #eee; background:white; cursor:pointer;">
+                 style="padding:12px; border-bottom:1px solid var(--border, #eee); background:var(--card); color:var(--text); cursor:pointer;">
                 <strong>🎵 ${song.title}</strong><br>
-                <small style="color:#666; margin-left:20px;">${song.artist}</small>
+                <small style="opacity: 0.7; margin-left:20px;">ဆို: ${song.artist || '-'} | ရေး: ${song.writer || '-'}</small>
             </div>
         `).join('');
+
         
         if (window.innerWidth <= 768) {
-            document.getElementById('master-panel').classList.add('hidden-mobile');
+            // Expan Group List ပါတဲ့ container ကိုပဲ ဖျောက်ပြီး Search ရလဒ်ကို အစားထိုးပြမယ်
+            const artistContainer = document.getElementById('artist-list-container');
+            if (artistContainer) artistContainer.style.setProperty('display', 'none', 'important');
+            
             document.getElementById('group-list').classList.remove('hidden-mobile');
-            updateToolbarUI(true, currentSortKey);
+            updateToolbarUI(false, currentSortKey); // true ပေးရင် search box ပျောက်လို့ false ပဲထိန်းထားမယ်
         }
     }
 }
@@ -331,6 +336,10 @@ function clearSearch() {
     document.getElementById('clearSearch').style.display = 'none';
 
     if (window.innerWidth <= 768) {
+        // ရှာတာပိတ်လိုက်ရင် Expan Group List ကို ပုံမှန်အတိုင်း ပြန်ဖော်မယ်
+        const artistContainer = document.getElementById('artist-list-container');
+        if (artistContainer) artistContainer.style.setProperty('display', 'block', 'important');
+
         document.getElementById('master-panel').classList.remove('hidden-mobile');
         document.getElementById('group-list').classList.add('hidden-mobile');
         updateToolbarUI(false, currentSortKey);
@@ -339,6 +348,7 @@ function clearSearch() {
     handleSort(currentSortKey); 
     window.scrollTo(0, 0);
 }
+
 
 function toggleAddSubMenu() {
     const subMenu = document.getElementById('add-sub-menu');
