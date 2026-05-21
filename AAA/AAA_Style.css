@@ -112,6 +112,22 @@ nav {
     height: 100%;
     object-fit: cover;
 }
+/* ခေါင်းစည်းအတွက် သီးသန့် CSS */
+.nav-text-item { 
+    height: 45px; 
+    line-height: 45px; 
+    font-weight: bold; 
+    font-size: clamp(14px, 4vw, 18px);
+    white-space: nowrap; 
+    display: block; 
+}
+
+.nav-text-item .text-blue { color: #2563eb !important; font-weight: 700; }
+.nav-text-item .text-red { color: #ef4444 !important; font-weight: 800; }
+
+/* ညမုဒ်အတွက် */
+body.dark-mode .nav-text-item .text-blue { color: #60a5fa !important; }
+body.dark-mode .nav-text-item .text-red { color: #ff6b6b !important; }
 
 
 .brand-container { flex-grow: 1; height: 45px; overflow: hidden; display: flex; flex-direction: column; align-items: center; max-width: 300px; }
