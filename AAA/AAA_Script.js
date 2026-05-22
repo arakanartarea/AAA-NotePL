@@ -150,25 +150,27 @@ function renderCardView(name, encodedData) {
     let html = `<h2 style="padding:10px; border-bottom: 2px solid var(--primary);">${name}</h2>`;
     html += `<div class="song-grid">`;
     
-    html += songs.map((song, idx) => `
+        html += songs.map((song, idx) => `
     <div class="artist-card">
-        <div class="card-header"><p class="card-title">${song.title}</p></div>
+        <div class="card-header"><p class="card-title">${song.title || '-'}</p></div>
+        
         <div class="card-main-info">
-            <div class="info-item">🎙️ ${song.artist}</div>
-            <div class="info-item">✍️ ${song.writer}</div>
+            <div class="info-item">🎙️- ${song.artist || '-'}</div>
+            <div class="info-item">✍️ - ${song.writer || '-'}</div>
+            <div class="info-item">💿  - ${song.album || '-'}</div>
+            <div class="info-item">🆔 - ${song.id || '-'}</div>
+            
             <div class="info-item rating-click" onclick="openMainRatingModal('${song.id}')" style="cursor:pointer; color:var(--primary);">
-                <div>${song.star || '❌'}</div>
+                <div>✨${song.star || '❌'}</div>
                 <div style="font-size:10px;">(${song.voters || 0} votes)</div>
             </div>
-            <div class="info-item">💿 ${song.album}</div>
-            <div class="info-item">🎸 ${song.oc || '-'}</div>
         </div>
         
-        <div id="extra-${idx}" class="extra-details" style="display:none; padding:10px; background:#f9f9f9; border-top:1px dashed #ddd; font-size:11px;">
-            <div>🆔 ID: ${song.id || '-'}</div>
-            <div>🌸 Tradition: ${song.tradition || '-'}</div>
-            <div>📝 Remark: ${song.remark || '-'}</div>
-            <div>📅 Year: ${song.year || '-'}</div>
+        <div id="extra-${idx}" class="extra-details" style="display:none; padding:10px; background:var(--card); border-top:1px dashed var(--border); font-size:12px;">
+<div style="margin-bottom:6px;">📀 : <span style="color:var(--primary); font-weight:bold;">${song.albumType || '-'}</span></div>
+            <div style="margin-bottom:6px;">🎸 : <span style="color:var(--primary); font-weight:bold;">${song.oc || '-'}</span></div>
+            <div style="margin-bottom:6px;">🆕 : <span style="color:var(--primary); font-weight:bold;">${song.newOld || '-'}</span></div>
+            <div style="margin-bottom:6px;">🌸 : <span style="color:var(--primary); font-weight:bold;">${song.tradition || '-'}</span></div>
         </div>
         
         <div class="card-actions">
@@ -215,20 +217,45 @@ function openFullModal(song) {
     const body = document.getElementById('modal-body');
     document.body.style.overflow = 'hidden';
 
+    // 🎥 song.karaoke (ကော်လံ T) ထဲက YouTube လင့်ခ်ကို Embed URL ပြောင်းပေးခြင်း
+    let embedUrl = '';
+    if (song.karaoke) {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = song.karaoke.match(regExp);
+        if (match && match[2].length === 11) {
+            embedUrl = `https://www.youtube.com/embed/${match[2]}`;
+        }
+    }
+
     body.innerHTML = `
         <div class="close-modal" onclick="closeModal()">✕</div>
         
         <div class="new-detail-grid">
             <div class="info-section">
-                <h1 class="song-main-title">${song.title}</h1>
-                <div class="full-info-list">
-                    <p>🎙️ <strong>တေးဆို:</strong> ${song.artist}</p>
-                    <p>✍️ <strong>တေးရေး:</strong> ${song.writer}</p>
+                <h1 class="song-main-title">${song.title || '-'}</h1>
+                <div class="full-info-list" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+                    <p>🎙️ <strong>တေးဆို:</strong> ${song.artist || '-'}</p>
+                    <p>✍️ <strong>တေးရေး:</strong> ${song.writer || '-'}</p>
                     <p>💿 <strong>အယ်ဘမ်:</strong> ${song.album || '-'}</p>
+                    <p>📀 <strong>အယ်ဘမ်အမျိုးအစား:</strong> ${song.albumType || '-'}</p>
                     <p>📅 <strong>ခုနှစ်:</strong> ${song.year || '-'}</p>
-                    <p>🎸 <strong>အမျိုးအစား:</strong> ${song.oc || '-'}</p>
+                    <p>🎸 <strong>သီချင်းအမျိုးအစား:</strong> ${song.oc || '-'}</p>
+                    <p>🆕 <strong>အသစ်/ပြန်ဆို:</strong> ${song.newOld || '-'}</p>
+                    <p>🌸 <strong>သီချင်းမုဒ်:</strong> ${song.tradition || '-'}</p>
+                    <p>🆔 <strong>သီချင်း ID:</strong> ${song.id || '-'}</p>
+                    <p>⭐ <strong>Rating:</strong> ${song.star || '❌'} (${song.voters || 0} votes)</p>
+                    <hr style="border:none; border-top:1px dashed var(--border); margin:10px 0;">
+                    
+                    <p>🏢 <strong>Studio:</strong> ${song.studio || '-'}</p>
+                    <p>🗣️ <strong>ဘာသာစကား:</strong> ${song.language || '-'}</p>
+                    <p>🎼 <strong>Harmony:</strong> ${song.harmony || '-'}</p>
+                    <p>🎛️ <strong>Mixing:</strong> ${song.mixing || '-'}</p>
+                    <p>🎬 <strong>Director:</strong> ${song.director || '-'}</p>
+                    <p>🎸 <strong>Lead Guitar:</strong> ${song.guitar || '-'}</p>
+                    <p>🚻 <strong>ကျား/မ:</strong> ${song.gender || '-'}</p>
+                    <p>📝 <strong>မှတ်ချက်:</strong> ${song.remark || '-'}</p>
                 </div>
-                <button class="vote-btn" onclick="openMainRatingModal('${song.id}')">
+                <button class="vote-btn" onclick="openMainRatingModal('${song.id}')" style="margin-top:15px;">
                     Rating ပေးမယ် ⭐⭐⭐⭐⭐
                 </button>
             </div>
@@ -243,9 +270,9 @@ function openFullModal(song) {
             <div class="video-section-new">
                 <h3 class="section-title">သီချင်းဗီဒီယို</h3>
                 <div class="video-container">
-                    ${song.youtube ? 
-                        `<iframe src="https://www.youtube.com/embed/${song.youtube}" frameborder="0" allowfullscreen></iframe>` 
-                        : '<div class="no-video">ဗီဒီယို မရှိသေးပါ</div>'}
+                    ${embedUrl ? 
+                        `<iframe src="${embedUrl}" frameborder="0" allowfullscreen></iframe>` 
+                        : '<div class="no-video" style="padding:40px; text-align:center; color:var(--text-sub);">📺 ဗီဒီယို မရှိသေးပါ</div>'}
                 </div>
             </div>
         </div>
@@ -253,6 +280,19 @@ function openFullModal(song) {
     modal.style.display = 'block';
 }
 
+//Link to video စ
+// YouTube လင့်ခ်အမျိုးမျိုးကို စစ်ဆေးပြီး Embed Link ပြောင်းပေးမည့် Function
+function getYouTubeEmbedUrl(url) {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    if (match && match[2].length === 11) {
+        return `https://www.youtube.com/embed/${match[2]}`; // Video ID ကို ယူပြီး embed ပုံစံပြောင်းသည်
+    }
+    return null;
+}
+
+// Link to video ဆ
 
 function closeModal() {
     document.getElementById('fullModal').style.display = 'none';
