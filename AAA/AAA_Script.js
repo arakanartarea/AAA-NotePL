@@ -26,7 +26,7 @@ function mapSheetRow(row) {
         album: getValue(4),    albumType: getValue(5), newOld: getValue(6),    oc: getValue(7),
         tradition: getValue(8), star: getValue(9),     voters: getValue(10),   year: getValue(11),
         studio: getValue(12),  language: getValue(13), harmony: getValue(14),  mixing: getValue(15),
-        director: getValue(16), guitar: getValue(17),  gender: getValue(18),   karaoke: getFormulaOrValue(19), 
+        director: getValue(16), guitar: getValue(17),  gender: getValue(18),   karaoke: getValue(19), 
         remark: getValue(20),  s1: getValue(21),      s2: getValue(22),       s3: getValue(23),
         s4: getValue(24),      s5: getValue(25)
     };
@@ -74,13 +74,13 @@ async function loadData() {
     } catch (e) { console.error(e); }
 }
 
+// All Song Menu
 function handleSort(key) {
     currentSortKey = key;
     localStorage.setItem('preferredSort', key);
     updateToolbarUI(false, key);
     toggleSortMenu(false);
 
-    // ခလုတ်စာသားများ မှန်အောင်ပြမယ်
     const orderBtn = document.getElementById('orderBtn');
     const countBtn = document.getElementById('countSortBtn');
     
@@ -91,7 +91,6 @@ function handleSort(key) {
         else if (countSortMode === 'asc') countBtn.innerText = "📉 အနည်းဆုံးမှ အများ";
         else countBtn.innerText = "📊 အရေအတွက်အလိုက်";
     }
-
     const groups = allData.reduce((acc, item) => {
         let rawName = item[key] || 'အမည်မသိ';
         let groupName = rawName;
@@ -104,10 +103,8 @@ function handleSort(key) {
         acc[groupName].push(item);
         return acc;
     }, {});
-
     let sortedNames = Object.keys(groups);
 
-    // Sorting Logic: Count mode ဖွင့်ထားရင် count နဲ့စီမယ်၊ မဟုတ်ရင် အက္ခရာစဉ်နဲ့စီမယ်
     if (countSortMode === 'desc') {
         sortedNames.sort((a, b) => groups[b].length - groups[a].length);
     } else if (countSortMode === 'asc') {
@@ -115,16 +112,15 @@ function handleSort(key) {
     } else {
         sortedNames.sort((a, b) => isAscending ? a.localeCompare(b, 'my') : b.localeCompare(a, 'my'));
     }
-
-    // ... ကျန်တဲ့ listElement.innerHTML ပိုင်းကတော့ အရင်အတိုင်းပဲမို့ မပြောင်းလဲပါနဲ့ ...
     const listElement = document.getElementById('artist-list-container');
     if(listElement) {
         listElement.innerHTML = sortedNames.map((name, index) => {
             const groupDataEncoded = encodeURIComponent(JSON.stringify(groups[name]));
+            const nameEncoded = encodeURIComponent(name); // 💡 Editor မျက်စိမလည်အောင် encode လုပ်လိုက်သည်
             return `
             <div class="artist-group-container">
                 <div class="artist-header">
-                    <div class="artist-info" onclick="renderCardView('${name.replace(/'/g, "\\'")}', '${groupDataEncoded}')">
+                    <div class="artist-info" onclick="renderCardView(decodeURIComponent('${nameEncoded}'), '${groupDataEncoded}')">
                         ${name}
                     </div>
                     <div style="display: flex; align-items: center;">
@@ -133,11 +129,13 @@ function handleSort(key) {
                     </div>
                 </div>
                 <div id="songs-${index}" class="song-list">
-                    ${groups[name].map(song => `
-                        <div class="song-list-item" onclick='openFullModal(${JSON.stringify(song).replace(/'/g, "&apos;")})'>
+                    ${groups[name].map(song => {
+                        const songEncoded = encodeURIComponent(JSON.stringify(song)); // 💡 လုံးဝ အမှားကင်းအောင် ပြင်ဆင်ခြင်း
+                        return `
+                        <div class="song-list-item" onclick="openFullModal(JSON.parse(decodeURIComponent('${songEncoded}')))">
                             🎵 ${song.title}
-                        </div>
-                    `).join('')}
+                        </div>`;
+                    }).join('')}
                 </div>
             </div>`;
         }).join('');
@@ -150,35 +148,37 @@ function renderCardView(name, encodedData) {
     let html = `<h2 style="padding:10px; border-bottom: 2px solid var(--primary);">${name}</h2>`;
     html += `<div class="song-grid">`;
     
-        html += songs.map((song, idx) => `
-    <div class="artist-card">
-        <div class="card-header"><p class="card-title">${song.title || '-'}</p></div>
-        
-        <div class="card-main-info">
-            <div class="info-item">🎙️- ${song.artist || '-'}</div>
-            <div class="info-item">✍️ - ${song.writer || '-'}</div>
-            <div class="info-item">💿  - ${song.album || '-'}</div>
-            <div class="info-item">🆔 - ${song.id || '-'}</div>
+    html += songs.map((song, idx) => {
+        const songEncoded = encodeURIComponent(JSON.stringify(song)); // 💡 Editor အတွက် ရော HTML အတွက်ပါ အန္တရာယ်ကင်းဆုံး ပုံစံဖြစ်သည်
+        return `
+        <div class="artist-card">
+            <div class="card-header"><p class="card-title">${song.title || '-'}</p></div>
             
-            <div class="info-item rating-click" onclick="openMainRatingModal('${song.id}')" style="cursor:pointer; color:var(--primary);">
-                <div>✨${song.star || '❌'}</div>
-                <div style="font-size:10px;">(${song.voters || 0} votes)</div>
+            <div class="card-main-info">
+                <div class="info-item">🎙️- ${song.artist || '-'}</div>
+                <div class="info-item">✍️ - ${song.writer || '-'}</div>
+                <div class="info-item">💿  - ${song.album || '-'}</div>
+                <div class="info-item">🆔 - ${song.id || '-'}</div>
+                
+                <div class="info-item rating-click" onclick="openMainRatingModal('${song.id}')" style="cursor:pointer; color:var(--primary);">
+                    <div>✨${song.star || '❌'}</div>
+                    <div style="font-size:10px;">(${song.voters || 0} votes)</div>
+                </div>
             </div>
-        </div>
-        
-        <div id="extra-${idx}" class="extra-details" style="display:none; padding:10px; background:var(--card); border-top:1px dashed var(--border); font-size:12px;">
-<div style="margin-bottom:6px;">📀 : <span style="color:var(--primary); font-weight:bold;">${song.albumType || '-'}</span></div>
-            <div style="margin-bottom:6px;">🎸 : <span style="color:var(--primary); font-weight:bold;">${song.oc || '-'}</span></div>
-            <div style="margin-bottom:6px;">🆕 : <span style="color:var(--primary); font-weight:bold;">${song.newOld || '-'}</span></div>
-            <div style="margin-bottom:6px;">🌸 : <span style="color:var(--primary); font-weight:bold;">${song.tradition || '-'}</span></div>
-        </div>
-        
-        <div class="card-actions">
-            <button class="btn-expand" onclick="toggleCardExtra('extra-${idx}')">အချက်အလက် ↓</button>
-            <button class="btn-full" onclick='openFullModal(${JSON.stringify(song).replace(/'/g, "&apos;")})'>အပြည့်အစုံ 👁️</button>
-        </div>
-    </div>
-    `).join('');
+            
+            <div id="extra-${idx}" class="extra-details" style="display:none; padding:10px; background:var(--card); border-top:1px dashed var(--border); font-size:12px;">
+                <div style="margin-bottom:6px;">📀 : <span style="color:var(--primary); font-weight:bold;">${song.albumType || '-'}</span></div>
+                <div style="margin-bottom:6px;">🎸 : <span style="color:var(--primary); font-weight:bold;">${song.oc || '-'}</span></div>
+                <div style="margin-bottom:6px;">🆕 : <span style="color:var(--primary); font-weight:bold;">${song.newOld || '-'}</span></div>
+                <div style="margin-bottom:6px;">🌸 : <span style="color:var(--primary); font-weight:bold;">${song.tradition || '-'}</span></div>
+            </div>
+            
+            <div class="card-actions">
+                <button class="btn-expand" onclick="toggleCardExtra('extra-${idx}')">အချက်အလက် ↓</button>
+                <button class="btn-full" onclick="openFullModal(JSON.parse(decodeURIComponent('${songEncoded}')))">အပြည့်အစုံ 👁️</button>
+            </div>
+        </div>`;
+    }).join('');
 
     html += `</div>`;
 
@@ -266,40 +266,64 @@ function openFullModal(song) {
 
     </div>
   `;
-    modal.style.display = 'block';
+modal.style.display = 'block';
 }
 
-function getYouTubeEmbedUrl(input) {
-    if (!input) return null;
-    
-    let url = input.trim();
-    
-    // 1. အရင် HYPERLINK formula ထဲက URL အစစ်ကို ဆွဲထုတ်မယ်
-    // =HYPERLINK("https://youtu.be/xxx","Text") → https://youtu.be/xxx
-    if (url.startsWith('=HYPERLINK')) {
-        const formulaMatch = url.match(/=HYPERLINK\("([^"]+)"/i);
-        if (formulaMatch && formulaMatch[1]) {
-            url = formulaMatch[1]; // လင့်အစစ် ရပြီ
-        } else {
-            return null; // Formula မှားနေရင် ရပ်
+// Modal ကို ပိတ်မည့် Function နှင့် ဗီဒီယို/အသံ ရပ်တန့်စေခြင်း
+function closeModal() {
+    const modal = document.getElementById('fullModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // မူလ Scroll ပြန်ဖွင့်ရန်
+
+        // 🛑 ဗီဒီယို အသံဆက်မထွက်အောင် ရှင်းထုတ်ပစ်မည့်အပိုင်း
+        const videoContainer = document.querySelector('.video-container');
+        if (videoContainer) {
+            videoContainer.innerHTML = ''; // iframe ကို ဖယ်ရှားလိုက်ခြင်းဖြင့် အသံရပ်သွားပါမည်
         }
     }
-    
-    // 2. ရလာတဲ့ URL ကို YouTube Embed Link ပြောင်းမယ်
-    const ytRegExp = /^.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
-    const ytMatch = url.match(ytRegExp);
-    
-    if (ytMatch && ytMatch[1].length === 11) {
-        return `https://www.youtube.com/embed/${ytMatch[1]}`;
-    }
-    
-    return null; // YouTube link မဟုတ်ရင် null
 }
 
+// youtube link embedUrl
+function getYouTubeEmbedUrl(input) {
+    if (!input) return null;
+    let url = String(input).trim();
+    let videoId = "";
 
-function closeModal() {
-    document.getElementById('fullModal').style.display = 'none';
-    document.body.style.overflow = 'auto'; 
+    try {
+        if (url.includes("youtu.be/")) {
+            // shorts သို့မဟုတ် shared link ပုံစံများအတွက် (ဥပမာ - https://youtu.be/abc123xyz45)
+            let parts = url.split("youtu.be/");
+            if (parts[1]) videoId = parts[1].split(/[?#]/)[0];
+        } else if (url.includes("v/") || url.includes("embed/")) {
+            // embed link ပုံစံများအတွက်
+            let parts = url.split(/embed\/|v\//);
+            if (parts[1]) videoId = parts[1].split(/[?#]/)[0];
+        } else if (url.includes("shorts/")) {
+            // shorts link ပုံစံများအတွက်
+            let parts = url.split("shorts/");
+            if (parts[1]) videoId = parts[1].split(/[?#]/)[0];
+        } else if (url.includes("watch?v=")) {
+            // standard link ပုံစံများအတွက် (ဥပမာ - watch?v=abc123xyz45)
+            let parts = url.split("watch?v=");
+            if (parts[1]) videoId = parts[1].split("&")[0];
+        } else if (url.includes("?v=")) {
+            let parts = url.split("?v=");
+            if (parts[1]) videoId = parts[1].split("&")[0];
+        } else if (url.includes("&v=")) {
+            let parts = url.split("&v=");
+            if (parts[1]) videoId = parts[1].split("&")[0];
+        }
+
+        // ဗီဒီယို ID က စာလုံးရေ ၁၁ လုံး ရှိရပါမယ်
+        if (videoId && videoId.length === 11) {
+            return "https://www.youtube.com/embed/" + videoId;
+        }
+    } catch (e) {
+        console.error(e);
+    }
+
+    return null;
 }
 
 function toggleSongs(id, btnId) {
@@ -318,13 +342,7 @@ function toggleSortMenu(show) {
     menu.classList.toggle('show', isShowing);
     overlay.style.display = isShowing ? 'block' : 'none';
 }
-/*
-function toggleSortOrder() {
-    isAscending = !isAscending;
-    document.getElementById('orderBtn').innerText = isAscending ? "🔡 က - အ" : "🔡 အ - က";
-    handleSort(currentSortKey);
-}
-*/
+
 function toggleSortOrder() {
     isAscending = !isAscending;
     localStorage.setItem('isAscending', isAscending); // အခြေအနေကို မှတ်ထားမယ်
@@ -369,10 +387,8 @@ function filterData() {
             
             document.getElementById('group-list').classList.remove('hidden-mobile');
             updateToolbarUI(false, currentSortKey); // true ပေးရင် search box ပျောက်လို့ false ပဲထိန်းထားမယ်
-        }
-    }
-}
-
+        }}} 
+        
 function clearSearch() {
     const searchInput = document.getElementById('search');
     searchInput.value = "";
@@ -506,6 +522,7 @@ function sortListData(dir) {
     }
     renderList();
 }
+
 function toggleCountSort() {
     // Mode ကို တစ်လှည့်စီ ပြောင်းမယ်: none -> desc -> asc -> none
     if (countSortMode === 'none') countSortMode = 'desc';
@@ -515,6 +532,7 @@ function toggleCountSort() {
     localStorage.setItem('countSortMode', countSortMode);
     handleSort(currentSortKey);
 }
+
 // ၁။ Theme ပြောင်းလဲခြင်းနှင့် Local Storage သိမ်းခြင်း
 function changeTheme(theme) {
     localStorage.setItem('userTheme', theme);
@@ -550,28 +568,34 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
         applyTheme();
     }
 });
+
 function renderList() {
     const content = document.getElementById('list-content');
     content.innerHTML = listDisplayData.map(item => {
         if (typeof item === 'string') {
+            const itemEncoded = encodeURIComponent(item); // 💡 Editor မျက်စိမလည်အောင် ပြင်ဆင်ခြင်း
             return `
                 <div class="simple-list-item">
                     <span>${item}</span>
-                    <button class="btn-view-small" onclick="filterByArtist('${item.replace(/'/g, "\\'")}')">ကြည့်မည်</button>
+                    <button class="btn-view-small" onclick="filterByArtist(decodeURIComponent('${itemEncoded}'))">ကြည့်မည်</button>
                 </div>`;
         } else {
+            const itemObjEncoded = encodeURIComponent(JSON.stringify(item)); // 💡 လုံခြုံသောစနစ်သို့ ပြောင်းလဲခြင်း
             return `
                 <div class="simple-list-item">
                     <div style="flex:1;"><strong>${item.title}</strong><br><small>${item.artist}</small></div>
-                    <button class="btn-view-small" onclick='openFullModal(${JSON.stringify(item).replace(/'/g, "&apos;")})'>ဖွင့်ကြည့်</button>
+                    <button class="btn-view-small" onclick="openFullModal(JSON.parse(decodeURIComponent('${itemObjEncoded}')))">ဖွင့်ကြည့်</button>
                 </div>`;
         }
     }).join('');
 }
 
 function goToArtistList() { showFullList('artists'); closeStats(); }
+
 function showAllSongsFromStats() { showFullList('songs'); closeStats(); }
+
 function showAllData() { showFullList('songs'); closeStats(); }
+
 function closeFullList() {
     document.getElementById('fullListModal').style.display = 'none';
 }
@@ -581,9 +605,9 @@ function filterByArtist(name) {
     handleSort('artist'); 
     renderCardView(name, encodeURIComponent(JSON.stringify(allData.filter(s => s.artist && s.artist.includes(name)))));
 }
+
 applyTheme(); // Theme အရင်စစ်မယ်
 loadData();   // ပြီးမှ ဒေတာဆွဲမယ်
-
 
 // Vote Modal ဖွင့်တဲ့ function (ဟိုဘက်က ခလုတ်မှာ ဒါနဲ့ အစားထိုးမယ်)
 function openMainRatingModal(songId) {
@@ -725,7 +749,7 @@ async function submitNewVote() {
 }
  ဆလာ့အင်ဝင် ဆ */
  
- // Login စ 0519 
+ // Login စ 
 // Nav Profile အကောင့်ဝင်ရန် နှိပ်သည့်အခါ
 function promptGoogleLogin() {
     if (userSession) {
@@ -827,11 +851,11 @@ window.addEventListener('DOMContentLoaded', () => {
     if (userSession) updateUserUI();
 });
 
- // Login 0519 
+ // Login 
  
-// font စ
-// --- Font Changer JavaScript System ---
+ 
 
+// font စ
 const fontMenuBtn = document.getElementById('fontMenuBtn');
 const fontModal = document.getElementById('fontModal');
 const fontOverlay = document.getElementById('fontOverlay');
@@ -896,7 +920,7 @@ function applySavedFont() {
 
 // စာမျက်နှာစပွင့်ချိန်မှာ တစ်ခါ အလုပ်လုပ်ခိုင်းခြင်း
 document.addEventListener("DOMContentLoaded", applySavedFont);
-// တကယ်လို့ မင်းရဲ့ အခြားကုဒ်တွေကြောင့် နှောင့်နှေးခဲ့ရင် သေချာအောင် ချက်ချင်းတစ်ကြိမ် ထပ်မံ run ခိုင်းခြင်း
+//
 applySavedFont();
 
 // font ဆ
