@@ -26,7 +26,7 @@ function mapSheetRow(row) {
         album: getValue(4),    albumType: getValue(5), newOld: getValue(6),    oc: getValue(7),
         tradition: getValue(8), star: getValue(9),     voters: getValue(10),   year: getValue(11),
         studio: getValue(12),  language: getValue(13), harmony: getValue(14),  mixing: getValue(15),
-        director: getValue(16), guitar: getValue(17),  gender: getValue(18),   karaoke: getValue(19),
+        director: getValue(16), guitar: getValue(17),  gender: getValue(18),   karaoke: getFormulaOrValue(19), 
         remark: getValue(20),  s1: getValue(21),      s2: getValue(22),       s3: getValue(23),
         s4: getValue(24),      s5: getValue(25)
     };
@@ -216,83 +216,86 @@ function openFullModal(song) {
     const modal = document.getElementById('fullModal');
     const body = document.getElementById('modal-body');
     document.body.style.overflow = 'hidden';
-
-    // 🎥 song.karaoke (ကော်လံ T) ထဲက YouTube လင့်ခ်ကို Embed URL ပြောင်းပေးခြင်း
-    let embedUrl = '';
-    if (song.karaoke) {
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-        const match = song.karaoke.match(regExp);
-        if (match && match[2].length === 11) {
-            embedUrl = `https://www.youtube.com/embed/${match[2]}`;
-        }
-    }
-
+    
+    // 🎥 YouTube Embed URL ထုတ်တာ - function တစ်ခုတည်းပဲသုံး
+    const embedUrl = getYouTubeEmbedUrl(song.karaoke);
+    
     body.innerHTML = `
-        <div class="close-modal" onclick="closeModal()">✕</div>
-        
-        <div class="new-detail-grid">
-            <div class="info-section">
-                <h1 class="song-main-title">${song.title || '-'}</h1>
-                <div class="full-info-list" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
-                    <p>🎙️ <strong>တေးဆို:</strong> ${song.artist || '-'}</p>
-                    <p>✍️ <strong>တေးရေး:</strong> ${song.writer || '-'}</p>
-                    <p>💿 <strong>အယ်ဘမ်:</strong> ${song.album || '-'}</p>
-                    <p>📀 <strong>အယ်ဘမ်အမျိုးအစား:</strong> ${song.albumType || '-'}</p>
-                    <p>📅 <strong>ခုနှစ်:</strong> ${song.year || '-'}</p>
-                    <p>🎸 <strong>သီချင်းအမျိုးအစား:</strong> ${song.oc || '-'}</p>
-                    <p>🆕 <strong>အသစ်/ပြန်ဆို:</strong> ${song.newOld || '-'}</p>
-                    <p>🌸 <strong>သီချင်းမုဒ်:</strong> ${song.tradition || '-'}</p>
-                    <p>🆔 <strong>သီချင်း ID:</strong> ${song.id || '-'}</p>
-                    <p>⭐ <strong>Rating:</strong> ${song.star || '❌'} (${song.voters || 0} votes)</p>
-                    <hr style="border:none; border-top:1px dashed var(--border); margin:10px 0;">
-                    
-                    <p>🏢 <strong>Studio:</strong> ${song.studio || '-'}</p>
-                    <p>🗣️ <strong>ဘာသာစကား:</strong> ${song.language || '-'}</p>
-                    <p>🎼 <strong>Harmony:</strong> ${song.harmony || '-'}</p>
-                    <p>🎛️ <strong>Mixing:</strong> ${song.mixing || '-'}</p>
-                    <p>🎬 <strong>Director:</strong> ${song.director || '-'}</p>
-                    <p>🎸 <strong>Lead Guitar:</strong> ${song.guitar || '-'}</p>
-                    <p>🚻 <strong>ကျား/မ:</strong> ${song.gender || '-'}</p>
-                    <p>📝 <strong>မှတ်ချက်:</strong> ${song.remark || '-'}</p>
-                </div>
-                <button class="vote-btn" onclick="openMainRatingModal('${song.id}')" style="margin-top:15px;">
-                    Rating ပေးမယ် ⭐⭐⭐⭐⭐
-                </button>
-            </div>
-
-            <div class="lyrics-section-new">
-                <h3 class="section-title">သီချင်းစာသား</h3>
-                <div class="lyrics-box">
-                    ${song.lyrics || 'သီချင်းစာသား မရှိသေးပါ။'}
-                </div>
-            </div>
-
-            <div class="video-section-new">
-                <h3 class="section-title">သီချင်းဗီဒီယို</h3>
-                <div class="video-container">
-                    ${embedUrl ? 
-                        `<iframe src="${embedUrl}" frameborder="0" allowfullscreen></iframe>` 
-                        : '<div class="no-video" style="padding:40px; text-align:center; color:var(--text-sub);">📺 ဗီဒီယို မရှိသေးပါ</div>'}
-                </div>
-            </div>
+    <div class="close-modal" onclick="closeModal()">✕</div>
+    <div class="new-detail-grid">
+      <div class="info-section">
+        <h1 class="song-main-title">${song.title || '-'}</h1>
+        <div class="full-info-list" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+          <p>🎙️ <strong>တေးဆို:</strong> ${song.artist || '-'}</p>
+          <p>✍️ <strong>တေးရေး:</strong> ${song.writer || '-'}</p>
+          <p>💿 <strong>အယ်ဘမ်:</strong> ${song.album || '-'}</p>
+          <p>📀 <strong>အယ်ဘမ်အမျိုးအစား:</strong> ${song.albumType || '-'}</p>
+          <p>📅 <strong>ခုနှစ်:</strong> ${song.year || '-'}</p>
+          <p>🎸 <strong>သီချင်းအမျိုးအစား:</strong> ${song.oc || '-'}</p>
+          <p>🆕 <strong>အသစ်/ပြန်ဆို:</strong> ${song.newOld || '-'}</p>
+          <p>🌸 <strong>သီချင်းမုဒ်:</strong> ${song.tradition || '-'}</p>
+          <p>🆔 <strong>သီချင်း ID:</strong> ${song.id || '-'}</p>
+          <p>⭐ <strong>Rating:</strong> ${song.star || '❌'} (${song.voters || 0} votes)</p>
+          <hr style="border:none; border-top:1px dashed var(--border); margin:10px 0;">
+          <p>🏢 <strong>Studio:</strong> ${song.studio || '-'}</p>
+          <p>🗣️ <strong>ဘာသာစကား:</strong> ${song.language || '-'}</p>
+          <p>🎼 <strong>Harmony:</strong> ${song.harmony || '-'}</p>
+          <p>🎛️ <strong>Mixing:</strong> ${song.mixing || '-'}</p>
+          <p>🎬 <strong>Director:</strong> ${song.director || '-'}</p>
+          <p>🎸 <strong>Lead Guitar:</strong> ${song.guitar || '-'}</p>
+          <p>🚻 <strong>ကျား/မ:</strong> ${song.gender || '-'}</p>
+          <p>📝 <strong>မှတ်ချက်:</strong> ${song.remark || '-'}</p>
         </div>
-    `;
+        <button class="vote-btn" onclick="openMainRatingModal('${song.id}')" style="margin-top:15px;"> Rating ပေးမယ် ⭐⭐⭐⭐⭐ </button>
+      </div>
+      <div class="lyrics-section-new">
+        <h3 class="section-title">သီချင်းစာသား</h3>
+        <div class="lyrics-box">
+          ${song.lyrics || 'သီချင်းစာသား မရှိသေးပါ။'}
+        </div>
+      </div>
+      <div class="video-section-new">
+        <h3 class="section-title">သီချင်းဗီဒီယို</h3>
+        <div class="video-container">
+          ${embedUrl
+           ? `<iframe width="100%" height="315" src="${embedUrl}" title="YouTube video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`
+            : '<div class="no-video" style="padding:40px; text-align:center; color:var(--text-sub);">📺 ဗီဒီယို မရှိသေးပါ</div>'
+          }
+        </div>
+      </div>
+
+    </div>
+  `;
     modal.style.display = 'block';
 }
 
-//Link to video စ
-// YouTube လင့်ခ်အမျိုးမျိုးကို စစ်ဆေးပြီး Embed Link ပြောင်းပေးမည့် Function
-function getYouTubeEmbedUrl(url) {
-    if (!url) return null;
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    if (match && match[2].length === 11) {
-        return `https://www.youtube.com/embed/${match[2]}`; // Video ID ကို ယူပြီး embed ပုံစံပြောင်းသည်
+function getYouTubeEmbedUrl(input) {
+    if (!input) return null;
+    
+    let url = input.trim();
+    
+    // 1. အရင် HYPERLINK formula ထဲက URL အစစ်ကို ဆွဲထုတ်မယ်
+    // =HYPERLINK("https://youtu.be/xxx","Text") → https://youtu.be/xxx
+    if (url.startsWith('=HYPERLINK')) {
+        const formulaMatch = url.match(/=HYPERLINK\("([^"]+)"/i);
+        if (formulaMatch && formulaMatch[1]) {
+            url = formulaMatch[1]; // လင့်အစစ် ရပြီ
+        } else {
+            return null; // Formula မှားနေရင် ရပ်
+        }
     }
-    return null;
+    
+    // 2. ရလာတဲ့ URL ကို YouTube Embed Link ပြောင်းမယ်
+    const ytRegExp = /^.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/;
+    const ytMatch = url.match(ytRegExp);
+    
+    if (ytMatch && ytMatch[1].length === 11) {
+        return `https://www.youtube.com/embed/${ytMatch[1]}`;
+    }
+    
+    return null; // YouTube link မဟုတ်ရင် null
 }
 
-// Link to video ဆ
 
 function closeModal() {
     document.getElementById('fullModal').style.display = 'none';
