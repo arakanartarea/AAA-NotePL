@@ -30,9 +30,6 @@
     </div>
 </div>
 
-
-
-
         <div class="nav-center">
             <img src="https://media.tenor.com/_EreiMKqzs4AAAAj/arakan-flag-rakhine-flag.gif" class="nav-flag" alt="Flag">
             <div class="brand-container">
@@ -42,7 +39,6 @@
         <span class="nav-text-item"><span class="text-blue">ရခိုင် အနုပညာ</span> <span class="text-red">နယ်မြေ</span></span>
     </div>
 </div>
-
             <img src="https://media.tenor.com/_EreiMKqzs4AAAAj/arakan-flag-rakhine-flag.gif" class="nav-flag" alt="Flag">
         </div>
 
@@ -55,7 +51,6 @@
     </div>
 </nav>
 
-    
 <script src="https://accounts.google.com/gsi/client" async defer></script> 
 
 <div id="newLoginModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10001; justify-content:center; align-items:center;">
@@ -76,8 +71,6 @@
         <button onclick="switchAccount()" style="width:100%; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold;">အကောင့်ပြောင်းမည်</button>
     </div>
 </div>
-
-
 
 <div id="newVoteModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; justify-content:center; align-items:center;">
     <div style="background:var(--card); padding:20px; border-radius:15px; width:95%; max-width:400px; max-height:90vh; overflow-y:auto;">
@@ -143,13 +136,13 @@
                 <textarea id="voteComment" maxlength="70" class="form-input" placeholder="မှတ်ချက်ရေးပါ..."></textarea>
             </div>
 
-<button onclick="submitFinalVote()" class="btn-primary">Vote ပေးမည်</button>
+<button onclick="submitFinalVote()" 
+class="btn-primary">Vote ပေးမည်</button>
         </div>
     </div>
 </div>
 
 <div id="overlay" class="menu-overlay" onclick="toggleSortMenu(false)"></div>
-
 <div id="sortMenu" class="sort-menu">
     <button class="sort-item" onclick="handleSort('artist')">👥 တေးဆို</button>
     <button class="sort-item" onclick="handleSort('writer')">✍️ တေးရွီး</button>
@@ -160,14 +153,12 @@
     <button class="sort-item" onclick="toggleCountSort()" id="countSortBtn">📊 အရေအတွက်အလိုက်</button>
 
 </div>
-
 <div id="fullModal" class="modal-overlay">
     <div class="modal-content">
         <span class="close-modal" onclick="closeModal()">&times;</span>
         <div id="modal-body"></div>
     </div>
 </div>
-    
 <div id="statsModal" class="settings-menu"> 
     <div class="menu-header">
         <h3 style="margin:0; color: var(--primary);">Archive Statistics 📊</h3>
@@ -196,8 +187,11 @@
         📂 ဒေတာအားလုံး တစ်ဆက်တည်းကြည့်ရန်
     </button>
 </div>
-<div id="statsOverlay" class="menu-overlay" onclick="closeStats()"></div>
-
+//Stats
+<div 
+    id="statsOverlay" 
+    class="menu-overlay" 
+    onclick="closeStats()"></div>
 <div class="bottom-toolbar">
     <button id="backBtn" class="tool-btn" onclick="goBackToGroup()" style="display:none; color: #cf0000;">
         <span class="icon">⬅️</span>
@@ -224,6 +218,7 @@
         <span>အချက်အလက်</span>
     </button>
 </div>
+
 
 <div id="settingsMenu" class="settings-menu">
     <div class="menu-title-main">ဆက်တင်များ</div>
@@ -259,7 +254,6 @@
     </div>
 </div>
 <div id="settingsOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
-
 <div id="fullListModal" class="full-screen-modal" style="display:none;">
     <div class="list-header">
         <h3 id="list-title" style="margin:0;">စာရင်း</h3>

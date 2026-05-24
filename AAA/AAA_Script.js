@@ -91,18 +91,17 @@ function handleSort(key) {
         else if (countSortMode === 'asc') countBtn.innerText = "📉 အနည်းဆုံးမှ အများ";
         else countBtn.innerText = "📊 အရေအတွက်အလိုက်";
     }
+
     const groups = allData.reduce((acc, item) => {
         let rawName = item[key] || 'အမည်မသိ';
-        let groupName = rawName;
-        if (typeof rawName === 'string' && rawName.includes(',')) {
-            groupName = rawName.split(',')[0].trim();
-        }
+        let groupName = (typeof rawName === 'string' && rawName.includes(',')) ? rawName.split(',')[0].trim() : rawName;
         if (groupName === '-' || groupName === '') groupName = 'အမည်မသိ';
         
         if (!acc[groupName]) acc[groupName] = [];
         acc[groupName].push(item);
         return acc;
     }, {});
+
     let sortedNames = Object.keys(groups);
 
     if (countSortMode === 'desc') {
@@ -112,11 +111,24 @@ function handleSort(key) {
     } else {
         sortedNames.sort((a, b) => isAscending ? a.localeCompare(b, 'my') : b.localeCompare(a, 'my'));
     }
+
     const listElement = document.getElementById('artist-list-container');
     if(listElement) {
         listElement.innerHTML = sortedNames.map((name, index) => {
+            // Child Items (သီချင်းများ) ကို Sort စီခြင်း
+            let sortedSongs = [...groups[name]];
+            if (countSortMode !== 'none') {
+                sortedSongs.sort((a, b) => (a.title || '').localeCompare(b.title || '', 'my'));
+            } else {
+                sortedSongs.sort((a, b) => isAscending 
+                    ? (a.title || '').localeCompare(b.title || '', 'my') 
+                    : (b.title || '').localeCompare(a.title || '', 'my')
+                );
+            }
+
             const groupDataEncoded = encodeURIComponent(JSON.stringify(groups[name]));
-            const nameEncoded = encodeURIComponent(name); // 💡 Editor မျက်စိမလည်အောင် encode လုပ်လိုက်သည်
+            const nameEncoded = encodeURIComponent(name);
+            
             return `
             <div class="artist-group-container">
                 <div class="artist-header">
@@ -129,8 +141,8 @@ function handleSort(key) {
                     </div>
                 </div>
                 <div id="songs-${index}" class="song-list">
-                    ${groups[name].map(song => {
-                        const songEncoded = encodeURIComponent(JSON.stringify(song)); // 💡 လုံးဝ အမှားကင်းအောင် ပြင်ဆင်ခြင်း
+                    ${sortedSongs.map(song => {
+                        const songEncoded = encodeURIComponent(JSON.stringify(song));
                         return `
                         <div class="song-list-item" onclick="openFullModal(JSON.parse(decodeURIComponent('${songEncoded}')))">
                             🎵 ${song.title}
@@ -355,6 +367,7 @@ function toggleSortOrder() {
 }
 
 function filterData() {
+    
     const searchInput = document.getElementById('search');
     const clearBtn = document.getElementById('clearSearch');
     const val = searchInput.value.toLowerCase();
@@ -364,12 +377,11 @@ function filterData() {
     if (val === "") {
         clearSearch(); 
     } else {
-        const filtered = allData.filter(i => 
+        const filtered = allData.filter(i =>
             (i.title && i.title.toLowerCase().includes(val)) || 
             (i.artist && i.artist.toLowerCase().includes(val)) ||
             (i.writer && i.writer.toLowerCase().includes(val))
         );
-
                 document.getElementById('group-list').innerHTML = filtered.map(song => `
             <div class="song-list-item" 
                  onclick='openFullModal(${JSON.stringify(song).replace(/"/g, '&quot;')})'
@@ -378,8 +390,6 @@ function filterData() {
                 <small style="opacity: 0.7; margin-left:20px;">ဆို: ${song.artist || '-'} | ရေး: ${song.writer || '-'}</small>
             </div>
         `).join('');
-
-        
         if (window.innerWidth <= 768) {
             // Expan Group List ပါတဲ့ container ကိုပဲ ဖျောက်ပြီး Search ရလဒ်ကို အစားထိုးပြမယ်
             const artistContainer = document.getElementById('artist-list-container');
@@ -407,7 +417,6 @@ function clearSearch() {
     handleSort(currentSortKey); 
     window.scrollTo(0, 0);
 }
-
 
 function toggleAddSubMenu() {
     const subMenu = document.getElementById('add-sub-menu');
