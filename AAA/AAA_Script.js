@@ -657,7 +657,7 @@ function closeLoginModal() {
  
  // Login စ 
 // Deploy 1 URL - User အချက်အလက်များ သိမ်းရန်
-const webAppUrl_User = "https://script.google.com/macros/s/AKfycbw4JTYo393VvGz5BlcYsILFTczdabUmPC-fwfLDgLgwCro2l_qocmH_Inf3DtgUNQ5E/exec"; // ဒီနေရာမှာ Deploy 1 လင့်ခ် ထည့်ပါ
+const webAppUrl_User = "https://script.google.com/macros/s/AKfycbycFuYt3dtKh16DSoYMdT7In_Bd6319XpIh8ugFJb09if9GPw-sC025JuvOBf5uqY1P/exec"; // ဒီနေရာမှာ Deploy 1 လင့်ခ် ထည့်ပါ
 
 // Nav Profile အကောင့်ဝင်ရန် နှိပ်သည့်အခါ
 function promptGoogleLogin() {
@@ -718,13 +718,18 @@ async function saveUserToSheet(user) {
         userAgent: navigator.userAgent
     };
 
-    await fetch("https://script.google.com/macros/s/ထွက်လာတဲ့-URL-အသစ်/exec", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData)
-    });
+    try {
+        await fetch(webAppUrl_User, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify(userData)
+        });
+        console.log("User data sent to Deploy 1");
+    } catch (error) {
+        console.error("Save Error:", error);
+    }
 }
-
 
 function updateUserUI() {
     const uIcon = document.getElementById('userIcon');
