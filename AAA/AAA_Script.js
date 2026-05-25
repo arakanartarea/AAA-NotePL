@@ -706,7 +706,7 @@ async function handleLoginResponse(response) {
     // (Deploy 1) Sheet သို့ ဒေတာပို့ခြင်း
     await saveUserToSheet(userSession);
 }
-
+/* 
 async function saveUserToSheet(user) {
     const userData = {
         action: "save_user",
@@ -730,6 +730,33 @@ async function saveUserToSheet(user) {
         console.error("Save Error:", error);
     }
 }
+
+klw */   
+async function saveUserToSheet(user) {
+    const userData = {
+        action: "save_user",
+        userId: user.id,
+        userName: user.name,
+        userEmail: user.email,
+        userImage: user.picture,
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent
+    };
+
+    try {
+        // အသစ်ရလာတဲ့ Deploy 1 URL ကို ဒီအောက်ကနေရာမှာ ထည့်ပါ
+        await fetch("https://script.google.com/macros/s/AKfycbycFuYt3dtKh16DSoYMdT7In_Bd6319XpIh8ugFJb09if9GPw-sC025JuvOBf5uqY1P/exec", {
+            method: "POST",
+            mode: "no-cors", // အလုပ်ဖြစ်ခဲ့တဲ့ ပုံစံဟောင်းအတိုင်း no-cors ပြန်သုံးပါတယ်
+            headers: { "Content-Type": "text/plain;charset=utf-8" }, // text/plain ပြန်ပြောင်းထားပါတယ်
+            body: JSON.stringify(userData)
+        });
+        console.log("User data sent to Deploy 1");
+    } catch (error) {
+        console.error("Save Error:", error);
+    }
+}
+
 
 function updateUserUI() {
     const uIcon = document.getElementById('userIcon');
