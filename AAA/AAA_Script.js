@@ -706,7 +706,7 @@ async function handleLoginResponse(response) {
     // (Deploy 1) Sheet သို့ ဒေတာပို့ခြင်း
     await saveUserToSheet(userSession);
 }
-/* 
+
 async function saveUserToSheet(user) {
     const userData = {
         action: "save_user",
@@ -731,7 +731,7 @@ async function saveUserToSheet(user) {
     }
 }
 
-klw */   
+/* 
 async function saveUserToSheet(user) {
     const userData = {
         action: "save_user",
@@ -757,7 +757,7 @@ async function saveUserToSheet(user) {
     }
 }
 
-
+*/
 function updateUserUI() {
     const uIcon = document.getElementById('userIcon');
     if (userSession && userSession.picture) {
