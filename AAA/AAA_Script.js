@@ -718,18 +718,13 @@ async function saveUserToSheet(user) {
         userAgent: navigator.userAgent
     };
 
-    try {
-        await fetch(webAppUrl_User, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-            body: JSON.stringify(userData)
-        });
-        console.log("User data sent to Deploy 1");
-    } catch (error) {
-        console.error("Save Error:", error);
-    }
+    await fetch("https://script.google.com/macros/s/ထွက်လာတဲ့-URL-အသစ်/exec", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData)
+    });
 }
+
 
 function updateUserUI() {
     const uIcon = document.getElementById('userIcon');
