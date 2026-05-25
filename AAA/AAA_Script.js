@@ -652,131 +652,30 @@ function closeLoginModal() {
 }
 
 // လော့အင်ဝင် စ 
-// Google Login စတင်ရန်
-function initGoogleLogin() {
-    if (typeof google === 'undefined') return;
-    
-    google.accounts.id.initialize({
-        client_id: "750089996822-76hj5pfvrf8ui70eu6cimv0lb9lg6su3.apps.googleusercontent.com", // မင်းရဲ့ Client ID
-        callback: handleLoginResponse
-    });
-    
-    google.accounts.id.renderButton(
-        document.getElementById("googleBtnContainer"),
-        { theme: "outline", size: "large", width: 250 }
-    );
-}
 
-function handleLoginResponse(response) {
-    let base64Url = response.credential.split('.')[1];
-    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    let jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    let payload = JSON.parse(jsonPayload);
-
-    userSession = {
-        name: payload.name,
-        email: payload.email,
-        picture: payload.picture
-    };
-
-    // Session သိမ်းဆည်းခြင်း
-    localStorage.setItem('user_session', JSON.stringify(userSession));
-    
-    // Login Modal ပိတ်ခြင်း
-    document.getElementById('newLoginModal').style.display = 'none';
-
-    // ရွေးချယ်ထားသော သီချင်းရှိနေပါက Vote Modal ကို တိုက်ရိုက်ဆက်ဖွင့်မည်
-    if (currentTargetSong) {
-        openMainRatingModal(currentTargetSong.id);
-    }
-}
-
-const voteLabels = {
-    0: "အဆိုးဆုံး", 1: "အလွန်ညံ့သည်", 2: "ညံ့သည်", 3: "အားနည်းသည်", 
-    4: "သင့်တင့်သည်", 5: "ကောင်းသည်", 6: "အလွန်ကောင်း", 
-    7: "ထူးချွန်သည်", 8: "အလွန်ထူးချွန်", 9: "အပြည့်စုံဆုံးနဲ့ အကောင်းဆုံး"
-};
-
-function renderVoteButtons() {
-    const grid = document.querySelector('.vote-number-grid');
-    grid.innerHTML = "";
-    
-    for (let i = 0; i <= 9; i++) {
-        const btn = document.createElement('button');
-        btn.className = "vote-num-btn";
-        btn.innerText = i;
-        btn.onclick = () => {
-            selectedVoteNum = i;
-            // ခလုတ်အားလုံးကို ပုံမှန်အရောင်ပြောင်းပြီး ရွေးထားတဲ့တစ်ခုကို အရောင်တောက်ပေးမယ်
-            document.querySelectorAll('.vote-num-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            document.getElementById('voteLabel').innerText = voteLabels[i];
-        };
-        grid.appendChild(btn);
-    }
-}
-async function submitNewVote() {
-    if (selectedVoteNum === null) return alert("ရမှတ်တစ်ခုခု အရင်ရွေးပေးပါဦး။");
-    const reason = document.getElementById('voteReason').value;
-    if (reason.length < 5) return alert("မှတ်ချက်ကို စာလုံးအနည်းငယ် ပိုရေးပေးပါ (အနည်းဆုံး ၅ လုံး)။");
-
-    const voteData = {
-        action: "submit_vote", // Script ဘက်မှာ ခွဲခြားဖို့
-        songId: currentTargetSong.id,
-        songTitle: currentTargetSong.title,
-        rating: selectedVoteNum,
-        reason: reason,
-        userEmail: userSession.email,
-        userName: userSession.name,
-        timestamp: new Date().toISOString()
-    };
-
-    // ပို့နေစဉ် ခလုတ်ကို နှိပ်မရအောင် လုပ်ထားမယ်
-    const submitBtn = document.querySelector("button[onclick='submitNewVote()']");
-    submitBtn.innerText = "ခေတ္တစောင့်ပါ...";
-    submitBtn.disabled = true;
-
-    try {
-        await fetch(webAppUrl, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(voteData)
-        });
-
-        alert("အမှတ်ပေးခြင်း အောင်မြင်ပါပြီ။ ကျေးဇူးတင်ပါတယ် ကိုကို။");
-        closeNewVoteModal();
-    } catch (error) {
-        console.error(error);
-        alert("ပို့လို့မရဖြစ်သွားပါတယ်၊ ခေတ္တနေပြီးမှ ပြန်စမ်းကြည့်ပါ။");
-    } finally {
-        submitBtn.innerText = "ပို့မည်";
-        submitBtn.disabled = false;
-    }
-}
 // ဆလာ့အင်ဝင် ဆ 
  
  // Login စ 
+// Deploy 1 URL - User အချက်အလက်များ သိမ်းရန်
+const webAppUrl_User = "https://script.google.com/macros/s/AKfycbzRZa_w1vqprVkF8YltZSdBEpyOxStRT6aBeJXRL6OIfxBXiBQzpPsPzeJBP77Mmv0/exec"; // ဒီနေရာမှာ Deploy 1 လင့်ခ် ထည့်ပါ
+
 // Nav Profile အကောင့်ဝင်ရန် နှိပ်သည့်အခါ
 function promptGoogleLogin() {
     if (userSession) {
-        // အကောင့်ရှိနေရင် Profile Modal ပြမည် (ထွက်ရန်/ပြောင်းရန်)
         document.getElementById('profileModalImg').src = userSession.picture;
         document.getElementById('profileModalName').innerText = userSession.name;
         document.getElementById('profileModalEmail').innerText = userSession.email;
         document.getElementById('profileModal').style.display = 'flex';
     } else {
-        // အကောင့်မရှိရင် Login Modal ပြမည်
         document.getElementById('newLoginModal').style.display = 'flex';
         initGoogleLogin();
     }
 }
 
 function initGoogleLogin() {
+    if (typeof google === 'undefined') return;
     google.accounts.id.initialize({
-        client_id: CLIENT_ID,
+        client_id: CLIENT_ID, // သင့် Client ID
         callback: handleLoginResponse
     });
     google.accounts.id.renderButton(
@@ -804,7 +703,7 @@ async function handleLoginResponse(response) {
     updateUserUI();
     document.getElementById('newLoginModal').style.display = 'none';
 
-    // Sheet သို့ ဒေတာပို့ခြင်း
+    // (Deploy 1) Sheet သို့ ဒေတာပို့ခြင်း
     await saveUserToSheet(userSession);
 }
 
@@ -820,13 +719,13 @@ async function saveUserToSheet(user) {
     };
 
     try {
-        // text/plain သုံးမှ Apps Script က CORS မပိတ်ဘဲ လက်ခံမည်
-        await fetch(webAppUrl, {
+        await fetch(webAppUrl_User, {
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(userData)
         });
+        console.log("User data sent to Deploy 1");
     } catch (error) {
         console.error("Save Error:", error);
     }
@@ -841,7 +740,6 @@ function updateUserUI() {
     }
 }
 
-// အကောင့်ထွက်ခြင်း
 function signOut() {
     localStorage.removeItem('user_session');
     userSession = null;
@@ -849,7 +747,6 @@ function signOut() {
     document.getElementById('profileModal').style.display = 'none';
 }
 
-// အကောင့်ပြောင်းခြင်း
 function switchAccount() {
     signOut();
     document.getElementById('newLoginModal').style.display = 'flex';
@@ -860,11 +757,11 @@ window.addEventListener('DOMContentLoaded', () => {
     if (userSession) updateUserUI();
 });
 
- // Login 
+ // Login ဆ
  
  
 
-// font စ
+// font စ - ----------------------------------------------------------------------------
 const fontMenuBtn = document.getElementById('fontMenuBtn');
 const fontModal = document.getElementById('fontModal');
 const fontOverlay = document.getElementById('fontOverlay');
