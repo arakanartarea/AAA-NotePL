@@ -657,7 +657,7 @@ function closeLoginModal() {
  
  // Login စ 
 // Deploy 1 URL - User အချက်အလက်များ သိမ်းရန်
-const webAppUrl_User = "https://script.google.com/macros/s/AKfycbyfnZyuzpMIz7S8p9a4aDF01u_YHpA-xKYxr2km66rnyOx1FuC-LTR921BtBATZhuQ/exec"; // ဒီနေရာမှာ Deploy 1 လင့်ခ် ထည့်ပါ
+const webAppUrl_User = "https://script.google.com/macros/s/AKfycbykmhpGP_-Gd6IKnYR-3KoUoMBmqNzmdahVdQMac63sVS03thHFwK4jL_K2mlK_PiwU/exec"; // ဒီနေရာမှာ Deploy 1 လင့်ခ် ထည့်ပါ
 
 // Nav Profile အကောင့်ဝင်ရန် နှိပ်သည့်အခါ
 function promptGoogleLogin() {
