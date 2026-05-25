@@ -651,7 +651,7 @@ function closeLoginModal() {
     document.getElementById('newLoginModal').style.display = 'none';
 }
 
-/* လော့အင်ဝင် စ 
+// လော့အင်ဝင် စ 
 // Google Login စတင်ရန်
 function initGoogleLogin() {
     if (typeof google === 'undefined') return;
@@ -756,7 +756,7 @@ async function submitNewVote() {
         submitBtn.disabled = false;
     }
 }
- ဆလာ့အင်ဝင် ဆ */
+// ဆလာ့အင်ဝင် ဆ 
  
  // Login စ 
 // Nav Profile အကောင့်ဝင်ရန် နှိပ်သည့်အခါ
