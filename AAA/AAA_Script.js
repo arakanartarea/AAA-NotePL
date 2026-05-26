@@ -708,6 +708,7 @@ async function handleLoginResponse(response) {
 }
 
 async function saveUserToSheet(user) {
+    console.log("အသုံးပြုနေတဲ့ Web App URL ကတော့:", webAppUrl_User);
     const userData = {
         action: "save_user",
         userId: user.id,
