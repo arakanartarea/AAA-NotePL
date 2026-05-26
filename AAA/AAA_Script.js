@@ -832,57 +832,95 @@ window.addEventListener('DOMContentLoaded', () => {
  
 // Vote UI စ ---------------------------------------------------------------
 
-// 1. Vote Modal ဖွင့်ခြင်း နှင့် သီချင်း ID ဖမ်းခြင်း
-/*
+// ၁။ Vote Modal ဖွင့်ခြင်း နှင့် စနစ်သစ်အလိုက် ဒေတာ စစ်ဆေးခြင်း
 function openVoteModal(songId) {
-    currentVoteSongId = songId; // လက်ရှိ Vote ပေးမယ့် သီချင်း ID သိမ်းမယ်
-    document.getElementById('voteSelect').value = "";
-    document.getElementById('voteHintBox').style.display = 'none';
-    document.getElementById('voteNote').value = "";
-    document.getElementById('noteCharCount').innerText = "0";
-    document.getElementById('voteOverlay').style.display = 'block';
-    document.getElementById('voteModal').style.display = 'block';
-} */
-function openVoteModal(songId) {
-    // သီချင်းဒေတာ အရင်ရှာမယ်
+    // သီချင်းဒေတာ ရှာဖွေမည်
     currentTargetSong = allData.find(s => String(s.id) === String(songId));
+    
     if (!currentTargetSong) {
         alert("သီချင်းဒေတာ ရှာမတွေ့ပါ။ ID: " + songId);
         return;
     }
-    // အကောင့်ရှိ/မရှိ စစ်မယ်
+
+    // အကောင့်ဝင်ထားခြင်း ရှိမရှိ စစ်ဆေးမည်
     if (!userSession) {
         document.getElementById('newLoginModal').style.display = 'flex';
         initGoogleLogin();
         return;
     }
+
+    // အချက်အလက်များ သတ်မှတ်မည်
+    currentVoteSongId = songId;
+    selectedVoteNum = null; // ရွေးချယ်မှုအဟောင်း ရှင်းထုတ်မည်
     
-    currentVoteSongId = songId; 
-    
-    // မင်းရဲ့ UI အသစ် Element ID တွေနဲ့ ချိတ်ဆက်မှု မှန်အောင်လုပ်ပေးခြင်း
-    const voteSongTitle = document.getElementById('voteSongTitle');
-    if(voteSongTitle) voteSongTitle.innerText = currentTargetSong.title;
-    
-    const newVoteModal = document.getElementById('newVoteModal');
-    if(newVoteModal) newVoteModal.style.display = 'flex';
-    
-    // အကယ်၍ renderVoteButtons() ရှိရင် ခေါ်ပေးပါ
-    if (typeof renderVoteButtons === 'function') renderVoteButtons();
+    // HTML Elements များကို ဒေတာထည့်သွင်းခြင်း
+    document.getElementById('voteSongTitle').innerText = currentTargetSong.title;
+    document.getElementById('voteNote').value = "";
+    document.getElementById('noteCharCount').innerText = "0";
+    document.getElementById('voteHintBox').style.display = 'none';
+
+    // 0 မှ 9 ခလုတ်များကို နေရာချပေးရန် ခေါ်ယူခြင်း
+    renderVoteButtons();
+
+    // စနစ်သစ် မိုဒယ်လ်ကို ဖွင့်မည်
+    document.getElementById('newVoteModal').style.display = 'flex';
 }
 
+// ၂။ 0 မှ 9 ခလုတ်များကို HTML ထဲသို့ Dynamic ထည့်သွင်းပေးခြင်း (0-9 List တက်လာစေရန်)
+function renderVoteButtons() {
+    const container = document.getElementById('voteButtonsContainer');
+    if (!container) return;
 
-// 2. Vote Modal ပိတ်ခြင်း
-function closeVoteModal() {
-    document.getElementById('voteOverlay').style.display = 'none';
-    document.getElementById('voteModal').style.display = 'none';
+    let html = "";
+    for (let i = 0; i <= 9; i++) {
+        html += `
+            <button type="button" class="vote-num-btn" id="vbtn-${i}" onclick="selectVoteNumber(${i})" 
+                style="padding:10px; border:1px solid var(--border, #ccc); border-radius:6px; background:var(--card); color:var(--text); font-weight:bold; cursor:pointer; transition:all 0.2s ease;">
+                ${i}
+            </button>`;
+    }
+    container.innerHTML = html;
 }
 
-// 3. အမှတ်အလိုက် အရောင်နှင့် Hint စာသားများ ပြောင်းလဲခြင်း
-function updateVoteHint(val) {
+// ၃။ အမှတ်တစ်ခုခုကို နှိပ်လိုက်သည့်အခါ အရောင်ပြောင်းလဲခြင်း နှင့် မှတ်သားခြင်း
+function selectVoteNumber(num) {
+    selectedVoteNum = num;
+
+    // ခလုတ်အားလုံးကို ပုံမှန်အရောင် ပြန်ပြောင်းမည်
+    for (let i = 0; i <= 9; i++) {
+        const btn = document.getElementById(`vbtn-${i}`);
+        if (btn) {
+            btn.style.background = "var(--card)";
+            btn.style.color = "var(--text)";
+            btn.style.borderColor = "var(--border, #ccc)";
+        }
+    }
+
+    // နှိပ်လိုက်သည့် ခလုတ်ကို ကာလာ Highlight ပြုလုပ်မည်
+    const selectedBtn = document.getElementById(`vbtn-${num}`);
+    if (selectedBtn) {
+        selectedBtn.style.background = "var(--primary)";
+        selectedBtn.style.color = "#fff";
+        selectedBtn.style.borderColor = "var(--primary)";
+    }
+
+    // အမှတ်အလိုက် အောက်က Hint စာသားကို ပြောင်းလဲပေးမည်
+    updateVoteHint(num);
+}
+
+// ၄။ စနစ်သစ် Vote Modal ပြန်ပိတ်ခြင်း Function
+function closeNewVoteModal() {
+    document.getElementById('newVoteModal').style.display = 'none';
+    selectedVoteNum = null;
+    document.getElementById('voteNote').value = "";
+}
+
+// ၅။ အမှတ်အလိုက် အရောင်နှင့် Hint စာသားများ ပြောင်းလဲခြင်း
+function updateVoteHint(num) {
     const hintBox = document.getElementById('voteHintBox');
-    if (!val) { hintBox.style.display = 'none'; return; }
+    if (!hintBox) return;
+    
     hintBox.style.display = 'block';
-    const num = parseInt(val);
     
     if (num >= 7) { // 9, 8, 7 (အနီရောင်လိုင်း)
         hintBox.style.background = '#ffebee'; hintBox.style.color = '#c62828'; hintBox.style.border = '1px solid #ffbde2';
@@ -896,53 +934,53 @@ function updateVoteHint(val) {
     }
 }
 
-// 4. Input ရိုက်ရင် စာလုံးရေ (၇၀) ပြည့်မပြည့် စစ်ပေးခြင်း
+// ၆။ စာလုံးရေ (၇၀) အတွက် Listener ထည့်သွင်းခြင်း
 document.addEventListener("DOMContentLoaded", () => {
     const noteInput = document.getElementById('voteNote');
     if(noteInput) {
         noteInput.addEventListener('input', function() {
-            document.getElementById('noteCharCount').innerText = this.value.length;
+            const countEl = document.getElementById('noteCharCount');
+            if(countEl) countEl.innerText = this.value.length;
         });
     }
 });
 
+// Vote UI ဆ ---------------------------------------------------------------
 
-// Vote UI ဆ
-// Send Vote Rating စ
 
-// ၅။ အွန်လိုင်းမှ AAA_User_List စာရင်းကို Fetch လုပ်ပြီး UserID ရှာမည့် လုပ်ငန်းစဉ်
+// Send Vote Rating စ ------------------------------------------------------
+
 async function submitVoteProcess() {
-    // အဆင့် ၁ - အင်တာနက် ရှိ/မရှိ စစ်ဆေးခြင်း
     if (!navigator.onLine) {
         alert("⚠️ အင်တာနက်လိုင်း မရှိပါ။ အင်တာနက်ဖွင့်ပြီးမှ ပြန်လည်ကြိုးစားပါ။");
         return;
     }
 
-    // အဆင့် ၂ - Local အကောင့်ရှိမရှိ စစ်ဆေးခြင်း
     if (!userSession || !userSession.email) {
         alert("🔒 Vote ပေးရန်အတွက် အကောင့်ဝင်ရန် လိုအပ်ပါသည်။");
-        closeVoteModal();
-        if (typeof login === 'function') login(); // မင်းရဲ့ လက်ရှိ Login ဝင်ခိုင်းတဲ့ function ကို လှမ်းခေါ်တာ
+        closeNewVoteModal();
         return;
     }
 
-    const voteNum = document.getElementById('voteSelect').value;
+    // 💡 အရေးကြီး - ခလုတ်နှိပ်ထားတဲ့ အမှတ်ရှိမရှိ ဒေတာ စစ်ဆေးခြင်း
+    if (selectedVoteNum === null) {
+        alert("⚠️ ကျေးဇူးပြု၍ အဆင့်သတ်မှတ်ချက် (0 မှ 9) ခလုတ်တစ်ခုခုကို အရင်ရွေးချယ်ပေးပါဦး။");
+        return;
+    }
+
+    const voteNum = selectedVoteNum;
     const voteNote = document.getElementById('voteNote').value.trim();
 
-    if (!voteNum) {
-        alert("Please select a vote score!");
-        return;
+    // "ဗုတ်ပေးမည်" ခလုတ်ကို ခေတ္တပိတ်ထားပြီး Loading ပြရန်
+    const submitBtn = document.querySelector("#newVoteModal button[onclick='submitVoteProcess()']");
+    let originalText = "ဗုတ်ပေးမည် 🗳️";
+    if (submitBtn) {
+        originalText = submitBtn.innerText;
+        submitBtn.disabled = true;
+        submitBtn.innerText = "ခေတ္တစောင့်ပါ...";
     }
 
-    // "ဘုတ်ပေးမည်" ခလုတ်ကို ခေတ္တပိတ်ထားပြီး Loading ပြရန်
-    const submitBtn = document.querySelector("#voteModal button[onclick='submitVoteProcess()']");
-    const originalText = submitBtn.innerText;
-    submitBtn.disabled = true;
-    submitBtn.innerText = "ခေတ္တစောင့်ပါ...";
-
     try {
-        // အဆင့် ၃ - View Sheet ထဲက 'AAA_User_List' Tab ဆီကနေ အကောင့်စာရင်း လှမ်းဖတ်ခြင်း
-        // (sheetId က မင်းရဲ့ JS အပေါ်ဆုံးမှာ သတ်မှတ်ထားပြီးသား '1MnRxfu3BhlTnB6IlvtEfik2FfY-d22SOeaBTKAqfFCY' ကို သုံးထားတယ်)
         const userListUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=AAA_User_List`;
         
         const res = await fetch(userListUrl);
@@ -953,30 +991,23 @@ async function submitVoteProcess() {
         let foundUserId = null;
         const localEmail = userSession.email.toLowerCase().trim();
 
-        // Sheet ကလာတဲ့ ဒေတာထဲမှာ မေးလ် တိုက်စစ်ခြင်း
-        // Col0 = UserID, Col1 = UserName, Col2 = UserEmail (QUERY formula အတိုင်း)
         for (let row of rows) {
             if (row.c && row.c[2] && row.c[2].v) {
                 let sheetEmail = row.c[2].v.toString().toLowerCase().trim();
                 if (sheetEmail === localEmail) {
-                    foundUserId = row.c[0].v.toString(); // အိုင်ဒီကို ယူလိုက်ပြီ
+                    foundUserId = row.c[0].v.toString();
                     break;
                 }
             }
         }
 
-        // အိုင်ဒီမတွေ့ရင် (စာရင်းထဲ မရှိရင်) ပယ်ချမယ်
         if (!foundUserId) {
             alert("❌ သင့်အကောင့်အား စာရင်းထဲတွင် မတွေ့ရှိပါ။ Vote ပေးခွင့်မရှိပါ။");
-            submitBtn.disabled = false;
-            submitBtn.innerText = originalText;
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = originalText; }
             return;
         }
 
-        // အဆင့် ၄ - ဒေတာများကို စုစည်းပြီး Deploy 2 (Apps Script) ဆီ ပို့ခြင်း
-        const voteTime = new Date().toISOString(); // Global Time (2026-05-26T10:01:07.878Z ပုံစံ)
-        
-        // ⚠️ အရေးကြီး - အောက်က webAppUrl_Vote နေရာမှာ မင်းဆောက်မယ့် Deploy 2 ရဲ့ Web App URL ကို ထည့်ပေးရမယ်နော် (လောလောဆယ် စမ်းသပ်ရန် လက်ရှိ Web App ပဲ ခံထားတယ်)
+        const voteTime = new Date().toISOString(); 
         const webAppUrl_Vote = "https://script.google.com/macros/s/AKfycbyxtPpKQCj25Iz9CiZL5Q5wVhTCee9AY2wNGNhGmBIPG-2_8j1Tn-W8qvLrBCPPlSrc/exec"; 
 
         const payload = {
@@ -988,7 +1019,6 @@ async function submitVoteProcess() {
             voteTime: voteTime
         };
 
-        // POST Method နဲ့ Apps Script ဆီ ဒေတာလှမ်းပို့ခြင်း
         const response = await fetch(webAppUrl_Vote, {
             method: "POST",
             body: JSON.stringify(payload)
@@ -998,7 +1028,7 @@ async function submitVoteProcess() {
 
         if (result.status === "success") {
             alert("🎉 တေးသီချင်းအား အောင်မြင်စွာ အဆင့်သတ်မှတ်ပေးပြီးပါပြီ။");
-            closeVoteModal();
+            closeNewVoteModal();
         } else {
             alert("❌ တစ်ခုခုမှားယွင်းသွားပါသည်။ ပြန်လည်ကြိုးစားပါ။");
         }
@@ -1007,13 +1037,15 @@ async function submitVoteProcess() {
         console.error(err);
         alert("❌ Error: ဒေတာချိတ်ဆက်မှု မအောင်မြင်ပါ။");
     } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerText = originalText;
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = originalText;
+        }
     }
 }
 
+// Send Vote Rating ဆ ------------------------------------------------------
 
-// Send Vote Rating ဆ
 
 // font စ - ----------------------------------------------------------------------------
 const fontMenuBtn = document.getElementById('fontMenuBtn');
