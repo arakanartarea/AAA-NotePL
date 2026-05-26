@@ -1,7 +1,7 @@
 const sheetId = '1MnRxfu3BhlTnB6IlvtEfik2FfY-d22SOeaBTKAqfFCY';
 const sheetName = 'AAAview';
 const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
-const webAppUrl = "https://script.google.com/macros/s/AKfycbx_VC5KVWnsl9re3CciF0NBbc3qkD0dRpGEOnqTdAGN0EjVya9IdTBYhn-h9qKwLerS/exec"; //20260519
+const webAppUrl = "https://script.google.com/macros/s/AKfycbx_VC5KVWnsl9re3CciF0NBbc3qkD0dRpGEOnqTdAGN0EjVya9IdTBYhn-h9qKwLerS/exec"; 
 
 const CLIENT_ID = "750089996822-76hj5pfvrf8ui70eu6cimv0lb9lg6su3.apps.googleusercontent.com";
 const userIcon = document.getElementById('userIcon');
@@ -9,7 +9,7 @@ const userIcon = document.getElementById('userIcon');
 let allData = [];
 let currentSortKey = localStorage.getItem('preferredSort') || 'artist';
 let isAscending = localStorage.getItem('isAscending') === 'false' ? false : true;
-let countSortMode = localStorage.getItem('countSortMode') || 'none'; // 'none', 'desc', 'asc'
+let countSortMode = localStorage.getItem('countSortMode') || 'none'; 
 
 let currentVoteSongId = "";
 let listType = 'songs'; 
@@ -17,7 +17,7 @@ let listDisplayData = [];
 
 let userSession = JSON.parse(localStorage.getItem('user_session')) || null;
 let selectedVoteNum = null;
-let currentTargetSong = null; // သီချင်း ID ပါ သိမ်းဖို့ object တစ်ခုလုံး ယူထားမယ်
+let currentTargetSong = null; 
 
 function mapSheetRow(row) {
     const getValue = (index) => (row.c && row.c[index] && row.c[index].v) ? row.c[index].v : '';
@@ -34,7 +34,6 @@ function mapSheetRow(row) {
 
 function updateToolbarUI(isDetailView, key = 'artist') {
     const isMobile = window.innerWidth <= 768;
-
     const backBtn = document.getElementById('backBtn');
     if (backBtn) backBtn.style.display = (isMobile && isDetailView) ? 'flex' : 'none';
 
@@ -74,7 +73,6 @@ async function loadData() {
     } catch (e) { console.error(e); }
 }
 
-// All Song Menu
 function handleSort(key) {
     currentSortKey = key;
     localStorage.setItem('preferredSort', key);
@@ -115,7 +113,6 @@ function handleSort(key) {
     const listElement = document.getElementById('artist-list-container');
     if(listElement) {
         listElement.innerHTML = sortedNames.map((name, index) => {
-            // Child Items (သီချင်းများ) ကို Sort စီခြင်း
             let sortedSongs = [...groups[name]];
             if (countSortMode !== 'none') {
                 sortedSongs.sort((a, b) => (a.title || '').localeCompare(b.title || '', 'my'));
@@ -161,7 +158,7 @@ function renderCardView(name, encodedData) {
     html += `<div class="song-grid">`;
     
     html += songs.map((song, idx) => {
-        const songEncoded = encodeURIComponent(JSON.stringify(song)); // 💡 Editor အတွက် ရော HTML အတွက်ပါ အန္တရာယ်ကင်းဆုံး ပုံစံဖြစ်သည်
+        const songEncoded = encodeURIComponent(JSON.stringify(song)); 
         return `
         <div class="artist-card">
             <div class="card-header"><p class="card-title">${song.title || '-'}</p></div>
@@ -229,7 +226,6 @@ function openFullModal(song) {
     const body = document.getElementById('modal-body');
     document.body.style.overflow = 'hidden';
     
-    // 🎥 YouTube Embed URL ထုတ်တာ - function တစ်ခုတည်းပဲသုံး
     const embedUrl = getYouTubeEmbedUrl(song.karaoke);
     
     body.innerHTML = `
@@ -275,48 +271,38 @@ function openFullModal(song) {
           }
         </div>
       </div>
-
     </div>
   `;
-modal.style.display = 'block';
+  modal.style.display = 'block';
 }
 
-// Modal ကို ပိတ်မည့် Function နှင့် ဗီဒီယို/အသံ ရပ်တန့်စေခြင်း
 function closeModal() {
     const modal = document.getElementById('fullModal');
     if (modal) {
         modal.style.display = 'none';
-        document.body.style.overflow = 'auto'; // မူလ Scroll ပြန်ဖွင့်ရန်
-
-        // 🛑 ဗီဒီယို အသံဆက်မထွက်အောင် ရှင်းထုတ်ပစ်မည့်အပိုင်း
+        document.body.style.overflow = 'auto'; 
         const videoContainer = document.querySelector('.video-container');
         if (videoContainer) {
-            videoContainer.innerHTML = ''; // iframe ကို ဖယ်ရှားလိုက်ခြင်းဖြင့် အသံရပ်သွားပါမည်
+            videoContainer.innerHTML = ''; 
         }
     }
 }
 
-// youtube link embedUrl
 function getYouTubeEmbedUrl(input) {
     if (!input) return null;
     let url = String(input).trim();
     let videoId = "";
-
     try {
         if (url.includes("youtu.be/")) {
-            // shorts သို့မဟုတ် shared link ပုံစံများအတွက် (ဥပမာ - https://youtu.be/abc123xyz45)
             let parts = url.split("youtu.be/");
             if (parts[1]) videoId = parts[1].split(/[?#]/)[0];
         } else if (url.includes("v/") || url.includes("embed/")) {
-            // embed link ပုံစံများအတွက်
             let parts = url.split(/embed\/|v\//);
             if (parts[1]) videoId = parts[1].split(/[?#]/)[0];
         } else if (url.includes("shorts/")) {
-            // shorts link ပုံစံများအတွက်
             let parts = url.split("shorts/");
             if (parts[1]) videoId = parts[1].split(/[?#]/)[0];
         } else if (url.includes("watch?v=")) {
-            // standard link ပုံစံများအတွက် (ဥပမာ - watch?v=abc123xyz45)
             let parts = url.split("watch?v=");
             if (parts[1]) videoId = parts[1].split("&")[0];
         } else if (url.includes("?v=")) {
@@ -326,15 +312,10 @@ function getYouTubeEmbedUrl(input) {
             let parts = url.split("&v=");
             if (parts[1]) videoId = parts[1].split("&")[0];
         }
-
-        // ဗီဒီယို ID က စာလုံးရေ ၁၁ လုံး ရှိရပါမယ်
         if (videoId && videoId.length === 11) {
             return "https://www.youtube.com/embed/" + videoId;
         }
-    } catch (e) {
-        console.error(e);
-    }
-
+    } catch (e) { console.error(e); }
     return null;
 }
 
@@ -342,7 +323,6 @@ function toggleSongs(id, btnId) {
     const el = document.getElementById(id);
     const btn = document.getElementById(btnId);
     const isOpen = el.style.display === "block";
-    
     el.style.display = isOpen ? "none" : "block";
     btn.classList.toggle('active', !isOpen);
 }
@@ -357,8 +337,7 @@ function toggleSortMenu(show) {
 
 function toggleSortOrder() {
     isAscending = !isAscending;
-    localStorage.setItem('isAscending', isAscending); // အခြေအနေကို မှတ်ထားမယ်
-    
+    localStorage.setItem('isAscending', isAscending);
     const orderBtn = document.getElementById('orderBtn');
     if (orderBtn) {
         orderBtn.innerText = isAscending ? "🔡 က - အ" : "🔡 အ - က";
@@ -367,7 +346,6 @@ function toggleSortOrder() {
 }
 
 function filterData() {
-    
     const searchInput = document.getElementById('search');
     const clearBtn = document.getElementById('clearSearch');
     const val = searchInput.value.toLowerCase();
@@ -382,7 +360,7 @@ function filterData() {
             (i.artist && i.artist.toLowerCase().includes(val)) ||
             (i.writer && i.writer.toLowerCase().includes(val))
         );
-                document.getElementById('group-list').innerHTML = filtered.map(song => `
+        document.getElementById('group-list').innerHTML = filtered.map(song => `
             <div class="song-list-item" 
                  onclick='openFullModal(${JSON.stringify(song).replace(/"/g, '&quot;')})'
                  style="padding:12px; border-bottom:1px solid var(--border, #eee); background:var(--card); color:var(--text); cursor:pointer;">
@@ -391,13 +369,13 @@ function filterData() {
             </div>
         `).join('');
         if (window.innerWidth <= 768) {
-            // Expan Group List ပါတဲ့ container ကိုပဲ ဖျောက်ပြီး Search ရလဒ်ကို အစားထိုးပြမယ်
             const artistContainer = document.getElementById('artist-list-container');
             if (artistContainer) artistContainer.style.setProperty('display', 'none', 'important');
-            
             document.getElementById('group-list').classList.remove('hidden-mobile');
-            updateToolbarUI(false, currentSortKey); // true ပေးရင် search box ပျောက်လို့ false ပဲထိန်းထားမယ်
-        }}} 
+            updateToolbarUI(false, currentSortKey);
+        }
+    }
+} 
         
 function clearSearch() {
     const searchInput = document.getElementById('search');
@@ -405,15 +383,12 @@ function clearSearch() {
     document.getElementById('clearSearch').style.display = 'none';
 
     if (window.innerWidth <= 768) {
-        // ရှာတာပိတ်လိုက်ရင် Expan Group List ကို ပုံမှန်အတိုင်း ပြန်ဖော်မယ်
         const artistContainer = document.getElementById('artist-list-container');
         if (artistContainer) artistContainer.style.setProperty('display', 'block', 'important');
-
         document.getElementById('master-panel').classList.remove('hidden-mobile');
         document.getElementById('group-list').classList.add('hidden-mobile');
         updateToolbarUI(false, currentSortKey);
     }
-    
     handleSort(currentSortKey); 
     window.scrollTo(0, 0);
 }
@@ -421,7 +396,6 @@ function clearSearch() {
 function toggleAddSubMenu() {
     const subMenu = document.getElementById('add-sub-menu');
     const arrow = document.getElementById('add-arrow');
-    
     if (subMenu.style.display === "none") {
         subMenu.style.display = "block";
         arrow.style.transform = "rotate(90deg)"; 
@@ -439,7 +413,6 @@ function toggleSettings() {
     if (isShowing) {
         menu.classList.remove('show');
         overlay.style.display = 'none';
-        
         const subMenu = document.getElementById('add-sub-menu');
         const arrow = document.getElementById('add-arrow');
         if(subMenu) subMenu.style.display = "none";
@@ -447,7 +420,6 @@ function toggleSettings() {
     } else {
         const sortMenu = document.getElementById('sortMenu');
         if(sortMenu) sortMenu.classList.remove('show');
-        
         menu.classList.add('show');
         overlay.style.display = 'block';
     }
@@ -480,7 +452,6 @@ function closeStats() {
 function showFullList(type) {
     listType = type;
     const title = document.getElementById('list-title');
-    
     document.querySelectorAll('.m-tool-btn').forEach(btn => btn.classList.remove('active'));
     const activeBtn = document.getElementById('btn-' + type);
     if(activeBtn) activeBtn.classList.add('active');
@@ -510,7 +481,6 @@ function showFullList(type) {
         });
         listDisplayData = [...new Set(allNames)].sort((a, b) => a.localeCompare(b, 'my'));
     }
-
     renderList();
     document.getElementById('fullListModal').style.display = 'block';
 }
@@ -533,35 +503,28 @@ function sortListData(dir) {
 }
 
 function toggleCountSort() {
-    // Mode ကို တစ်လှည့်စီ ပြောင်းမယ်: none -> desc -> asc -> none
     if (countSortMode === 'none') countSortMode = 'desc';
     else if (countSortMode === 'desc') countSortMode = 'asc';
     else countSortMode = 'none';
-
     localStorage.setItem('countSortMode', countSortMode);
     handleSort(currentSortKey);
 }
 
-// ၁။ Theme ပြောင်းလဲခြင်းနှင့် Local Storage သိမ်းခြင်း
 function changeTheme(theme) {
     localStorage.setItem('userTheme', theme);
     applyTheme();
 }
 
-// ၂။ လက်တွေ့ Theme ကို အပလီကေးရှင်းမှာ သက်ရောက်စေခြင်း
 function applyTheme() {
     const savedTheme = localStorage.getItem('userTheme') || 'system';
     const themeSelect = document.getElementById('themeSelect');
     if (themeSelect) themeSelect.value = savedTheme;
 
     let targetTheme = savedTheme;
-
-    // စက်ရဲ့ Settings အတိုင်းကြည့်ခြင်း
     if (savedTheme === 'system') {
         const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
         targetTheme = isDarkMode ? 'dark' : 'light';
     }
-
     if (targetTheme === 'dark') {
         document.body.classList.add('dark-mode');
         document.body.classList.remove('light-mode');
@@ -571,7 +534,6 @@ function applyTheme() {
     }
 }
 
-// ၃။ စက်ရဲ့ System Setting ပြောင်းသွားရင် ချက်ချင်းလိုက်ပြောင်းပေးဖို့ (Listener)
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     if (localStorage.getItem('userTheme') === 'system') {
         applyTheme();
@@ -582,14 +544,14 @@ function renderList() {
     const content = document.getElementById('list-content');
     content.innerHTML = listDisplayData.map(item => {
         if (typeof item === 'string') {
-            const itemEncoded = encodeURIComponent(item); // 💡 Editor မျက်စိမလည်အောင် ပြင်ဆင်ခြင်း
+            const itemEncoded = encodeURIComponent(item); 
             return `
                 <div class="simple-list-item">
                     <span>${item}</span>
                     <button class="btn-view-small" onclick="filterByArtist(decodeURIComponent('${itemEncoded}'))">ကြည့်မည်</button>
                 </div>`;
         } else {
-            const itemObjEncoded = encodeURIComponent(JSON.stringify(item)); // 💡 လုံခြုံသောစနစ်သို့ ပြောင်းလဲခြင်း
+            const itemObjEncoded = encodeURIComponent(JSON.stringify(item)); 
             return `
                 <div class="simple-list-item">
                     <div style="flex:1;"><strong>${item.title}</strong><br><small>${item.artist}</small></div>
@@ -600,14 +562,9 @@ function renderList() {
 }
 
 function goToArtistList() { showFullList('artists'); closeStats(); }
-
 function showAllSongsFromStats() { showFullList('songs'); closeStats(); }
-
 function showAllData() { showFullList('songs'); closeStats(); }
-
-function closeFullList() {
-    document.getElementById('fullListModal').style.display = 'none';
-}
+function closeFullList() { document.getElementById('fullListModal').style.display = 'none'; }
 
 function filterByArtist(name) {
     closeFullList();
@@ -615,56 +572,11 @@ function filterByArtist(name) {
     renderCardView(name, encodeURIComponent(JSON.stringify(allData.filter(s => s.artist && s.artist.includes(name)))));
 }
 
-applyTheme(); // Theme အရင်စစ်မယ်
-loadData();   // ပြီးမှ ဒေတာဆွဲမယ်
+applyTheme(); 
+loadData();   
 
+const webAppUrl_User = "https://script.google.com/macros/s/AKfycbyxtPpKQCj25Iz9CiZL5Q5wVhTCee9AY2wNGNhGmBIPG-2_8j1Tn-W8qvLrBCPPlSrc/exec"; 
 
-// Vote Modal ဖွင့်တဲ့ function (ဟိုဘက်က ခလုတ်မှာ ဒါနဲ့ အစားထိုးမယ်)
-/*...
-function openMainRatingModal(songId) {
-    // ၁။ ID ကို String ပြောင်းပြီး သီချင်းဒေတာကို အရင်ရှာဖွေသိမ်းဆည်းမည်
-    currentTargetSong = allData.find(s => String(s.id) === String(songId));
-    
-    if (!currentTargetSong) {
-        alert("သီချင်းဒေတာ ရှာမတွေ့ပါ။ ID: " + songId);
-        return;
-    }
-
-    // ၂။ အကောင့်ဝင်ထားခြင်း ရှိမရှိ စစ်ဆေးမည်
-    if (!userSession) {
-        document.getElementById('newLoginModal').style.display = 'flex';
-        initGoogleLogin();
-        return;
-    }
-
-    // ၃။ အကောင့်ရှိပါက Vote Modal ကို ဖွင့်မည်
-    document.getElementById('voteSongTitle').innerText = currentTargetSong.title;
-    document.getElementById('newVoteModal').style.display = 'flex';
-    renderVoteButtons();
-}
-*/
-
-function closeNewVoteModal() {
-    document.getElementById('newVoteModal').style.display = 'none';
-    selectedVoteNum = null;
-    document.getElementById('voteReason').value = "";
-} 
-
-function closeLoginModal() {
-    document.getElementById('newLoginModal').style.display = 'none';
-}
- 
-
-
-// လော့အင်ဝင် စ 
-
-// ဆလာ့အင်ဝင် ဆ 
- 
- // Login စ 
-// Deploy 1 URL - User အချက်အလက်များ သိမ်းရန်
-const webAppUrl_User = "https://script.google.com/macros/s/AKfycbyxtPpKQCj25Iz9CiZL5Q5wVhTCee9AY2wNGNhGmBIPG-2_8j1Tn-W8qvLrBCPPlSrc/exec"; // ဒီနေရာမှာ Deploy 1 လင့်ခ် ထည့်ပါ
-
-// Nav Profile အကောင့်ဝင်ရန် နှိပ်သည့်အခါ
 function promptGoogleLogin() {
     if (userSession) {
         document.getElementById('profileModalImg').src = userSession.picture;
@@ -680,7 +592,7 @@ function promptGoogleLogin() {
 function initGoogleLogin() {
     if (typeof google === 'undefined') return;
     google.accounts.id.initialize({
-        client_id: CLIENT_ID, // သင့် Client ID
+        client_id: CLIENT_ID, 
         callback: handleLoginResponse
     });
     google.accounts.id.renderButton(
@@ -688,34 +600,8 @@ function initGoogleLogin() {
         { theme: "outline", size: "large", width: "250" }
     );
 }
-/*
-async function handleLoginResponse(response) {
-    let base64Url = response.credential.split('.')[1];
-    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    let jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    let payload = JSON.parse(jsonPayload);
-
-    userSession = {
-        id: payload.sub,
-        name: payload.name,
-        email: payload.email,
-        picture: payload.picture
-    };
-
-    localStorage.setItem('user_session', JSON.stringify(userSession));
-    updateUserUI();
-    document.getElementById('newLoginModal').style.display = 'none';
-
-    // (Deploy 1) Sheet သို့ ဒေတာပို့ခြင်း
-    await saveUserToSheet(userSession);
-}
-*/
 
 async function handleLoginResponse(response) {
-    console.log("၁။ Google ဆီကနေ Response စတင် လက်ခံရရှိပါပြီ။");
-
     try {
         let base64Url = response.credential.split('.')[1];
         let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -724,8 +610,6 @@ async function handleLoginResponse(response) {
         }).join(''));
         let payload = JSON.parse(jsonPayload);
         
-        console.log("၂။ User အချက်အလက်များကို ခွဲထုတ်လို့ အောင်မြင်ပါပြီ။ Email:", payload.email);
-
         userSession = {
             id: payload.sub,
             name: payload.name,
@@ -734,24 +618,15 @@ async function handleLoginResponse(response) {
         };
 
         localStorage.setItem('user_session', JSON.stringify(userSession));
-        
-        console.log("၃။ UI ကို စတင်ပြောင်းလဲပါမည်။");
         updateUserUI();
-        
-        console.log("၄။ Login Modal ကို ပိတ်ပါမည်။");
         document.getElementById('newLoginModal').style.display = 'none';
-
-        console.log("၅။ Sheet သို့ ဒေတာသွင်းရန် saveUserToSheet ကို ခေါ်ပါတော့မည်။");
         await saveUserToSheet(userSession);
-
     } catch (error) {
-        console.error("🚨 လမ်းတစ်ဝက်တွင် Error တက်သွားပါသည်:", error);
+        console.error("🚨 Login Error:", error);
     }
 }
 
-
 async function saveUserToSheet(user) {
-    console.log("အသုံးပြုနေတဲ့ Web App URL ကတော့:", webAppUrl_User);
     const userData = {
         action: "save_user",
         userId: user.id,
@@ -761,7 +636,6 @@ async function saveUserToSheet(user) {
         timestamp: new Date().toISOString(),
         userAgent: navigator.userAgent
     };
-
     try {
         await fetch(webAppUrl_User, {
             method: "POST",
@@ -769,39 +643,10 @@ async function saveUserToSheet(user) {
             headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(userData)
         });
-        console.log("User data sent to Deploy 1");
-    } catch (error) {
-        console.error("Save Error:", error);
-    }
+        console.log("User data sent successfully");
+    } catch (error) { console.error("Save Error:", error); }
 }
 
-/* 
-async function saveUserToSheet(user) {
-    const userData = {
-        action: "save_user",
-        userId: user.id,
-        userName: user.name,
-        userEmail: user.email,
-        userImage: user.picture,
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent
-    };
-
-    try {
-        // အသစ်ရလာတဲ့ Deploy 1 URL ကို ဒီအောက်ကနေရာမှာ ထည့်ပါ
-        await fetch("https://script.google.com/macros/s/AKfycbycFuYt3dtKh16DSoYMdT7In_Bd6319XpIh8ugFJb09if9GPw-sC025JuvOBf5uqY1P/exec", {
-            method: "POST",
-            mode: "no-cors", // အလုပ်ဖြစ်ခဲ့တဲ့ ပုံစံဟောင်းအတိုင်း no-cors ပြန်သုံးပါတယ်
-            headers: { "Content-Type": "text/plain;charset=utf-8" }, // text/plain ပြန်ပြောင်းထားပါတယ်
-            body: JSON.stringify(userData)
-        });
-        console.log("User data sent to Deploy 1");
-    } catch (error) {
-        console.error("Save Error:", error);
-    }
-}
-
-*/
 function updateUserUI() {
     const uIcon = document.getElementById('userIcon');
     if (userSession && userSession.picture) {
@@ -828,38 +673,22 @@ window.addEventListener('DOMContentLoaded', () => {
     if (userSession) updateUserUI();
 });
 
- // Login ဆ
- 
-// Vote UI စ ---------------------------------------------------------------
-
-// ၁။ Vote Modal ဖွင့်ခြင်း နှင့် စနစ်သစ်အလိုက် ဒေတာ စစ်ဆေးခြင်း
 function openVoteModal(songId) {
-    console.log("openVoteModal ခေါ်ယူလိုက်ပါပြီ။ သီချင်း ID:", songId);
-
-    // ၁။ သီချင်းဒေတာ ရှိမရှိ အရင်ရှာဖွေမည်
     currentTargetSong = allData.find(s => String(s.id) === String(songId));
     if (!currentTargetSong) {
         alert("⚠️ သီချင်းဒေတာ ရှာမတွေ့ပါ။ ID: " + songId);
         return;
     }
 
-    // ၂။ အကောင့်ဝင်ထားခြင်း မရှိသေးပါက အကောင့်တောင်းသည့် စနစ်ကို ပြသမည်
     if (!userSession) {
-        console.log("အကောင့်မရှိသေးပါ။ Login Modal ကို ဖွင့်ပါမည်။");
         document.getElementById('newLoginModal').style.display = 'flex';
-        if (typeof initGoogleLogin === 'function') {
-            initGoogleLogin();
-        }
+        if (typeof initGoogleLogin === 'function') initGoogleLogin();
         return;
     }
-
-    // ၃။ အကောင့်ရှိနေပါက (သို့မဟုတ် အကောင့်ရသွားပါက) အောက်ပါ 0-9 List စနစ်ကို မဖြစ်မနေ လုပ်ဆောင်မည်
-    console.log("အကောင့်ရှိနေပြီ ဖြစ်၍ 0-9 Voting List ကို ပြသပါမည်။");
     
     currentVoteSongId = songId;
-    selectedVoteNum = null; // ရွေးချယ်မှုအဟောင်းကို Reset လုပ်မည်
+    selectedVoteNum = null; 
 
-    // HTML ထဲရှိ စနစ်သစ် Elements များကို ရှာဖွေပြီး ဒေတာ ထည့်သွင်းမည်
     const voteSongTitleEl = document.getElementById('voteSongTitle');
     const voteNoteEl = document.getElementById('voteNote');
     const noteCharCountEl = document.getElementById('noteCharCount');
@@ -870,27 +699,17 @@ function openVoteModal(songId) {
     if (noteCharCountEl) noteCharCountEl.innerText = "0";
     if (voteHintBoxEl) voteHintBoxEl.style.display = 'none';
 
-    // 🌟 အရေးကြီးဆုံးအပိုင်း - 0 မှ 9 ခလုတ်လေးများကို Container ထဲသို့ Dynamic ထည့်သွင်းပေးခြင်း
     renderVoteButtons();
 
-    // ၄။ အဆင့်သတ်မှတ်ချက်ပေးမည့် Modal Popup အသစ်ကို မျက်နှာပြင်ပေါ် တင်ပေးမည်
     const newVoteModal = document.getElementById('newVoteModal');
     if (newVoteModal) {
         newVoteModal.style.display = 'flex';
-        console.log("Vote Modal အား အောင်မြင်စွာ ဖွင့်လှစ်ပြီးပါပြီ။");
-    } else {
-        console.error("Error: HTML ထဲတွင် id='newVoteModal' ကို ရှာမတွေ့ပါ။");
     }
 }
 
-// 0 မှ 9 ခလုတ်လေးများကို HTML ထဲသို့ ထည့်သွင်းပေးသည့် Function
 function renderVoteButtons() {
     const container = document.getElementById('voteButtonsContainer');
-    if (!container) {
-        console.error("Error: HTML ထဲတွင် id='voteButtonsContainer' ကို ရှာမတွေ့ပါ။");
-        return;
-    }
-
+    if (!container) return;
     let html = "";
     for (let i = 0; i <= 9; i++) {
         html += `
@@ -902,11 +721,8 @@ function renderVoteButtons() {
     container.innerHTML = html;
 }
 
-// ၃။ အမှတ်တစ်ခုခုကို နှိပ်လိုက်သည့်အခါ အရောင်ပြောင်းလဲခြင်း နှင့် မှတ်သားခြင်း
 function selectVoteNumber(num) {
     selectedVoteNum = num;
-
-    // ခလုတ်အားလုံးကို ပုံမှန်အရောင် ပြန်ပြောင်းမည်
     for (let i = 0; i <= 9; i++) {
         const btn = document.getElementById(`vbtn-${i}`);
         if (btn) {
@@ -915,46 +731,42 @@ function selectVoteNumber(num) {
             btn.style.borderColor = "var(--border, #ccc)";
         }
     }
-
-    // နှိပ်လိုက်သည့် ခလုတ်ကို ကာလာ Highlight ပြုလုပ်မည်
     const selectedBtn = document.getElementById(`vbtn-${num}`);
     if (selectedBtn) {
         selectedBtn.style.background = "var(--primary)";
         selectedBtn.style.color = "#fff";
         selectedBtn.style.borderColor = "var(--primary)";
     }
-
-    // အမှတ်အလိုက် အောက်က Hint စာသားကို ပြောင်းလဲပေးမည်
     updateVoteHint(num);
 }
 
-// ၄။ စနစ်သစ် Vote Modal ပြန်ပိတ်ခြင်း Function
 function closeNewVoteModal() {
     document.getElementById('newVoteModal').style.display = 'none';
     selectedVoteNum = null;
-    document.getElementById('voteNote').value = "";
+    const voteNoteEl = document.getElementById('voteNote');
+    if (voteNoteEl) voteNoteEl.value = "";
 }
 
-// ၅။ အမှတ်အလိုက် အရောင်နှင့် Hint စာသားများ ပြောင်းလဲခြင်း
+function closeLoginModal() {
+    document.getElementById('newLoginModal').style.display = 'none';
+}
+
 function updateVoteHint(num) {
     const hintBox = document.getElementById('voteHintBox');
     if (!hintBox) return;
-    
     hintBox.style.display = 'block';
-    
-    if (num >= 7) { // 9, 8, 7 (အနီရောင်လိုင်း)
+    if (num >= 7) { 
         hintBox.style.background = '#ffebee'; hintBox.style.color = '#c62828'; hintBox.style.border = '1px solid #ffbde2';
         hintBox.innerText = "⚠️ သတိပြုရန်: လူမျိုးတစ်မျိုးစာ ရာစုနှစ်ချီ တည်တံ့မည့် ဂန္တဝင်မြောက် အနုပညာစစ်စစ် ဖြစ်ပါကမှ သေချာစွာ ဆုံးဖြတ်ပြီး ဘုတ်ပေးရန် တိုက်တွန်းပါသည်။";
-    } else if (num >= 3) { // 6, 5, 4, 3 (အဝါရောင်လိုင်း)
+    } else if (num >= 3) { 
         hintBox.style.background = '#fffde7'; hintBox.style.color = '#f57f17'; hintBox.style.border = '1px solid #fff59d';
         hintBox.innerText = "🎵 ဝေဖန်ပိုင်းခြားရန်: တေးသီချင်း၏ ကီး၊ ပုံလာ၊ စာသားနှင့် အဆိုတော်၏ ဖန်တီးမှု စံနှုန်းအပေါ် မူတည်၍ မျှတစွာ ရွေးချယ်ပေးပါ။";
-    } else { // 2, 1, 0 (အစိမ်းရောင်လိုင်း)
+    } else { 
         hintBox.style.background = '#e8f5e9'; hintBox.style.color = '#2e7d32'; hintBox.style.border = '1px solid #a5d6a7';
         hintBox.innerText = "🌱 အားပေးဝေဖန်ရန်: တက်သစ်စ ဝါသနာရှင်များ၏ ဖန်တီးမှုအပေါ် နားဆင်သူကောင်း တစ်ယောက်အနေဖြင့် ပြုပြင်ပြောင်းလဲစေလိုသော စိတ်ဖြင့် သုံးသပ်ပေးပါ။";
     }
 }
 
-// ၆။ စာလုံးရေ (၇၀) အတွက် Listener ထည့်သွင်းခြင်း
 document.addEventListener("DOMContentLoaded", () => {
     const noteInput = document.getElementById('voteNote');
     if(noteInput) {
@@ -964,11 +776,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
-
-// Vote UI ဆ ---------------------------------------------------------------
-
-
-// Send Vote Rating စ ------------------------------------------------------
 
 async function submitVoteProcess() {
     if (!navigator.onLine) {
@@ -982,16 +789,14 @@ async function submitVoteProcess() {
         return;
     }
 
-    // 💡 အရေးကြီး - ခလုတ်နှိပ်ထားတဲ့ အမှတ်ရှိမရှိ ဒေတာ စစ်ဆေးခြင်း
     if (selectedVoteNum === null) {
         alert("⚠️ ကျေးဇူးပြု၍ အဆင့်သတ်မှတ်ချက် (0 မှ 9) ခလုတ်တစ်ခုခုကို အရင်ရွေးချယ်ပေးပါဦး။");
         return;
     }
 
     const voteNum = selectedVoteNum;
-    const voteNote = document.getElementById('voteNote').value.trim();
+    const voteNote = document.getElementById('voteNote') ? document.getElementById('voteNote').value.trim() : "";
 
-    // "ဗုတ်ပေးမည်" ခလုတ်ကို ခေတ္တပိတ်ထားပြီး Loading ပြရန်
     const submitBtn = document.querySelector("#newVoteModal button[onclick='submitVoteProcess()']");
     let originalText = "ဗုတ်ပေးမည် 🗳️";
     if (submitBtn) {
@@ -1002,10 +807,12 @@ async function submitVoteProcess() {
 
     try {
         const userListUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=AAA_User_List`;
-        
         const res = await fetch(userListUrl);
         const text = await res.text();
-        const jsonData = JSON.parse(text.substr(47).slice(0, -2));
+        
+        const jsonStart = text.indexOf('{');
+        const jsonEnd = text.lastIndexOf('}') + 1;
+        const jsonData = JSON.parse(text.substring(jsonStart, jsonEnd));
         const rows = jsonData.table.rows;
 
         let foundUserId = null;
@@ -1022,9 +829,7 @@ async function submitVoteProcess() {
         }
 
         if (!foundUserId) {
-            alert("❌ သင့်အကောင့်အား စာရင်းထဲတွင် မတွေ့ရှိပါ။ Vote ပေးခွင့်မရှိပါ။");
-            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = originalText; }
-            return;
+            foundUserId = userSession.id; 
         }
 
         const voteTime = new Date().toISOString(); 
@@ -1033,25 +838,22 @@ async function submitVoteProcess() {
         const payload = {
             action: "submitVote",
             userId: foundUserId,
+            userEmail: localEmail,
             songId: currentVoteSongId,
             voteNumber: voteNum,
             voteNote: voteNote,
             voteTime: voteTime
         };
 
-        const response = await fetch(webAppUrl_Vote, {
+        await fetch(webAppUrl_Vote, {
             method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(payload)
         });
         
-        const result = await response.json();
-
-        if (result.status === "success") {
-            alert("🎉 တေးသီချင်းအား အောင်မြင်စွာ အဆင့်သတ်မှတ်ပေးပြီးပါပြီ။");
-            closeNewVoteModal();
-        } else {
-            alert("❌ တစ်ခုခုမှားယွင်းသွားပါသည်။ ပြန်လည်ကြိုးစားပါ။");
-        }
+        alert("🎉 တေးသီချင်းအား အောင်မြင်စွာ အဆင့်သတ်မှတ်ပေးပြီးပါပြီ။");
+        closeNewVoteModal();
 
     } catch (err) {
         console.error(err);
@@ -1064,15 +866,10 @@ async function submitVoteProcess() {
     }
 }
 
-// Send Vote Rating ဆ ------------------------------------------------------
-
-
-// font စ - ----------------------------------------------------------------------------
 const fontMenuBtn = document.getElementById('fontMenuBtn');
 const fontModal = document.getElementById('fontModal');
 const fontOverlay = document.getElementById('fontOverlay');
 
-// ဖောင့် List Popup ဖွင့်ရန်
 if (fontMenuBtn) {
     fontMenuBtn.addEventListener('click', () => {
         fontModal.style.display = 'block';
@@ -1080,7 +877,6 @@ if (fontMenuBtn) {
     });
 }
 
-// Popup ပြန်ပိတ်ရန်
 if (fontOverlay) {
     fontOverlay.addEventListener('click', () => {
         fontModal.style.display = 'none';
@@ -1088,23 +884,16 @@ if (fontOverlay) {
     });
 }
 
-// ဝက်ဘ်ဆိုက်တစ်ခုလုံး ဖောင့်ပြောင်းပေးပြီး Local Storage တွင် သိမ်းမည့် အဓိက Function
 function changeGlobalFont(fontName, element) {
-    // ၁။ Dynamic Style ထည့်သွင်းခြင်း
     let fontStyle = document.getElementById('global-font-style');
     if (!fontStyle) {
         fontStyle = document.createElement('style');
         fontStyle.id = 'global-font-style';
         document.head.appendChild(fontStyle);
     }
-    // !important ပါဝင်၍ တစ်ဝက်ဘ်ဆိုက်လုံး ဇွတ်ပြောင်းလဲမည်
     fontStyle.innerHTML = `body, body *:not(.font-item):not(.font-item *) { font-family: '${fontName}' !important; }`;
-
-    
-    // ၂။ Local Storage တွင် ဒေတာသိမ်းခြင်း (ဒါထည့်မှ အမြဲမှတ်မိမှာဗျ)
     localStorage.setItem('aaaUserFont', fontName);
 
-    // ၃။ Active Item အား အရောင်ပြောင်းလဲခြင်း
     const items = document.querySelectorAll('.font-item');
     items.forEach(item => item.classList.remove('active'));
     
@@ -1114,15 +903,12 @@ function changeGlobalFont(fontName, element) {
         const activeItem = document.querySelector(`.font-item[data-font="${fontName}"]`);
         if (activeItem) activeItem.classList.add('active');
     }
-    
-    // ၄။ မိုဒယ်လ် ပိတ်ခြင်း
     setTimeout(() => {
         if(fontModal) fontModal.style.display = 'none';
         if(fontOverlay) fontOverlay.style.display = 'none';
     }, 200);
 }
 
-// ၅။ Webpage စဖွင့်ဖွင့်ချင်း (သို့မဟုတ် Update ဖြစ်တိုင်း) Local Storage မှ ဖောင့်ဟောင်းကို ဆွဲထုတ်ပြီး တန်းသုံးပေးခြင်း
 function applySavedFont() {
     const savedFont = localStorage.getItem('aaaUserFont');
     if (savedFont) {
@@ -1130,10 +916,5 @@ function applySavedFont() {
     }
 }
 
-// စာမျက်နှာစပွင့်ချိန်မှာ တစ်ခါ အလုပ်လုပ်ခိုင်းခြင်း
 document.addEventListener("DOMContentLoaded", applySavedFont);
-//
 applySavedFont();
-
-// font ဆ
-
