@@ -683,7 +683,7 @@ function initGoogleLogin() {
         { theme: "outline", size: "large", width: "250" }
     );
 }
-
+/*
 async function handleLoginResponse(response) {
     let base64Url = response.credential.split('.')[1];
     let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -706,7 +706,42 @@ async function handleLoginResponse(response) {
     // (Deploy 1) Sheet သို့ ဒေတာပို့ခြင်း
     await saveUserToSheet(userSession);
 }
+*/
+async function handleLoginResponse(response) {
+    console.log("၁။ Google ဆီကနေ Response စတင် လက်ခံရရှိပါပြီ။");
 
+    try {
+        let base64Url = response.credential.split('.')[1];
+        let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        let jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        let payload = JSON.parse(jsonPayload);
+        
+        console.log("၂။ User အချက်အလက်များကို ခွဲထုတ်လို့ အောင်မြင်ပါပြီ။ Email:", payload.email);
+
+        userSession = {
+            id: payload.sub,
+            name: payload.name,
+            email: payload.email,
+            picture: payload.picture
+        };
+
+        localStorage.setItem('user_session', JSON.stringify(userSession));
+        
+        console.log("၃။ UI ကို စတင်ပြောင်းလဲပါမည်။");
+        updateUserUI();
+        
+        console.log("၄။ Login Modal ကို ပိတ်ပါမည်။");
+        document.getElementById('newLoginModal').style.display = 'none';
+
+        console.log("၅။ Sheet သို့ ဒေတာသွင်းရန် saveUserToSheet ကို ခေါ်ပါတော့မည်။");
+        await saveUserToSheet(userSession);
+
+    } catch (error) {
+        console.error("🚨 လမ်းတစ်ဝက်တွင် Error တက်သွားပါသည်:", error);
+    }
+}
 async function saveUserToSheet(user) {
     console.log("အသုံးပြုနေတဲ့ Web App URL ကတော့:", webAppUrl_User);
     const userData = {
