@@ -172,7 +172,7 @@ function renderCardView(name, encodedData) {
                 <div class="info-item">💿  - ${song.album || '-'}</div>
                 <div class="info-item">🆔 - ${song.id || '-'}</div>
                 
-                <div class="info-item rating-click" onclick="openMainRatingModal('${song.id}')" style="cursor:pointer; color:var(--primary);">
+                <div class="info-item rating-click" onclick="openVoteModal('${song.id}')" style="cursor:pointer; color:var(--primary);">
                     <div>✨${song.star || '❌'}</div>
                     <div style="font-size:10px;">(${song.voters || 0} votes)</div>
                 </div>
@@ -258,7 +258,7 @@ function openFullModal(song) {
           <p>🚻 <strong>ကျား/မ:</strong> ${song.gender || '-'}</p>
           <p>📝 <strong>မှတ်ချက်:</strong> ${song.remark || '-'}</p>
         </div>
-        <button class="vote-btn" onclick="openMainRatingModal('${song.id}')" style="margin-top:15px;"> Rating ပေးမယ် ⭐⭐⭐⭐⭐ </button>
+        <button class="vote-btn" onclick="openVoteModal('${song.id}')" style="margin-top:15px;"> Rating ပေးမယ် ⭐⭐⭐⭐⭐ </button>
       </div>
       <div class="lyrics-section-new">
         <h3 class="section-title">သီချင်းစာသား</h3>
@@ -618,7 +618,9 @@ function filterByArtist(name) {
 applyTheme(); // Theme အရင်စစ်မယ်
 loadData();   // ပြီးမှ ဒေတာဆွဲမယ်
 
+
 // Vote Modal ဖွင့်တဲ့ function (ဟိုဘက်က ခလုတ်မှာ ဒါနဲ့ အစားထိုးမယ်)
+/*...
 function openMainRatingModal(songId) {
     // ၁။ ID ကို String ပြောင်းပြီး သီချင်းဒေတာကို အရင်ရှာဖွေသိမ်းဆည်းမည်
     currentTargetSong = allData.find(s => String(s.id) === String(songId));
@@ -640,16 +642,19 @@ function openMainRatingModal(songId) {
     document.getElementById('newVoteModal').style.display = 'flex';
     renderVoteButtons();
 }
+*/
 
 function closeNewVoteModal() {
     document.getElementById('newVoteModal').style.display = 'none';
     selectedVoteNum = null;
     document.getElementById('voteReason').value = "";
-}
+} 
 
 function closeLoginModal() {
     document.getElementById('newLoginModal').style.display = 'none';
 }
+ 
+
 
 // လော့အင်ဝင် စ 
 
@@ -657,7 +662,7 @@ function closeLoginModal() {
  
  // Login စ 
 // Deploy 1 URL - User အချက်အလက်များ သိမ်းရန်
-const webAppUrl_User = "https://script.google.com/macros/s/AKfycbyyI1yPaXZz1lKE8ydHZdBl4aOokFlxTZ_mBoPKVFIjXi1nxBmx6_KD8oru0zxUyZeB/exec"; // ဒီနေရာမှာ Deploy 1 လင့်ခ် ထည့်ပါ
+const webAppUrl_User = "https://script.google.com/macros/s/AKfycbyxtPpKQCj25Iz9CiZL5Q5wVhTCee9AY2wNGNhGmBIPG-2_8j1Tn-W8qvLrBCPPlSrc/exec"; // ဒီနေရာမှာ Deploy 1 လင့်ခ် ထည့်ပါ
 
 // Nav Profile အကောင့်ဝင်ရန် နှိပ်သည့်အခါ
 function promptGoogleLogin() {
@@ -707,6 +712,7 @@ async function handleLoginResponse(response) {
     await saveUserToSheet(userSession);
 }
 */
+
 async function handleLoginResponse(response) {
     console.log("၁။ Google ဆီကနေ Response စတင် လက်ခံရရှိပါပြီ။");
 
@@ -742,6 +748,8 @@ async function handleLoginResponse(response) {
         console.error("🚨 လမ်းတစ်ဝက်တွင် Error တက်သွားပါသည်:", error);
     }
 }
+
+
 async function saveUserToSheet(user) {
     console.log("အသုံးပြုနေတဲ့ Web App URL ကတော့:", webAppUrl_User);
     const userData = {
@@ -822,7 +830,190 @@ window.addEventListener('DOMContentLoaded', () => {
 
  // Login ဆ
  
- 
+// Vote UI စ ---------------------------------------------------------------
+
+// 1. Vote Modal ဖွင့်ခြင်း နှင့် သီချင်း ID ဖမ်းခြင်း
+/*
+function openVoteModal(songId) {
+    currentVoteSongId = songId; // လက်ရှိ Vote ပေးမယ့် သီချင်း ID သိမ်းမယ်
+    document.getElementById('voteSelect').value = "";
+    document.getElementById('voteHintBox').style.display = 'none';
+    document.getElementById('voteNote').value = "";
+    document.getElementById('noteCharCount').innerText = "0";
+    document.getElementById('voteOverlay').style.display = 'block';
+    document.getElementById('voteModal').style.display = 'block';
+} */
+function openVoteModal(songId) {
+    // သီချင်းဒေတာ အရင်ရှာမယ်
+    currentTargetSong = allData.find(s => String(s.id) === String(songId));
+    if (!currentTargetSong) {
+        alert("သီချင်းဒေတာ ရှာမတွေ့ပါ။ ID: " + songId);
+        return;
+    }
+    // အကောင့်ရှိ/မရှိ စစ်မယ်
+    if (!userSession) {
+        document.getElementById('newLoginModal').style.display = 'flex';
+        initGoogleLogin();
+        return;
+    }
+    
+    currentVoteSongId = songId; 
+    
+    // မင်းရဲ့ UI အသစ် Element ID တွေနဲ့ ချိတ်ဆက်မှု မှန်အောင်လုပ်ပေးခြင်း
+    const voteSongTitle = document.getElementById('voteSongTitle');
+    if(voteSongTitle) voteSongTitle.innerText = currentTargetSong.title;
+    
+    const newVoteModal = document.getElementById('newVoteModal');
+    if(newVoteModal) newVoteModal.style.display = 'flex';
+    
+    // အကယ်၍ renderVoteButtons() ရှိရင် ခေါ်ပေးပါ
+    if (typeof renderVoteButtons === 'function') renderVoteButtons();
+}
+
+
+// 2. Vote Modal ပိတ်ခြင်း
+function closeVoteModal() {
+    document.getElementById('voteOverlay').style.display = 'none';
+    document.getElementById('voteModal').style.display = 'none';
+}
+
+// 3. အမှတ်အလိုက် အရောင်နှင့် Hint စာသားများ ပြောင်းလဲခြင်း
+function updateVoteHint(val) {
+    const hintBox = document.getElementById('voteHintBox');
+    if (!val) { hintBox.style.display = 'none'; return; }
+    hintBox.style.display = 'block';
+    const num = parseInt(val);
+    
+    if (num >= 7) { // 9, 8, 7 (အနီရောင်လိုင်း)
+        hintBox.style.background = '#ffebee'; hintBox.style.color = '#c62828'; hintBox.style.border = '1px solid #ffbde2';
+        hintBox.innerText = "⚠️ သတိပြုရန်: လူမျိုးတစ်မျိုးစာ ရာစုနှစ်ချီ တည်တံ့မည့် ဂန္တဝင်မြောက် အနုပညာစစ်စစ် ဖြစ်ပါကမှ သေချာစွာ ဆုံးဖြတ်ပြီး ဘုတ်ပေးရန် တိုက်တွန်းပါသည်။";
+    } else if (num >= 3) { // 6, 5, 4, 3 (အဝါရောင်လိုင်း)
+        hintBox.style.background = '#fffde7'; hintBox.style.color = '#f57f17'; hintBox.style.border = '1px solid #fff59d';
+        hintBox.innerText = "🎵 ဝေဖန်ပိုင်းခြားရန်: တေးသီချင်း၏ ကီး၊ ပုံလာ၊ စာသားနှင့် အဆိုတော်၏ ဖန်တီးမှု စံနှုန်းအပေါ် မူတည်၍ မျှတစွာ ရွေးချယ်ပေးပါ။";
+    } else { // 2, 1, 0 (အစိမ်းရောင်လိုင်း)
+        hintBox.style.background = '#e8f5e9'; hintBox.style.color = '#2e7d32'; hintBox.style.border = '1px solid #a5d6a7';
+        hintBox.innerText = "🌱 အားပေးဝေဖန်ရန်: တက်သစ်စ ဝါသနာရှင်များ၏ ဖန်တီးမှုအပေါ် နားဆင်သူကောင်း တစ်ယောက်အနေဖြင့် ပြုပြင်ပြောင်းလဲစေလိုသော စိတ်ဖြင့် သုံးသပ်ပေးပါ။";
+    }
+}
+
+// 4. Input ရိုက်ရင် စာလုံးရေ (၇၀) ပြည့်မပြည့် စစ်ပေးခြင်း
+document.addEventListener("DOMContentLoaded", () => {
+    const noteInput = document.getElementById('voteNote');
+    if(noteInput) {
+        noteInput.addEventListener('input', function() {
+            document.getElementById('noteCharCount').innerText = this.value.length;
+        });
+    }
+});
+
+
+// Vote UI ဆ
+// Send Vote Rating စ
+
+// ၅။ အွန်လိုင်းမှ AAA_User_List စာရင်းကို Fetch လုပ်ပြီး UserID ရှာမည့် လုပ်ငန်းစဉ်
+async function submitVoteProcess() {
+    // အဆင့် ၁ - အင်တာနက် ရှိ/မရှိ စစ်ဆေးခြင်း
+    if (!navigator.onLine) {
+        alert("⚠️ အင်တာနက်လိုင်း မရှိပါ။ အင်တာနက်ဖွင့်ပြီးမှ ပြန်လည်ကြိုးစားပါ။");
+        return;
+    }
+
+    // အဆင့် ၂ - Local အကောင့်ရှိမရှိ စစ်ဆေးခြင်း
+    if (!userSession || !userSession.email) {
+        alert("🔒 Vote ပေးရန်အတွက် အကောင့်ဝင်ရန် လိုအပ်ပါသည်။");
+        closeVoteModal();
+        if (typeof login === 'function') login(); // မင်းရဲ့ လက်ရှိ Login ဝင်ခိုင်းတဲ့ function ကို လှမ်းခေါ်တာ
+        return;
+    }
+
+    const voteNum = document.getElementById('voteSelect').value;
+    const voteNote = document.getElementById('voteNote').value.trim();
+
+    if (!voteNum) {
+        alert("Please select a vote score!");
+        return;
+    }
+
+    // "ဘုတ်ပေးမည်" ခလုတ်ကို ခေတ္တပိတ်ထားပြီး Loading ပြရန်
+    const submitBtn = document.querySelector("#voteModal button[onclick='submitVoteProcess()']");
+    const originalText = submitBtn.innerText;
+    submitBtn.disabled = true;
+    submitBtn.innerText = "ခေတ္တစောင့်ပါ...";
+
+    try {
+        // အဆင့် ၃ - View Sheet ထဲက 'AAA_User_List' Tab ဆီကနေ အကောင့်စာရင်း လှမ်းဖတ်ခြင်း
+        // (sheetId က မင်းရဲ့ JS အပေါ်ဆုံးမှာ သတ်မှတ်ထားပြီးသား '1MnRxfu3BhlTnB6IlvtEfik2FfY-d22SOeaBTKAqfFCY' ကို သုံးထားတယ်)
+        const userListUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=AAA_User_List`;
+        
+        const res = await fetch(userListUrl);
+        const text = await res.text();
+        const jsonData = JSON.parse(text.substr(47).slice(0, -2));
+        const rows = jsonData.table.rows;
+
+        let foundUserId = null;
+        const localEmail = userSession.email.toLowerCase().trim();
+
+        // Sheet ကလာတဲ့ ဒေတာထဲမှာ မေးလ် တိုက်စစ်ခြင်း
+        // Col0 = UserID, Col1 = UserName, Col2 = UserEmail (QUERY formula အတိုင်း)
+        for (let row of rows) {
+            if (row.c && row.c[2] && row.c[2].v) {
+                let sheetEmail = row.c[2].v.toString().toLowerCase().trim();
+                if (sheetEmail === localEmail) {
+                    foundUserId = row.c[0].v.toString(); // အိုင်ဒီကို ယူလိုက်ပြီ
+                    break;
+                }
+            }
+        }
+
+        // အိုင်ဒီမတွေ့ရင် (စာရင်းထဲ မရှိရင်) ပယ်ချမယ်
+        if (!foundUserId) {
+            alert("❌ သင့်အကောင့်အား စာရင်းထဲတွင် မတွေ့ရှိပါ။ Vote ပေးခွင့်မရှိပါ။");
+            submitBtn.disabled = false;
+            submitBtn.innerText = originalText;
+            return;
+        }
+
+        // အဆင့် ၄ - ဒေတာများကို စုစည်းပြီး Deploy 2 (Apps Script) ဆီ ပို့ခြင်း
+        const voteTime = new Date().toISOString(); // Global Time (2026-05-26T10:01:07.878Z ပုံစံ)
+        
+        // ⚠️ အရေးကြီး - အောက်က webAppUrl_Vote နေရာမှာ မင်းဆောက်မယ့် Deploy 2 ရဲ့ Web App URL ကို ထည့်ပေးရမယ်နော် (လောလောဆယ် စမ်းသပ်ရန် လက်ရှိ Web App ပဲ ခံထားတယ်)
+        const webAppUrl_Vote = "https://script.google.com/macros/s/AKfycbyxtPpKQCj25Iz9CiZL5Q5wVhTCee9AY2wNGNhGmBIPG-2_8j1Tn-W8qvLrBCPPlSrc/exec"; 
+
+        const payload = {
+            action: "submitVote",
+            userId: foundUserId,
+            songId: currentVoteSongId,
+            voteNumber: voteNum,
+            voteNote: voteNote,
+            voteTime: voteTime
+        };
+
+        // POST Method နဲ့ Apps Script ဆီ ဒေတာလှမ်းပို့ခြင်း
+        const response = await fetch(webAppUrl_Vote, {
+            method: "POST",
+            body: JSON.stringify(payload)
+        });
+        
+        const result = await response.json();
+
+        if (result.status === "success") {
+            alert("🎉 တေးသီချင်းအား အောင်မြင်စွာ အဆင့်သတ်မှတ်ပေးပြီးပါပြီ။");
+            closeVoteModal();
+        } else {
+            alert("❌ တစ်ခုခုမှားယွင်းသွားပါသည်။ ပြန်လည်ကြိုးစားပါ။");
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert("❌ Error: ဒေတာချိတ်ဆက်မှု မအောင်မြင်ပါ။");
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = originalText;
+    }
+}
+
+
+// Send Vote Rating ဆ
 
 // font စ - ----------------------------------------------------------------------------
 const fontMenuBtn = document.getElementById('fontMenuBtn');
