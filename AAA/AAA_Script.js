@@ -834,42 +834,62 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // ၁။ Vote Modal ဖွင့်ခြင်း နှင့် စနစ်သစ်အလိုက် ဒေတာ စစ်ဆေးခြင်း
 function openVoteModal(songId) {
-    // သီချင်းဒေတာ ရှာဖွေမည်
+    console.log("openVoteModal ခေါ်ယူလိုက်ပါပြီ။ သီချင်း ID:", songId);
+
+    // ၁။ သီချင်းဒေတာ ရှိမရှိ အရင်ရှာဖွေမည်
     currentTargetSong = allData.find(s => String(s.id) === String(songId));
-    
     if (!currentTargetSong) {
-        alert("သီချင်းဒေတာ ရှာမတွေ့ပါ။ ID: " + songId);
+        alert("⚠️ သီချင်းဒေတာ ရှာမတွေ့ပါ။ ID: " + songId);
         return;
     }
 
-    // အကောင့်ဝင်ထားခြင်း ရှိမရှိ စစ်ဆေးမည်
+    // ၂။ အကောင့်ဝင်ထားခြင်း မရှိသေးပါက အကောင့်တောင်းသည့် စနစ်ကို ပြသမည်
     if (!userSession) {
+        console.log("အကောင့်မရှိသေးပါ။ Login Modal ကို ဖွင့်ပါမည်။");
         document.getElementById('newLoginModal').style.display = 'flex';
-        initGoogleLogin();
+        if (typeof initGoogleLogin === 'function') {
+            initGoogleLogin();
+        }
         return;
     }
 
-    // အချက်အလက်များ သတ်မှတ်မည်
-    currentVoteSongId = songId;
-    selectedVoteNum = null; // ရွေးချယ်မှုအဟောင်း ရှင်းထုတ်မည်
+    // ၃။ အကောင့်ရှိနေပါက (သို့မဟုတ် အကောင့်ရသွားပါက) အောက်ပါ 0-9 List စနစ်ကို မဖြစ်မနေ လုပ်ဆောင်မည်
+    console.log("အကောင့်ရှိနေပြီ ဖြစ်၍ 0-9 Voting List ကို ပြသပါမည်။");
     
-    // HTML Elements များကို ဒေတာထည့်သွင်းခြင်း
-    document.getElementById('voteSongTitle').innerText = currentTargetSong.title;
-    document.getElementById('voteNote').value = "";
-    document.getElementById('noteCharCount').innerText = "0";
-    document.getElementById('voteHintBox').style.display = 'none';
+    currentVoteSongId = songId;
+    selectedVoteNum = null; // ရွေးချယ်မှုအဟောင်းကို Reset လုပ်မည်
 
-    // 0 မှ 9 ခလုတ်များကို နေရာချပေးရန် ခေါ်ယူခြင်း
+    // HTML ထဲရှိ စနစ်သစ် Elements များကို ရှာဖွေပြီး ဒေတာ ထည့်သွင်းမည်
+    const voteSongTitleEl = document.getElementById('voteSongTitle');
+    const voteNoteEl = document.getElementById('voteNote');
+    const noteCharCountEl = document.getElementById('noteCharCount');
+    const voteHintBoxEl = document.getElementById('voteHintBox');
+
+    if (voteSongTitleEl) voteSongTitleEl.innerText = currentTargetSong.title;
+    if (voteNoteEl) voteNoteEl.value = "";
+    if (noteCharCountEl) noteCharCountEl.innerText = "0";
+    if (voteHintBoxEl) voteHintBoxEl.style.display = 'none';
+
+    // 🌟 အရေးကြီးဆုံးအပိုင်း - 0 မှ 9 ခလုတ်လေးများကို Container ထဲသို့ Dynamic ထည့်သွင်းပေးခြင်း
     renderVoteButtons();
 
-    // စနစ်သစ် မိုဒယ်လ်ကို ဖွင့်မည်
-    document.getElementById('newVoteModal').style.display = 'flex';
+    // ၄။ အဆင့်သတ်မှတ်ချက်ပေးမည့် Modal Popup အသစ်ကို မျက်နှာပြင်ပေါ် တင်ပေးမည်
+    const newVoteModal = document.getElementById('newVoteModal');
+    if (newVoteModal) {
+        newVoteModal.style.display = 'flex';
+        console.log("Vote Modal အား အောင်မြင်စွာ ဖွင့်လှစ်ပြီးပါပြီ။");
+    } else {
+        console.error("Error: HTML ထဲတွင် id='newVoteModal' ကို ရှာမတွေ့ပါ။");
+    }
 }
 
-// ၂။ 0 မှ 9 ခလုတ်များကို HTML ထဲသို့ Dynamic ထည့်သွင်းပေးခြင်း (0-9 List တက်လာစေရန်)
+// 0 မှ 9 ခလုတ်လေးများကို HTML ထဲသို့ ထည့်သွင်းပေးသည့် Function
 function renderVoteButtons() {
     const container = document.getElementById('voteButtonsContainer');
-    if (!container) return;
+    if (!container) {
+        console.error("Error: HTML ထဲတွင် id='voteButtonsContainer' ကို ရှာမတွေ့ပါ။");
+        return;
+    }
 
     let html = "";
     for (let i = 0; i <= 9; i++) {
