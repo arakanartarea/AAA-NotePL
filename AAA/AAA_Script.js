@@ -662,7 +662,7 @@ function closeLoginModal() {
  
  // Login စ 
 // Deploy 1 URL - User အချက်အလက်များ သိမ်းရန်
-const webAppUrl_User = "https://script.google.com/macros/s/AKfycbyxtPpKQCj25Iz9CiZL5Q5wVhTCee9AY2wNGNhGmBIPG-2_8j1Tn-W8qvLrBCPPlSrc/exec"; // ဒီနေရာမှာ Deploy 1 လင့်ခ် ထည့်ပါ
+const webAppUrl_User = "https://script.google.com/macros/s/AKfycbxZX5WMzYexz2RJPFU3AeCNXdYZMjsCfk7cu282wBHqH2UwofQ93zN_DsSQRd2Bed81/exec"; // ဒီနေရာမှာ Deploy 1 လင့်ခ် ထည့်ပါ
 
 // Nav Profile အကောင့်ဝင်ရန် နှိပ်သည့်အခါ
 function promptGoogleLogin() {
@@ -1106,7 +1106,6 @@ async function submitVoteProcess() {
         return;
     }
     
-    // ✅ dropdown မှ တန်ဖိုးဖတ်ရန် ပြင်ဆင်သည်
     const voteSelectEl = document.getElementById('voteSelect');
     const voteSelectValue = voteSelectEl ? voteSelectEl.value : "";
     
@@ -1115,7 +1114,7 @@ async function submitVoteProcess() {
         return;
     }
     
-    const voteNum = parseInt(voteSelectValue); // ✅ dropdown တန်ဖိုးသုံးသည်
+    const voteNum = parseInt(voteSelectValue);
     const voteNoteEl = document.getElementById('voteNote');
     const voteNote = voteNoteEl ? voteNoteEl.value.trim() : "";
     
@@ -1126,7 +1125,7 @@ async function submitVoteProcess() {
     }
     
     try {
-        const webAppUrl_Vote = "https://script.google.com/macros/s/AKfycbyxtPpKQCj25Iz9CiZL5Q5wVhTCee9AY2wNGNhGmBIPG-2_8j1Tn-W8qvLrBCPPlSrc/exec";
+        const webAppUrl_Vote = "https://script.google.com/macros/s/AKfycbxZX5WMzYexz2RJPFU3AeCNXdYZMjsCfk7cu282wBHqH2UwofQ93zN_DsSQRd2Bed81/exec";
         
         const payload = {
             action: "submitVote",
@@ -1137,15 +1136,21 @@ async function submitVoteProcess() {
             voteTime: new Date().toISOString()
         };
         
-        await fetch(webAppUrl_Vote, {
+        // ✅ no-cors ဖြုတ်ပြီး response တကယ်စစ်သည်
+        const response = await fetch(webAppUrl_Vote, {
             method: "POST",
-            mode: "no-cors",
             headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(payload)
         });
         
-        alert("🎉 တေးသီချင်းအား အောင်မြင်စွာ အဆင့်သတ်မှတ်ပေးပြီးပါပြီ။");
-        closeVoteModal(); // ✅ closeVoteModal သာသုံးပါ (overlay ပါပိတ်သည်)
+        const result = await response.json();
+        
+        if (result.status === "success") {
+            alert("🎉 တေးသီချင်းအား အောင်မြင်စွာ အဆင့်သတ်မှတ်ပေးပြီးပါပြီ။");
+            closeVoteModal();
+        } else {
+            alert("❌ တစ်ခုခုမှားသွားသည်။ ပြန်လည်ကြိုးစားပါ။");
+        }
         
     } catch (err) {
         console.error("Vote Error Details:", err);
