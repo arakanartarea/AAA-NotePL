@@ -833,6 +833,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // Vote UI စ ---------------------------------------------------------------
 
 // ၁။ Vote Modal ဖွင့်ခြင်း နှင့် စနစ်သစ်အလိုက် ဒေတာ စစ်ဆေးခြင်း
+/*
 function openVoteModal(songId) {
     console.log("openVoteModal ခေါ်ယူလိုက်ပါပြီ။ သီချင်း ID:", songId);
 
@@ -882,15 +883,17 @@ function openVoteModal(songId) {
         console.error("Error: HTML ထဲတွင် id='newVoteModal' ကို ရှာမတွေ့ပါ။");
     }
 }
-
+*/
 // 0 မှ 9 ခလုတ်လေးများကို HTML ထဲသို့ ထည့်သွင်းပေးသည့် Function
+/*
 function renderVoteButtons() {
     const container = document.getElementById('voteButtonsContainer');
     if (!container) {
         console.error("Error: HTML ထဲတွင် id='voteButtonsContainer' ကို ရှာမတွေ့ပါ။");
         return;
     }
-
+*/
+/*
     let html = "";
     for (let i = 0; i <= 9; i++) {
         html += `
@@ -901,6 +904,7 @@ function renderVoteButtons() {
     }
     container.innerHTML = html;
 }
+*/
 
 // ၃။ အမှတ်တစ်ခုခုကို နှိပ်လိုက်သည့်အခါ အရောင်ပြောင်းလဲခြင်း နှင့် မှတ်သားခြင်း
 function selectVoteNumber(num) {
@@ -929,12 +933,13 @@ function selectVoteNumber(num) {
 }
 
 // ၄။ စနစ်သစ် Vote Modal ပြန်ပိတ်ခြင်း Function
+/*
 function closeNewVoteModal() {
     document.getElementById('newVoteModal').style.display = 'none';
     selectedVoteNum = null;
     document.getElementById('voteNote').value = "";
 }
-
+*/
 // ၅။ အမှတ်အလိုက် အရောင်နှင့် Hint စာသားများ ပြောင်းလဲခြင်း
 function updateVoteHint(num) {
     const hintBox = document.getElementById('voteHintBox');
@@ -969,7 +974,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 // Send Vote Rating စ ------------------------------------------------------
-
+/*
 async function submitVoteProcess() {
     if (!navigator.onLine) {
         alert("⚠️ အင်တာနက်လိုင်း မရှိပါ။ အင်တာနက်ဖွင့်ပြီးမှ ပြန်လည်ကြိုးစားပါ။");
@@ -1063,9 +1068,144 @@ async function submitVoteProcess() {
         }
     }
 }
-
+*/
 // Send Vote Rating ဆ ------------------------------------------------------
+// SVR စ
+// ၁။ Vote Modal ဖွင့်ခြင်း (Overlay ပါ တစ်ခါတည်း ဖွင့်ရန်)
+function openVoteModal(songId) {
+    currentTargetSong = allData.find(s => String(s.id) === String(songId));
+    if (!currentTargetSong) {
+        alert("⚠️ သီချင်းဒေတာ ရှာမတွေ့ပါ။ ID: " + songId);
+        return;
+    }
+    
+    if (!userSession) {
+        document.getElementById('newLoginModal').style.display = 'flex';
+        if (typeof initGoogleLogin === 'function') { initGoogleLogin(); }
+        return;
+    }
+    
+    currentVoteSongId = songId;
+    
+    // HTML elements ID များကို ပုံစံသစ်အတိုင်း ချိန်ညှိခြင်း
+    const voteTitleEl = document.getElementById('voteTitle'); // ပြင်ဆင်ရန်
+    const voteSelectEl = document.getElementById('voteSelect');
+    const voteNoteEl = document.getElementById('voteNote');
+    const noteCharCountEl = document.getElementById('noteCharCount');
+    const voteHintBoxEl = document.getElementById('voteHintBox');
+    
+    if (voteTitleEl) voteTitleEl.innerText = `${currentTargetSong.title} အား အဆင့်သတ်မှတ်ရန်`;
+    if (voteSelectEl) voteSelectEl.value = "";
+    if (voteNoteEl) voteNoteEl.value = "";
+    if (noteCharCountEl) noteCharCountEl.innerText = "0";
+    if (voteHintBoxEl) voteHintBoxEl.style.display = 'none';
+    
+    // Modal ကော Overlay ပါ ပြသမည်
+    document.getElementById('voteOverlay').style.display = 'block';
+    document.getElementById('newVoteModal').style.display = 'flex';
+}
 
+// ၂။ Vote Modal ပိတ်ခြင်း (Function နာမည်အား HTML နှင့် ညှိရန်)
+function closeVoteModal() {
+    document.getElementById('newVoteModal').style.display = 'none';
+    document.getElementById('voteOverlay').style.display = 'none';
+}
+
+// ၃။ Dropdown တန်ဖိုးမှတစ်ဆင့် Vote ပေးခြင်း စနစ်သစ်
+async function submitVoteProcess() {
+    if (!navigator.onLine) {
+        alert("⚠️ အင်တာနက်လိုင်း မရှိပါ။ အင်တာနက်ဖွင့်ပြီးမှ ပြန်လည်ကြိုးစားပါ။");
+        return;
+    }
+    
+    if (!userSession || !userSession.email) {
+        alert("🔒 Vote ပေးရန်အတွက် အကောင့်ဝင်ရန် လိုအပ်ပါသည်။");
+        closeVoteModal();
+        return;
+    }
+    
+    // Dropdown value မှတစ်ဆင့် အမှတ်ကို တိုက်ရိုက်ယူခြင်း
+    const voteSelectEl = document.getElementById('voteSelect');
+    if (!voteSelectEl || voteSelectEl.value === "") {
+        alert("⚠️ ကျေးဇူးပြု၍ အဆင့်သတ်မှတ်ချက် (၀ မှ ၉) တစ်ခုခုကို အရင်ရွေးချယ်ပေးပါဦး။");
+        return;
+    }
+    
+    const voteNum = parseInt(voteSelectEl.value);
+    const voteNote = document.getElementById('voteNote').value.trim();
+    
+    const submitBtn = document.querySelector("#newVoteModal button[onclick='submitVoteProcess()']");
+    let originalText = "ဘုတ်ပေးမည်";
+    if (submitBtn) {
+        originalText = submitBtn.innerText;
+        submitBtn.disabled = true;
+        submitBtn.innerText = "ခေတ္တစောင့်ပါ...";
+    }
+    
+    try {
+        const userListUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=AAA_User_List`;
+        const res = await fetch(userListUrl);
+        const text = await res.text();
+        const jsonData = JSON.parse(text.substr(47).slice(0, -2));
+        const rows = jsonData.table.rows;
+        
+        let foundUserId = null;
+        const localEmail = userSession.email.toLowerCase().trim();
+        
+        for (let row of rows) {
+            if (row.c && row.c[2] && row.c[2].v) {
+                let sheetEmail = row.c[2].v.toString().toLowerCase().trim();
+                if (sheetEmail === localEmail) {
+                    foundUserId = row.c[0].v.toString();
+                    break;
+                }
+            }
+        }
+        
+        if (!foundUserId) {
+            alert("❌ သင့်အကောင့်အား စာရင်းထဲတွင် မတွေ့ရှိပါ။ Vote ပေးခွင့်မရှိပါ။");
+            if (submitBtn) { submitBtn.disabled = false;
+                submitBtn.innerText = originalText; }
+            return;
+        }
+        
+        const voteTime = new Date().toISOString();
+        const webAppUrl_Vote = "https://script.google.com/macros/s/AKfycbyxtPpKQCj25Iz9CiZL5Q5wVhTCee9AY2wNGNhGmBIPG-2_8j1Tn-W8qvLrBCPPlSrc/exec";
+        
+        const payload = {
+            action: "submitVote",
+            userId: foundUserId,
+            songId: currentVoteSongId,
+            voteNumber: voteNum,
+            voteNote: voteNote,
+            voteTime: voteTime
+        };
+        
+        const response = await fetch(webAppUrl_Vote, {
+            method: "POST",
+            body: JSON.stringify(payload)
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === "success") {
+            alert("🎉 တေးသီချင်းအား အောင်မြင်စွာ အဆင့်သတ်မှတ်ပေးပြီးပါပြီ။");
+            closeVoteModal();
+        } else {
+            alert("❌ တစ်ခုခုမှားယွင်းသွားပါသည်။ ပြန်လည်ကြိုးစားပါ။");
+        }
+        
+    } catch (err) {
+        console.error(err);
+        alert("❌ Error: ဒေတာချက်ဆက်မှု မအောင်မြင်ပါ။");
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = originalText;
+        }
+    }
+}
+// SVR ဆ
 
 // font စ - ----------------------------------------------------------------------------
 const fontMenuBtn = document.getElementById('fontMenuBtn');
