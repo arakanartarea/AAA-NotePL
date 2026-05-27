@@ -1096,62 +1096,106 @@ function closeVoteModal() {
 }
 
 async function submitVoteProcess() {
+    
     if (!navigator.onLine) {
-        alert("⚠️ အင်တာနက်လိုင်းမရှိပါ။ အင်တာနက်ဖွင့်ပြီးမှ ပြန်လည်ကြိုးစားပါ။");
+        alert("⚠️ အင်တာနက်လိုင်းမရှိပါ။");
         return;
     }
     
     if (!userSession || !userSession.email) {
-        alert("🔒 Vote ပေးရန်အတွက် အကောင့်ဝင်ရန် လိုအပ်ပါသည်။");
+        alert("🔒 Vote ပေးရန် Login ဝင်ပါ။");
         return;
     }
     
-    const voteSelectEl = document.getElementById('voteSelect');
-    const voteSelectValue = voteSelectEl ? voteSelectEl.value : "";
+    const voteSelectEl = document.getElementById("voteSelect");
+    const voteNoteEl = document.getElementById("voteNote");
     
-    if (voteSelectValue === "" || voteSelectValue === null) {
-        alert("⚠️ ကျေးဇူးပြု၍ အဆင့်သတ်မှတ်ချက် (0 မှ 9) ကို အရင်ရွေးချယ်ပေးပါ။");
+    if (!voteSelectEl) {
+        alert("❌ voteSelect element မတွေ့ပါ");
         return;
     }
     
-    const voteNum = parseInt(voteSelectValue);
-    const voteNoteEl = document.getElementById('voteNote');
+    const voteValue = voteSelectEl.value;
+    
+    if (voteValue === "") {
+        alert("⚠️ အမှတ်ရွေးပါ");
+        return;
+    }
+    
+    const voteNum = Number(voteValue);
     const voteNote = voteNoteEl ? voteNoteEl.value.trim() : "";
     
-    const submitBtn = document.querySelector("#newVoteModal button[onclick='submitVoteProcess()']");
+    const submitBtn = document.querySelector(
+        "#newVoteModal button[onclick='submitVoteProcess()']"
+    );
+    
+    let oldText = "";
+    
     if (submitBtn) {
+        oldText = submitBtn.innerText;
         submitBtn.disabled = true;
         submitBtn.innerText = "ခေတ္တစောင့်ပါ...";
     }
     
     try {
-        const webAppUrl_Vote = "https://script.google.com/macros/s/AKfycbxZX5WMzYexz2RJPFU3AeCNXdYZMjsCfk7cu282wBHqH2UwofQ93zN_DsSQRd2Bed81/exec";
+        
+        const webAppUrl_Vote =
+            "https://script.google.com/macros/s/AKfycbxZX5WMzYexz2RJPFU3AeCNXdYZMjsCfk7cu282wBHqH2UwofQ93zN_DsSQRd2Bed81/exec";
         
         const payload = {
             action: "submitVote",
             userId: userSession.email,
-            songId: currentVoteSongId,
+            songId: String(currentVoteSongId),
             voteNumber: voteNum,
             voteNote: voteNote,
             voteTime: new Date().toISOString()
         };
         
-        await fetch(webAppUrl, {
-    method: "POST",
-    mode: "no-cors",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify(payload)
-});
+        console.log("Vote Payload =>", payload);
         
-        alert("🎉 တေးသီချင်းအား အောင်မြင်စွာ အဆင့်သတ်မှတ်ပေးပြီးပါပြီ။");
-        closeVoteModal();
+        const response = await fetch(webAppUrl_Vote, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        const resultText = await response.text();
+        
+        console.log("Server Response =>", resultText);
+        
+        let result = {};
+        
+        try {
+            result = JSON.parse(resultText);
+        } catch (parseErr) {
+            console.error("JSON Parse Error =>", parseErr);
+        }
+        
+        if (result.status === "success") {
+            
+            alert("🎉 Vote အောင်မြင်ပါသည်");
+            closeVoteModal();
+            
+        } else {
+            
+            console.error("Server Error =>", result);
+            
+            alert("❌ Vote save မဖြစ်ပါ");
+        }
         
     } catch (err) {
-        alert("❌ ဒေတာချိတ်ဆက်မှု မအောင်မြင်ပါ။ ပြန်လည်ကြိုးစားပေးပါ။");
+        
+        console.error("Fetch Error =>", err);
+        
+        alert("❌ Server ချိတ်ဆက်မှု Error");
+        
     } finally {
+        
         if (submitBtn) {
             submitBtn.disabled = false;
-            submitBtn.innerText = "ဘုတ်ပေးမည် 🗳️";
+            submitBtn.innerText = oldText || "ဘုတ်ပေးမည် 🗳️";
         }
     }
 }

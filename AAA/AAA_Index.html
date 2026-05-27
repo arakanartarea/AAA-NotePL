@@ -143,6 +143,8 @@ class="btn-primary">Vote ပေးမည်</button>
     </div>
 </div>
 -->
+
+<!-- Sort စ  -->
 <div id="overlay" class="menu-overlay" onclick="toggleSortMenu(false)"></div>
 <div id="sortMenu" class="sort-menu">
     <button class="sort-item" onclick="handleSort('artist')">👥 တေးဆို</button>
@@ -154,6 +156,8 @@ class="btn-primary">Vote ပေးမည်</button>
     <button class="sort-item" onclick="toggleCountSort()" id="countSortBtn">📊 အရေအတွက်အလိုက်</button>
 
 </div>
+<!-- Sort ဆ  -->
+
 <div id="fullModal" class="modal-overlay">
     <div class="modal-content">
         <span class="close-modal" onclick="closeModal()">&times;</span>
@@ -188,11 +192,13 @@ class="btn-primary">Vote ပေးမည်</button>
         📂 ဒေတာအားလုံး တစ်ဆက်တည်းကြည့်ရန်
     </button>
 </div>
-//Stats
+<!-- tool bar -->
 <div 
     id="statsOverlay" 
     class="menu-overlay" 
-    onclick="closeStats()"></div>
+    onclick="closeStats()">
+</div>
+    
 <div class="bottom-toolbar">
     <button id="backBtn" class="tool-btn" onclick="goBackToGroup()" style="display:none; color: #cf0000;">
         <span class="icon">⬅️</span>
@@ -219,8 +225,8 @@ class="btn-primary">Vote ပေးမည်</button>
         <span>အချက်အလက်</span>
     </button>
 </div>
-
-
+<!-- tool bar -->
+<!-- Settings စ  -->
 <div id="settingsMenu" class="settings-menu">
     <div class="menu-title-main">ဆက်တင်များ</div>
     <div class="setting-item">
@@ -254,6 +260,8 @@ class="btn-primary">Vote ပေးမည်</button>
         <span class="icon">ℹ️</span> <span>အချက်အလက်များ</span>
     </div>
 </div>
+<!-- Settings ဆ  -->
+
 <div id="settingsOverlay" class="menu-overlay" onclick="toggleSettings()"></div>
 <div id="fullListModal" class="full-screen-modal" style="display:none;">
     <div class="list-header">
@@ -350,7 +358,7 @@ class="btn-primary">Vote ပေးမည်</button>
     </div>
 </div>
 
-
+<!-- Font စ  -->
 <div class="overlay" id="fontOverlay"></div>
 <div class="font-modal" id="fontModal">
     <h3 style="margin-bottom: 15px; text-align: center; color: var(--text);">အသုံးပြုမည့် ဖောင့်ကို ရွေးပါ</h3>
@@ -391,7 +399,7 @@ class="btn-primary">Vote ပေးမည်</button>
 
     
 </div>
-
+<!-- Font ဆ  -->
 
 <script>
     const uniqueTime = new Date().getTime();
