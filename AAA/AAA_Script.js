@@ -1096,29 +1096,24 @@ function closeVoteModal() {
 }
 
 async function submitVoteProcess() {
-    // ၁။ အင်တာနက်လိုင်း ရှိမရှိ အရင်စစ်မည်
     if (!navigator.onLine) {
-        alert("⚠️ အင်တာနက်လိုင်းမရှိပါ။ အင်တာနက်ဖွင့်ပြီးမှ ပြန်လည်ကြိုးစားပါ။");
-        return;
+        return alert("⚠️ အင်တာနက်လိုင်းမရှိပါ။ အင်တာနက်ဖွင့်ပြီးမှ ပြန်လည်ကြိုးစားပါ။");
     }
 
-    // ၂။ အကောင့်ဝင်ထားခြင်း ရှိမရှိ စစ်မည်
     if (!userSession || !userSession.email) {
-        alert("🔒 Vote ပေးရန်အတွက် အကောင့်ဝင်ရန် လိုအပ်ပါသည်။");
-        return;
+        return alert("🔒 Vote ပေးရန်အတွက် အကောင့်ဝင်ရန် လိုအပ်ပါသည်။");
     }
 
-    // ၃။ ၀ မှ ၉ ခလုတ်များထဲမှ ရွေးချယ်ထားသော အမှတ်ရှိမရှိ စစ်ဆေးခြင်း
-    if (selectedVoteNum === null || selectedVoteNum === undefined) {
-        alert("⚠️ ကျေးဇူးပြု၍ အဆင့်သတ်မှတ်ချက် (0 မှ 9) ခလုတ်တစ်ခုခုကို အရင်ရွေးချယ်ပေးပါ။");
-        return;
+    // 💡 Dropdown က တန်ဖိုးကို တိုက်ရိုက်ယူပါမည်
+    const voteSelectVal = document.getElementById('voteSelect').value;
+    if (voteSelectVal === "") {
+        return alert("⚠️ ကျေးဇူးပြု၍ အဆင့်သတ်မှတ်ချက် (0 မှ 9) ကို အရင်ရွေးချယ်ပေးပါ။");
     }
 
-    const voteNum = parseInt(selectedVoteNum);
+    const voteNum = parseInt(voteSelectVal);
     const voteNoteEl = document.getElementById('voteNote');
     const voteNote = voteNoteEl ? voteNoteEl.value.trim() : "";
     
-    // ၄။ ခလုတ်ကို ခေတ္တပိတ်ပြီး Loading ပြခြင်း
     const submitBtn = document.querySelector("#newVoteModal button[onclick='submitVoteProcess()']");
     if (submitBtn) { 
         submitBtn.disabled = true; 
@@ -1126,7 +1121,6 @@ async function submitVoteProcess() {
     }
 
     try {
-        // ၅။ ဒေတာပေးပို့ရန် Payload ပြင်ဆင်ခြင်း
         const webAppUrl_Vote = "https://script.google.com/macros/s/AKfycbyxtPpKQCj25Iz9CiZL5Q5wVhTCee9AY2wNGNhGmBIPG-2_8j1Tn-W8qvLrBCPPlSrc/exec";
         
         const payload = {
@@ -1138,7 +1132,7 @@ async function submitVoteProcess() {
             voteTime: new Date().toISOString()
         };
 
-        // ၆။ CORS Error မတက်အောင် no-cors စနစ်ဖြင့် Google Script သို့ တိုက်ရိုက်ပေးပို့ခြင်း
+        // no-cors စနစ်ဖြင့် Google Script သို့ တိုက်ရိုက်ပေးပို့ခြင်း
         await fetch(webAppUrl_Vote, {
             method: "POST",
             mode: "no-cors",
@@ -1148,17 +1142,8 @@ async function submitVoteProcess() {
             body: JSON.stringify(payload)
         });
         
-        // no-cors မှာ ဒေတာရောက်ရင် အောင်မြင်ကြောင်း တန်းပြပါမည်
         alert("🎉 တေးသီချင်းအား အောင်မြင်စွာ အဆင့်သတ်မှတ်ပေးပြီးပါပြီ။");
-        
-        // Modal ပေါ့ပ်အပ်များ ပိတ်သိမ်းခြင်း
-        if (typeof closeNewVoteModal === 'function') closeNewVoteModal();
-        if (typeof closeVoteModal === 'function') closeVoteModal();
-        
-        document.getElementById('newVoteModal').style.display = 'none';
-        if (document.getElementById('voteOverlay')) {
-            document.getElementById('voteOverlay').style.display = 'none';
-        }
+        closeVoteModal();
 
     } catch (err) {
         console.error("Vote Error Details:", err);
@@ -1170,6 +1155,7 @@ async function submitVoteProcess() {
         }
     }
 }
+
 
 
 
