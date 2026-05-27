@@ -1136,26 +1136,19 @@ async function submitVoteProcess() {
             voteTime: new Date().toISOString()
         };
         
-        // ✅ no-cors ဖြုတ်ပြီး response တကယ်စစ်သည်
-        const response = await fetch(webAppUrl_Vote, {
+        await fetch(webAppUrl_Vote, {
             method: "POST",
+            mode: "no-cors",
             headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(payload)
         });
         
-        const result = await response.json();
-        
-        if (result.status === "success") {
-            alert("🎉 တေးသီချင်းအား အောင်မြင်စွာ အဆင့်သတ်မှတ်ပေးပြီးပါပြီ။");
-            closeVoteModal();
-        } else {
-            alert("❌ တစ်ခုခုမှားသွားသည်။ ပြန်လည်ကြိုးစားပါ။");
-        }
+        alert("🎉 တေးသီချင်းအား အောင်မြင်စွာ အဆင့်သတ်မှတ်ပေးပြီးပါပြီ။");
+        closeVoteModal();
         
     } catch (err) {
-    alert("❌ Error: " + err.message + " | " + err.toString());
-} finally {
-    
+        alert("❌ ဒေတာချိတ်ဆက်မှု မအောင်မြင်ပါ။ ပြန်လည်ကြိုးစားပေးပါ။");
+    } finally {
         if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.innerText = "ဘုတ်ပေးမည် 🗳️";
