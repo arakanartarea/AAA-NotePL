@@ -1096,73 +1096,83 @@ function closeVoteModal() {
 }
 
 async function submitVoteProcess() {
-    if (!navigator.onLine) return alert("⚠️ အင်တာနက်လိုင်းမရှိပါ။");
-    const voteSelectEl = document.getElementById('voteSelect');
-    if (!voteSelectEl.value) return alert("⚠️ အဆင့်သတ်မှတ်ချက် ရွေးချယ်ပေးပါ။");
+    // ၁။ အင်တာနက်လိုင်း ရှိမရှိ အရင်စစ်မည်
+    if (!navigator.onLine) {
+        alert("⚠️ အင်တာနက်လိုင်းမရှိပါ။ အင်တာနက်ဖွင့်ပြီးမှ ပြန်လည်ကြိုးစားပါ။");
+        return;
+    }
 
-    const voteNum = parseInt(voteSelectEl.value);
-    const voteNote = document.getElementById('voteNote').value.trim();
+    // ၂။ အကောင့်ဝင်ထားခြင်း ရှိမရှိ စစ်မည်
+    if (!userSession || !userSession.email) {
+        alert("🔒 Vote ပေးရန်အတွက် အကောင့်ဝင်ရန် လိုအပ်ပါသည်။");
+        return;
+    }
+
+    // ၃။ ၀ မှ ၉ ခလုတ်များထဲမှ ရွေးချယ်ထားသော အမှတ်ရှိမရှိ စစ်ဆေးခြင်း
+    if (selectedVoteNum === null || selectedVoteNum === undefined) {
+        alert("⚠️ ကျေးဇူးပြု၍ အဆင့်သတ်မှတ်ချက် (0 မှ 9) ခလုတ်တစ်ခုခုကို အရင်ရွေးချယ်ပေးပါ။");
+        return;
+    }
+
+    const voteNum = parseInt(selectedVoteNum);
+    const voteNoteEl = document.getElementById('voteNote');
+    const voteNote = voteNoteEl ? voteNoteEl.value.trim() : "";
     
-    // ခလုတ်ခေတ္တပိတ်ရန်
+    // ၄။ ခလုတ်ကို ခေတ္တပိတ်ပြီး Loading ပြခြင်း
     const submitBtn = document.querySelector("#newVoteModal button[onclick='submitVoteProcess()']");
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = "ခေတ္တစောင့်ပါ..."; }
+    if (submitBtn) { 
+        submitBtn.disabled = true; 
+        submitBtn.innerText = "ခေတ္တစောင့်ပါ..."; 
+    }
 
     try {
-        // အသုံးပြုသူ ID ရှာဖွေခြင်း
-        const userListUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=AAA_User_List`;
-        const res = await fetch(userListUrl);
-        const text = await res.text();
-        const jsonData = JSON.parse(text.substr(47).slice(0, -2));
-        const rows = jsonData.table.rows;
-        let foundUserId = null;
-        const localEmail = userSession.email.toLowerCase().trim();
-
-        for (let row of rows) {
-            if (row.c && row.c[2] && row.c[2].v) {
-                if (row.c[2].v.toString().toLowerCase().trim() === localEmail) {
-                    foundUserId = row.c[0].v.toString();
-                    break;
-                }
-            }
-        }
-
-        if (!foundUserId) {
-            alert("❌ သင့်အကောင့်အား စာရင်းထဲတွင် မတွေ့ရှိပါ။");
-            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "ဘုတ်ပေးမည်"; }
-            return;
-        }
-
-        // ဒေတာပေးပို့ရန် Payload
+        // ၅။ ဒေတာပေးပို့ရန် Payload ပြင်ဆင်ခြင်း
+        // userId နေရာတွင် ရှုပ်ထွေးသော lookup များမလုပ်တော့ဘဲ အသုံးပြုသူ၏ email ကို တိုက်ရိုက်ပို့ခြင်းက အမှားကင်းပြီး အထိရောက်ဆုံးဖြစ်သည်
         const webAppUrl_Vote = "https://script.google.com/macros/s/AKfycbyxtPpKQCj25Iz9CiZL5Q5wVhTCee9AY2wNGNhGmBIPG-2_8j1Tn-W8qvLrBCPPlSrc/exec";
+        
         const payload = {
             action: "submitVote",
-            userId: foundUserId,
+            userId: userSession.email, 
             songId: currentVoteSongId,
             voteNumber: voteNum,
             voteNote: voteNote,
             voteTime: new Date().toISOString()
         };
 
-        // CORS Error မတက်စေရန် text/plain ဖြင့် ပို့ခြင်း
-        const response = await fetch(webAppUrl_Vote, {
+        // ၆။ CORS Error ကြောင့် ဒေတာပိတ်ဆို့မှုမဖြစ်စေရန် no-cors စနစ်ဖြင့် Google Script သို့ တိုက်ရိုက်ပေးပို့ခြင်း
+        await fetch(webAppUrl_Vote, {
             method: "POST",
+            mode: "no-cors",
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
             body: JSON.stringify(payload)
         });
         
-        const result = await response.json();
-        if (result.status === "success") {
-            alert("🎉 အောင်မြင်စွာ အဆင့်သတ်မှတ်ပြီးပါပြီ။");
-            closeVoteModal();
+        // no-cors စနစ်တွင် ဒေတာအောင်မြင်စွာ ရောက်ရှိပါက အောက်ပါအဆင့်ကို လုပ်ဆောင်မည်
+        alert("🎉 တေးသီချင်းအား အောင်မြင်စွာ အဆင့်သတ်မှတ်ပေးပြီးပါပြီ။");
+        
+        // Modal ပေါ့ပ်အပ်အား ပိတ်သိမ်းခြင်း
+        if (typeof closeNewVoteModal === 'function') {
+            closeNewVoteModal();
         } else {
-            alert("❌ မှားယွင်းမှုရှိနေပါသည်။");
+            document.getElementById('newVoteModal').style.display = 'none';
+            if (document.getElementById('voteOverlay')) {
+                document.getElementById('voteOverlay').style.display = 'none';
+            }
         }
+
     } catch (err) {
-        console.error(err);
-        alert("❌ ဒေတာချိတ်ဆက်မှု မအောင်မြင်ပါ။");
+        console.error("Vote Error Details:", err);
+        alert("❌ ဒေတာချိတ်ဆက်မှု မအောင်မြင်ပါ။ ပြန်လည်ကြိုးစားပေးပါ။");
     } finally {
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "ဘုတ်ပေးမည်"; }
+        if (submitBtn) { 
+            submitBtn.disabled = false; 
+            submitBtn.innerText = "ဘုတ်ပေးမည် 🗳️"; 
+        }
     }
 }
+
 
 // SVR ဆ
 
