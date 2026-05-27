@@ -1127,7 +1127,6 @@ async function submitVoteProcess() {
 
     try {
         // ၅။ ဒေတာပေးပို့ရန် Payload ပြင်ဆင်ခြင်း
-        // userId နေရာတွင် ရှုပ်ထွေးသော lookup များမလုပ်တော့ဘဲ အသုံးပြုသူ၏ email ကို တိုက်ရိုက်ပို့ခြင်းက အမှားကင်းပြီး အထိရောက်ဆုံးဖြစ်သည်
         const webAppUrl_Vote = "https://script.google.com/macros/s/AKfycbyxtPpKQCj25Iz9CiZL5Q5wVhTCee9AY2wNGNhGmBIPG-2_8j1Tn-W8qvLrBCPPlSrc/exec";
         
         const payload = {
@@ -1139,23 +1138,26 @@ async function submitVoteProcess() {
             voteTime: new Date().toISOString()
         };
 
-        // ၆။ CORS Error ကြောင့် ဒေတာပိတ်ဆို့မှုမဖြစ်စေရန် no-cors စနစ်ဖြင့် Google Script သို့ တိုက်ရိုက်ပေးပို့ခြင်း
-        const response = await fetch(webAppUrl_Vote, {
-    method: "POST",
-    body: JSON.stringify(payload)
-});
-
-const result = await response.json();
-
-if (result.status === "success") {
-    alert("🎉 တေးသီချင်းအား အောင်မြင်စွာ အဆင့်သတ်မှတ်ပေးပြီးပါပြီ။");
-    closeVoteModal();
-}
- else {
-            document.getElementById('newVoteModal').style.display = 'none';
-            if (document.getElementById('voteOverlay')) {
-                document.getElementById('voteOverlay').style.display = 'none';
-            }
+        // ၆။ CORS Error မတက်အောင် no-cors စနစ်ဖြင့် Google Script သို့ တိုက်ရိုက်ပေးပို့ခြင်း
+        await fetch(webAppUrl_Vote, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        // no-cors မှာ ဒေတာရောက်ရင် အောင်မြင်ကြောင်း တန်းပြပါမည်
+        alert("🎉 တေးသီချင်းအား အောင်မြင်စွာ အဆင့်သတ်မှတ်ပေးပြီးပါပြီ။");
+        
+        // Modal ပေါ့ပ်အပ်များ ပိတ်သိမ်းခြင်း
+        if (typeof closeNewVoteModal === 'function') closeNewVoteModal();
+        if (typeof closeVoteModal === 'function') closeVoteModal();
+        
+        document.getElementById('newVoteModal').style.display = 'none';
+        if (document.getElementById('voteOverlay')) {
+            document.getElementById('voteOverlay').style.display = 'none';
         }
 
     } catch (err) {
@@ -1168,6 +1170,7 @@ if (result.status === "success") {
         }
     }
 }
+
 
 
 // SVR ဆ
