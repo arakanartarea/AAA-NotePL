@@ -1098,62 +1098,107 @@ function closeVoteModal() {
 async function submitVoteProcess() {
     
     if (!navigator.onLine) {
-        alert("⚠️ အင်တာနက်လိုင်းမရှိပါ။");
+        alert("⚠️ Internet မရှိပါ");
         return;
     }
     
     if (!userSession || !userSession.email) {
-        alert("🔒 Vote ပေးရန် Login ဝင်ပါ။");
+        alert("🔒 Login ဝင်ပါ");
         return;
     }
     
-    const voteSelectEl = document.getElementById("voteSelect");
-    const voteNoteEl = document.getElementById("voteNote");
+    const voteSelectEl =
+        document.getElementById("voteSelect");
     
-    if (!voteSelectEl) {
-        alert("❌ voteSelect element မတွေ့ပါ");
+    if (!voteSelectEl || voteSelectEl.value === "") {
+        alert("⚠️ Vote ရွေးပါ");
         return;
     }
     
-    const voteValue = voteSelectEl.value;
+    const voteNum = Number(voteSelectEl.value);
     
-    if (voteValue === "") {
-        alert("⚠️ အမှတ်ရွေးပါ");
-        return;
-    }
-    
-    const voteNum = Number(voteValue);
-    const voteNote = voteNoteEl ? voteNoteEl.value.trim() : "";
+    const voteNote =
+        document.getElementById("voteNote")?.value.trim() || "";
     
     const submitBtn = document.querySelector(
         "#newVoteModal button[onclick='submitVoteProcess()']"
     );
     
-    let oldText = "";
-    
     if (submitBtn) {
-        oldText = submitBtn.innerText;
         submitBtn.disabled = true;
         submitBtn.innerText = "ခေတ္တစောင့်ပါ...";
     }
     
     try {
         
-        const webAppUrl_Vote =
-            "https://script.google.com/macros/s/AKfycbxZX5WMzYexz2RJPFU3AeCNXdYZMjsCfk7cu282wBHqH2UwofQ93zN_DsSQRd2Bed81/exec";
+        // =========================
+        // AAA_User_List မှ UserID ရှာ
+        // =========================
+        
+        const userListUrl =
+            `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=AAA_User_List`;
+        
+        const res = await fetch(userListUrl);
+        
+        const text = await res.text();
+        
+        const jsonData =
+            JSON.parse(text.substr(47).slice(0, -2));
+        
+        const rows = jsonData.table.rows;
+        
+        const localEmail =
+            userSession.email.toLowerCase().trim();
+        
+        let foundUserId = null;
+        
+        for (let row of rows) {
+            
+            // Column C = Email
+            const sheetEmail =
+                row.c[2]?.v
+                ?.toString()
+                .toLowerCase()
+                .trim();
+            
+            if (sheetEmail === localEmail) {
+                
+                // Column A = UserID
+                foundUserId =
+                    row.c[0]?.v
+                    ?.toString()
+                    .trim();
+                
+                break;
+            }
+        }
+        
+        if (!foundUserId) {
+            alert("❌ UserID မတွေ့ပါ");
+            return;
+        }
+        
+        // =========================
+        // ၇ လုံးပြည့်အောင် သုညဖြည့်
+        // =========================
+        
+        foundUserId =
+            foundUserId.padStart(7, "0");
+        
+        // =========================
+        // Vote Submit
+        // =========================
         
         const payload = {
             action: "submitVote",
-            userId: userSession.email,
+            userId: foundUserId,
             songId: String(currentVoteSongId),
             voteNumber: voteNum,
             voteNote: voteNote,
             voteTime: new Date().toISOString()
         };
         
-        console.log("Vote Payload =>", payload);
-        
-        const response = await fetch(webAppUrl_Vote, {
+        const response = await fetch(webAppUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -1161,41 +1206,25 @@ async function submitVoteProcess() {
             body: JSON.stringify(payload)
         });
         
-        const resultText = await response.text();
+        const result = await response.text();
         
-        console.log("Server Response =>", resultText);
+        console.log(result);
         
-        let result = {};
+        alert("🎉 Vote အောင်မြင်ပါသည်");
         
-        try {
-            result = JSON.parse(resultText);
-        } catch (parseErr) {
-            console.error("JSON Parse Error =>", parseErr);
-        }
-        
-        if (result.status === "success") {
-            
-            alert("🎉 Vote အောင်မြင်ပါသည်");
-            closeVoteModal();
-            
-        } else {
-            
-            console.error("Server Error =>", result);
-            
-            alert("❌ Vote save မဖြစ်ပါ");
-        }
+        closeVoteModal();
         
     } catch (err) {
         
-        console.error("Fetch Error =>", err);
+        console.error(err);
         
-        alert("❌ Server ချိတ်ဆက်မှု Error");
+        alert("❌ Vote Save Error");
         
     } finally {
         
         if (submitBtn) {
             submitBtn.disabled = false;
-            submitBtn.innerText = oldText || "ဘုတ်ပေးမည် 🗳️";
+            submitBtn.innerText = "ဘုတ်ပေးမည် 🗳️";
         }
     }
 }
