@@ -1097,68 +1097,66 @@ function closeVoteModal() {
 
 async function submitVoteProcess() {
     if (!navigator.onLine) {
-        return alert("⚠️ အင်တာနက်လိုင်းမရှိပါ။ အင်တာနက်ဖွင့်ပြီးမှ ပြန်လည်ကြိုးစားပါ။");
+        alert("⚠️ အင်တာနက်လိုင်းမရှိပါ။ အင်တာနက်ဖွင့်ပြီးမှ ပြန်လည်ကြိုးစားပါ။");
+        return;
     }
-
+    
     if (!userSession || !userSession.email) {
-        return alert("🔒 Vote ပေးရန်အတွက် အကောင့်ဝင်ရန် လိုအပ်ပါသည်။");
+        alert("🔒 Vote ပေးရန်အတွက် အကောင့်ဝင်ရန် လိုအပ်ပါသည်။");
+        return;
     }
-
-    // 💡 Dropdown က တန်ဖိုးကို တိုက်ရိုက်ယူပါမည်
-    const voteSelectVal = document.getElementById('voteSelect').value;
-    if (voteSelectVal === "") {
-        return alert("⚠️ ကျေးဇူးပြု၍ အဆင့်သတ်မှတ်ချက် (0 မှ 9) ကို အရင်ရွေးချယ်ပေးပါ။");
+    
+    // ✅ dropdown မှ တန်ဖိုးဖတ်ရန် ပြင်ဆင်သည်
+    const voteSelectEl = document.getElementById('voteSelect');
+    const voteSelectValue = voteSelectEl ? voteSelectEl.value : "";
+    
+    if (voteSelectValue === "" || voteSelectValue === null) {
+        alert("⚠️ ကျေးဇူးပြု၍ အဆင့်သတ်မှတ်ချက် (0 မှ 9) ကို အရင်ရွေးချယ်ပေးပါ။");
+        return;
     }
-
-    const voteNum = parseInt(voteSelectVal);
+    
+    const voteNum = parseInt(voteSelectValue); // ✅ dropdown တန်ဖိုးသုံးသည်
     const voteNoteEl = document.getElementById('voteNote');
     const voteNote = voteNoteEl ? voteNoteEl.value.trim() : "";
     
     const submitBtn = document.querySelector("#newVoteModal button[onclick='submitVoteProcess()']");
-    if (submitBtn) { 
-        submitBtn.disabled = true; 
-        submitBtn.innerText = "ခေတ္တစောင့်ပါ..."; 
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = "ခေတ္တစောင့်ပါ...";
     }
-
+    
     try {
         const webAppUrl_Vote = "https://script.google.com/macros/s/AKfycbyxtPpKQCj25Iz9CiZL5Q5wVhTCee9AY2wNGNhGmBIPG-2_8j1Tn-W8qvLrBCPPlSrc/exec";
         
         const payload = {
             action: "submitVote",
-            userId: userSession.email, 
+            userId: userSession.email,
             songId: currentVoteSongId,
             voteNumber: voteNum,
             voteNote: voteNote,
             voteTime: new Date().toISOString()
         };
-
-        // no-cors စနစ်ဖြင့် Google Script သို့ တိုက်ရိုက်ပေးပို့ခြင်း
+        
         await fetch(webAppUrl_Vote, {
             method: "POST",
             mode: "no-cors",
-            headers: {
-                "Content-Type": "text/plain;charset=utf-8"
-            },
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify(payload)
         });
         
         alert("🎉 တေးသီချင်းအား အောင်မြင်စွာ အဆင့်သတ်မှတ်ပေးပြီးပါပြီ။");
-        closeVoteModal();
-
+        closeVoteModal(); // ✅ closeVoteModal သာသုံးပါ (overlay ပါပိတ်သည်)
+        
     } catch (err) {
         console.error("Vote Error Details:", err);
         alert("❌ ဒေတာချိတ်ဆက်မှု မအောင်မြင်ပါ။ ပြန်လည်ကြိုးစားပေးပါ။");
     } finally {
-        if (submitBtn) { 
-            submitBtn.disabled = false; 
-            submitBtn.innerText = "ဘုတ်ပေးမည် 🗳️"; 
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "ဘုတ်ပေးမည် 🗳️";
         }
     }
 }
-
-
-
-
 // SVR ဆ
 
 // font စ - ----------------------------------------------------------------------------
