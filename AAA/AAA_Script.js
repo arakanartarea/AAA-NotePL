@@ -1155,6 +1155,7 @@ async function submitVoteProcess() {
     } catch (err) {
     alert("❌ Error: " + err.message + " | " + err.toString());
 } finally {
+    
         if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.innerText = "ဘုတ်ပေးမည် 🗳️";
