@@ -1107,8 +1107,7 @@ async function submitVoteProcess() {
         return;
     }
     
-    const voteSelectEl =
-        document.getElementById("voteSelect");
+    const voteSelectEl = document.getElementById("voteSelect");
     
     if (!voteSelectEl || voteSelectEl.value === "") {
         alert("⚠️ Vote ရွေးပါ");
@@ -1142,34 +1141,40 @@ async function submitVoteProcess() {
         
         const text = await res.text();
         
-        const jsonData =
-            JSON.parse(text.substr(47).slice(0, -2));
+        const jsonData = JSON.parse(
+            text.substring(47).slice(0, -2)
+        );
         
         const rows = jsonData.table.rows;
+        
+        let foundUserId = null;
         
         const localEmail =
             userSession.email.toLowerCase().trim();
         
-        let foundUserId = null;
-        
         for (let row of rows) {
             
-            // Column C = Email
-            const sheetEmail =
-                row.c[2]?.v
-                ?.toString()
-                .toLowerCase()
-                .trim();
-            
-            if (sheetEmail === localEmail) {
+            // Column C = index 2
+            if (
+                row.c &&
+                row.c[2] &&
+                row.c[2].v
+            ) {
                 
-                // Column A = UserID
-                foundUserId =
-                    row.c[0]?.v
-                    ?.toString()
+                const sheetEmail =
+                    row.c[2].v
+                    .toString()
+                    .toLowerCase()
                     .trim();
                 
-                break;
+                if (sheetEmail === localEmail) {
+                    
+                    // Column A = index 0
+                    foundUserId =
+                        row.c[0].v.toString();
+                    
+                    break;
+                }
             }
         }
         
@@ -1178,10 +1183,7 @@ async function submitVoteProcess() {
             return;
         }
         
-        // =========================
-        // ၇ လုံးပြည့်အောင် သုညဖြည့်
-        // =========================
-        
+        // ၇လုံးပြည့်အောင် သုညဖြည့်
         foundUserId =
             foundUserId.padStart(7, "0");
         
@@ -1198,17 +1200,20 @@ async function submitVoteProcess() {
             voteTime: new Date().toISOString()
         };
         
+        console.log("Vote Payload =", payload);
+        
         const response = await fetch(webAppUrl, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "text/plain;charset=utf-8"
             },
             body: JSON.stringify(payload)
         });
         
-        const result = await response.text();
+        // JSON မ parse သေးဘဲ text အရင်ကြည့်
+        const resultText = await response.text();
         
-        console.log(result);
+        console.log("Server Response =", resultText);
         
         alert("🎉 Vote အောင်မြင်ပါသည်");
         
@@ -1216,9 +1221,9 @@ async function submitVoteProcess() {
         
     } catch (err) {
         
-        console.error(err);
+        console.error("Vote Error =", err);
         
-        alert("❌ Vote Save Error");
+        alert("❌ Server ချိတ်ဆက်မှု Error");
         
     } finally {
         
