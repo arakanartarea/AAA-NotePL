@@ -1153,9 +1153,8 @@ async function submitVoteProcess() {
         }
         
     } catch (err) {
-        console.error("Vote Error Details:", err);
-        alert("❌ ဒေတာချိတ်ဆက်မှု မအောင်မြင်ပါ။ ပြန်လည်ကြိုးစားပေးပါ။");
-    } finally {
+    alert("❌ Error: " + err.message + " | " + err.toString());
+} finally {
         if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.innerText = "ဘုတ်ပေးမည် 🗳️";
