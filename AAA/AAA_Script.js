@@ -1072,139 +1072,98 @@ async function submitVoteProcess() {
 // Send Vote Rating ဆ ------------------------------------------------------
 // SVR စ
 // ၁။ Vote Modal ဖွင့်ခြင်း (Overlay ပါ တစ်ခါတည်း ဖွင့်ရန်)
+// ဗုဒ်ပေးသည့် Logic အသစ်
 function openVoteModal(songId) {
     currentTargetSong = allData.find(s => String(s.id) === String(songId));
-    if (!currentTargetSong) {
-        alert("⚠️ သီချင်းဒေတာ ရှာမတွေ့ပါ။ ID: " + songId);
-        return;
-    }
-    
+    if (!currentTargetSong) return alert("⚠️ သီချင်းဒေတာ ရှာမတွေ့ပါ။");
     if (!userSession) {
         document.getElementById('newLoginModal').style.display = 'flex';
         if (typeof initGoogleLogin === 'function') { initGoogleLogin(); }
         return;
     }
-    
     currentVoteSongId = songId;
-    
-    // HTML elements ID များကို ပုံစံသစ်အတိုင်း ချိန်ညှိခြင်း
-    const voteTitleEl = document.getElementById('voteTitle'); // ပြင်ဆင်ရန်
-    const voteSelectEl = document.getElementById('voteSelect');
-    const voteNoteEl = document.getElementById('voteNote');
-    const noteCharCountEl = document.getElementById('noteCharCount');
-    const voteHintBoxEl = document.getElementById('voteHintBox');
-    
-    if (voteTitleEl) voteTitleEl.innerText = `${currentTargetSong.title} အား အဆင့်သတ်မှတ်ရန်`;
-    if (voteSelectEl) voteSelectEl.value = "";
-    if (voteNoteEl) voteNoteEl.value = "";
-    if (noteCharCountEl) noteCharCountEl.innerText = "0";
-    if (voteHintBoxEl) voteHintBoxEl.style.display = 'none';
-    
-    // Modal ကော Overlay ပါ ပြသမည်
+    document.getElementById('voteTitle').innerText = `${currentTargetSong.title} အား အဆင့်သတ်မှတ်ရန်`;
+    document.getElementById('voteSelect').value = "";
+    document.getElementById('voteNote').value = "";
+    document.getElementById('noteCharCount').innerText = "0";
     document.getElementById('voteOverlay').style.display = 'block';
     document.getElementById('newVoteModal').style.display = 'flex';
 }
 
-// ၂။ Vote Modal ပိတ်ခြင်း (Function နာမည်အား HTML နှင့် ညှိရန်)
 function closeVoteModal() {
     document.getElementById('newVoteModal').style.display = 'none';
     document.getElementById('voteOverlay').style.display = 'none';
 }
 
-// ၃။ Dropdown တန်ဖိုးမှတစ်ဆင့် Vote ပေးခြင်း စနစ်သစ်
 async function submitVoteProcess() {
-    if (!navigator.onLine) {
-        alert("⚠️ အင်တာနက်လိုင်း မရှိပါ။ အင်တာနက်ဖွင့်ပြီးမှ ပြန်လည်ကြိုးစားပါ။");
-        return;
-    }
-    
-    if (!userSession || !userSession.email) {
-        alert("🔒 Vote ပေးရန်အတွက် အကောင့်ဝင်ရန် လိုအပ်ပါသည်။");
-        closeVoteModal();
-        return;
-    }
-    
-    // Dropdown value မှတစ်ဆင့် အမှတ်ကို တိုက်ရိုက်ယူခြင်း
+    if (!navigator.onLine) return alert("⚠️ အင်တာနက်လိုင်းမရှိပါ။");
     const voteSelectEl = document.getElementById('voteSelect');
-    if (!voteSelectEl || voteSelectEl.value === "") {
-        alert("⚠️ ကျေးဇူးပြု၍ အဆင့်သတ်မှတ်ချက် (၀ မှ ၉) တစ်ခုခုကို အရင်ရွေးချယ်ပေးပါဦး။");
-        return;
-    }
-    
+    if (!voteSelectEl.value) return alert("⚠️ အဆင့်သတ်မှတ်ချက် ရွေးချယ်ပေးပါ။");
+
     const voteNum = parseInt(voteSelectEl.value);
     const voteNote = document.getElementById('voteNote').value.trim();
     
+    // ခလုတ်ခေတ္တပိတ်ရန်
     const submitBtn = document.querySelector("#newVoteModal button[onclick='submitVoteProcess()']");
-    let originalText = "ဘုတ်ပေးမည်";
-    if (submitBtn) {
-        originalText = submitBtn.innerText;
-        submitBtn.disabled = true;
-        submitBtn.innerText = "ခေတ္တစောင့်ပါ...";
-    }
-    
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = "ခေတ္တစောင့်ပါ..."; }
+
     try {
+        // အသုံးပြုသူ ID ရှာဖွေခြင်း
         const userListUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=AAA_User_List`;
         const res = await fetch(userListUrl);
         const text = await res.text();
         const jsonData = JSON.parse(text.substr(47).slice(0, -2));
         const rows = jsonData.table.rows;
-        
         let foundUserId = null;
         const localEmail = userSession.email.toLowerCase().trim();
-        
+
         for (let row of rows) {
             if (row.c && row.c[2] && row.c[2].v) {
-                let sheetEmail = row.c[2].v.toString().toLowerCase().trim();
-                if (sheetEmail === localEmail) {
+                if (row.c[2].v.toString().toLowerCase().trim() === localEmail) {
                     foundUserId = row.c[0].v.toString();
                     break;
                 }
             }
         }
-        
+
         if (!foundUserId) {
-            alert("❌ သင့်အကောင့်အား စာရင်းထဲတွင် မတွေ့ရှိပါ။ Vote ပေးခွင့်မရှိပါ။");
-            if (submitBtn) { submitBtn.disabled = false;
-                submitBtn.innerText = originalText; }
+            alert("❌ သင့်အကောင့်အား စာရင်းထဲတွင် မတွေ့ရှိပါ။");
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "ဘုတ်ပေးမည်"; }
             return;
         }
-        
-        const voteTime = new Date().toISOString();
+
+        // ဒေတာပေးပို့ရန် Payload
         const webAppUrl_Vote = "https://script.google.com/macros/s/AKfycbyxtPpKQCj25Iz9CiZL5Q5wVhTCee9AY2wNGNhGmBIPG-2_8j1Tn-W8qvLrBCPPlSrc/exec";
-        
         const payload = {
             action: "submitVote",
             userId: foundUserId,
             songId: currentVoteSongId,
             voteNumber: voteNum,
             voteNote: voteNote,
-            voteTime: voteTime
+            voteTime: new Date().toISOString()
         };
-        
+
+        // CORS Error မတက်စေရန် text/plain ဖြင့် ပို့ခြင်း
         const response = await fetch(webAppUrl_Vote, {
             method: "POST",
             body: JSON.stringify(payload)
         });
         
         const result = await response.json();
-        
         if (result.status === "success") {
-            alert("🎉 တေးသီချင်းအား အောင်မြင်စွာ အဆင့်သတ်မှတ်ပေးပြီးပါပြီ။");
+            alert("🎉 အောင်မြင်စွာ အဆင့်သတ်မှတ်ပြီးပါပြီ။");
             closeVoteModal();
         } else {
-            alert("❌ တစ်ခုခုမှားယွင်းသွားပါသည်။ ပြန်လည်ကြိုးစားပါ။");
+            alert("❌ မှားယွင်းမှုရှိနေပါသည်။");
         }
-        
     } catch (err) {
         console.error(err);
-        alert("❌ Error: ဒေတာချက်ဆက်မှု မအောင်မြင်ပါ။");
+        alert("❌ ဒေတာချိတ်ဆက်မှု မအောင်မြင်ပါ။");
     } finally {
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerText = originalText;
-        }
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = "ဘုတ်ပေးမည်"; }
     }
 }
+
 // SVR ဆ
 
 // font စ - ----------------------------------------------------------------------------
