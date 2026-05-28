@@ -660,7 +660,7 @@ function closeLoginModal() {
 
 // ဆလာ့အင်ဝင် ဆ 
  
- // Login စ 
+ // Login စ -------------------------------Login စ-----------------------
 // Deploy 1 URL - User အချက်အလက်များ သိမ်းရန်
 const webAppUrl_User = "https://script.google.com/macros/s/AKfycbxZX5WMzYexz2RJPFU3AeCNXdYZMjsCfk7cu282wBHqH2UwofQ93zN_DsSQRd2Bed81/exec"; // ဒီနေရာမှာ Deploy 1 လင့်ခ် ထည့်ပါ
 
@@ -688,30 +688,6 @@ function initGoogleLogin() {
         { theme: "outline", size: "large", width: "250" }
     );
 }
-/*
-async function handleLoginResponse(response) {
-    let base64Url = response.credential.split('.')[1];
-    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    let jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-    let payload = JSON.parse(jsonPayload);
-
-    userSession = {
-        id: payload.sub,
-        name: payload.name,
-        email: payload.email,
-        picture: payload.picture
-    };
-
-    localStorage.setItem('user_session', JSON.stringify(userSession));
-    updateUserUI();
-    document.getElementById('newLoginModal').style.display = 'none';
-
-    // (Deploy 1) Sheet သို့ ဒေတာပို့ခြင်း
-    await saveUserToSheet(userSession);
-}
-*/
 
 async function handleLoginResponse(response) {
     console.log("၁။ Google ဆီကနေ Response စတင် လက်ခံရရှိပါပြီ။");
@@ -749,7 +725,6 @@ async function handleLoginResponse(response) {
     }
 }
 
-
 async function saveUserToSheet(user) {
     console.log("အသုံးပြုနေတဲ့ Web App URL ကတော့:", webAppUrl_User);
     const userData = {
@@ -775,33 +750,6 @@ async function saveUserToSheet(user) {
     }
 }
 
-/* 
-async function saveUserToSheet(user) {
-    const userData = {
-        action: "save_user",
-        userId: user.id,
-        userName: user.name,
-        userEmail: user.email,
-        userImage: user.picture,
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent
-    };
-
-    try {
-        // အသစ်ရလာတဲ့ Deploy 1 URL ကို ဒီအောက်ကနေရာမှာ ထည့်ပါ
-        await fetch("https://script.google.com/macros/s/AKfycbycFuYt3dtKh16DSoYMdT7In_Bd6319XpIh8ugFJb09if9GPw-sC025JuvOBf5uqY1P/exec", {
-            method: "POST",
-            mode: "no-cors", // အလုပ်ဖြစ်ခဲ့တဲ့ ပုံစံဟောင်းအတိုင်း no-cors ပြန်သုံးပါတယ်
-            headers: { "Content-Type": "text/plain;charset=utf-8" }, // text/plain ပြန်ပြောင်းထားပါတယ်
-            body: JSON.stringify(userData)
-        });
-        console.log("User data sent to Deploy 1");
-    } catch (error) {
-        console.error("Save Error:", error);
-    }
-}
-
-*/
 function updateUserUI() {
     const uIcon = document.getElementById('userIcon');
     if (userSession && userSession.picture) {
@@ -825,86 +773,67 @@ function switchAccount() {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-    if (userSession) updateUserUI();
+    if (userSession) updateUserUI();updateSheetUserId();
 });
 
- // Login ဆ
+ // Login ဆ------------------------------Login ဆ -----------------------
+ 
+ // acc name for id  search
+ async function updateSheetUserId() {
+    // ၁။ Local Storage မှာ အကောင့်ဝင်ထားတာ ရှိ/မရှိ အရင်စစ်မယ်
+    const session = JSON.parse(localStorage.getItem('user_session'));
+    if (!session || !session.email) {
+        console.log("အကောင့်ဝင်ထားခြင်း မရှိသေးပါ။");
+        return null;
+    }
+
+    try {
+        // ၂။ AAA_User_List Tab ကနေ ဒေတာဆွဲမယ်
+        const userListUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=AAA_User_List`;
+        const res = await fetch(userListUrl);
+        const text = await res.text();
+        const jsonData = JSON.parse(text.substring(47).slice(0, -2));
+        const rows = jsonData.table.rows;
+
+        const localEmail = session.email.toLowerCase().trim();
+        let rawId = null;
+
+        // ၃။ Email ချင်း တိုက်စစ်မယ် (Column C သည် index 2 ဖြစ်သည်)
+        for (let row of rows) {
+            if (row.c && row.c[2] && row.c[2].v) {
+                const sheetEmail = row.c[2].v.toString().toLowerCase().trim();
+                if (sheetEmail === localEmail) {
+                    rawId = row.c[0].v.toString(); // Column A က ID ကိုယူမယ်
+                    break;
+                }
+            }
+        }
+
+        // ၄။ အိုင်ဒီတွေ့ရင် ၇ လုံးပြည့်အောင် သုညဖြည့်ပြီး Local မှာ သိမ်းမယ်
+        if (rawId) {
+            const paddedId = rawId.padStart(7, '0'); // 💡 ဂဏန်း ၇ လုံးပြည့်အောင် ထိပ်က သုညဖြည့်တဲ့အပိုင်း
+            
+            session.sheetUserId = paddedId; // Object ထဲ ထည့်သိမ်းမယ်
+            localStorage.setItem('user_session', JSON.stringify(session)); // Local Storage ကို Update လုပ်မယ်
+            userSession = session; // Global Variable ကိုပါ Update လုပ်မယ်
+            
+            console.log("ID ၇ လုံးအပြည့်ဖြင့် သိမ်းဆည်းပြီးပါပြီ - " + paddedId);
+            return paddedId;
+        }
+        
+        console.log("Sheet ထဲတွင် ဒီအကောင့်၏ ID ကို မတွေ့သေးပါ။");
+        return null;
+
+    } catch (error) {
+        console.error("User ID စစ်ဆေးရာတွင် Error တက်သွားပါသည်:", error);
+        return null;
+    }
+}
+
+ // acc id 
+ 
  
 // Vote UI စ ---------------------------------------------------------------
-
-// ၁။ Vote Modal ဖွင့်ခြင်း နှင့် စနစ်သစ်အလိုက် ဒေတာ စစ်ဆေးခြင်း
-/*
-function openVoteModal(songId) {
-    console.log("openVoteModal ခေါ်ယူလိုက်ပါပြီ။ သီချင်း ID:", songId);
-
-    // ၁။ သီချင်းဒေတာ ရှိမရှိ အရင်ရှာဖွေမည်
-    currentTargetSong = allData.find(s => String(s.id) === String(songId));
-    if (!currentTargetSong) {
-        alert("⚠️ သီချင်းဒေတာ ရှာမတွေ့ပါ။ ID: " + songId);
-        return;
-    }
-
-    // ၂။ အကောင့်ဝင်ထားခြင်း မရှိသေးပါက အကောင့်တောင်းသည့် စနစ်ကို ပြသမည်
-    if (!userSession) {
-        console.log("အကောင့်မရှိသေးပါ။ Login Modal ကို ဖွင့်ပါမည်။");
-        document.getElementById('newLoginModal').style.display = 'flex';
-        if (typeof initGoogleLogin === 'function') {
-            initGoogleLogin();
-        }
-        return;
-    }
-
-    // ၃။ အကောင့်ရှိနေပါက (သို့မဟုတ် အကောင့်ရသွားပါက) အောက်ပါ 0-9 List စနစ်ကို မဖြစ်မနေ လုပ်ဆောင်မည်
-    console.log("အကောင့်ရှိနေပြီ ဖြစ်၍ 0-9 Voting List ကို ပြသပါမည်။");
-    
-    currentVoteSongId = songId;
-    selectedVoteNum = null; // ရွေးချယ်မှုအဟောင်းကို Reset လုပ်မည်
-
-    // HTML ထဲရှိ စနစ်သစ် Elements များကို ရှာဖွေပြီး ဒေတာ ထည့်သွင်းမည်
-    const voteSongTitleEl = document.getElementById('voteSongTitle');
-    const voteNoteEl = document.getElementById('voteNote');
-    const noteCharCountEl = document.getElementById('noteCharCount');
-    const voteHintBoxEl = document.getElementById('voteHintBox');
-
-    if (voteSongTitleEl) voteSongTitleEl.innerText = currentTargetSong.title;
-    if (voteNoteEl) voteNoteEl.value = "";
-    if (noteCharCountEl) noteCharCountEl.innerText = "0";
-    if (voteHintBoxEl) voteHintBoxEl.style.display = 'none';
-
-    // 🌟 အရေးကြီးဆုံးအပိုင်း - 0 မှ 9 ခလုတ်လေးများကို Container ထဲသို့ Dynamic ထည့်သွင်းပေးခြင်း
-    renderVoteButtons();
-
-    // ၄။ အဆင့်သတ်မှတ်ချက်ပေးမည့် Modal Popup အသစ်ကို မျက်နှာပြင်ပေါ် တင်ပေးမည်
-    const newVoteModal = document.getElementById('newVoteModal');
-    if (newVoteModal) {
-        newVoteModal.style.display = 'flex';
-        console.log("Vote Modal အား အောင်မြင်စွာ ဖွင့်လှစ်ပြီးပါပြီ။");
-    } else {
-        console.error("Error: HTML ထဲတွင် id='newVoteModal' ကို ရှာမတွေ့ပါ။");
-    }
-}
-*/
-// 0 မှ 9 ခလုတ်လေးများကို HTML ထဲသို့ ထည့်သွင်းပေးသည့် Function
-/*
-function renderVoteButtons() {
-    const container = document.getElementById('voteButtonsContainer');
-    if (!container) {
-        console.error("Error: HTML ထဲတွင် id='voteButtonsContainer' ကို ရှာမတွေ့ပါ။");
-        return;
-    }
-*/
-/*
-    let html = "";
-    for (let i = 0; i <= 9; i++) {
-        html += `
-            <button type="button" class="vote-num-btn" id="vbtn-${i}" onclick="selectVoteNumber(${i})" 
-                style="padding:10px; border:1px solid var(--border, #ccc); border-radius:6px; background:var(--card); color:var(--text); font-weight:bold; cursor:pointer; transition:all 0.2s ease;">
-                ${i}
-            </button>`;
-    }
-    container.innerHTML = html;
-}
-*/
 
 // ၃။ အမှတ်တစ်ခုခုကို နှိပ်လိုက်သည့်အခါ အရောင်ပြောင်းလဲခြင်း နှင့် မှတ်သားခြင်း
 function selectVoteNumber(num) {
@@ -974,101 +903,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 // Send Vote Rating စ ------------------------------------------------------
-/*
-async function submitVoteProcess() {
-    if (!navigator.onLine) {
-        alert("⚠️ အင်တာနက်လိုင်း မရှိပါ။ အင်တာနက်ဖွင့်ပြီးမှ ပြန်လည်ကြိုးစားပါ။");
-        return;
-    }
 
-    if (!userSession || !userSession.email) {
-        alert("🔒 Vote ပေးရန်အတွက် အကောင့်ဝင်ရန် လိုအပ်ပါသည်။");
-        closeNewVoteModal();
-        return;
-    }
-
-    // 💡 အရေးကြီး - ခလုတ်နှိပ်ထားတဲ့ အမှတ်ရှိမရှိ ဒေတာ စစ်ဆေးခြင်း
-    if (selectedVoteNum === null) {
-        alert("⚠️ ကျေးဇူးပြု၍ အဆင့်သတ်မှတ်ချက် (0 မှ 9) ခလုတ်တစ်ခုခုကို အရင်ရွေးချယ်ပေးပါဦး။");
-        return;
-    }
-
-    const voteNum = selectedVoteNum;
-    const voteNote = document.getElementById('voteNote').value.trim();
-
-    // "ဗုတ်ပေးမည်" ခလုတ်ကို ခေတ္တပိတ်ထားပြီး Loading ပြရန်
-    const submitBtn = document.querySelector("#newVoteModal button[onclick='submitVoteProcess()']");
-    let originalText = "ဗုတ်ပေးမည် 🗳️";
-    if (submitBtn) {
-        originalText = submitBtn.innerText;
-        submitBtn.disabled = true;
-        submitBtn.innerText = "ခေတ္တစောင့်ပါ...";
-    }
-
-    try {
-        const userListUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=AAA_User_List`;
-        
-        const res = await fetch(userListUrl);
-        const text = await res.text();
-        const jsonData = JSON.parse(text.substr(47).slice(0, -2));
-        const rows = jsonData.table.rows;
-
-        let foundUserId = null;
-        const localEmail = userSession.email.toLowerCase().trim();
-
-        for (let row of rows) {
-            if (row.c && row.c[2] && row.c[2].v) {
-                let sheetEmail = row.c[2].v.toString().toLowerCase().trim();
-                if (sheetEmail === localEmail) {
-                    foundUserId = row.c[0].v.toString();
-                    break;
-                }
-            }
-        }
-
-        if (!foundUserId) {
-            alert("❌ သင့်အကောင့်အား စာရင်းထဲတွင် မတွေ့ရှိပါ။ Vote ပေးခွင့်မရှိပါ။");
-            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = originalText; }
-            return;
-        }
-
-        const voteTime = new Date().toISOString(); 
-        const webAppUrl_Vote = "https://script.google.com/macros/s/AKfycbyxtPpKQCj25Iz9CiZL5Q5wVhTCee9AY2wNGNhGmBIPG-2_8j1Tn-W8qvLrBCPPlSrc/exec"; 
-
-        const payload = {
-            action: "submitVote",
-            userId: foundUserId,
-            songId: currentVoteSongId,
-            voteNumber: voteNum,
-            voteNote: voteNote,
-            voteTime: voteTime
-        };
-
-        const response = await fetch(webAppUrl_Vote, {
-            method: "POST",
-            body: JSON.stringify(payload)
-        });
-        
-        const result = await response.json();
-
-        if (result.status === "success") {
-            alert("🎉 တေးသီချင်းအား အောင်မြင်စွာ အဆင့်သတ်မှတ်ပေးပြီးပါပြီ။");
-            closeNewVoteModal();
-        } else {
-            alert("❌ တစ်ခုခုမှားယွင်းသွားပါသည်။ ပြန်လည်ကြိုးစားပါ။");
-        }
-
-    } catch (err) {
-        console.error(err);
-        alert("❌ Error: ဒေတာချိတ်ဆက်မှု မအောင်မြင်ပါ။");
-    } finally {
-        if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerText = originalText;
-        }
-    }
-}
-*/
 // Send Vote Rating ဆ ------------------------------------------------------
 // SVR စ
 // ၁။ Vote Modal ဖွင့်ခြင်း (Overlay ပါ တစ်ခါတည်း ဖွင့်ရန်)
@@ -1096,7 +931,6 @@ function closeVoteModal() {
 }
 
 async function submitVoteProcess() {
-    
     if (!navigator.onLine) {
         alert("⚠️ Internet မရှိပါ");
         return;
@@ -1108,16 +942,13 @@ async function submitVoteProcess() {
     }
     
     const voteSelectEl = document.getElementById("voteSelect");
-    
     if (!voteSelectEl || voteSelectEl.value === "") {
         alert("⚠️ Vote ရွေးပါ");
         return;
     }
     
     const voteNum = Number(voteSelectEl.value);
-    
-    const voteNote =
-        document.getElementById("voteNote")?.value.trim() || "";
+    const voteNote = document.getElementById("voteNote")?.value.trim() || "";
     
     const submitBtn = document.querySelector(
         "#newVoteModal button[onclick='submitVoteProcess()']"
@@ -1129,68 +960,30 @@ async function submitVoteProcess() {
     }
     
     try {
-        
-        // =========================
-        // AAA_User_List မှ UserID ရှာ
-        // =========================
-        
-        const userListUrl =
-            `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=AAA_User_List`;
-        
-        const res = await fetch(userListUrl);
-        
-        const text = await res.text();
-        
-        const jsonData = JSON.parse(
-            text.substring(47).slice(0, -2)
-        );
-        
-        const rows = jsonData.table.rows;
-        
-        let foundUserId = null;
-        
-        const localEmail =
-            userSession.email.toLowerCase().trim();
-        
-        for (let row of rows) {
-            
-            // Column C = index 2
-            if (
-                row.c &&
-                row.c[2] &&
-                row.c[2].v
-            ) {
-                
-                const sheetEmail =
-                    row.c[2].v
-                    .toString()
-                    .toLowerCase()
-                    .trim();
-                
-                if (sheetEmail === localEmail) {
-                    
-                    // Column A = index 0
-                    foundUserId =
-                        row.c[0].v.toString();
-                    
-                    break;
-                }
-            }
-        }
-        
+        // =========================================================
+        // 💡 [PRO FLOW] - LOCAL STORAGE မှာ ID ရှိပြီးသားလား အရင်စစ်မည်
+        // =========================================================
+        let foundUserId = userSession.sheetUserId;
+
+        // အကယ်၍ Local မှာ ID မရှိသေးရင် (ဥပမာ အကောင့်အသစ်မို့လို့ စာမျက်နှာပွင့်ချိန်မှာ ဖော်မြူလာတွက်တာ မပြီးသေးရင်)
+        // ဒီအချိန်မှာ Sheet ဆီ နောက်တစ်ခေါက် လှမ်းဆွဲပြီး ID ကို အတင်းစစ်ခိုင်းမယ်
         if (!foundUserId) {
-            alert("❌ UserID မတွေ့ပါ");
-            return;
+            console.log("Local တွင် ID မရှိသေးသဖြင့် Sheet သို့ တိုက်ရိုက် လှမ်းဆွဲနေပါသည်...");
+            foundUserId = await updateSheetUserId(); 
         }
         
-        // ၇လုံးပြည့်အောင် သုညဖြည့်
-        foundUserId =
-            foundUserId.padStart(7, "0");
+        // နည်းလမ်းနှစ်ခုစလုံးနဲ့ ရှာလို့မှ ID တကယ်မထွက်လာသေးရင် (Google Sheet ဘက်က ဖော်မြူလာ တွက်မပြီးသေးရင်)
+        if (!foundUserId) {
+            alert("❌ ဆာဗာတွင် သင်၏ အကောင့် ID မတွေ့သေးပါ။ အကောင့်အသစ်ဖြစ်ပါက စက္ကန့်ပိုင်းခန့် စောင့်ပြီး ပြန်ကြိုးစားပေးပါဗျာ။");
+            return; // ဗုတ်မပို့ဘဲ ဒီမှာတင် ခေတ္တရပ်ဆိုင်းမည်
+        }
         
-        // =========================
-        // Vote Submit
-        // =========================
+        // ၇လုံးပြည့်အောင် သုညဖြည့်ခြင်း (သေချာအောင် ထပ်မံ စစ်ထုတ်ခြင်း)
+        foundUserId = foundUserId.padStart(7, "0");
         
+        // =========================================================
+        // Vote Submit (ဒေတာ ပေးပို့ခြင်းအပိုင်း)
+        // =========================================================
         const payload = {
             action: "submitVote",
             userId: foundUserId,
@@ -1210,29 +1003,23 @@ async function submitVoteProcess() {
             body: JSON.stringify(payload)
         });
         
-        // JSON မ parse သေးဘဲ text အရင်ကြည့်
         const resultText = await response.text();
-        
         console.log("Server Response =", resultText);
         
         alert("🎉 Vote အောင်မြင်ပါသည်");
-        
         closeVoteModal();
         
     } catch (err) {
-        
         console.error("Vote Error =", err);
-        
         alert("❌ Server ချိတ်ဆက်မှု Error");
-        
     } finally {
-        
         if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.innerText = "ဘုတ်ပေးမည် 🗳️";
         }
     }
 }
+
 // SVR ဆ
 
 // font စ - ----------------------------------------------------------------------------
