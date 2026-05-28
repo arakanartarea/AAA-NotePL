@@ -989,7 +989,7 @@ async function submitVoteProcess() {
         
         // 💡 [FIXED] - Login တုန်းက အောင်မြင်ခဲ့တဲ့ webAppUrl_User နာမည်ကိုပဲ ပြောင်းသုံးထားပြီး
         // mode: "no-cors" ကိုပါ ကွက်တိ ထည့်သွင်းပေးလိုက်ပါပြီ။
-        await fetch(webAppUrl_User, {
+        await fetch(webAppUrl, {
             method: "POST",
             mode: "no-cors", 
             headers: {
