@@ -1,7 +1,7 @@
 const sheetId = '1MnRxfu3BhlTnB6IlvtEfik2FfY-d22SOeaBTKAqfFCY';
 const sheetName = 'AAAview';
 const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
-const webAppUrl = "https://script.google.com/macros/s/AKfycby-XD7wIRnueAhI8YaMkvjzwqtZ8aObj9gtLBLvvefhv5QwRtHlJPoeB-BtBJMv_FQW/exec"; //20260528
+const webAppUrl = "https://script.google.com/macros/s/AKfycbwPP8lhIYAmsTno40A0vVurCSTqZ-XjJr17pl9BSfvUwNgqNDuUcmjxqoycH4zRcS-r/exec"; //20260528
 //https://script.google.com/macros/s/AKfycbx_VC5KVWnsl9re3CciF0NBbc3qkD0dRpGEOnqTdAGN0EjVya9IdTBYhn-h9qKwLerS/exec"; //20260519
 //https://script.google.com/macros/s/AKfycbyfdSxVg23Trt9q0lEvYuMxQlPj3k9gTKbkfjHTpWYzPxRmctP1LDoST7fzzrIGtyuv/exec
 const CLIENT_ID = "750089996822-76hj5pfvrf8ui70eu6cimv0lb9lg6su3.apps.googleusercontent.com";
@@ -660,7 +660,7 @@ function closeLoginModal() {
  // Login စ -------------------------------Login စ-----------------------
 // Deploy 1 URL - User အချက်အလက်များ သိမ်းရန်
 //https://script.google.com/macros/s/AKfycbxZX5WMzYexz2RJPFU3AeCNXdYZMjsCfk7cu282wBHqH2UwofQ93zN_DsSQRd2Bed81/exec
-const webAppUrl_User = "https://script.google.com/macros/s/AKfycby-XD7wIRnueAhI8YaMkvjzwqtZ8aObj9gtLBLvvefhv5QwRtHlJPoeB-BtBJMv_FQW/exec"; // ဒီနေရာမှာ Deploy 1 လင့်ခ် ထည့်ပါ
+const webAppUrl_User = "https://script.google.com/macros/s/AKfycbwPP8lhIYAmsTno40A0vVurCSTqZ-XjJr17pl9BSfvUwNgqNDuUcmjxqoycH4zRcS-r/exec"; // ဒီနေရာမှာ Deploy 1 လင့်ခ် ထည့်ပါ
 
 // Nav Profile အကောင့်ဝင်ရန် နှိပ်သည့်အခါ
 function promptGoogleLogin() {
