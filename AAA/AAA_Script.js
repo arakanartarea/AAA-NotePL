@@ -960,30 +960,22 @@ async function submitVoteProcess() {
     }
     
     try {
-        // =========================================================
-        // 💡 [PRO FLOW] - LOCAL STORAGE မှာ ID ရှိပြီးသားလား အရင်စစ်မည်
-        // =========================================================
+        // ၁။ Local Storage မှာ ID ရှိပြီးသားလား စစ်မယ်
         let foundUserId = userSession.sheetUserId;
 
-        // အကယ်၍ Local မှာ ID မရှိသေးရင် (ဥပမာ အကောင့်အသစ်မို့လို့ စာမျက်နှာပွင့်ချိန်မှာ ဖော်မြူလာတွက်တာ မပြီးသေးရင်)
-        // ဒီအချိန်မှာ Sheet ဆီ နောက်တစ်ခေါက် လှမ်းဆွဲပြီး ID ကို အတင်းစစ်ခိုင်းမယ်
         if (!foundUserId) {
-            console.log("Local တွင် ID မရှိသေးသဖြင့် Sheet သို့ တိုက်ရိုက် လှမ်းဆွဲနေပါသည်...");
+            console.log("Local တွင် ID မရှိသေးသဖြင့် Sheet သို့ လှမ်းဆွဲနေပါသည်...");
             foundUserId = await updateSheetUserId(); 
         }
         
-        // နည်းလမ်းနှစ်ခုစလုံးနဲ့ ရှာလို့မှ ID တကယ်မထွက်လာသေးရင် (Google Sheet ဘက်က ဖော်မြူလာ တွက်မပြီးသေးရင်)
         if (!foundUserId) {
-            alert("❌ ဆာဗာတွင် သင်၏ အကောင့် ID မတွေ့သေးပါ။ အကောင့်အသစ်ဖြစ်ပါက စက္ကန့်ပိုင်းခန့် စောင့်ပြီး ပြန်ကြိုးစားပေးပါဗျာ။");
-            return; // ဗုတ်မပို့ဘဲ ဒီမှာတင် ခေတ္တရပ်ဆိုင်းမည်
+            alert("❌ ဆာဗာတွင် သင်၏ အကောင့် ID မတွေ့သေးပါ။ ခေတ္တစောင့်ပြီး ပြန်ကြိုးစားပေးပါဗျာ။");
+            return;
         }
         
-        // ၇လုံးပြည့်အောင် သုညဖြည့်ခြင်း (သေချာအောင် ထပ်မံ စစ်ထုတ်ခြင်း)
         foundUserId = foundUserId.padStart(7, "0");
         
-        // =========================================================
-        // Vote Submit (ဒေတာ ပေးပို့ခြင်းအပိုင်း)
-        // =========================================================
+        // ၂။ ဗုတ်ဒေတာ ထုတ်ပိုးခြင်း
         const payload = {
             action: "submitVote",
             userId: foundUserId,
@@ -995,16 +987,18 @@ async function submitVoteProcess() {
         
         console.log("Vote Payload =", payload);
         
-        const response = await fetch(webAppUrl, {
+        // 💡 [FIXED] - Login တုန်းက အောင်မြင်ခဲ့တဲ့ webAppUrl_User နာမည်ကိုပဲ ပြောင်းသုံးထားပြီး
+        // mode: "no-cors" ကိုပါ ကွက်တိ ထည့်သွင်းပေးလိုက်ပါပြီ။
+        await fetch(webAppUrl_User, {
             method: "POST",
+            mode: "no-cors", 
             headers: {
                 "Content-Type": "text/plain;charset=utf-8"
             },
             body: JSON.stringify(payload)
         });
         
-        const resultText = await response.text();
-        console.log("Server Response =", resultText);
+        console.log("Vote Data ဆာဗာသို့ ပို့ပြီးပါပြီ။");
         
         alert("🎉 Vote အောင်မြင်ပါသည်");
         closeVoteModal();
@@ -1019,6 +1013,7 @@ async function submitVoteProcess() {
         }
     }
 }
+
 
 // SVR ဆ
 
