@@ -1,8 +1,9 @@
 const sheetId = '1MnRxfu3BhlTnB6IlvtEfik2FfY-d22SOeaBTKAqfFCY';
 const sheetName = 'AAAview';
 const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&sheet=${sheetName}`;
-const webAppUrl = "https://script.google.com/macros/s/AKfycbx_VC5KVWnsl9re3CciF0NBbc3qkD0dRpGEOnqTdAGN0EjVya9IdTBYhn-h9qKwLerS/exec"; //20260519
-
+const webAppUrl = "script.google.com/macros/s/AKfycbyfdSxVg23Trt9q0lEvYuMxQlPj3k9gTKbkfjHTpWYzPxRmctP1LDoST7fzzrIGtyuv/exec"; //20260528
+//https://script.google.com/macros/s/AKfycbx_VC5KVWnsl9re3CciF0NBbc3qkD0dRpGEOnqTdAGN0EjVya9IdTBYhn-h9qKwLerS/exec"; //20260519
+//https://script.google.com/macros/s/AKfycbyfdSxVg23Trt9q0lEvYuMxQlPj3k9gTKbkfjHTpWYzPxRmctP1LDoST7fzzrIGtyuv/exec
 const CLIENT_ID = "750089996822-76hj5pfvrf8ui70eu6cimv0lb9lg6su3.apps.googleusercontent.com";
 const userIcon = document.getElementById('userIcon');
 
@@ -655,10 +656,6 @@ function closeLoginModal() {
 }
  
 
-
-// လော့အင်ဝင် စ 
-
-// ဆလာ့အင်ဝင် ဆ 
  
  // Login စ -------------------------------Login စ-----------------------
 // Deploy 1 URL - User အချက်အလက်များ သိမ်းရန်
@@ -779,6 +776,7 @@ window.addEventListener('DOMContentLoaded', () => {
  // Login ဆ------------------------------Login ဆ -----------------------
  
  // acc name for id  search
+ 
  async function updateSheetUserId() {
     // ၁။ Local Storage မှာ အကောင့်ဝင်ထားတာ ရှိ/မရှိ အရင်စစ်မယ်
     const session = JSON.parse(localStorage.getItem('user_session'));
@@ -836,6 +834,7 @@ window.addEventListener('DOMContentLoaded', () => {
 // Vote UI စ ---------------------------------------------------------------
 
 // ၃။ အမှတ်တစ်ခုခုကို နှိပ်လိုက်သည့်အခါ အရောင်ပြောင်းလဲခြင်း နှင့် မှတ်သားခြင်း
+/*
 function selectVoteNumber(num) {
     selectedVoteNum = num;
 
@@ -860,7 +859,7 @@ function selectVoteNumber(num) {
     // အမှတ်အလိုက် အောက်က Hint စာသားကို ပြောင်းလဲပေးမည်
     updateVoteHint(num);
 }
-
+*/
 // ၄။ စနစ်သစ် Vote Modal ပြန်ပိတ်ခြင်း Function
 /*
 function closeNewVoteModal() {
@@ -870,6 +869,7 @@ function closeNewVoteModal() {
 }
 */
 // ၅။ အမှတ်အလိုက် အရောင်နှင့် Hint စာသားများ ပြောင်းလဲခြင်း
+/*
 function updateVoteHint(num) {
     const hintBox = document.getElementById('voteHintBox');
     if (!hintBox) return;
@@ -897,7 +897,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if(countEl) countEl.innerText = this.value.length;
         });
     }
-});
+});*/
 
 // Vote UI ဆ ---------------------------------------------------------------
 
