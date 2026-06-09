@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arakanese Dictionary</title>
+    <link rel="stylesheet" href="AllUserList-AD.css">
+</head>
+<body>
+
+    <div class="notepad-container">
+        
+<!-- Screen 1  Main ဆ ============= ============ ============ ============ -->
+<div id="main-screen" class="screen">
+            <header>
+                <h2>📝 AD - User List </h2>
+            </header>
+            
+            <main class="content-area">
+                <div id="expandable-list">
+                    
+                </div>
+            </main>
+
+            <div class="bottom-toolbar" id="main-toolbar" style="display: flex; overflow-x: auto; white-space: nowrap; padding: 10px; background: #605639; gap: 10px; -webkit-overflow-scrolling: touch; width: 100%; box-sizing: border-box;">
+                <button id="new-word-btn" class="toolbar-btn add-btn" style="flex-shrink: 0; margin: 0;">➕ New User </button>
+                <button id="view-users-btn" style="padding: 8px 16px; background: #e6dbb3; color: #605639; border: none; border-radius: 20px; font-weight: bold; flex-shrink: 0; cursor: pointer;">👥 Users</button>
+            </div>
+        </div>
+<!-- Screen 1  Main ဆ ============= ============ ============ ============ -->
+
+<!-- Screen 2 View ဆ ============= ============ ============ ============ ============  -->
+<div id="view-screen" class="screen hidden">
+           <!-- <header>
+                <h2>📖 Word Details</h2>
+            </header>
+            
+            <main class="content-area">
+                <div id="dictionaryContainer">
+                    <div class="word-card">
+                        <h3 id="view-title">က — <span id="view-pos" class="pos">[ဝိဘတ်]</span></h3>
+                        <p class="meaning" id="view-definition">နေရာညွှန်ပြရာ၌ သုံးသည်။</p>
+                        <p class="eg"><strong>ဥပမာ:</strong> <span id="view-example">ရန်ကုန် က လာပါသည်။</span></p>
+                        <p class="eng"><strong>အင်္ဂလိပ်လို:</strong> <span id="view-english">from</span></p>
+                        <p class="audio"><strong>အသံထွက်:</strong> <span id="view-pronounce">KA</span> <button class="play-btn">▶️ အသံနာထောင်ရန်</button></p>
+                    </div>
+                </div>
+            </main>
+-->
+            <div class="bottom-toolbar">
+                <button id="back-main-btn" class="toolbar-btn">⬅️ Back to List</button>
+            </div>
+        </div>
+<!-- Screen 2 View ဆ ============= ============ ============ ============ ============ -->
+
+<!-- Screen 3 edit ဆ ============= ============ ============ ============ ============ -->
+<!-- <div id="edit-screen" class="screen hidden">
+    <header>
+        <h2>✍️ Add New Word</h2>
+    </header>
+    
+    <main class="content-area">
+        <div class="input-form" style="display: flex; flex-direction: column; gap: 12px; padding: 10px;">
+            
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="word" placeholder="၁။ ဗျည်း အက္ခရာ " style="flex: 1; margin: 0;">
+                <button type="button" style="padding: 0 15px; background: #605639; color: white; border: none; border-radius: 4px; cursor: pointer;">✨</button>
+            </div>
+            
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="group" placeholder="၂။ ဗျည်း+သရ " style="flex: 1; margin: 0;">
+                <button type="button" style="padding: 0 15px; background: #605639; color: white; border: none; border-radius: 4px; cursor: pointer;">✨</button>
+            </div>
+            
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="subGroup" placeholder="၃။ ဝေါဟာရ " style="flex: 1; margin: 0;">
+                <button type="button" style="padding: 0 15px; background: #605639; color: white; border: none; border-radius: 4px; cursor: pointer;">✨</button>
+            </div>
+            
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="pos" list="pos-list" placeholder="၄။ အမျိုးအစား (ဥပမာ - ဝိဘတ်)" style="flex: 1; margin: 0;">
+                <datalist id="pos-list">
+                    <option value="နာမ်"></option>
+                    <option value="နာမ်စား"></option>
+                    <option value="ကြိယာ"></option>
+                    <option value="နာမဝိသေသန"></option>
+                    <option value="ကြိယာဝိသေသန"></option>
+                    <option value="ဝိဘတ်"></option>
+                    <option value="သမ္ဗန္ဓ"></option>
+                    <option value="အာမေဍိတ်"></option>
+                </datalist>
+                <button type="button" style="padding: 0 15px; background: #605639; color: white; border: none; border-radius: 4px; cursor: pointer;">▼</button>
+            </div>
+            
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="definition" placeholder="၅။ အဓိပ္ပာယ်ရှင်းလင်းချက်" style="flex: 1; margin: 0;">
+                <button type="button" style="padding: 0 15px; background: #605639; color: white; border: none; border-radius: 4px; cursor: pointer;">✨</button>
+            </div>
+            
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="example" placeholder="၆။ ဥပမာစာကြောင်း" style="flex: 1; margin: 0;">
+                <button type="button" style="padding: 0 15px; background: #605639; color: white; border: none; border-radius: 4px; cursor: pointer;">✨</button>
+            </div>
+            
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="english" placeholder="၇။ အင်္ဂလိပ်ဘာသာပြန်" style="flex: 1; margin: 0;">
+                <button type="button" style="padding: 0 15px; background: #605639; color: white; border: none; border-radius: 4px; cursor: pointer;">✨</button>
+            </div>
+            
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="pronounce" placeholder="၈။ အသံထွက်စာသား (ဥပမာ - KA)" style="flex: 1; margin: 0;">
+                <button type="button" style="padding: 0 15px; background: #605639; color: white; border: none; border-radius: 4px; cursor: pointer;">✨</button>
+            </div>
+            
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="audioUrl" placeholder="၉။ အသံဖိုင် Link (URL)" style="flex: 1; margin: 0;user-select: text; -webkit-user-select: text;">
+                <button type="button" id="paste-audio-btn" style="padding: 0 12px; background: #605639; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap;">📋 Paste</button>
+            </div>
+            
+        </div>
+    </main>
+
+    <div class="bottom-toolbar split-buttons">
+        <button id="cancel-edit-btn" class="toolbar-btn cancel-btn">⬅️ Back</button>
+        <button id="save-word-btn" class="toolbar-btn save-btn">💾 Save Note</button>
+    </div>
+</div>-->
+<!-- Screen 3 edit ဆ ============= ============ ============ ============ ============ -->
+<div id="edit-screen" class="screen hidden">
+    <header>
+        <h2>✍️ Add/Edit User</h2>
+    </header>
+    <main class="content-area">
+        <div class="input-form" style="display: flex; flex-direction: column; gap: 12px; padding: 10px;">
+            
+<div style="display: flex; flex-direction: column; gap: 4px;">
+    <div style="display: flex; gap: 8px;">
+        <span style="padding: 8px; background: #e6dbb3; border-radius: 4px 0 0 4px;">A-</span>
+        <input type="text" id="subGroup" placeholder="ဂဏန်း 7 လုံးတိတိ" style="flex: 1; margin: 0; border-radius: 0 4px 4px 0;" maxlength="7">
+        <button type="button" id="check-aid-btn" style="padding: 0 15px; background: #605639; color: white; border: none; border-radius: 4px; cursor: pointer;">စစ်</button>
+    </div>
+    <small id="aid-error" style="color: red; display: none; margin-left: 5px;"></small>
+</div>
+
+            
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="pos" placeholder="၂။ GID" style="flex: 1; margin: 0;">
+                <button type="button" style="padding: 0 15px; background: #605639; color: white; border: none; border-radius: 4px; cursor: pointer;">✨</button>
+            </div>
+            
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="definition" placeholder="၃။ Name" style="flex: 1; margin: 0;">
+                <button type="button" style="padding: 0 15px; background: #605639; color: white; border: none; border-radius: 4px; cursor: pointer;">✨</button>
+            </div>
+            
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="example" placeholder="၄။ Account" style="flex: 1; margin: 0;">
+                <button type="button" style="padding: 0 15px; background: #605639; color: white; border: none; border-radius: 4px; cursor: pointer;">✨</button>
+            </div>
+            
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="english" placeholder="၅။ Time" style="flex: 1; margin: 0;">
+                <button type="button" style="padding: 0 15px; background: #605639; color: white; border: none; border-radius: 4px; cursor: pointer;">✨</button>
+            </div>
+            
+<div style="display: flex; gap: 8px;">
+    <select id="pronounce" style="flex: 1; margin: 0; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        <option value="Viewer" selected>Viewer</option>
+        <option value="Editor">Editor</option>
+        <option value="Admin">Admin</option>
+        <option value="Banned">Banned</option>
+    </select>
+    <button type="button" style="padding: 0 15px; background: #605639; color: white; border: none; border-radius: 4px; cursor: pointer;">▼</button>
+</div>
+            
+</div>
+    </main>
+    <div class="bottom-toolbar split-buttons">
+        <button id="cancel-edit-btn" class="toolbar-btn cancel-btn">⬅️ Back</button>
+        <button id="save-word-btn" class="toolbar-btn save-btn">💾 Save User</button>
+    </div>
+</div>
+<!-- Screen 3 edit ဆ ============= ============ ============ ============ ============ -->
+<!-- Screen 3 edit ဆ ============= ============ ============ ============ ============ -->
+
+
+
+<script type="module" src="AllUserList-AD.js"></script>
+
+</body>
+</html>

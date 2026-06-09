@@ -1,0 +1,174 @@
+/* ==========================================
+   GLOBAL STYLES (တစ်ခုလုံးမှာ အကျုံးဝင်တဲ့ ဒီဇိုင်း)
+   ========================================== */
+body {
+    background-color: #f0f2f5;
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+}
+.notepad-container {
+    
+    height: 95vh;
+    margin: 15px auto;
+    background: #fffbe6; /* Notepad ရဲ့ ဝါကျင့်ကျင့် အရောင် */
+    border: 1px solid #e6db9c;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+.screen {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
+}
+.content-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    padding-bottom: 80px; /* Toolbar နဲ့ မကွယ်အောင် */
+}
+header h2 {
+    margin: 0;
+    padding: 20px;
+    background: #f7f0c6;
+    border-bottom: 2px dashed #e6db9c;
+    color: #4a4736;
+}
+.hidden {
+    display: none !important;
+}
+/* Toolbar & Buttons */
+.bottom-toolbar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #f7f0c6;
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #e6db9c;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+.toolbar-btn {
+    background: #4a4736;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    flex: 1;
+    max-width: 200px;
+}
+/* ==========================================
+   SCREEN 1: MAIN SCREEN STYLES
+   ========================================== */
+.group-header {
+    font-weight: bold;
+    color: #555;
+    background: #ebdfa4;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.word-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 15px;
+}
+.word-item {
+    padding: 10px;
+    border-bottom: 1px dashed #ebdfa4;
+    cursor: pointer;
+    color: #333;
+}
+.word-item:hover {
+    background-color: #fcf6cc;
+}
+
+/* ==========================================
+   SCREEN 2: EDIT SCREEN STYLES
+   ========================================== */
+.input-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.input-form input {
+    padding: 12px;
+    border: 1px solid #d4c887;
+    border-radius: 5px;
+    background: #fffdf2;
+    font-size: 14px;
+}
+.input-form input:focus {
+    outline: 2px solid #4a4736;
+}
+.cancel-btn { background: #8c8563; }
+.save-btn { background: #2e6131; }
+
+
+/* ==========================================
+   SCREEN 3: VIEW SCREEN STYLES
+   ========================================== */
+.word-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 5px solid #4a4736;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.word-card h3 { margin-top: 0; color: #111; }
+.pos { color: #777; font-size: 14px; font-weight: normal; }
+.meaning { font-size: 16px; color: #333; }
+.eg, .eng, .audio { font-size: 14px; color: #555; margin: 8px 0; }
+.play-btn {
+    background: #ebdfa4;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+
+/* ===== SCREEN 4:စ ===== ===== ===== ===== ===== ===== ===== =====  */
+#user-main-screen {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Screen တစ်ခုလုံးစာယူမယ် */
+    width: 100%;
+    position: absolute; /* တခြား Screen တွေနဲ့ မရောအောင် */
+    top: 0;
+    left: 0;
+    background-color: #fffdeb;
+    overflow: hidden; /* အပြင်မထွက်အောင် ပိတ်မယ် */
+}
+
+#user-main-screen header {
+    flex: 0 0 auto; /* Header က အမြဲပေါ်နေမယ် */
+    padding: 15px;
+    border-bottom: 1px dashed #ccc;
+    background-color: #f7ebd3;
+}
+
+#user-main-screen .content-area {
+    flex: 1; /* ကျန်တဲ့နေရာလွတ်အားလုံးကို ဒီနေရာကယူမယ် */
+    overflow-y: auto; /* စာရင်းများရင် ဒီနေရာမှာပဲ Scroll ဆွဲရမယ် */
+    padding: 10px;
+}
+
+#user-main-screen .bottom-toolbar {
+    flex: 0 0 auto; /* Toolbar က အောက်ဆုံးမှာ ကပ်နေမယ် */
+    padding: 10px;
+    background: #605639;
+}
+
+#user-main-screen.hidden { display: none !important; }
+/* ===== SCREEN 4:ဆ ===== ===== ===== ===== ===== ===== ===== =====  */
