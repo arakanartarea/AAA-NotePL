@@ -5,7 +5,7 @@ const assets = [
     name: "ရခိုင်အဘိဓာန်",
     desc: "ဝေါဟာရများ၏ အဓိပ္ပာယ်နှင့် အသုံးကို ရှာဖွေပါ",
     tag: "ဘာသာစကား",
-    url: "./dictionary/index.html", // မင်းအဘိဓာန် folder လမ်းကြောင်း
+    url: "https://arakanartarea.github.io/AAA-NotePL/ASD/ArakaneseDictionary_Index.html", // မင်းအဘိဓာန် folder လမ်းကြောင်း
     icon: "📚"
   },
   {
@@ -13,7 +13,7 @@ const assets = [
     name: "ရခိုင်သတ်ပုံကျမ်း",
     desc: "စာလုံးအမှား၊ အမှန်ကို စစ်ဆေးပြီး လေ့လာပါ",
     tag: "သတ်ပုံ",
-    url: "./spelling/index.html", // သတ်ပုံ App folder လမ်းကြောင်း
+    url: "https://arakanartarea.github.io/AAA-NotePL/ASD/ArakaneseSpellingDict_index.html", // သတ်ပုံ App folder လမ်းကြောင်း
     icon: "✍️"
   },
   {
@@ -21,15 +21,15 @@ const assets = [
     name: "ArakanArtArea",
     desc: "ရခိုင်အဆိုတော်များနှင့် သီချင်းကောင်းများ",
     tag: "ဂီတ",
-    url: "https://your-arakanartarea-link.com", // ရှိပြီးသား Link ထည့်
+    url: "https://arakanartarea.github.io/AAA-NotePL/AAA/AAA_Index.html", // ရှိပြီးသား Link ထည့်
     icon: "🎵"
   },
   {
     id: 4,
-    name: "ရခိုင်စကားပုံ",
+    name: "ရခိုင်စကားပုံ(Main)",
     desc: "ရှေးလူကြီးများ၏ ပညာရှိစကားများ",
     tag: "ယဉ်ကျေးမှု",
-    url: "#",
+    url: "https://arakanartarea.github.io/AAA-NotePL/ASD/allarakanassets_index.html",
     icon: "🗣️",
     coming: true
   }
