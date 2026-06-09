@@ -2,7 +2,7 @@
 const assets = [
   {
     id: 1,
-    name: "ရခိုင်အဘိဓာန်",
+    name: "ရခိုင်အဘိဓာန် ( စုဆောင်းဆဲ )",
     desc: "ဝေါဟာရများ၏ အဓိပ္ပာယ်နှင့် အသုံးကို ရှာဖွေပါ",
     tag: "ဘာသာစကား",
     url: "https://arakanartarea.github.io/AAA-NotePL/ASD/ArakaneseDictionary_Index.html", // မင်းအဘိဓာန် folder လမ်းကြောင်း
@@ -10,7 +10,7 @@ const assets = [
   },
   {
     id: 2,
-    name: "ရခိုင်သတ်ပုံကျမ်း",
+    name: "ရခိုင်သတ်ပုံကျမ်း (စုဆောင်းဆဲ)",
     desc: "စာလုံးအမှား၊ အမှန်ကို စစ်ဆေးပြီး လေ့လာပါ",
     tag: "သတ်ပုံ",
     url: "https://arakanartarea.github.io/AAA-NotePL/ASD/ArakaneseSpellingDict_index.html", // သတ်ပုံ App folder လမ်းကြောင်း
@@ -18,7 +18,7 @@ const assets = [
   },
   {
     id: 3,
-    name: "ArakanArtArea",
+    name: "ArakanArtArea တေးခြင်း ",
     desc: "ရခိုင်အဆိုတော်များနှင့် သီချင်းကောင်းများ",
     tag: "ဂီတ",
     url: "https://arakanartarea.github.io/AAA-NotePL/AAA/AAA_Index.html", // ရှိပြီးသား Link ထည့်
