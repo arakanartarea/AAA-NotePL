@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arakanese Spelling Dictionary</title>
+    <link rel="stylesheet" href="ASD_inbox.css">
+</head>
+<body>
+
+    <div class="notepad-container">
+<!-- Screen 1  Main စ ============= ============ ============ ============ -->
+<div id="main-screen" class="screen">
+            <header>
+                <h2>📝 အာရက္ခ စာလုံးပေါင်း သတ်ပုံကျမ်း </h2>
+                <!-- Search Box -->
+<div style="padding: 10px 15px; background: white; border-bottom: 1px solid #ddd;">
+  <div style="position: relative; display: flex; align-items: center;">
+    <span style="position: absolute; left: 12px; color: #999;">🔍</span>
+    <input type="text" id="searchBox" placeholder="စကားလုံး၊ အဓိပ္ပါယ်၊ အမျိုးအစား ရှာရန်..." 
+      style="width: 100%; padding: 10px 35px 10px 35px; border: 1px solid #ccc; border-radius: 20px; font-size: 14px; outline: none;">
+    <button id="clearSearchBtn" style="position: absolute; right: 8px; background: none; border: none; font-size: 18px; color: #999; cursor: pointer; display: none;">✖</button>
+  </div>
+</div>
+            </header>
+            
+            <main class="content-area">
+                <div id="expandable-list">
+                    
+                </div>
+            </main>
+
+            <div class="bottom-toolbar" id="main-toolbar" style="display: flex; overflow-x: auto; white-space: nowrap; padding: 10px; background: #605639; gap: 10px; -webkit-overflow-scrolling: touch; width: 100%; box-sizing: border-box;">
+ <!--   <button id="new-word-btn" class="toolbar-btn add-btn" style="flex-shrink: 0; margin: 0;">➕ New Word</button> -->
+    <button id="new-word-btn" style="padding: 8px 16px; background: #e6dbb3; color: #605639; border: none; border-radius: 20px; font-weight: bold; flex-shrink: 0; cursor: pointer;">➕ New Word</button>
+    
+    <button id="view-users-btn" style="padding: 8px 16px; background: #e6dbb3; color: #605639; border: none; border-radius: 20px; font-weight: bold; flex-shrink: 0; cursor: pointer;">👥 Users</button>
+    
+    <select id="sort-select" style="padding: 8px 16px; background: #e6dbb3; color: #605639; border: none; border-radius: 20px; font-weight: bold; flex-shrink: 0; cursor: pointer; outline: none;">
+        <option value="alphabet">🔠 အက္ခရာစဉ် (မူလ)</option>
+        <option value="pos">📝 အမျိုးအစား</option>
+        <option value="semantic">🏷️ အမျိုးအမည်</option>
+    </select>
+</div>
+
+        </div>
+        <!-- Success Modal -->
+<!-- Success Modal သိမ်းပြီး မစ်ဆေ့ -->
+<div id="successModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:white; padding:25px; border-radius:10px; text-align:center; max-width:300px; box-shadow:0 5px 20px rgba(0,0,0,0.3);">
+        <p id="successMsg" style="font-size:16px; color:#333; margin-bottom:20px;">သတ်ပုံစာလုံး သိမ်းပြီးပါပြီ။</p>
+        <div style="display:flex; gap:10px; justify-content:center;">
+            <button id="btnNew" style="flex:1; padding:10px; background:#605639; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">New</button>
+            <button id="btnOk" style="flex:1; padding:10px; background:#ccc; color:#333; border:none; border-radius:5px; cursor:pointer;">OK</button>
+        </div>
+    </div>
+</div>
+
+<!-- Screen 1  Main ဆ ============= ============ ============ ============ -->
+
+<!-- Screen 2 View စ ============= ============ ============ ============ ============  -->
+<div id="view-screen" class="screen hidden">
+           <!-- <header>
+                <h2>📖 Word Details</h2>
+            </header>
+            
+            <main class="content-area">
+                <div id="dictionaryContainer">
+                    <div class="word-card">
+                        <h3 id="view-title">က — <span id="view-pos" class="pos">[ဝိဘတ်]</span></h3>
+                        <p class="meaning" id="view-definition">နေရာညွှန်ပြရာ၌ သုံးသည်။</p>
+                        <p class="eg"><strong>ဥပမာ:</strong> <span id="view-example">ရန်ကုန် က လာပါသည်။</span></p>
+                        <p class="eng"><strong>အင်္ဂလိပ်လို:</strong> <span id="view-english">from</span></p>
+                        <p class="audio"><strong>အသံထွက်:</strong> <span id="view-pronounce">KA</span> <button class="play-btn">▶️ အသံနာထောင်ရန်</button></p>
+                    </div>
+                </div>
+            </main>
+-->
+<!-- <div class="bottom-toolbar">
+                <button id="back-main-btn" class="toolbar-btn">⬅️ Back to List</button>
+            </div>
+            -->
+        </div>
+<!-- Screen 2 View ဆ ============= ============ ============ ============ ============ -->
+
+<!-- Screen 3 edit စ -->
+<div id="edit-screen" class="screen hidden">
+  <header><h2>✍️ ရခိုင်သတ်ပုံ ထည့်/ပြင် - Inbox</h2></header>
+  <main class="content-area">
+    <div class="input-form" style="display: flex; flex-direction: column; gap: 12px; padding: 10px;">
+      
+      <!-- 1-10: မူရင်း 10 ခု -->
+      <input type="text" id="group" placeholder="၁။ ဗျည်း အုပ်စု - က">
+      <input type="text" id="subGroup" placeholder="၂။ ဗျည်း+သရ အုပ်စုခွဲ - ကောင်း">
+      <input type="text" id="correct" placeholder="၃။ စာလုံးအမှန် - ကောင်းကင်">
+      <input type="text" id="wrong" placeholder="၄။ စာလုံးအမှား - ကောင်ကင်း,ကောင်ကင်">
+      
+      <div style="display: flex; gap: 8px;">
+        <input type="text" id="pos" list="pos-list" placeholder="၅။ အမျိုးအစား" style="flex: 1; margin: 0;">
+        <datalist id="pos-list">
+          <option value="နာမ်"></option><option value="နာမ်စား"></option>
+          <option value="ကြိယာ"></option><option value="နာမဝိသေသန"></option>
+          <option value="ကြိယာဝိသေသန"></option><option value="ဝိဘတ်"></option>
+          <option value="သမ္ဗန္ဓ"></option><option value="အာမေဍိတ်"></option>
+        </datalist>
+      </div>
+      
+      <input type="text" id="example" placeholder="၆။ ဥပမာစာကြောင်း">
+      <input type="text" id="spell" placeholder="၇။ ရေးနည်း - ကေ+ာင်း+က+င်">
+      <input type="text" id="read" placeholder="၈။ အသံထွက် - ကောင်းကင်">
+      
+      <div style="display: flex; gap: 8px;">
+        <input type="text" id="audioUrl" placeholder="၉။ အသံဖိုင် Link" style="flex: 1; margin: 0;">
+        <button type="button" id="paste-audio-btn" style="padding: 0 12px; background: #605639; color: white; border: none; border-radius: 4px; cursor: pointer;">📋 Paste</button>
+      </div>
+<div style="display: flex; gap: 8px;">
+    <input type="text" id="source" list="source-list" placeholder="၁၀။ ကိုးကားကျမ်း - ဒေသိယ" style="flex: 1; margin: 0;">
+    <datalist id="source-list">
+        <option value="ဒေသိယ(ကျောက်ဖြူ)"></option>
+        <option value="ဒေသိယ(စစ်တွေ)"></option>
+        <option value="ရခိုင်ဘာသာစကားလမ်းညွန်"></option>
+        <option value="ရခိုင်ဝီကီပီးဒီးယား"></option>
+    </datalist>
+</div>
+    
+<!-- 10.5: အသစ်တိုး semanticType စ -->
+<div style="display: flex; gap: 8px;">
+    <input type="text" id="semanticType" list="semantic-list" placeholder="၁၀.၅။ အမျိုးအမည်" style="flex: 1; margin: 0;">
+    <datalist id="semantic-list">
+        <option value="သက်ရှိ"></option>
+        <option value="သက်မဲ့"></option>
+        <option value="အစားအစာ"></option>
+        <option value="အသုံးအဆောင်"></option>
+        <option value="ကိုယ်ခန္ဓာအစိတ်အပိုင်း"></option>
+        <option value="ခံစားချက်/နာမ်ပိုင်းဆိုင်ရာ"></option>
+        <option value="အပြောအဆို"></option>
+        <option value="အလုပ်အကိုင်"></option>
+        <option value="သဘာဝ"></option>
+        <option value="အရောင်"></option>
+        <option value="နေရာ/ဒေသ"></option>
+        <option value="အချိန်/ကာလ"></option>
+        <option value="အတိုင်းအတာ"></option>
+        <option value="ရောဂါ/ဆီးဝါး"></option>
+        <option value="အထွေထွေ"></option>
+    </datalist>
+</div>
+<!-- 10.5: အသစ်တိုး semanticType ဆ အလုပ်အကိုင် -->
+
+      <!-- 11-16: အသစ်တိုး 6 ခု -->
+<div style="display: flex; gap: 8px;">
+    <input type="text" id="submitterId" list="submitter-list" placeholder="၁၁။ တင်သွင်းသူ ID" style="flex: 1; margin: 0;">
+    <datalist id="submitter-list">
+        <option value="A-0000001"></option>
+        <option value="A-7777777"></option>
+        <option value="A-8888888"></option>
+        <option value="A-9999999"></option>
+        <option value="A-9000000"></option>
+    </datalist>
+</div>
+
+<input type="text" id="submitTime" placeholder="၁၂။ တင်သွင်းချိန် - Auto" readonly style="flex: 1; margin: 0; background:#f5f5f5;">
+      
+      <div style="display: flex; gap: 8px;">
+        <select id="status" style="flex: 1; padding: 8px;">
+          <option value="စောင့်ဆဲ">၁၃။ စောင့်ဆဲ</option>
+          <option value="အတည်ပြု">၁၃။ အတည်ပြု</option>
+          <option value="ပယ်ချ">၁၃။ ပယ်ချ</option>
+        </select>
+      </div>
+      
+      <input type="text" id="reviewerId" placeholder="၁၄။ အတည်ပြုသူ ID - ဗလာထားခဲ့">
+      <input type="text" id="reviewTime" placeholder="၁၅။ အတည်ပြုချိန် - ဗလာထားခဲ့">
+      <input type="text" id="note" placeholder="၁၆။ မှတ်ချက်">
+
+    </div>
+  </main>
+  <div class="bottom-toolbar split-buttons">
+    <button id="cancel-edit-btn" class="toolbar-btn cancel-btn">⬅️ Back</button>
+    <button id="save-word-btn" class="toolbar-btn save-btn">💾 Save</button>
+  </div>
+</div>
+<!-- Screen 3 edit ဆ -->
+
+    <script type="module" src="ASD_inbox.js"></script>
+</body>
+</html>
