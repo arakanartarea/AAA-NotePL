@@ -59,9 +59,17 @@ currentEditId = null; // ID ကို ဗလာပြန်လုပ်မယ်
 document.querySelectorAll('.input-form input').forEach(input => input.value = ""); 
 // စာရိုက်တဲ့အကွက်တွေ အကုန်ရှင်းမယ်
 changeScreen(editScreen); });
+// စီခြင်း ပုံစံ စ
 document.getElementById('sort-select').addEventListener('change', (e) => {
     currentSortMode = e.target.value;
     showWords(); // ပြောင်းရွေးတာနဲ့ ဒေတာတွေကို ပြန်စီမယ်
+});
+// ဝက်ဘ်စာမျက်နှာ ပြောင်း
+document.getElementById('Screen-select').addEventListener('change', function() {
+    if (this.value) {
+        window.open(this.value, '_blank'); // Tab အသစ်နဲ့ ဖွင့်ဖို့
+        // window.location.href = this.value; // လက်ရှိ Tab မှာပဲ ဖွင့်ဖို့ (ဒါကိုသုံးချင်ရင် အပေါ်စာကြောင်းကို ဖျက်ပါ)
+    }
 });
 
 
