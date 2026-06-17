@@ -12,7 +12,6 @@ const firebaseConfig = {
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-
 const firebaseConfig = {
         apiKey: "AIzaSyC7N9_TNTp_aThC_olEDyMcEo2pAhOFEGI",
         authDomain: "arakanese-dictionary.firebaseapp.com",
@@ -47,13 +46,10 @@ function changeScreen(targetScreen) {
         targetScreen.classList.remove('hidden');
 }
 
-
 // SCREEN 1: MAIN SCREEN (Group -> SubGroup Accordion)//==============စ 
 const expandableList = document.getElementById('expandable-list');
 const newWordBtn = document.getElementById('new-word-btn');
-
-
-
+//ရိုးအသစ် စ
 newWordBtn.addEventListener('click', () => {
 currentEditId = null; // ID ကို ဗလာပြန်လုပ်မယ်
 document.querySelectorAll('.input-form input').forEach(input => input.value = ""); 
@@ -71,7 +67,6 @@ document.getElementById('Screen-select').addEventListener('change', function() {
          window.location.href = this.value; // လက်ရှိ Tab မှာပဲ ဖွင့်ဖို့ (ဒါကိုသုံးချင်ရင် အပေါ်စာကြောင်းကို ဖျက်ပါ)
     }
 });
-
 
 /* onSnapshot(collection(db, "ArakaneseSpellingDictInbox"), (snapshot) => {
 expandableList.innerHTML = "";
@@ -248,8 +243,6 @@ filteredData.forEach((data) => {
                 });
         });
 }
-
-
 // 1 : Search စ
 const searchBox = document.getElementById('searchBox');
 const clearBtn = document.getElementById('clearSearchBtn');

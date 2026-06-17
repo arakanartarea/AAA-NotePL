@@ -17,6 +17,22 @@ const assets = [
     icon: "✍️"
   },
   {
+  id: 5,
+  name: "ရခိုင်သတ်ပုံကျမ်း (စုဆောင်းဆဲ) လက်ခံဝဘ် ",
+  desc: "စာလုံးအမှား၊ အမှန်ကို စစ်ဆေးပြီး လေ့လာပါ",
+  tag: "သတ်ပုံ",
+  url: "https://arakanartarea.github.io/AAA-NotePL/ASD/ArakaneseSpellingDict_index.html", // သတ်ပုံ App folder လမ်းကြောင်း
+  icon: "✍️"
+},
+{
+  id: 6,
+  name: "ရခိုင်အဘိဓာန် (စုဆောင်းဆဲ) လက်ခံ ဝဘ် ",
+  desc: "စာလုံးအမှား၊ အမှန်ကို စစ်ဆေးပြီး လေ့လာပါ",
+  tag: "သတ်ပုံ",
+  url: "https://arakanartarea.github.io/AAA-NotePL/ASD/ArakaneseSpellingDict_index.html", // သတ်ပုံ App folder လမ်းကြောင်း
+  icon: "✍️"
+},
+  {
     id: 3,
     name: "ArakanArtArea တေးခြင်း ",
     desc: "ရခိုင်အဆိုတော်များနှင့် သီချင်းကောင်းများ",
@@ -29,9 +45,9 @@ const assets = [
     name: "ရခိုင်စကားပုံ(Main)",
     desc: "ရှေးလူကြီးများ၏ ပညာရှိစကားများ",
     tag: "ယဉ်ကျေးမှု",
-    url: "https://arakanartarea.github.io/AAA-NotePL/ASD/allarakanassets_index.html",
+    url: "https://arakanartarea.github.io/AAA-NotePL/ASD/allarakanassets_inbox.html",
     icon: "🗣️",
-    coming: true
+     coming: true
   }
 ];
 
