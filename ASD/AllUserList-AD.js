@@ -215,7 +215,7 @@ checkAidBtn.addEventListener('click', checkAid);
 const cancelEditBtn = document.getElementById('cancel-edit-btn');
 const saveWordBtn = document.getElementById('save-word-btn');
 cancelEditBtn.addEventListener('click', () => changeScreen(mainScreen));
-//ဒေတာသိမ်း ခလုတ် 
+//ဒေတာသိမ်း ခလုတ်  စ
 saveWordBtn.addEventListener('click', async () => {
     const userData = {
     Year: new Date().getFullYear().toString(),

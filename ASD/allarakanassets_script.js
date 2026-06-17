@@ -21,7 +21,7 @@ const assets = [
   name: "ရခိုင်သတ်ပုံကျမ်း (စုဆောင်းဆဲ) လက်ခံဝဘ် ",
   desc: "စာလုံးအမှား၊ အမှန်ကို စစ်ဆေးပြီး လေ့လာပါ",
   tag: "သတ်ပုံ",
-  url: "https://arakanartarea.github.io/AAA-NotePL/ASD/ArakaneseSpellingDict_index.html", // သတ်ပုံ App folder လမ်းကြောင်း
+  url: "https://arakanartarea.github.io/AAA-NotePL/ASD/ASD_inbox.html", // သတ်ပုံ App folder လမ်းကြောင်း
   icon: "✍️"
 },
 {
