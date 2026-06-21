@@ -9,33 +9,35 @@ const assets = [
     icon: "📚"
   },
   {
+  id: 6,
+  name: "ရခိုင်အဘိဓာန် လက်ခံဝဘ် ",
+  desc: "ရက္ခိုင် အဘိဓါန် စကားလုံးတိ ပီးပို့နိုင်ပါရေ. ",
+  tag: "ဘာသာစကား",
+  url: "https://arakanartarea.github.io/AAA-NotePL/ASD/ArakaneseDictionary_Inbox.html", // သတ်ပုံ App folder လမ်းကြောင်း
+  icon: "📚",
+  coming: true
+},
+  {
     id: 2,
     name: "ရခိုင်သတ်ပုံကျမ်း (စုဆောင်းဆဲ)",
     desc: "စာလုံးအမှား၊ အမှန်ကို စစ်ဆေးပြီး လေ့လာပါ",
-    tag: "သတ်ပုံ",
+    tag: "ဘာသာစကား(သတ်ပုံ)",
     url: "https://arakanartarea.github.io/AAA-NotePL/ASD/ArakaneseSpellingDict_index.html", // သတ်ပုံ App folder လမ်းကြောင်း
-    icon: "✍️"
+    icon: "📒"
   },
   {
   id: 5,
-  name: "ရခိုင်သတ်ပုံကျမ်း (စုဆောင်းဆဲ) လက်ခံဝဘ် ",
-  desc: "စာလုံးအမှား၊ အမှန်ကို စစ်ဆေးပြီး လေ့လာပါ",
-  tag: "သတ်ပုံ",
+  name: "ရခိုင်သတ်ပုံကျမ်း လက်ခံဝဘ် ",
+  desc: "ရခိုင် စကားလုံးသတ်ပုံအမှန်တိ ကို ပီးပို့ဖြည့်သွင်းနိုင်ပါရေ. ",
+  tag: "ဘာသာစကား(သတ်ပုံ)",
   url: "https://arakanartarea.github.io/AAA-NotePL/ASD/ASD_inbox.html", // သတ်ပုံ App folder လမ်းကြောင်း
-  icon: "✍️"
+  icon: "📝"
 },
-{
-  id: 6,
-  name: "ရခိုင်အဘိဓာန် (စုဆောင်းဆဲ) လက်ခံ ဝဘ် ",
-  desc: "စာလုံးအမှား၊ အမှန်ကို စစ်ဆေးပြီး လေ့လာပါ",
-  tag: "သတ်ပုံ",
-  url: "https://arakanartarea.github.io/AAA-NotePL/ASD/ArakaneseSpellingDict_index.html", // သတ်ပုံ App folder လမ်းကြောင်း
-  icon: "✍️"
-},
+
   {
     id: 3,
-    name: "ArakanArtArea တေးခြင်း ",
-    desc: "ရခိုင်အဆိုတော်များနှင့် သီချင်းကောင်းများ",
+    name: "ArakanArtArea ",
+    desc: "ရခိုင်အဆိုတော်တိ၊တေးရီးတိနန့် တေးခြင်းတိ.",
     tag: "ဂီတ",
     url: "https://arakanartarea.github.io/AAA-NotePL/AAA/AAA_Index.html", // ရှိပြီးသား Link ထည့်
     icon: "🎵"

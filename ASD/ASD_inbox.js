@@ -203,7 +203,7 @@ filteredData.forEach((data) => {
                 const groupHeader = document.createElement('div');
                 groupHeader.className = "group-header";
                 groupHeader.style.cssText = "cursor: pointer; padding: 12px; background: #e6dbb3; font-weight: bold; border-radius: 4px;";
-                groupHeader.innerText = `📁 အုပ်စု - [ ${gName} ]`;
+                groupHeader.innerText = ` ${gName} `;
                 groupWrapper.appendChild(groupHeader);
                         
                 const subGroupContainer = document.createElement('div');
@@ -216,7 +216,7 @@ filteredData.forEach((data) => {
                 sortedSubGroups.forEach((sgName) => {
                         const subGroupHeader = document.createElement('div');
                         subGroupHeader.style.cssText = "padding: 10px 15px; margin-top: 5px; font-weight: bold; color: #444; cursor: pointer; background-color: #f1f1f1; border-radius: 4px; border-bottom: 1px dashed #ccc;";
-                        subGroupHeader.innerText = `📂 အုပ်စုခွဲ - ${sgName}`;
+                        subGroupHeader.innerText = ` ${sgName}`;
                         subGroupContainer.appendChild(subGroupHeader);
                                 
                         const sortedWords = groups[gName][sgName].sort((a, b) => {
