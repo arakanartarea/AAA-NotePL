@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arakanese Spelling Dictionary</title>
+    <link rel="stylesheet" href="ASD_inbox.css">
+</head>
+<body>
+
+    <div class="notepad-container">
+<!-- Screen 1  Main စ ============= ============ ============ ============ -->
+<div id="main-screen" class="screen">
+            <header>
+                <h2>📝 AAA Note </h2>
+                <!-- Search Box -->
+<div style="padding: 10px 15px; background: white; border-bottom: 1px solid #ddd;">
+  <div style="position: relative; display: flex; align-items: center;">
+    <span style="position: absolute; left: 12px; color: #999;">🔍</span>
+    <input type="text" id="searchBox" placeholder="စကားလုံး၊ အဓိပ္ပါယ်၊ အမျိုးအစား ရှာရန်..." 
+      style="width: 100%; padding: 10px 35px 10px 35px; border: 1px solid #ccc; border-radius: 20px; font-size: 14px; outline: none;">
+    <button id="clearSearchBtn" style="position: absolute; right: 8px; background: none; border: none; font-size: 18px; color: #999; cursor: pointer; display: none;">✖</button>
+  </div>
+</div>
+            </header>
+            
+            <main class="content-area">
+                <div id="expandable-list">
+                    
+                </div>
+            </main>
+
+            <div class="bottom-toolbar" id="main-toolbar" style="display: flex; overflow-x: auto; white-space: nowrap; padding: 10px; background: #605639; gap: 10px; -webkit-overflow-scrolling: touch; width: 100%; box-sizing: border-box;">
+
+    <button id="new-word-btn" style="padding: 8px 16px; background: #e6dbb3; color: #605639; border: none; border-radius: 20px; font-weight: bold; flex-shrink: 0; cursor: pointer;">➕ New </button>
+    
+<select id="sort-select" style="padding: 8px 16px; background: #e6dbb3; color: #605639; border: none; border-radius: 20px; font-weight: bold; flex-shrink: 0; cursor: pointer; outline: none;">
+    <option value="time-new">🕐 အသစ်ဆုံး</option>
+    <option value="time-old">🕐 အဟောင်းဆုံး</option>
+    <option value="az">🔤 A-Z</option>
+    <option value="za">🔤 Z-A</option>
+</select>
+
+<select id="Screen-select" style="padding: 8px 16px; background: #e6dbb3; color: #605639; border: none; border-radius: 20px; font-weight: bold; flex-shrink: 0; cursor: pointer; outline: none;">
+    <option value="https://arakanartarea.github.io/AAA-NotePL/AAA/AAA_Index.html">🎙️ ArakanArtArea</option>
+    <option value="https://arakanartarea.github.io/AAA-NotePL/ASD/AllUserList-AD.html">🎙️ AAA AllUserList</option>
+    
+    <option value="https://arakanartarea.github.io/AAA-NotePL/ASD/ASD_inbox.html">📝 သတ်ပုံကျမ်း ( လက်ခံဝဘ် )</option>
+    <option value="https://arakanartarea.github.io/AAA-NotePL/ASD/ArakaneseSpellingDict_index.html">📝 သတ်ပုံကျမ်း (ပြသ)</option>
+    
+    <option value="https://arakanartarea.github.io/AAA-NotePL/ASD/#">📝 အဘိဓာန် (လက်ခံဝဘ်) မရှိသေး...</option>
+    <option value="https://arakanartarea.github.io/AAA-NotePL/ASD/ArakaneseDictionary_Index.html">📝 အဘိဓာန်(ပြသ) </option>
+    
+</select>
+
+</div>
+
+        </div>
+        
+        <!-- Success Modal -->
+<!-- Success Modal သိမ်းပြီး မစ်ဆေ့ -->
+<div id="successModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+    <div style="background:white; padding:25px; border-radius:10px; text-align:center; max-width:300px; box-shadow:0 5px 20px rgba(0,0,0,0.3);">
+        <p id="successMsg" style="font-size:16px; color:#333; margin-bottom:20px;">သတ်ပုံစာလုံး သိမ်းပြီးပါပြီ။</p>
+        <div style="display:flex; gap:10px; justify-content:center;">
+            <button id="btnNew" style="flex:1; padding:10px; background:#605639; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">New</button>
+            <button id="btnOk" style="flex:1; padding:10px; background:#ccc; color:#333; border:none; border-radius:5px; cursor:pointer;">OK</button>
+        </div>
+    </div>
+</div>
+
+<!-- Screen 1  Main ဆ ============= ============ ============ ============ -->
+
+<!-- Screen 2 View စ ============= ============ ============ ============ ============  -->
+<div id="view-screen" class="screen hidden">
+           <!-- <header>
+                <h2>📖 Word Details</h2>
+            </header>
+            
+            <main class="content-area">
+                <div id="dictionaryContainer">
+                    <div class="word-card">
+                        <h3 id="view-title">က — <span id="view-pos" class="pos">[ဝိဘတ်]</span></h3>
+                        <p class="meaning" id="view-definition">နေရာညွှန်ပြရာ၌ သုံးသည်။</p>
+                        <p class="eg"><strong>ဥပမာ:</strong> <span id="view-example">ရန်ကုန် က လာပါသည်။</span></p>
+                        <p class="eng"><strong>အင်္ဂလိပ်လို:</strong> <span id="view-english">from</span></p>
+                        <p class="audio"><strong>အသံထွက်:</strong> <span id="view-pronounce">KA</span> <button class="play-btn">▶️ အသံနာထောင်ရန်</button></p>
+                    </div>
+                </div>
+            </main>
+-->
+<!-- <div class="bottom-toolbar">
+                <button id="back-main-btn" class="toolbar-btn">⬅️ Back to List</button>
+            </div>
+            -->
+        </div>
+<!-- Screen 2 View ဆ ============= ============ ============ ============ ============ -->
+
+<!-- Screen 3 edit စ -->
+<div id="edit-screen" class="screen hidden" style="display:flex; flex-direction:column; height:100vh;">
+    
+    <!-- 1. အပေါ် Group 2 ခုပဲ -->
+    <div style="padding:10px; background:#e6dbb3; display:flex; gap:8px;">
+        <input type="text" id="group" placeholder="အုပ်စု" style="flex:1; padding:8px; border:1px solid #999; border-radius:4px; background:white;">
+        <input type="text" id="subGroup" placeholder="အုပ်စုခွဲ" style="flex:1; padding:8px; border:1px solid #999; border-radius:4px; background:white;">
+    </div>
+    
+    <!-- 2. Content - ကျန်နေရာအပြည့်ယူ -->
+    <textarea id="content" placeholder="မှတ်စု..." style="flex:1; padding:12px; border:none; resize:none; font-size:16px; line-height:1.6; outline:none;"></textarea>
+    
+    <!-- 3. အောက်ခြေ Toolbar - ကီးဘုတ်တက်ရင် ကီးဘုတ်အပေါ်ကပ်မယ် -->
+   <div id="editor-toolbar" style="display:flex; gap:4px; padding:8px; background:#f5f5f5; border-top:1px solid #ddd; overflow-x:auto;">
+    <button type="button" data-cmd="undo" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">↶</button>
+    <button type="button" data-cmd="redo" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">↷</button>
+    <button type="button" data-cmd="copy" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">📋</button>
+    <button type="button" data-cmd="paste" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">📥</button>
+    <button type="button" data-cmd="selectAll" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">☰</button>
+    <button type="button" data-cmd="left" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">←</button>
+    <button type="button" data-cmd="right" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">→</button>
+    <button type="button" data-cmd="up" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">↑</button>
+    <button type="button" data-cmd="down" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">↓</button>
+    <div style="flex:1;"></div>
+    <button id="cancel-edit-btn" style="padding:8px 16px; background:#605639; color:white; border:none; border-radius:4px; font-weight:bold;">⬅️</button>
+    <button id="save-word-btn" style="padding:8px 16px; background:#2d6a4f; color:white; border:none; border-radius:4px; font-weight:bold;">💾</button>
+</div>
+    
+</div>
+<!-- Screen 3 edit ဆ -->
+
+
+<script type="module" src="AAA-Note.js"></script>
+</body>
+</html>

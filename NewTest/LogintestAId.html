@@ -33,6 +33,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, signInWithRedirect, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         // TODO: ကိုယ့် Firebase Config အချက်အလက်တွေကို ဒီမှာ အစားထိုးပါ
         const firebaseConfig = {
@@ -125,14 +126,26 @@
         });
 
         // ၄။ Login ဝင်ခြင်း လုပ်ဆောင်ချက်
-        async function doLogin() {
+      /*  async function doLogin() {
             try {
                 await signInWithPopup(auth, provider);
             } catch (error) {
                 console.error("Login Error: ", error);
                 alert("Login ဝင်လို့မရပါ");
             }
-        }
+        } */
+        // အပေါ်က import မှာ signInWithRedirect ကိုပါ ထည့်ပေးပါ
+
+async function doLogin() {
+    try {
+        // Pop-up အစား Redirect ပုံစံပြောင်းလဲခြင်း
+        await signInWithRedirect(auth, provider);
+    } catch (error) {
+        console.error("Login Error: ", error);
+        alert("Login ဝင်လို့မရပါ- " + error.message);
+    }
+}
+
 
         // ၅။ အကောင့်ထွက်ခြင်း
         logoutBtn.addEventListener('click', () => {
