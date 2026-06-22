@@ -2,6 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getRedirectResult, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 /*
 const firebaseConfig = {
     apiKey: "key",
@@ -129,6 +130,7 @@ onSnapshot(collection(db, "AllUserList"), (snapshot) => {
 });
 
 // လော့အင် စ
+/*
 const loginBtn = document.getElementById('login-btn');
 const logoutBtn = document.getElementById('logout-btn');
 const userEmail = document.getElementById('user-email');
@@ -164,7 +166,40 @@ onAuthStateChanged(auth, (user) => {
 logoutBtn.addEventListener('click', () => {
     signOut(auth);
 });
+*/
+// Redirect ပြီးပြန်လာရင် အကောင့်ဖမ်းမယ်
+getRedirectResult(auth).then(async (result) => {
+    if (!result) return; // Login မလုပ်ရသေးရင် ထွက်
+    
+    const user = result.user;
+    
+    // ဒီအကောင့် AllUserList ထဲရှိပြီးသားလား စစ်
+    const q = query(collection(db, "AllUserList"), where("Acc", "==", user.email));
+    const snapshot = await getDocs(q);
+    
+    if (snapshot.empty) {
+        // မရှိသေးရင် အသစ်ထည့်မယ်
+        const now = new Date();
+        const userData = {
+            Year: now.getFullYear().toString(),
+            Month: (now.getMonth() + 1).toString().padStart(2, '0'),
+            AID: `A-${user.uid.substring(0, 7)}`, // uid ကနေ 7 လုံးယူမယ်
+            GID: "",
+            Name: user.displayName || "No Name",
+            Acc: user.email,
+            Time: now.toISOString().substring(0, 10), // 2026-06-22
+            Role: "User",
+            createdAt: now
+        };
+        
+        await addDoc(collection(db, "AllUserList"), userData);
+        console.log("User သိမ်းပြီးပြီ:", user.email);
+    }
+}).catch((error) => {
+    console.error(error);
+});
 //လော့အင် ဆ
+
 // SCREEN 1: MAIN SCREEN (Group -> SubGroup Accordion)//==============ဆ
 
 
