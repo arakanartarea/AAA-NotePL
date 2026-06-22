@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
+/*
 const firebaseConfig = {
     apiKey: "key",
     authDomain: "arakanese-dictionary.firebaseapp.com",
@@ -10,6 +10,15 @@ const firebaseConfig = {
     storageBucket: "arakanese-dictionary.firebasestorage.app",
     messagingSenderId: "id",
     appId: "1:id:web:id"
+};
+*/
+const firebaseConfig = {
+    apiKey: "AIzaSyC7N9_TNTp_aThC_olEDyMcEo2pAhOFEGI",
+    authDomain: "arakanese-dictionary.firebaseapp.com",
+    projectId: "arakanese-dictionary",
+    storageBucket: "arakanese-dictionary.firebasestorage.app",
+    messagingSenderId: "955711906003",
+    appId: "1:955711906003:web:6d9b60bd4cdaa8a8953426"
 };
 
 const app = initializeApp(firebaseConfig);
