@@ -131,42 +131,70 @@ onSnapshot(collection(db, "AllUserList"), (snapshot) => {
 
 // လော့အင် စ
 /*
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+/*
+const loginBtn = document.getElementById('login-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const userEmail = document.getElementById('user-email');
+// ခလုတ်နှိပ်ရင် Login စ
+document.getElementById('login-btn').addEventListener('click', () => {
+    signInWithRedirect(auth, provider);
+});
 
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
+loginBtn.addEventListener('click', () => {
+    signInWithRedirect(auth, provider);
+});
+// Redirect ပြန်လာရင် ရလဒ်ဖမ်း
+getRedirectResult(auth).catch((error) => {
+    console.error(error);
+});
+// Login ဝင်ပြီး/ထွက်ပြီး အခြေအနေ စောင့်ကြည့်
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // Login ဝင်ထားရင်
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = 'inline-block';
+        userEmail.innerText = user.email;
+        newWordBtn.style.display = 'block'; // ဒေတာထည့်ခွင့်ပေး
+    } else {
+        // Login မဝင်ရသေး
+        loginBtn.style.display = 'inline-block';
+        logoutBtn.style.display = 'none';
+        userEmail.innerText = '';
+        newWordBtn.style.display = 'none'; // ဒေတာထည့်ခွင့်ပိတ်
+    }
+});
+// Logout
+logoutBtn.addEventListener('click', () => {
+    signOut(auth);
+});
 */
-// Continue နှိပ်ပြီးပြန်လာရင် ဒါက အလုပ်လုပ်မယ်
+// Redirect ပြီးပြန်လာရင် အကောင့်ဖမ်းမယ်
 getRedirectResult(auth).then(async (result) => {
-    if (!result) return; // Login မလုပ်ရင် ထွက်
+    if (!result) return; // Login မလုပ်ရသေးရင် ထွက်
     
     const user = result.user;
     
-    // ၁။ Acc = email နဲ့ AllUserList ထဲရှိပြီးသားလား စစ်
+    // ဒီအကောင့် AllUserList ထဲရှိပြီးသားလား စစ်
     const q = query(collection(db, "AllUserList"), where("Acc", "==", user.email));
     const snapshot = await getDocs(q);
     
-    // ၂။ မရှိသေးရင် သိမ်း
     if (snapshot.empty) {
+        // မရှိသေးရင် အသစ်ထည့်မယ်
         const now = new Date();
         const userData = {
             Year: now.getFullYear().toString(),
             Month: (now.getMonth() + 1).toString().padStart(2, '0'),
-            AID: `A-${user.uid.substring(0, 7)}`, // UID ကနေ 7 လုံးဖြတ်
+            AID: `A-${user.uid.substring(0, 7)}`, // uid ကနေ 7 လုံးယူမယ်
             GID: "",
-            Name: user.displayName || "No Name", // Google နာမည်
-            Acc: user.email, // Google မေးလ်
+            Name: user.displayName || "No Name",
+            Acc: user.email,
             Time: now.toISOString().substring(0, 10), // 2026-06-22
-            Role: "User", // Default Role
+            Role: "User",
             createdAt: now
         };
         
         await addDoc(collection(db, "AllUserList"), userData);
-        console.log("အကောင့်အသစ် သိမ်းပြီးပြီ:", user.email);
-    } else {
-        console.log("ရှိပြီးသားအကောင့်:", user.email);
-        // ရှိပြီးသားဆို ဘာမှမလုပ်
+        console.log("User သိမ်းပြီးပြီ:", user.email);
     }
 }).catch((error) => {
     console.error(error);
