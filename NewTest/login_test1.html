@@ -79,38 +79,42 @@
         appId: "1:695659736666:web:1e76494c0e6819609bf263",
         measurementId: "G-Y9Y5SK15M9"
 };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const provider = new firebase.auth.GoogleAuthProvider();
 
+  const btn = document.getElementById("googleLoginBtn");
+  const card = document.getElementById("userCard");
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const provider = new firebase.auth.GoogleAuthProvider();
+  // Page ပြန်လာရင် အကောင့်ရထားလား စစ်
+  auth.getRedirectResult().then((result) => {
+    if (result.user) {
+      showUserCard(result.user);
+    }
+  }).catch((error) => {
+    alert("မှားနေတယ်: " + error.message);
+  });
 
-    const btn = document.getElementById("googleLoginBtn");
-    const card = document.getElementById("userCard");
+  // ခလုတ်နှိပ်ရင် redirect နဲ့သွား
+  btn.onclick = () => {
+    auth.signInWithRedirect(provider);
+  };
 
-    btn.onclick = async () => {
-      try {
-        const result = await auth.signInWithPopup(provider);
-        const user = result.user;
+  function showUserCard(user) {
+    const num = Math.floor(1000000 + Math.random() * 9000000);
+    const aid = "A-" + num;
 
-        // Aid ကိုပြဖို့သက်သက်မွှေတာ၊ DB ထဲမသိမ်းဘူး
-        const num = Math.floor(1000000 + Math.random() * 9000000);
-        const aid = "A-" + num;
+    document.getElementById("vAid").textContent = aid;
+    document.getElementById("vGid").textContent = user.uid;
+    document.getElementById("vName").textContent = user.displayName;
+    document.getElementById("vAccount").textContent = user.email;
+    document.getElementById("vTime").textContent = new Date().toLocaleString("en-GB");
+    document.getElementById("vRole").textContent = "viewer";
 
-        document.getElementById("vAid").textContent = aid;
-        document.getElementById("vGid").textContent = user.uid;
-        document.getElementById("vName").textContent = user.displayName;
-        document.getElementById("vAccount").textContent = user.email;
-        document.getElementById("vTime").textContent = new Date().toLocaleString("en-GB");
-        document.getElementById("vRole").textContent = "viewer";
+    card.style.display = "block";
+    btn.style.display = "none";
+  }
 
-        card.style.display = "block";
-        btn.style.display = "none";
-
-      } catch(error) {
-        alert("မှားနေတယ်: " + error.message);
-      }
-    };
   </script>
 </body>
 </html>
