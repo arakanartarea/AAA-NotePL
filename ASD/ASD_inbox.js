@@ -1,26 +1,15 @@
-/* 
-const firebaseConfig = {
-    apiKey: "AIzaSyC7N9_TNTp_aThC_olEDyMcEo2pAhOFEGI",
-    authDomain: "arakanese-dictionary.firebaseapp.com",
-    projectId: "arakanese-dictionary",
-    storageBucket: "arakanese-dictionary.firebasestorage.app",
-    messagingSenderId: "955711906003",
-    appId: "1:955711906003:web:6d9b60bd4cdaa8a8953426"
-};
-*/
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
-        apiKey: "AIzaSyC7N9_TNTp_aThC_olEDyMcEo2pAhOFEGI",
+        apiKey: "key",
         authDomain: "arakanese-dictionary.firebaseapp.com",
         projectId: "arakanese-dictionary",
         storageBucket: "arakanese-dictionary.firebasestorage.app",
-        messagingSenderId: "955711906003",
-        appId: "1:955711906003:web:6d9b60bd4cdaa8a8953426"
+        messagingSenderId: "id",
+        appId: "1:id:web:id"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
@@ -476,6 +465,3 @@ document.getElementById('paste-audio-btn').addEventListener('click', async () =>
 });
 // SCREEN 3: EDIT SCREEN (ဒေတာ သိမ်းဆည်းခြင်း/ ပြုပြင်ခြင်း )================ဆ
 
-// Screen 4 ViewUserList စ ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
-
-// Screen 4 ViewUserList ဆ ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 

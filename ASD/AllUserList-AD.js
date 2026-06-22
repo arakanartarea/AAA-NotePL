@@ -1,36 +1,23 @@
-/* 
-const firebaseConfig = {
-    apiKey: "AIzaSyC7N9_TNTp_aThC_olEDyMcEo2pAhOFEGI",
-    authDomain: "arakanese-dictionary.firebaseapp.com",
-    projectId: "arakanese-dictionary",
-    storageBucket: "arakanese-dictionary.firebasestorage.app",
-    messagingSenderId: "955711906003",
-    appId: "1:955711906003:web:6d9b60bd4cdaa8a8953426"
-};
-*/
 
-// ==========================================
-// FIREBASE SETUP (⚠️ မင်းရဲ့ Config ကုဒ်တွေ အစားထိုးပါ)
-// ==========================================
-/*
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-*/
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyC7N9_TNTp_aThC_olEDyMcEo2pAhOFEGI",
+    apiKey: "key",
     authDomain: "arakanese-dictionary.firebaseapp.com",
     projectId: "arakanese-dictionary",
     storageBucket: "arakanese-dictionary.firebasestorage.app",
-    messagingSenderId: "955711906003",
-    appId: "1:955711906003:web:6d9b60bd4cdaa8a8953426"
+    messagingSenderId: "id",
+    appId: "1:id:web:id"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+//လော့အင် စ
+const auth = getAuth(app); // ဒီတစ်ကြောင်း ထပ်တိုး
+const provider = new GoogleAuthProvider(); // ဒီတစ်ကြောင်း ထပ်တိုး
+//လော့အင် ဆ
 
 // ==========================================
 // GLOBAL & SCREEN NAVIGATION
@@ -131,6 +118,44 @@ onSnapshot(collection(db, "AllUserList"), (snapshot) => {
         });
     });
 });
+
+// လော့အင် စ
+const loginBtn = document.getElementById('login-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const userEmail = document.getElementById('user-email');
+// ခလုတ်နှိပ်ရင် Login စ
+document.getElementById('login-btn').addEventListener('click', () => {
+    signInWithRedirect(auth, provider);
+});
+
+loginBtn.addEventListener('click', () => {
+    signInWithRedirect(auth, provider);
+});
+// Redirect ပြန်လာရင် ရလဒ်ဖမ်း
+getRedirectResult(auth).catch((error) => {
+    console.error(error);
+});
+// Login ဝင်ပြီး/ထွက်ပြီး အခြေအနေ စောင့်ကြည့်
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // Login ဝင်ထားရင်
+        loginBtn.style.display = 'none';
+        logoutBtn.style.display = 'inline-block';
+        userEmail.innerText = user.email;
+        newWordBtn.style.display = 'block'; // ဒေတာထည့်ခွင့်ပေး
+    } else {
+        // Login မဝင်ရသေး
+        loginBtn.style.display = 'inline-block';
+        logoutBtn.style.display = 'none';
+        userEmail.innerText = '';
+        newWordBtn.style.display = 'none'; // ဒေတာထည့်ခွင့်ပိတ်
+    }
+});
+// Logout
+logoutBtn.addEventListener('click', () => {
+    signOut(auth);
+});
+//လော့အင် ဆ
 // SCREEN 1: MAIN SCREEN (Group -> SubGroup Accordion)//==============ဆ
 
 
