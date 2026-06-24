@@ -6,7 +6,7 @@
     <title>Login</title>
     <style>
         body { margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center; background: #f0f2f5; font-family: sans-serif; }
-       .profile { position: relative; }
+      .profile { position: relative; }
         #profile-btn { width: 72px; height: 72px; border-radius: 50%; border: 3px solid #4285f4; cursor: pointer; background: #fff; padding: 0; overflow: hidden; }
         #profile-btn img { width: 100%; height: 100%; object-fit: cover; }
         #dropdown { display: none; position: absolute; top: 85px; left: 50%; transform: translateX(-50%); background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: 180px; overflow: hidden; }
@@ -14,6 +14,7 @@
         #dropdown button { display: block; width: 100%; padding: 14px 16px; border: none; background: none; text-align: left; cursor: pointer; font-size: 15px; }
         #dropdown button:hover { background: #f2f2f2; }
         #info { margin-top: 16px; text-align: center; color: #444; font-size: 14px; }
+        #debug { position:fixed;bottom:0;left:0;right:0;max-height:30vh;overflow:auto;background:rgba(0,0,0,0.85);color:#0f0;font-size:11px;padding:8px;z-index:9999;font-family:monospace; }
     </style>
 </head>
 <body>
@@ -22,16 +23,27 @@
             <img id="profile-img" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="profile">
         </button>
         <div id="dropdown">
-            <button id="change-btn">အကောင့်ပြောင်းမယ်</button>
+            <button id="change-btn">အကောင့်ပြောင်း</button>
             <button id="logout-btn">ထွက်မယ်</button>
         </div>
         <div id="info">စစ်နေပါတယ်...</div>
     </div>
+    <div id="debug"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, collection, query, where, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// Debug ကို module ထဲမှာပဲထည့်
+const box = document.getElementById('debug');
+function dlog(msg){
+    const p = document.createElement('div');
+    p.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
+    box.appendChild(p);
+    box.scrollTop = box.scrollHeight;
+}
+dlog('App start');
 
 // မင်းရဲ့ config အမှန်ထည့်ပါ
 const firebaseConfig = {
@@ -42,6 +54,7 @@ const firebaseConfig = {
     messagingSenderId: "955711906003",
     appId: "1:955711906003:web:6d9b60bd4cdaa8a8953426"
 };
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -54,11 +67,16 @@ const dropdown = document.getElementById('dropdown');
 const info = document.getElementById('info');
 const defaultIcon = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-// 1. Redirect ကနေပြန်လာတာကို အရင်ဖမ်း
-getRedirectResult(auth).then(async (result) => {
-    if (result) {
+dlog('Firebase ready');
+
+// Redirect ဖမ်း - blocking မဖြစ်အောင် timeout ပါမယ်
+Promise.race([
+    getRedirectResult(auth),
+    new Promise(r => setTimeout(r, 2000))
+]).then(async (result) => {
+    if (result && result.user) {
+        dlog('Redirect user: ' + result.user.email);
         const user = result.user;
-        // Firestore ထဲစစ်/သွင်း
         const q = query(collection(db, "AllUserList"), where("Acc", "==", user.email));
         const snap = await getDocs(q);
         let aid = "";
@@ -74,74 +92,53 @@ getRedirectResult(auth).then(async (result) => {
         } else {
             aid = snap.docs[0].data().AID;
         }
-        // Local ထဲသိမ်း
         localStorage.setItem('AID', aid);
         localStorage.setItem('Acc', user.email);
         localStorage.setItem('Photo', user.photoURL);
         localStorage.setItem('Name', user.displayName);
+    } else {
+        dlog('No redirect');
     }
-});
+}).catch(e => dlog('Redirect err: ' + e));
 
-// 2. Login ဝင်ထား/မထား အမြဲနားထောင်
 onAuthStateChanged(auth, (user) => {
     if (user) {
         profileImg.src = user.photoURL || localStorage.getItem('Photo') || defaultIcon;
         info.innerText = localStorage.getItem('Name') || user.displayName;
+        dlog('Logged in: ' + user.email);
     } else {
         profileImg.src = defaultIcon;
-        info.innerText = "Login မဝင်ရသေးပါ ၁";
+        info.innerText = "နှိပ်ပြီး Login ဝင်ပါ";
         localStorage.clear();
+        dlog('No user');
     }
 });
 
-// 3. ခလုတ်နှိပ်ရင်
 profileBtn.onclick = () => {
     if (auth.currentUser) {
         dropdown.classList.toggle('show');
+        dlog('Show dropdown');
     } else {
+        dlog('Login start');
         signInWithRedirect(auth, provider);
     }
 };
 
-// 4. အကောင့်ပြောင်း
 document.getElementById('change-btn').onclick = () => {
+    dlog('Change account');
     signOut(auth).then(() => signInWithRedirect(auth, provider));
 };
 
-// 5. ထွက်မယ်
 document.getElementById('logout-btn').onclick = () => {
+    dlog('Logout');
     signOut(auth);
 };
 
-// 6. အပြင်နှိပ်ရင် dropdown ပိတ်
 document.addEventListener('click', (e) => {
     if (!profileBtn.contains(e.target) &&!dropdown.contains(e.target)) {
         dropdown.classList.remove('show');
     }
 });
-
-<div id="debug" style="position:fixed;bottom:0;left:0;right:0;max-height:40vh;overflow:auto;background:rgba(0,0,0,0.85);color:#0f0;font-size:11px;padding:8px;z-index:9999;font-family:monospace;display:none;"></div>
-
-<script>
-(function(){
-    const box = document.getElementById('debug');
-    function show(msg, isErr){
-        box.style.display = 'block';
-        const p = document.createElement('div');
-        p.style.color = isErr ? '#f55' : '#0f0';
-        p.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
-        box.appendChild(p);
-        box.scrollTop = box.scrollHeight;
-    }
-    console.log = function(...args){ show(args.join(' '), false); };
-    console.error = function(...args){ show('ERROR: ' + args.join(' '), true); };
-    console.warn = function(...args){ show('WARN: ' + args.join(' '), false); };
-    window.onerror = function(msg, src, line){ show(`ERROR: ${msg} at ${src}:${line}`, true); };
-    window.addEventListener('unhandledrejection', e => show('Promise ERROR: ' + e.reason, true));
-    
-    console.log('Debug box ready. ခလုတ်နှိပ်ကြည့်ပါ.');
-})();
-</script>
 </script>
 </body>
 </html>
