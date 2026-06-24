@@ -3,47 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login + User List</title>
     <style>
-        body { margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center; background: #f0f2f5; font-family: sans-serif; }
-      .profile { position: relative; }
+        body { margin: 0; font-family: sans-serif; background: #f0f2f5; padding: 20px; }
+        .wrap { max-width: 600px; margin: 0 auto; }
+        .profile { text-align: center; margin-bottom: 30px; }
         #profile-btn { width: 72px; height: 72px; border-radius: 50%; border: 3px solid #4285f4; cursor: pointer; background: #fff; padding: 0; overflow: hidden; }
         #profile-btn img { width: 100%; height: 100%; object-fit: cover; }
-        #dropdown { display: none; position: absolute; top: 85px; left: 50%; transform: translateX(-50%); background: white; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: 180px; overflow: hidden; }
-        #dropdown.show { display: block; }
-        #dropdown button { display: block; width: 100%; padding: 14px 16px; border: none; background: none; text-align: left; cursor: pointer; font-size: 15px; }
-        #dropdown button:hover { background: #f2f2f2; }
         #info { margin-top: 16px; text-align: center; color: #444; font-size: 14px; }
-        #debug { position:fixed;bottom:0;left:0;right:0;max-height:30vh;overflow:auto;background:rgba(0,0,0,0.85);color:#0f0;font-size:11px;padding:8px;z-index:9999;font-family:monospace; }
+        .list-box { background: white; border-radius: 8px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .list-box h3 { margin: 0 0 12px 0; font-size: 16px; }
+        .user-item { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #eee; }
+        .user-item:last-child { border-bottom: none; }
+        .user-item img { width: 36px; height: 36px; border-radius: 50%; }
+        .user-item .name { font-weight: 600; font-size: 14px; }
+        .user-item .email { font-size: 12px; color: #666; }
     </style>
 </head>
 <body>
-    <div class="profile">
-        <button id="profile-btn">
-            <img id="profile-img" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="profile">
-        </button>
-        <div id="dropdown">
-            <button id="change-btn">အကောင့်ပြောင်း</button>
-            <button id="logout-btn">ထွက်မယ်</button>
+    <div class="wrap">
+        <div class="profile">
+            <button id="profile-btn">
+                <img id="profile-img" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="profile">
+            </button>
+            <div id="info">စစ်နေပါတယ်...</div>
         </div>
-        <div id="info">စစ်နေပါတယ်...</div>
+
+        <div class="list-box">
+            <h3>Login ဝင်ထားသူများစာရင်း</h3>
+            <div id="user-list">Loading...</div>
+        </div>
     </div>
-    <div id="debug"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, collection, query, where, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-// Debug ကို module ထဲမှာပဲထည့်
-const box = document.getElementById('debug');
-function dlog(msg){
-    const p = document.createElement('div');
-    p.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
-    box.appendChild(p);
-    box.scrollTop = box.scrollHeight;
-}
-dlog('App start');
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, query, where, getDocs, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // မင်းရဲ့ config အမှန်ထည့်ပါ
 const firebaseConfig = {
@@ -63,82 +58,74 @@ provider.setCustomParameters({ prompt: 'select_account' });
 
 const profileBtn = document.getElementById('profile-btn');
 const profileImg = document.getElementById('profile-img');
-const dropdown = document.getElementById('dropdown');
 const info = document.getElementById('info');
+const userList = document.getElementById('user-list');
 const defaultIcon = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-dlog('Firebase ready');
-
-// Redirect ဖမ်း - blocking မဖြစ်အောင် timeout ပါမယ်
-Promise.race([
-    getRedirectResult(auth),
-    new Promise(r => setTimeout(r, 2000))
-]).then(async (result) => {
+// 1. Redirect ကနေပြန်လာတာကို ဖမ်း
+getRedirectResult(auth).then(async (result) => {
     if (result && result.user) {
-        dlog('Redirect user: ' + result.user.email);
         const user = result.user;
         const q = query(collection(db, "AllUserList"), where("Acc", "==", user.email));
         const snap = await getDocs(q);
-        let aid = "";
         if (snap.empty) {
             const now = new Date();
             const newAID = `A-${user.uid.slice(0,7)}`;
             await addDoc(collection(db, "AllUserList"), {
-                Year: now.getFullYear()+"", Month: ("0"+(now.getMonth()+1)).slice(-2),
-                AID: newAID, GID: "", Name: user.displayName, Acc: user.email,
-                Time: now.toISOString().slice(0,10), Role: "Viewer", createdAt: now
+                Year: now.getFullYear()+"", 
+                Month: ("0"+(now.getMonth()+1)).slice(-2),
+                AID: newAID, 
+                GID: "", 
+                Name: user.displayName, 
+                Acc: user.email,
+                Photo: user.photoURL,
+                Time: now.toISOString().slice(0,10), 
+                Role: "Viewer", 
+                createdAt: now
             });
-            aid = newAID;
-        } else {
-            aid = snap.docs[0].data().AID;
         }
-        localStorage.setItem('AID', aid);
-        localStorage.setItem('Acc', user.email);
-        localStorage.setItem('Photo', user.photoURL);
-        localStorage.setItem('Name', user.displayName);
-    } else {
-        dlog('No redirect');
     }
-}).catch(e => dlog('Redirect err: ' + e));
+}).catch(e => console.log('Redirect err:', e));
 
+// 2. Login အခြေအနေနားထောင်
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        profileImg.src = user.photoURL || localStorage.getItem('Photo') || defaultIcon;
-        info.innerText = localStorage.getItem('Name') || user.displayName;
-        dlog('Logged in: ' + user.email);
+        profileImg.src = user.photoURL || defaultIcon;
+        info.innerText = user.displayName;
     } else {
         profileImg.src = defaultIcon;
         info.innerText = "နှိပ်ပြီး Login ဝင်ပါ";
-        localStorage.clear();
-        dlog('No user');
     }
 });
 
+// 3. Login ဝင်ပြီးသူစာရင်းကို Realtime ဆွဲပြ
+onSnapshot(collection(db, "AllUserList"), (snapshot) => {
+    userList.innerHTML = "";
+    if (snapshot.empty) {
+        userList.innerHTML = "ဘယ်သူမှမဝင်ရသေးပါ";
+        return;
+    }
+    snapshot.forEach((doc) => {
+        const d = doc.data();
+        const div = document.createElement('div');
+        div.className = 'user-item';
+        div.innerHTML = `
+            <img src="${d.Photo || defaultIcon}" alt="">
+            <div>
+                <div class="name">${d.Name || 'Unknown'}</div>
+                <div class="email">${d.Acc}</div>
+            </div>
+        `;
+        userList.appendChild(div);
+    });
+});
+
+// 4. ခလုတ်နှိပ်ရင် Login ဝင်
 profileBtn.onclick = () => {
-    if (auth.currentUser) {
-        dropdown.classList.toggle('show');
-        dlog('Show dropdown');
-    } else {
-        dlog('Login start');
+    if (!auth.currentUser) {
         signInWithRedirect(auth, provider);
     }
 };
-
-document.getElementById('change-btn').onclick = () => {
-    dlog('Change account');
-    signOut(auth).then(() => signInWithRedirect(auth, provider));
-};
-
-document.getElementById('logout-btn').onclick = () => {
-    dlog('Logout');
-    signOut(auth);
-};
-
-document.addEventListener('click', (e) => {
-    if (!profileBtn.contains(e.target) &&!dropdown.contains(e.target)) {
-        dropdown.classList.remove('show');
-    }
-});
 </script>
 </body>
 </html>
