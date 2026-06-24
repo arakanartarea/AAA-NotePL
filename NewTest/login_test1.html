@@ -119,6 +119,29 @@ document.addEventListener('click', (e) => {
         dropdown.classList.remove('show');
     }
 });
+
+<div id="debug" style="position:fixed;bottom:0;left:0;right:0;max-height:40vh;overflow:auto;background:rgba(0,0,0,0.85);color:#0f0;font-size:11px;padding:8px;z-index:9999;font-family:monospace;display:none;"></div>
+
+
+(function(){
+    const box = document.getElementById('debug');
+    function show(msg, isErr){
+        box.style.display = 'block';
+        const p = document.createElement('div');
+        p.style.color = isErr ? '#f55' : '#0f0';
+        p.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
+        box.appendChild(p);
+        box.scrollTop = box.scrollHeight;
+    }
+    console.log = function(...args){ show(args.join(' '), false); };
+    console.error = function(...args){ show('ERROR: ' + args.join(' '), true); };
+    console.warn = function(...args){ show('WARN: ' + args.join(' '), false); };
+    window.onerror = function(msg, src, line){ show(`ERROR: ${msg} at ${src}:${line}`, true); };
+    window.addEventListener('unhandledrejection', e => show('Promise ERROR: ' + e.reason, true));
+    
+    console.log('Debug box ready. ခလုတ်နှိပ်ကြည့်ပါ.');
+})();
+
 </script>
 </body>
 </html>
