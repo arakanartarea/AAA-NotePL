@@ -5,43 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: #f5f5f5;
-            font-family: sans-serif;
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f5f5f5; font-family: sans-serif; }
+        .profile-box { position: relative; }
+        #profile-btn {
+            width: 60px; height: 60px; border-radius: 50%; border: 3px solid #4285f4;
+            cursor: pointer; background: #ddd; padding: 0; overflow: hidden;
         }
-        #google-login-btn {
-            padding: 15px 30px;
-            font-size: 18px;
-            background: #4285f4;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
+        #profile-btn img { width: 100%; height: 100%; object-fit: cover; }
+        .dropdown {
+            display: none; position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
+            background: white; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            min-width: 150px; z-index: 100;
         }
-        #status {
-            margin-top: 20px;
-            text-align: center;
-            color: #605639;
+        .dropdown.show { display: block; }
+        .dropdown button {
+            display: block; width: 100%; padding: 12px; border: none; background: none;
+            text-align: left; cursor: pointer; font-size: 14px;
         }
+        .dropdown button:hover { background: #f1f1f1; }
+        #status { margin-top: 15px; color: #605639; font-size: 14px; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div>
-        <button id="google-login-btn">Google နဲ့ဝင်မယ်</button>
-        <div id="status"></div>
+    <div class="profile-box">
+        <button id="profile-btn">
+            <img id="profile-img" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="User">
+        </button>
+        <div id="dropdown-menu" class="dropdown">
+            <button id="change-acc-btn">အကောင့်ပြောင်းမယ်</button>
+            <button id="logout-btn">ထွက်မယ်</button>
+        </div>
+        <div id="status">စစ်ဆေးနေပါတယ်...</div>
     </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, query, where, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyC7N9_TNTp_aThC_olEDyMcEo2pAhOFEGI",
@@ -51,73 +52,106 @@ const firebaseConfig = {
     messagingSenderId: "955711906003",
     appId: "1:955711906003:web:6d9b60bd4cdaa8a8953426"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: 'select_account' }); // အမြဲအကောင့်ရွေးခိုင်းမယ်
 
-const loginBtn = document.getElementById('google-login-btn');
+const profileBtn = document.getElementById('profile-btn');
+const profileImg = document.getElementById('profile-img');
+const dropdown = document.getElementById('dropdown-menu');
 const statusDiv = document.getElementById('status');
+const changeAccBtn = document.getElementById('change-acc-btn');
+const logoutBtn = document.getElementById('logout-btn');
 
-// ၁။ ခလုတ်နှိပ်ရင် Redirect နဲ့ဝင်
-loginBtn.addEventListener('click', () => {
-    statusDiv.innerText = "Google စာမျက်နှာကို ပို့နေပါတယ်...";
-    signInWithRedirect(auth, provider);
-});
+const defaultIcon = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-// ၂။ Redirect ပြန်လာတဲ့အချိန် ရလဒ်ဖမ်း
+// ၁။ စာမျက်နှာဖွင့်တာနဲ့ Redirect ရလဒ်ကို အရင်ဆုံးဖမ်း
 getRedirectResult(auth).then(async (result) => {
     if (result) {
-        // ဒီအပိုင်းက onAuthStateChanged ထဲမှာလုပ်ပြီးသားမို့ ဘာမှထပ်မလုပ်ဘူး
-        console.log("Redirect ကနေပြန်လာပြီ");
+        const user = result.user;
+        await handleUserLogin(user);
     }
 }).catch((error) => {
-    statusDiv.innerText = "Login မအောင်မြင်ပါ: " + error.code;
-    console.error(error);
+    statusDiv.innerText = "Error: " + error.code;
+}).finally(() => {
+    // Redirect မဟုတ်ရင်လည်း လက်ရှိ auth state ကိုစစ်
+    updateUI(auth.currentUser);
 });
 
-// ၃။ Login အခြေအနေ စောင့်ကြည့်
-onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        statusDiv.innerText = "အကောင့်စစ်နေပါတယ်...";
-        loginBtn.innerText = "ထွက်မယ်";
-        loginBtn.onclick = () => signOut(auth);
-
-        // AllUserList ထဲရှိမရှိစစ်
-        const q = query(collection(db, "AllUserList"), where("Acc", "==", user.email));
-        const snapshot = await getDocs(q);
-
-        let currentAID = "";
-
-        if (snapshot.empty) {
-            const now = new Date();
-            const newUser = {
-                Year: now.getFullYear().toString(),
-                Month: (now.getMonth() + 1).toString().padStart(2, '0'),
-                AID: `A-${user.uid.substring(0, 7)}`,
-                GID: "",
-                Name: user.displayName || "No Name",
-                Acc: user.email,
-                Time: now.toISOString().substring(0, 10),
-                Role: "Viewer",
-                createdAt: now
-            };
-            await addDoc(collection(db, "AllUserList"), newUser);
-            currentAID = newUser.AID;
-            statusDiv.innerText = `အကောင့်အသစ် ထည့်ပြီးပြီ: ${currentAID}`;
-        } else {
-            currentAID = snapshot.docs[0].data().AID;
-            statusDiv.innerText = `ပြန်လည်ကြိုဆိုပါတယ်: ${currentAID}`;
-        }
-
-        localStorage.setItem('AID', currentAID);
-
+// ၂။ User ဝင်လာရင် စာရင်းသွင်း/စစ်
+async function handleUserLogin(user) {
+    statusDiv.innerText = "အကောင့်စစ်ဆေးနေပါတယ်...";
+    
+    const q = query(collection(db, "AllUserList"), where("Acc", "==", user.email));
+    const snapshot = await getDocs(q);
+    
+    let currentAID = "";
+    if (snapshot.empty) {
+        const now = new Date();
+        const newUser = {
+            Year: now.getFullYear().toString(),
+            Month: (now.getMonth() + 1).toString().padStart(2, '0'),
+            AID: `A-${user.uid.substring(0, 7)}`,
+            GID: "", Name: user.displayName || "No Name", Acc: user.email,
+            Time: now.toISOString().substring(0, 10), Role: "Viewer", createdAt: now
+        };
+        await addDoc(collection(db, "AllUserList"), newUser);
+        currentAID = newUser.AID;
     } else {
-        localStorage.removeItem('AID');
-        statusDiv.innerText = "";
-        loginBtn.innerText = "Google နဲ့ဝင်မယ်";
-        loginBtn.onclick = () => signInWithRedirect(auth, provider);
+        currentAID = snapshot.docs[0].data().AID;
+    }
+    
+    localStorage.setItem('AID', currentAID);
+    localStorage.setItem('Acc', user.email);
+    localStorage.setItem('Photo', user.photoURL);
+    updateUI(user);
+}
+
+// ၃။ UI ပြင်မယ်
+function updateUI(user) {
+    if (user) {
+        profileImg.src = user.photoURL || defaultIcon;
+        statusDiv.innerText = `AID: ${localStorage.getItem('AID')}`;
+    } else {
+        profileImg.src = defaultIcon;
+        statusDiv.innerText = "Login မဝင်ရသေးပါ";
+        localStorage.clear();
+    }
+}
+
+// ၄။ ပုံခလုတ်နှိပ်ရင်
+profileBtn.addEventListener('click', () => {
+    if (auth.currentUser) {
+        // ဝင်ထားရင် dropdown ပြမယ်
+        dropdown.classList.toggle('show');
+    } else {
+        // မဝင်ထားရင် Login လုပ်
+        signInWithRedirect(auth, provider);
+    }
+});
+
+// ၅။ အကောင့်ပြောင်းမယ်
+changeAccBtn.addEventListener('click', () => {
+    signOut(auth).then(() => {
+        localStorage.clear();
+        signInWithRedirect(auth, provider); // ချက်ချင်း အကောင့်ပြန်ရွေးခိုင်း
+    });
+});
+
+// ၆။ ထွက်မယ်
+logoutBtn.addEventListener('click', () => {
+    signOut(auth).then(() => {
+        localStorage.clear();
+        location.reload();
+    });
+});
+
+// Dropdown အပြင်နှိပ်ရင် ပိတ်
+document.addEventListener('click', (e) => {
+    if (!profileBtn.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('show');
     }
 });
 </script>
