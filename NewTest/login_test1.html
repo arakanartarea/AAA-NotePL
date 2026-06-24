@@ -1,120 +1,126 @@
 <!DOCTYPE html>
-<html>
+<html lang="my">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Card</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background: #f5f5f5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    .box {
-      background: white;
-      padding: 40px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      text-align: center;
-      width: 320px;
-    }
-    #googleLoginBtn {
-      background: #4285f4;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      width: 100%;
-    }
-    .card {
-      margin-top: 20px;
-      padding: 16px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      text-align: left;
-      background: #fafafa;
-      display: none;
-    }
-    .card p {
-      margin: 8px 0;
-      font-size: 14px;
-    }
-    .label {
-      font-weight: bold;
-      color: #555;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #f5f5f5;
+            font-family: sans-serif;
+        }
+        #google-login-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #status {
+            margin-top: 20px;
+            text-align: center;
+            color: #605639;
+        }
+    </style>
 </head>
 <body>
-  <div class="box">
-    <button id="googleLoginBtn">Google အကောင့်ရွေးမယ်</button>
-    
-    <div id="userCard" class="card">
-      <p><span class="label">Aid:</span> <span id="vAid"></span></p>
-      <p><span class="label">GID:</span> <span id="vGid"></span></p>
-      <p><span class="label">Name:</span> <span id="vName"></span></p>
-      <p><span class="label">Account:</span> <span id="vAccount"></span></p>
-      <p><span class="label">Time:</span> <span id="vTime"></span></p>
-      <p><span class="label">Role:</span> <span id="vRole"></span></p>
+
+    <div>
+        <button id="google-login-btn">Google နဲ့ဝင်မယ်</button>
+        <div id="status"></div>
     </div>
-  </div>
 
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-  <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U",
-        authDomain: "arakanartarea-note.firebaseapp.com",
-        projectId: "arakanartarea-note",
-        storageBucket: "arakanartarea-note.firebasestorage.app",
-        messagingSenderId: "695659736666",
-        
-        appId: "1:695659736666:web:1e76494c0e6819609bf263",
-        measurementId: "G-Y9Y5SK15M9"
+const firebaseConfig = {
+    apiKey: "AIzaSyC7N9_TNTp_aThC_olEDyMcEo2pAhOFEGI",
+    authDomain: "arakanese-dictionary.firebaseapp.com",
+    projectId: "arakanese-dictionary",
+    storageBucket: "arakanese-dictionary.firebasestorage.app",
+    messagingSenderId: "955711906003",
+    appId: "1:955711906003:web:6d9b60bd4cdaa8a8953426"
 };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const provider = new firebase.auth.GoogleAuthProvider();
 
-  const btn = document.getElementById("googleLoginBtn");
-  const card = document.getElementById("userCard");
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-  // Page ပြန်လာရင် အကောင့်ရထားလား စစ်
-  auth.getRedirectResult().then((result) => {
-    if (result.user) {
-      showUserCard(result.user);
+const loginBtn = document.getElementById('google-login-btn');
+const statusDiv = document.getElementById('status');
+
+// ၁။ ခလုတ်နှိပ်ရင် Redirect နဲ့ဝင်
+loginBtn.addEventListener('click', () => {
+    statusDiv.innerText = "Google စာမျက်နှာကို ပို့နေပါတယ်...";
+    signInWithRedirect(auth, provider);
+});
+
+// ၂။ Redirect ပြန်လာတဲ့အချိန် ရလဒ်ဖမ်း
+getRedirectResult(auth).then(async (result) => {
+    if (result) {
+        // ဒီအပိုင်းက onAuthStateChanged ထဲမှာလုပ်ပြီးသားမို့ ဘာမှထပ်မလုပ်ဘူး
+        console.log("Redirect ကနေပြန်လာပြီ");
     }
-  }).catch((error) => {
-    alert("မှားနေတယ်: " + error.message);
-  });
+}).catch((error) => {
+    statusDiv.innerText = "Login မအောင်မြင်ပါ: " + error.code;
+    console.error(error);
+});
 
-  // ခလုတ်နှိပ်ရင် redirect နဲ့သွား
-  btn.onclick = () => {
-    auth.signInWithRedirect(provider);
-  };
+// ၃။ Login အခြေအနေ စောင့်ကြည့်
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        statusDiv.innerText = "အကောင့်စစ်နေပါတယ်...";
+        loginBtn.innerText = "ထွက်မယ်";
+        loginBtn.onclick = () => signOut(auth);
 
-  function showUserCard(user) {
-    const num = Math.floor(1000000 + Math.random() * 9000000);
-    const aid = "A-" + num;
+        // AllUserList ထဲရှိမရှိစစ်
+        const q = query(collection(db, "AllUserList"), where("Acc", "==", user.email));
+        const snapshot = await getDocs(q);
 
-    document.getElementById("vAid").textContent = aid;
-    document.getElementById("vGid").textContent = user.uid;
-    document.getElementById("vName").textContent = user.displayName;
-    document.getElementById("vAccount").textContent = user.email;
-    document.getElementById("vTime").textContent = new Date().toLocaleString("en-GB");
-    document.getElementById("vRole").textContent = "viewer";
+        let currentAID = "";
 
-    card.style.display = "block";
-    btn.style.display = "none";
-  }
+        if (snapshot.empty) {
+            const now = new Date();
+            const newUser = {
+                Year: now.getFullYear().toString(),
+                Month: (now.getMonth() + 1).toString().padStart(2, '0'),
+                AID: `A-${user.uid.substring(0, 7)}`,
+                GID: "",
+                Name: user.displayName || "No Name",
+                Acc: user.email,
+                Time: now.toISOString().substring(0, 10),
+                Role: "Viewer",
+                createdAt: now
+            };
+            await addDoc(collection(db, "AllUserList"), newUser);
+            currentAID = newUser.AID;
+            statusDiv.innerText = `အကောင့်အသစ် ထည့်ပြီးပြီ: ${currentAID}`;
+        } else {
+            currentAID = snapshot.docs[0].data().AID;
+            statusDiv.innerText = `ပြန်လည်ကြိုဆိုပါတယ်: ${currentAID}`;
+        }
 
-  </script>
+        localStorage.setItem('AID', currentAID);
+
+    } else {
+        localStorage.removeItem('AID');
+        statusDiv.innerText = "";
+        loginBtn.innerText = "Google နဲ့ဝင်မယ်";
+        loginBtn.onclick = () => signInWithRedirect(auth, provider);
+    }
+});
+</script>
+
 </body>
 </html>
