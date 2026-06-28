@@ -74,6 +74,10 @@
       margin-top: 15px;
     }
   </style>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithRedirect, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+</script>
 </head>
 <body>
   <div class="container">
@@ -100,6 +104,20 @@
     // 1. ဒီ VERSION ကို ပြင်မှ Version ပြောင်းမယ် - အစစ်ပဲ
     const APP_VERSION = 'v1.0.3';
     
+    // Firebase Config - ကိုကို့ဟာနဲ့အစားထိုး
+const firebaseConfig = {
+  apiKey: "AIzaSyC7N9_TNTp_aThC_olEDyMcEo2pAhOFEGI",
+  authDomain: "arakanese-dictionary.firebaseapp.com",
+  projectId: "arakanese-dictionary",
+  storageBucket: "arakanese-dictionary.firebasestorage.app",
+  messagingSenderId: "955711906003",
+  appId: "1:955711906003:web:6d9b60bd4cdaa8a8953426"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+
     // 2. Page Load Time + Version ပြမယ်
     function initApp() {
       document.getElementById('js-version').innerText = APP_VERSION;
@@ -108,12 +126,32 @@
       
       console.log('App Version:', APP_VERSION);
       console.log('Cache Bust:', new Date().getTime());
+      // Login State နားထောင်မယ်
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // Continue နှိပ်ပြီးရင် ဒီရောက်မယ် - အချက် 6 ချက် သိမ်း
+    localStorage.setItem('GID', user.uid);
+    localStorage.setItem('Name', user.displayName || '');
+    localStorage.setItem('Email', user.email || '');
+    localStorage.setItem('Photo', user.photoURL || '');
+    localStorage.setItem('LoginTime', new Date().toLocaleString());
+    localStorage.setItem('Provider', 'Google');
+    
+    console.log('အချက်အလက် 6 ခု Local မှာ သိမ်းပြီးပြီ');
+    document.getElementById('textView').innerHTML += '<br>Login ဝင်ပြီးပါပြီ: ' + user.displayName;
+  }
+});
+
+// Image Button နှိပ်ရင် Google Login ခေါ်
+document.getElementById('image-btn').addEventListener('click', () => {
+  signInWithRedirect(auth, provider);
+});
     }
     
-    // 3. Image Button နှိပ်ရင်
-    document.getElementById('image-btn').addEventListener('click', () => {
-      alert('JS Version: ' + APP_VERSION + '\nTimestamp: ' + new Date().getTime());
-    });
+// 3. Image Button နှိပ်ရင်
+document.getElementById('image-btn').addEventListener('click', () => {
+  alert('JS Version: ' + APP_VERSION + '\nTimestamp: ' + new Date().getTime());
+});
     
     // 4. GitHub Pages Cache Bust: HTML ကိုယ်တိုင်ကို Query နဲ့ခေါ်ခိုင်းတာ
     // URL မှာ ?t= မပါရင် auto reload လုပ်
