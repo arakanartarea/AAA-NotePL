@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arakan Songs Admin</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: "Pyidaungsu", sans-serif; background: #1a1a1a; color: #eee; margin: 0; padding: 10px; }
+    h1 { color: #4fc3f7; text-align: center; }
+    input, textarea, button { font-family: inherit; font-size: 14px; }
+    input, textarea { width: 100%; padding: 8px; margin: 5px 0; background: #333; border: 1px solid #555; color: #fff; border-radius: 4px; }
+    textarea { min-height: 300px; font-family: monospace; }
+    button { background: #1976D2; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; margin: 5px 2px; }
+    button:hover { background: #1565C0; }
+    button.danger { background: #d32f2f; }
+    button.success { background: #388e3c; }
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+  .singer-group { margin: 10px 0; border: 1px solid #444; border-radius: 4px; }
+  .singer-header { background: #2a2a2a; padding: 10px; cursor: pointer; font-weight: bold; color: #ffd54f; }
+  .song-list { display: none; padding: 5px 10px; }
+  .song-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #333; }
+  .song-item:hover { background: #2a2a2a; }
+  .edit-form { display: none; background: #222; padding: 15px; border-radius: 8px; margin-top: 20px; }
+  .form-row { display: flex; gap: 10px; }
+  .form-row > div { flex: 1; }
+  .label { color: #aaa; font-size: 12px; margin-top: 10px; }
+   #status { padding: 10px; text-align: center; font-weight: bold; }
+  .success { color: #4caf50; }
+  .error { color: #f44336; }
+  .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<h1>ရက္ခိုင် သီချင်းများ Admin</h1>
+
+<div id="config">
+  <div class="label">GitHub Token (repo scope ပါရမယ်)</div>
+  <input id="token" type="password" placeholder="ghp_xxxxxxxxxx">
+
+  <div class="label">GitHub Repo - owner/repo</div>
+  <input id="repo" type="text" placeholder="username/arakan-songs" value="">
+
+  <div class="label">JSON File Path</div>
+  <input id="filepath" type="text" value="arakan-songs-chord.json">
+
+  <button onclick="loadSongs()">GitHub နဲ့ချိတ်ပြီး သီချင်းတွေခေါ်</button>
+  <div id="status"></div>
+</div>
+
+<div id="main" class="hidden">
+  <div class="toolbar">
+    <button onclick="showNewForm()" class="success">+ New Song</button>
+    <input id="search" type="text" placeholder="တေးဆို၊ တေးရေး၊ တေးအမည် ရှာရန်..." oninput="renderList()">
+  </div>
+
+  <div id="song-container"></div>
+
+  <!-- New/Edit Form -->
+  <div id="edit-form" class="edit-form">
+    <h2 id="form-title">သီချင်းအသစ်</h2>
+    <input type="hidden" id="song-id">
+
+    <div class="form-row">
+      <div><div class="label">သီချင်းအမည်</div><input id="title"></div>
+      <div><div class="label">Key</div><input id="key" placeholder="E"></div>
+    </div>
+
+    <div class="form-row">
+      <div><div class="label">တေးရေး</div><input id="composer"></div>
+      <div><div class="label">တေးဆို</div><input id="singer"></div>
+    </div>
+
+    <div class="form-row">
+      <div><div class="label">BPM</div><input id="bpm" type="number" value="95"></div>
+      <div><div class="label">Map</div><input id="map" placeholder="Verse 1,Chorus,Verse 2"></div>
+    </div>
+
+    <div class="label">Lyrics - [E4]သွီးစစ်စစ် ပုံစံရေးပါ။ Enter 2 ခါ = အပိုဒ်သစ်</div>
+    <textarea id="lyrics" placeholder="===VERSE 1===&#10;[E2]သွီးစစ်စစ် [B2]သမိုင်း...&#10;&#10;===CHORUS===&#10;[E2]စစ်ပွဲတစ်ရာ..."></textarea>
+
+    <button onclick="saveSong()" class="success">Save to GitHub</button>
+    <button onclick="cancelEdit()">Cancel</button>
+  </div>
+</div>
+
+<script>
+let allSongs = [];
+let currentSha = '';
+let config = {};
+
+function setStatus(msg, isError = false) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = isError? 'error' : 'success';
+}
+
+async function loadSongs() {
+  config.token = document.getElementById('token').value.trim();
+  config.repo = document.getElementById('repo').value.trim();
+  config.filepath = document.getElementById('filepath').value.trim();
+
+  if (!config.token ||!config.repo) {
+    setStatus('Token နဲ့ Repo ဖြည့်ပါ', true);
+    return;
+  }
+
+  setStatus('GitHub ကနေ ဖတ်နေသည်...');
+  try {
+    const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/${config.filepath}`, {
+      headers: { 'Authorization': `token ${config.token}` }
+    });
+    if (!res.ok) throw new Error('File မတွေ့ပါ။ GitHub မှာ [] နဲ့ အလွတ်ဖိုင်ဆောက်ထားခဲ့ပါ');
+
+    const data = await res.json();
+    currentSha = data.sha;
+    allSongs = JSON.parse(atob(data.content) || '[]');
+
+    document.getElementById('config').classList.add('hidden');
+    document.getElementById('main').classList.remove('hidden');
+    renderList();
+    setStatus(`သီချင်း ${allSongs.length} ပုဒ် တွေ့သည်`);
+  } catch (e) {
+    setStatus('Error: ' + e.message, true);
+  }
+}
+
+function renderList() {
+  const search = document.getElementById('search').value.toLowerCase();
+  const container = document.getElementById('song-container');
+
+  // 1. Search
+  let filtered = allSongs.filter(s =>
+    s.title.toLowerCase().includes(search) ||
+    s.singer.toLowerCase().includes(search) ||
+    s.composer.toLowerCase().includes(search)
+  );
+
+  // 2. Group by Singer
+  const groups = {};
+  filtered.forEach(s => {
+    if (!groups[s.singer]) groups[s.singer] = [];
+    groups[s.singer].push(s);
+  });
+
+  // 3. Sort A-Z
+  const sortedSingers = Object.keys(groups).sort();
+
+  // 4. Render
+  container.innerHTML = '';
+  sortedSingers.forEach(singer => {
+    const groupDiv = document.createElement('div');
+    groupDiv.className = 'singer-group';
+    groupDiv.innerHTML = `
+      <div class="singer-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'block'? 'none' : 'block'">
+        ${singer} (${groups[singer].length} ပုဒ်)
+      </div>
+      <div class="song-list">
+        ${groups[singer].map(s => `
+          <div class="song-item">
+            <span>${s.title}</span>
+            <div>
+              <button onclick="viewSong(${s.id})">View</button>
+              <button onclick="editSong(${s.id})">Edit</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(groupDiv);
+  });
+}
+
+function showNewForm() {
+  document.getElementById('form-title').textContent = 'သီချင်းအသစ်';
+  document.getElementById('song-id').value = '';
+  document.getElementById('edit-form').querySelectorAll('input,textarea').forEach(el => el.value = '');
+  document.getElementById('bpm').value = 95;
+  document.getElementById('edit-form').style.display = 'block';
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+function editSong(id) {
+  const song = allSongs.find(s => s.id === id);
+  if (!song) return;
+
+  document.getElementById('form-title').textContent = 'သီချင်းပြင်ဆင်ရန်';
+  document.getElementById('song-id').value = song.id;
+  document.getElementById('title').value = song.title;
+  document.getElementById('composer').value = song.composer;
+  document.getElementById('singer').value = song.singer;
+  document.getElementById('key').value = song.key;
+  document.getElementById('bpm').value = song.bpm;
+  document.getElementById('map').value = song.map.join(',');
+
+  // Lyrics ကို raw အတိုင်းပြန်ထုတ်မယ်
+  let lyricsText = '';
+  song.sections.forEach(sec => {
+    lyricsText += `===${sec.name}===\n`;
+    sec.lines.forEach(line => {
+      lyricsText += line.raw + '\n';
+    });
+    lyricsText += '\n';
+  });
+  document.getElementById('lyrics').value = lyricsText.trim();
+  document.getElementById('edit-form').style.display = 'block';
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+function viewSong(id) {
+  window.open(`view.html?id=${id}`, '_blank');
+}
+
+function cancelEdit() {
+  document.getElementById('edit-form').style.display = 'none';
+}
+
+function parseLyrics(text) {
+  const sections = [];
+  const blocks = text.split(/\n\s*\n/); // Enter 2 ခါ နဲ့ခွဲ
+
+  blocks.forEach(block => {
+    const lines = block.trim().split('\n');
+    if (lines.length === 0) return;
+
+    const nameMatch = lines[0].match(/^===(.+)===/);
+    if (!nameMatch) return;
+
+    const section = { name: nameMatch[1], lines: [] };
+
+    lines.slice(1).forEach(lineText => {
+      if (!lineText.trim()) return;
+
+      const chords = [];
+      const text = lineText.replace(/\[([A-G][#b]?)(\d+)\]/g, (match, chord, beats, offset) => {
+        chords.push({ chord, beats: parseInt(beats), pos: offset - (match.length * chords.length) });
+        return '';
+      });
+
+      section.lines.push({
+        raw: lineText,
+        text: text.trim(),
+        chords: chords
+      });
+    });
+    sections.push(section);
+  });
+  return sections;
+}
+
+async function saveSong() {
+  const id = document.getElementById('song-id').value;
+  const songData = {
+    id: id? parseInt(id) : Date.now(),
+    title: document.getElementById('title').value,
+    composer: document.getElementById('composer').value,
+    singer: document.getElementById('singer').value,
+    key: document.getElementById('key').value,
+    bpm: parseInt(document.getElementById('bpm').value),
+    map: document.getElementById('map').value.split(',').map(s => s.trim()),
+    sections: parseLyrics(document.getElementById('lyrics').value)
+  };
+
+  if (!songData.title) {
+    alert('သီချင်းအမည် ဖြည့်ပါ');
+    return;
+  }
+
+  // Update or Add
+  if (id) {
+    const index = allSongs.findIndex(s => s.id == id);
+    allSongs[index] = songData;
+  } else {
+    allSongs.push(songData);
+  }
+
+  setStatus('GitHub ကို တင်နေသည်...');
+  try {
+    const res = await fetch(`https://api.github.com/repos/${config.repo}/contents/${config.filepath}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${config.token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        message: `Update song: ${songData.title}`,
+        content: btoa(unescape(encodeURIComponent(JSON.stringify(allSongs, null, 2)))),
+        sha: currentSha
+      })
+    });
+
+    if (!res.ok) throw new Error('GitHub တင်မရပါ');
+    const data = await res.json();
+    currentSha = data.content.sha; // SHA အသစ်ယူ
+
+    setStatus('အောင်မြင်ပါသည်!');
+    cancelEdit();
+    renderList();
+  } catch (e) {
+    setStatus('Error: ' + e.message, true);
+  }
+}
+</script>
+</body>
+</html>
