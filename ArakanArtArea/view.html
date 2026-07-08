@@ -2,137 +2,162 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>View Song</title>
+  <title>Arakan Songs</title>
   <style>
+    * { box-sizing: border-box; }
     body {
       background-color: #1f1f1f;
       font-family: "Pyidaungsu", "Myanmar Text", sans-serif;
       margin: 0;
-      padding: 0;
+      padding: 10px;
+      color: #eee;
       font-size: 1.1rem;
-      line-height: 1.4rem;
-      transition: background-color 0.3s, color 0.3s;
     }
-  .dark-mode {
-      background-color: #f0f0f0;
-      color: #000000;
+ .dark-mode { background-color: #f0f0f0; color: #000; }
+    h1 { text-align: center; color: #4fc3f7; font-size: 1.5rem; margin: 10px 0 20px 0; }
+ .dark-mode h1 { color: #1976D2; }
+
+ .toolbar {
+      position: sticky;
+      top: 0;
+      background: #1f1f1f;
+      padding: 10px 0;
+      z-index: 100;
     }
-  .container {
-      max-width: 800px;
-      margin: auto;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      font-size: 1.5rem;
+ .dark-mode.toolbar { background: #f0f0f0; }
+ .toolbar input {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #555;
+      background: #333;
       color: #fff;
     }
-  .dark-mode h1 { color: #000; }
-  .controls {
+ .dark-mode.toolbar input { background: #fff; color: #000; border: 1px solid #ccc; }
+
+ .singer-group { margin: 15px 0; border: 1px solid #444; border-radius: 8px; overflow: hidden; }
+ .dark-mode.singer-group { border: 1px solid #ccc; }
+ .singer-header {
+      background: #2a2a2a;
+      padding: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      color: #ffd54f;
+      font-size: 1.1rem;
+    }
+ .dark-mode.singer-header { background: #e0e0e0; color: #f57c00; }
+ .song-list { display: none; }
+ .song-item {
+      padding: 12px;
+      border-top: 1px solid #333;
+      cursor: pointer;
+    }
+ .dark-mode.song-item { border-top: 1px solid #ddd; }
+ .song-item:hover { background: #2a2a2a; }
+ .dark-mode.song-item:hover { background: #e8e8e8; }
+ .song-title { font-weight: bold; }
+ .song-composer { font-size: 0.8rem; color: #aaa; }
+ .dark-mode.song-composer { color: #666; }
+
+    /* သီချင်းဖွင့်ပြတဲ့အပိုင်း */
+ .song-viewer {
+      display: none;
       position: fixed;
-      top: 10px;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #1f1f1f;
+      z-index: 1000;
+      overflow-y: auto;
+    }
+ .dark-mode.song-viewer { background: #f0f0f0; }
+
+ .viewer-header {
+      position: sticky;
+      top: 0;
+      background: rgba(0,0,0,0.9);
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1001;
+    }
+ .dark-mode.viewer-header { background: rgba(255,255,255,0.9); }
+ .back-btn {
+      background: #d32f2f;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+ .controls {
+      position: fixed;
+      top: 50px;
       right: 10px;
       background-color: rgba(0, 0, 0, 0.8);
       padding: 10px;
       border-radius: 10px;
-      z-index: 1000;
+      z-index: 1002;
       display: flex;
       flex-direction: column;
       gap: 5px;
     }
-  .dark-mode.controls {
-      background-color: rgba(255, 255, 255, 0.8);
-      color: #000;
+ .dark-mode.controls { background-color: rgba(255, 255, 255, 0.8); color: #000; }
+ .controls label,.controls span { font-size: 0.9rem; color: #fff; }
+ .dark-mode.controls label,.dark-mode.controls span { color: #000; }
+ .controls input { width: 50px; margin: 5px 0; }
+ .controls button {
+      padding: 5px; margin: 2px 0; font-size: 0.9rem; cursor: pointer;
+      border: none; border-radius: 5px; background-color: #4CAF50; color: white;
     }
-  .controls label,.controls span { font-size: 0.9rem; color: #fff; }
-  .dark-mode.controls label,.dark-mode.controls span { color: #000; }
-  .controls input { width: 50px; margin: 5px 0; }
-  .controls button {
-      padding: 5px;
-      margin: 2px 0;
-      font-size: 0.9rem;
-      cursor: pointer;
-      border: none;
-      border-radius: 5px;
-      background-color: #4CAF50;
-      color: white;
-    }
-  .controls button:hover { background-color: #45a049; }
-  .dark-mode.controls button { background-color: #1976D2; }
-  .dark-mode.controls button:hover { background-color: #1565C0; }
+ .controls button:hover { background-color: #45a049; }
 
-    #song-title { text-align: center; margin: 60px 0 10px 0; }
+ .container { max-width: 800px; margin: auto; padding: 20px; }
+    #song-title { text-align: center; margin: 80px 0 10px 0; }
     #song-meta { text-align: center; color: #aaa; font-size: 0.9rem; margin-bottom: 20px; }
-  .dark-mode #song-meta { color: #555; }
+ .dark-mode #song-meta { color: #555; }
 
-  .section-label {
-      color: #ffd54f;
-      font-weight: bold;
-      margin-top: 20px;
-      margin-bottom: 5px;
+ .section-label {
+      color: #ffd54f; font-weight: bold;
+      margin-top: 20px; margin-bottom: 5px;
     }
-  .dark-mode.section-label { color: #f57c00; }
-
-  .line {
-      position: relative;
-      margin-bottom: 1.2rem;
-      white-space: pre-wrap;
+ .dark-mode.section-label { color: #f57c00; }
+ .line {
+      position: relative; margin-bottom: 1.2rem; white-space: pre-wrap;
     }
-  .chord {
-      position: absolute;
-      top: -1.1em;
-      font-weight: bold;
-      color: #ff8a65;
-      font-size: 0.9em;
+ .chord {
+      position: absolute; top: -1.1em; font-weight: bold;
+      color: #ff8a65; font-size: 0.9em;
     }
-  .dark-mode.chord { color: #d84315; }
-  .highlight { background-color: #4fc3f7; color: #000; }
-  .dark-mode.highlight { background-color: #0288d1; color: #fff; }
-
-  .about-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #2196F3;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      font-size: 24px;
-      cursor: pointer;
-      z-index: 1000;
-    }
-  .about-modal {
-      display: none;
-      position: fixed;
-      z-index: 2000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.7);
-    }
-  .about-content {
-      background-color: #2a2a2a;
-      margin: 15% auto;
-      padding: 20px;
-      border-radius: 10px;
-      width: 80%;
-      max-width: 400px;
-      color: #fff;
-    }
-  .dark-mode.about-content { background-color: #fff; color: #000; }
-  .close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+ .dark-mode.chord { color: #d84315; }
+ .highlight { background-color: #4fc3f7; color: #000; }
+ .dark-mode.highlight { background-color: #0288d1; color: #fff; }
 
    #loading { text-align: center; margin-top: 100px; font-size: 1.2rem; }
   </style>
 </head>
 <body>
 
-<div id="loading">သီချင်းဖတ်နေသည်...</div>
+<h1>ရက္ခိုင် သီချင်းများ</h1>
 
-<div id="app" style="display:none;">
+<div class="toolbar">
+  <input id="search" type="text" placeholder="တေးဆို၊ တေးရေး၊ တေးအမည် ရှာရန်..." oninput="renderList()">
+</div>
+
+<div id="loading">သီချင်းများ ဖတ်နေသည်...</div>
+<div id="song-container"></div>
+
+<!-- သီချင်းဖွင့်ပြတဲ့ Modal -->
+<div id="song-viewer" class="song-viewer">
+  <div class="viewer-header">
+    <button class="back-btn" onclick="closeViewer()">← နောက်သို့</button>
+    <button onclick="toggleDarkMode()">🌙</button>
+  </div>
+
   <div class="controls">
     <label>Key: <span id="song-key"></span></label>
     <label>Capo: <span id="capoValue">0</span></label>
@@ -142,7 +167,6 @@
     <button id="playBtn" onclick="playKaraoke()">Play</button>
     <button onclick="pauseKaraoke()">Pause</button>
     <button onclick="stopKaraoke()">Stop</button>
-    <button onclick="toggleDarkMode()">🌙</button>
     <button onclick="changeFont(1)">🔡+</button>
     <button onclick="changeFont(-1)">🔠-</button>
   </div>
@@ -152,79 +176,105 @@
     <div id="song-meta"></div>
     <div id="song-content"></div>
   </div>
-
-  <button class="about-btn" onclick="showAbout()">ℹ️</button>
-
-  <div id="aboutModal" class="about-modal">
-    <div class="about-content">
-      <span class="close" onclick="closeAbout()">&times;</span>
-      <h3>သီချင်းအချက်အလက်</h3>
-      <p><b>တေးရေး:</b> <span id="about-composer"></span></p>
-      <p><b>တေးဆို:</b> <span id="about-singer"></span></p>
-      <p><b>Original Key:</b> <span id="about-key"></span></p>
-      <p><b>BPM:</b> <span id="about-bpm"></span></p>
-    </div>
-  </div>
 </div>
 
 <script>
-// 1. GitHub Raw Link ကို ဒီမှာပြင်ပါ
+// မင်းရဲ့ JSON လင့်
 const JSON_URL = 'https://raw.githubusercontent.com/arakanartarea/AAA-NotePL/main/ArakanArtArea/arakan-songs-chord.json';
 
+let allSongs = [];
 let currentSong = null;
 let currentCapo = 0;
-let allChords = [];
 let karaokeTimer = null;
 let currentLine = 0;
 let isPlaying = false;
 let fontSize = 1.1;
-
 const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
-// 2. URL က id ဖမ်း
-const urlParams = new URLSearchParams(window.location.search);
-const songId = urlParams.get('id');
+// စစဖွင့်ချင်း JSON တစ်ခုလုံးခေါ်
+loadAllSongs();
 
-if (!songId) {
-  document.getElementById('loading').textContent = 'သီချင်း ID မရှိပါ။?id=1 လိုထည့်ပါ';
-} else {
-  loadSong();
-}
-
-async function loadSong() {
+async function loadAllSongs() {
   try {
     const res = await fetch(JSON_URL);
-    const songs = await res.json();
-    currentSong = songs.find(s => s.id == songId);
-
-    if (!currentSong) {
-      document.getElementById('loading').textContent = 'သီချင်းမတွေ့ပါ';
-      return;
-    }
-
-    renderSong();
+    allSongs = await res.json();
     document.getElementById('loading').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
+    renderList();
   } catch (e) {
     document.getElementById('loading').textContent = 'Error: ' + e.message;
   }
 }
 
-function renderSong() {
+function renderList() {
+  const search = document.getElementById('search').value.toLowerCase();
+  const container = document.getElementById('song-container');
+
+  // 1. Search: တေးဆို၊ တေးရေး၊ တေးအမည် 3 ခုလုံးရှာ
+  let filtered = allSongs.filter(s =>
+    s.title.toLowerCase().includes(search) ||
+    s.singer.toLowerCase().includes(search) ||
+    s.composer.toLowerCase().includes(search)
+  );
+
+  // 2. Group by Singer
+  const groups = {};
+  filtered.forEach(s => {
+    if (!groups[s.singer]) groups[s.singer] = [];
+    groups[s.singer].push(s);
+  });
+
+  // 3. Sort A-Z by Singer
+  const sortedSingers = Object.keys(groups).sort();
+
+  // 4. Render Expan
+  container.innerHTML = '';
+  if (sortedSingers.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:#888;">သီချင်းမတွေ့ပါ</p>';
+    return;
+  }
+
+  sortedSingers.forEach(singer => {
+    const groupDiv = document.createElement('div');
+    groupDiv.className = 'singer-group';
+    groupDiv.innerHTML = `
+      <div class="singer-header" onclick="toggleList(this)">
+        ${singer} (${groups[singer].length} ပုဒ်)
+      </div>
+      <div class="song-list">
+        ${groups[singer].map(s => `
+          <div class="song-item" onclick="openViewer(${s.id})">
+            <div class="song-title">${s.title}</div>
+            <div class="song-composer">တေးရေး: ${s.composer}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(groupDiv);
+  });
+}
+
+function toggleList(header) {
+  const list = header.nextElementSibling;
+  list.style.display = list.style.display === 'block'? 'none' : 'block';
+}
+
+// သီချင်းနှိပ်ရင် Viewer ဖွင့်
+function openViewer(songId) {
+  currentSong = allSongs.find(s => s.id == songId);
+  if (!currentSong) return;
+
+  currentCapo = 0;
+  document.getElementById('capoValue').textContent = '0';
+
+  // သီချင်း Data ဖြည့်
   document.getElementById('song-title').textContent = currentSong.title;
   document.getElementById('song-meta').textContent = `${currentSong.singer} | ${currentSong.composer}`;
   document.getElementById('song-key').textContent = currentSong.key;
   document.getElementById('tempoInput').value = currentSong.bpm;
 
-  document.getElementById('about-composer').textContent = currentSong.composer;
-  document.getElementById('about-singer').textContent = currentSong.singer;
-  document.getElementById('about-key').textContent = currentSong.key;
-  document.getElementById('about-bpm').textContent = currentSong.bpm;
-
+  // Lyrics Render
   const content = document.getElementById('song-content');
   content.innerHTML = '';
-  allChords = [];
-
   currentSong.sections.forEach(sec => {
     const label = document.createElement('div');
     label.className = 'section-label';
@@ -234,36 +284,39 @@ function renderSong() {
     sec.lines.forEach(line => {
       const lineDiv = document.createElement('div');
       lineDiv.className = 'line';
-
       let html = '';
       let lastPos = 0;
 
-      // raw ကို ပြန်ခွဲပြီး HTML တည်ဆောက်
+      // [G2]မောင်နှင်း ကို <span class="chord">G</span>မောင်နှင်း ပြောင်း
       const regex = /\[([A-G][#b]?)(\d+)\]/g;
       let match;
       while ((match = regex.exec(line.raw))!== null) {
         const chord = match[1];
         const textPart = line.raw.substring(lastPos, match.index);
         html += textPart;
-
-        const chordSpan = `<span class="chord" data-chord="${chord}">${chord}</span>`;
-        html += chordSpan;
-        allChords.push(chord);
-
+        html += `<span class="chord" data-chord="${chord}">${chord}</span>`;
         lastPos = match.index + match[0].length;
       }
       html += line.raw.substring(lastPos);
-      lineDiv.innerHTML = html.replace(/\[([A-G][#b]?)(\d+)\]/g, ''); // [G2] ကို ဖြုတ်
-
+      lineDiv.innerHTML = html.replace(/\[([A-G][#b]?)(\d+)\]/g, ''); // [] ဖြုတ်
       content.appendChild(lineDiv);
     });
   });
+
+  document.getElementById('song-viewer').style.display = 'block';
+  document.body.style.overflow = 'hidden'; // နောက်က Scroll မဖြစ်အောင်
 }
 
+function closeViewer() {
+  stopKaraoke();
+  document.getElementById('song-viewer').style.display = 'none';
+  document.body.style.overflow = 'auto';
+}
+
+// Capo, Play, Stop, Dark Mode functions
 function transpose(step) {
   currentCapo += step;
   document.getElementById('capoValue').textContent = currentCapo;
-
   document.querySelectorAll('.chord').forEach(el => {
     const original = el.dataset.chord;
     const idx = NOTES.indexOf(original);
@@ -278,11 +331,9 @@ function playKaraoke() {
   isPlaying = true;
   currentLine = 0;
   const bpm = parseInt(document.getElementById('tempoInput').value) || 95;
-  const interval = (60 / bpm) * 1000 * 4; // 1 bar = 4 beats
-
-  const lines = document.querySelectorAll('.line');
+  const interval = (60 / bpm) * 1000 * 4;
+  const lines = document.querySelectorAll('#song-content.line');
   lines.forEach(l => l.classList.remove('highlight'));
-
   karaokeTimer = setInterval(() => {
     if (currentLine > 0) lines[currentLine - 1].classList.remove('highlight');
     if (currentLine < lines.length) {
@@ -295,39 +346,15 @@ function playKaraoke() {
   }, interval);
 }
 
-function pauseKaraoke() {
-  isPlaying = false;
-  clearInterval(karaokeTimer);
-}
-
+function pauseKaraoke() { isPlaying = false; clearInterval(karaokeTimer); }
 function stopKaraoke() {
-  isPlaying = false;
-  clearInterval(karaokeTimer);
-  currentLine = 0;
-  document.querySelectorAll('.line').forEach(l => l.classList.remove('highlight'));
+  isPlaying = false; clearInterval(karaokeTimer); currentLine = 0;
+  document.querySelectorAll('#song-content.line').forEach(l => l.classList.remove('highlight'));
 }
-
-function toggleDarkMode() {
-  document.body.classList.toggle('dark-mode');
-}
-
+function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
 function changeFont(step) {
   fontSize += step * 0.1;
   document.body.style.fontSize = fontSize + 'rem';
-}
-
-function showAbout() {
-  document.getElementById('aboutModal').style.display = 'block';
-}
-
-function closeAbout() {
-  document.getElementById('aboutModal').style.display = 'none';
-}
-
-window.onclick = function(event) {
-  if (event.target == document.getElementById('aboutModal')) {
-    closeAbout();
-  }
 }
 </script>
 </body>
