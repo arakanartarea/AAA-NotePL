@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Song</title>
+  <style>
+    body {
+      background-color: #1f1f1f;
+      font-family: "Pyidaungsu", "Myanmar Text", sans-serif;
+      margin: 0;
+      padding: 0;
+      font-size: 1.1rem;
+      line-height: 1.4rem;
+      transition: background-color 0.3s, color 0.3s;
+    }
+  .dark-mode {
+      background-color: #f0f0f0;
+      color: #000000;
+    }
+  .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.5rem;
+      color: #fff;
+    }
+  .dark-mode h1 { color: #000; }
+  .controls {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background-color: rgba(0, 0, 0, 0.8);
+      padding: 10px;
+      border-radius: 10px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+  .dark-mode.controls {
+      background-color: rgba(255, 255, 255, 0.8);
+      color: #000;
+    }
+  .controls label,.controls span { font-size: 0.9rem; color: #fff; }
+  .dark-mode.controls label,.dark-mode.controls span { color: #000; }
+  .controls input { width: 50px; margin: 5px 0; }
+  .controls button {
+      padding: 5px;
+      margin: 2px 0;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: white;
+    }
+  .controls button:hover { background-color: #45a049; }
+  .dark-mode.controls button { background-color: #1976D2; }
+  .dark-mode.controls button:hover { background-color: #1565C0; }
+
+    #song-title { text-align: center; margin: 60px 0 10px 0; }
+    #song-meta { text-align: center; color: #aaa; font-size: 0.9rem; margin-bottom: 20px; }
+  .dark-mode #song-meta { color: #555; }
+
+  .section-label {
+      color: #ffd54f;
+      font-weight: bold;
+      margin-top: 20px;
+      margin-bottom: 5px;
+    }
+  .dark-mode.section-label { color: #f57c00; }
+
+  .line {
+      position: relative;
+      margin-bottom: 1.2rem;
+      white-space: pre-wrap;
+    }
+  .chord {
+      position: absolute;
+      top: -1.1em;
+      font-weight: bold;
+      color: #ff8a65;
+      font-size: 0.9em;
+    }
+  .dark-mode.chord { color: #d84315; }
+  .highlight { background-color: #4fc3f7; color: #000; }
+  .dark-mode.highlight { background-color: #0288d1; color: #fff; }
+
+  .about-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 1000;
+    }
+  .about-modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+    }
+  .about-content {
+      background-color: #2a2a2a;
+      margin: 15% auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 400px;
+      color: #fff;
+    }
+  .dark-mode.about-content { background-color: #fff; color: #000; }
+  .close { float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+
+   #loading { text-align: center; margin-top: 100px; font-size: 1.2rem; }
+  </style>
+</head>
+<body>
+
+<div id="loading">သီချင်းဖတ်နေသည်...</div>
+
+<div id="app" style="display:none;">
+  <div class="controls">
+    <label>Key: <span id="song-key"></span></label>
+    <label>Capo: <span id="capoValue">0</span></label>
+    <button onclick="transpose(1)">+1</button>
+    <button onclick="transpose(-1)">-1</button>
+    <label>BPM: <input id="tempoInput" type="number" value="95"></label>
+    <button id="playBtn" onclick="playKaraoke()">Play</button>
+    <button onclick="pauseKaraoke()">Pause</button>
+    <button onclick="stopKaraoke()">Stop</button>
+    <button onclick="toggleDarkMode()">🌙</button>
+    <button onclick="changeFont(1)">🔡+</button>
+    <button onclick="changeFont(-1)">🔠-</button>
+  </div>
+
+  <div class="container">
+    <h1 id="song-title"></h1>
+    <div id="song-meta"></div>
+    <div id="song-content"></div>
+  </div>
+
+  <button class="about-btn" onclick="showAbout()">ℹ️</button>
+
+  <div id="aboutModal" class="about-modal">
+    <div class="about-content">
+      <span class="close" onclick="closeAbout()">&times;</span>
+      <h3>သီချင်းအချက်အလက်</h3>
+      <p><b>တေးရေး:</b> <span id="about-composer"></span></p>
+      <p><b>တေးဆို:</b> <span id="about-singer"></span></p>
+      <p><b>Original Key:</b> <span id="about-key"></span></p>
+      <p><b>BPM:</b> <span id="about-bpm"></span></p>
+    </div>
+  </div>
+</div>
+
+<script>
+// 1. GitHub Raw Link ကို ဒီမှာပြင်ပါ
+const JSON_URL = 'https://raw.githubusercontent.com/arakanartarea/AAA-NotePL/main/ArakanArtArea/arakan-songs-chord.json';
+
+let currentSong = null;
+let currentCapo = 0;
+let allChords = [];
+let karaokeTimer = null;
+let currentLine = 0;
+let isPlaying = false;
+let fontSize = 1.1;
+
+const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
+// 2. URL က id ဖမ်း
+const urlParams = new URLSearchParams(window.location.search);
+const songId = urlParams.get('id');
+
+if (!songId) {
+  document.getElementById('loading').textContent = 'သီချင်း ID မရှိပါ။?id=1 လိုထည့်ပါ';
+} else {
+  loadSong();
+}
+
+async function loadSong() {
+  try {
+    const res = await fetch(JSON_URL);
+    const songs = await res.json();
+    currentSong = songs.find(s => s.id == songId);
+
+    if (!currentSong) {
+      document.getElementById('loading').textContent = 'သီချင်းမတွေ့ပါ';
+      return;
+    }
+
+    renderSong();
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  } catch (e) {
+    document.getElementById('loading').textContent = 'Error: ' + e.message;
+  }
+}
+
+function renderSong() {
+  document.getElementById('song-title').textContent = currentSong.title;
+  document.getElementById('song-meta').textContent = `${currentSong.singer} | ${currentSong.composer}`;
+  document.getElementById('song-key').textContent = currentSong.key;
+  document.getElementById('tempoInput').value = currentSong.bpm;
+
+  document.getElementById('about-composer').textContent = currentSong.composer;
+  document.getElementById('about-singer').textContent = currentSong.singer;
+  document.getElementById('about-key').textContent = currentSong.key;
+  document.getElementById('about-bpm').textContent = currentSong.bpm;
+
+  const content = document.getElementById('song-content');
+  content.innerHTML = '';
+  allChords = [];
+
+  currentSong.sections.forEach(sec => {
+    const label = document.createElement('div');
+    label.className = 'section-label';
+    label.textContent = sec.name;
+    content.appendChild(label);
+
+    sec.lines.forEach(line => {
+      const lineDiv = document.createElement('div');
+      lineDiv.className = 'line';
+
+      let html = '';
+      let lastPos = 0;
+
+      // raw ကို ပြန်ခွဲပြီး HTML တည်ဆောက်
+      const regex = /\[([A-G][#b]?)(\d+)\]/g;
+      let match;
+      while ((match = regex.exec(line.raw))!== null) {
+        const chord = match[1];
+        const textPart = line.raw.substring(lastPos, match.index);
+        html += textPart;
+
+        const chordSpan = `<span class="chord" data-chord="${chord}">${chord}</span>`;
+        html += chordSpan;
+        allChords.push(chord);
+
+        lastPos = match.index + match[0].length;
+      }
+      html += line.raw.substring(lastPos);
+      lineDiv.innerHTML = html.replace(/\[([A-G][#b]?)(\d+)\]/g, ''); // [G2] ကို ဖြုတ်
+
+      content.appendChild(lineDiv);
+    });
+  });
+}
+
+function transpose(step) {
+  currentCapo += step;
+  document.getElementById('capoValue').textContent = currentCapo;
+
+  document.querySelectorAll('.chord').forEach(el => {
+    const original = el.dataset.chord;
+    const idx = NOTES.indexOf(original);
+    if (idx === -1) return;
+    const newIdx = (idx + currentCapo + 12) % 12;
+    el.textContent = NOTES[newIdx];
+  });
+}
+
+function playKaraoke() {
+  if (isPlaying) return;
+  isPlaying = true;
+  currentLine = 0;
+  const bpm = parseInt(document.getElementById('tempoInput').value) || 95;
+  const interval = (60 / bpm) * 1000 * 4; // 1 bar = 4 beats
+
+  const lines = document.querySelectorAll('.line');
+  lines.forEach(l => l.classList.remove('highlight'));
+
+  karaokeTimer = setInterval(() => {
+    if (currentLine > 0) lines[currentLine - 1].classList.remove('highlight');
+    if (currentLine < lines.length) {
+      lines[currentLine].classList.add('highlight');
+      lines[currentLine].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      currentLine++;
+    } else {
+      stopKaraoke();
+    }
+  }, interval);
+}
+
+function pauseKaraoke() {
+  isPlaying = false;
+  clearInterval(karaokeTimer);
+}
+
+function stopKaraoke() {
+  isPlaying = false;
+  clearInterval(karaokeTimer);
+  currentLine = 0;
+  document.querySelectorAll('.line').forEach(l => l.classList.remove('highlight'));
+}
+
+function toggleDarkMode() {
+  document.body.classList.toggle('dark-mode');
+}
+
+function changeFont(step) {
+  fontSize += step * 0.1;
+  document.body.style.fontSize = fontSize + 'rem';
+}
+
+function showAbout() {
+  document.getElementById('aboutModal').style.display = 'block';
+}
+
+function closeAbout() {
+  document.getElementById('aboutModal').style.display = 'none';
+}
+
+window.onclick = function(event) {
+  if (event.target == document.getElementById('aboutModal')) {
+    closeAbout();
+  }
+}
+</script>
+</body>
+</html>
