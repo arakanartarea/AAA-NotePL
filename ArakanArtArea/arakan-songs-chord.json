@@ -1,1 +1,95 @@
-[]
+[
+  {
+    "id": 1783479751081,
+    "title": "တေးခြင်း၁",
+    "composer": "တေးရေး၂",
+    "singer": "တေးဆို၃",
+    "key": "E",
+    "bpm": 95,
+    "map": [
+      "Verse",
+      "pre",
+      "chorus"
+    ],
+    "sections": [
+      {
+        "name": "VERSE 1",
+        "lines": [
+          {
+            "raw": "   [G2]မောင်နှင်း [C2]ရဲ့ [D2]ရင်ထဲက",
+            "text": "မောင်နှင်း ရဲ့ ရင်ထဲက",
+            "chords": [
+              {
+                "chord": "G",
+                "beats": 2,
+                "pos": 3
+              },
+              {
+                "chord": "C",
+                "beats": 2,
+                "pos": 14
+              },
+              {
+                "chord": "D",
+                "beats": 2,
+                "pos": 18
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "VERSE 2",
+        "lines": [
+          {
+            "raw": "   [G2]မောင်နှင်း [C2]ရဲ့ [D2]ရင်ထဲက",
+            "text": "မောင်နှင်း ရဲ့ ရင်ထဲက",
+            "chords": [
+              {
+                "chord": "G",
+                "beats": 2,
+                "pos": 3
+              },
+              {
+                "chord": "C",
+                "beats": 2,
+                "pos": 14
+              },
+              {
+                "chord": "D",
+                "beats": 2,
+                "pos": 18
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Chorus",
+        "lines": [
+          {
+            "raw": "   [G2]မောင်နှင်း [C2]ရဲ့ [D2]ရင်ထဲက",
+            "text": "မောင်နှင်း ရဲ့ ရင်ထဲက",
+            "chords": [
+              {
+                "chord": "G",
+                "beats": 2,
+                "pos": 3
+              },
+              {
+                "chord": "C",
+                "beats": 2,
+                "pos": 14
+              },
+              {
+                "chord": "D",
+                "beats": 2,
+                "pos": 18
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
