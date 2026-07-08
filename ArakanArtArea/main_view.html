@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arakan Songs</title>
+  <link rel="stylesheet" href="style2.css">
+</head>
+<body>
+  <!-- 0A: Global Header -->
+  <div id="header" class="header">
+    <h1>ရက္ခိုင် သီချင်းများ</h1>
+  </div>
+
+  <!-- 0B: Global Search Bar -->
+  <div id="search-wrap" class="search-wrap" style="display:none;">
+    <input id="search" type="text" placeholder="တေးဆို၊ တေးရေး၊ တေးအမည် ရှာရန်...">
+    <button id="search-clear">×</button>
+  </div>
+
+  <!-- 0C: Global Loading -->
+  <div id="loading">သီချင်းများ ဖတ်နေသည်...</div>
+
+  <!-- 1: Screen 1 Main List -->
+  <div id="screen1" class="screen">
+    <div id="song-container"></div>
+  </div>
+  <!-- 1 End -->
+
+  <!-- 2: Screen 2 View -->
+  <div id="screen2" class="screen" style="display:none;">
+    <!-- 2A: Song Info Box -->
+    <div id="info-box" class="info-box">
+      <div>Key: <span id="info-key"></span></div>
+      <div>BPM: <span id="info-bpm"></span></div>
+      <div>ရမ်သမ်: <span id="info-rhythm"></span></div>
+    </div>
+
+    <!-- 2B: Lyrics Content -->
+    <div class="container">
+      <h2 id="song-title"></h2>
+      <div id="song-meta"></div>
+      <div id="song-content"></div>
+    </div>
+
+    <!-- 2C: Floating Buttons -->
+    <button id="btn-back" class="fab fab-back">←</button>
+    <button id="btn-tool" class="fab fab-tool">⚙️</button>
+
+    <!-- 2D: Tool Modal -->
+    <div id="tool-modal" class="tool-modal">
+      <div class="tool-content">
+        <button data-action="prev">← Prev</button>
+        <button data-action="next">Next →</button>
+        <button data-action="capo-up">Capo ↑</button>
+        <button data-action="capo-down">Capo ↓</button>
+        <button data-action="font-up">A+</button>
+        <button data-action="font-down">A-</button>
+        <button data-action="info-toggle">Info</button>
+        <button data-action="fav-toggle">❤️ Fav</button>
+        <button data-action="close">X ပိတ်</button>
+      </div>
+    </div>
+  </div>
+  <!-- 2 End -->
+
+  <!-- 0D: Global Bottom Toolbar -->
+  <div id="toolbar" class="toolbar">
+    <button data-action="search-toggle">🔍</button>
+    <button data-action="sort">⇅</button>
+    <button data-action="show-fav">❤️</button>
+    <button data-action="show-history">🕓</button>
+    <button data-action="settings">⚙️</button>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
