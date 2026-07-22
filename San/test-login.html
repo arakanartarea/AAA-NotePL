@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login Test</title>
+</head>
+<body style="font-family: sans-serif; padding:20px; text-align:center;">
+    <h2>Login စမ်းသပ်ခြင်း</h2>
+    <button id="login-btn" style="padding:12px 20px; font-size:16px;">Google နဲ့ဝင်မယ်</button>
+    <button id="logout-btn" style="display:none; padding:12px 20px;">ထွက်မယ်</button>
+    <p id="status" style="margin-top:20px; background:#eee; padding:10px; white-space: pre-wrap;"></p>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyC7N9_TNTp_aThC_olEDyMcEo2pAhOFEGI",
+    authDomain: "arakanese-dictionary.firebaseapp.com",
+    projectId: "arakanese-dictionary",
+    storageBucket: "arakanese-dictionary.firebasestorage.app",
+    messagingSenderId: "955711906003",
+    appId: "1:955711906003:web:6d9b60bd4cdaa8a8953426"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+const loginBtn = document.getElementById('login-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const status = document.getElementById('status');
+
+// Aid အသစ် ရှာတဲ့ function - ရှိပြီးသားကျော်
+async function getNextAid() {
+    const snapshot = await getDocs(collection(db, "AllUserList"));
+    const usedNumbers = new Set();
+    snapshot.forEach(doc => {
+        const aid = doc.data().AID; // A-0000001
+        if (aid && aid.startsWith('A-')) {
+            const num = parseInt(aid.replace('A-',''));
+            if (!isNaN(num)) usedNumbers.add(num);
+        }
+    });
+    // 1 ကနေ 9999999 ထိ အငယ်ဆုံးလွတ်နေတာရှာ
+    for (let i = 1; i <= 9999999; i++) {
+        if (!usedNumbers.has(i)) {
+            return `A-${String(i).padStart(7, '0')}`;
+        }
+    }
+    throw new Error("Aid ပြည့်သွားပြီ");
+}
+
+loginBtn.addEventListener('click', async () => {
+    try {
+        const result = await signInWithPopup(auth, provider);
+        // onAuthStateChanged က ဆက်လုပ်ပေးမယ်
+    } catch (e) {
+        status.textContent = "Login Error: " + e.message;
+    }
+});
+
+logoutBtn.addEventListener('click', () => signOut(auth));
+
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        loginBtn.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+        status.textContent = `ဝင်နေပြီ: ${user.email}\nFirestore စစ်နေတယ်...`;
+
+        // 1. ဒီ GID ရှိပြီးသားလား စစ်
+        const q = query(collection(db, "AllUserList"), where("GID", "==", user.uid));
+        const snap = await getDocs(q);
+
+        if (!snap.empty) {
+            const existing = snap.docs[0].data();
+            status.textContent = `ဒီအကောင့်က ရှိပြီးသား\nAID: ${existing.AID}\nName: ${existing.Name}\nRole: ${existing.Role}`;
+            return;
+        }
+
+        // 2. မရှိရင် Aid အသစ်ရှာ
+        status.textContent = "အကောင့်အသစ်၊ Aid ရှာနေတယ်...";
+        const newAid = await getNextAid();
+
+        // ms အထိပါတဲ့ အချိန်
+        const now = new Date();
+        const msTime = now.getTime(); // 1716245...
+        const isoTime = now.toISOString(); // 2026-05-20T10:30:15.123Z
+
+        const userData = {
+            AID: newAid,
+            GID: user.uid,
+            Name: user.displayName || "",
+            Acc: user.email || "",
+            ProfileImage: user.photoURL || "",
+            Time: isoTime,
+            TimeMs: msTime,
+            Year: now.getFullYear().toString(),
+            Month: String(now.getMonth()+1).padStart(2,'0'),
+            Role: "Viewer",
+            createdAt: serverTimestamp()
+        };
+
+        await addDoc(collection(db, "AllUserList"), userData);
+        status.textContent = `အောင်မြင်စွာ သိမ်းပြီးပြီ!\nAID: ${newAid}\nGID: ${user.uid}\nName: ${userData.Name}\nAcc: ${userData.Acc}\nTimeMs: ${msTime}\nRole: Viewer\n\nအခု Admin page မှာ သွားကြည့်ပါ။`;
+
+    } else {
+        loginBtn.style.display = "inline-block";
+        logoutBtn.style.display = "none";
+        status.textContent = "အကောင့်မဝင်ရသေးပါ";
+    }
+});
+</script>
+</body>
+</html>
