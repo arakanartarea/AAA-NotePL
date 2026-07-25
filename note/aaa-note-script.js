@@ -16,7 +16,10 @@ import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChang
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+const adminEmail = "arakanartarea@gmail.com"; // မင်းမေးလ်ထည့်
+let unsubscribe = null;
 // ==========================================
 // GLOBAL & SCREEN NAVIGATION
 // ==========================================
@@ -468,3 +471,4 @@ function resetUndoStack(text) {
 // Screen 4 ViewUserList စ ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
 
 // Screen 4 ViewUserList ဆ ===== ===== ===== ===== ===== ===== ===== ===== ===== ===== 
+ 
