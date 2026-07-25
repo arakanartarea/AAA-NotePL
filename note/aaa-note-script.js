@@ -1,34 +1,32 @@
 const firebaseConfig = {
-        apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U",
-        authDomain: "arakanartarea-note.firebaseapp.com",
-        projectId: "arakanartarea-note",
-        storageBucket: "arakanartarea-note.firebasestorage.app",
-        messagingSenderId: "695659736666",
-        
-        appId: "1:695659736666:web:1e76494c0e6819609bf263",
-        measurementId: "G-Y9Y5SK15M9"
+  apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U",
+  authDomain: "arakanartarea-note.firebaseapp.com",
+  projectId: "arakanartarea-note",
+  storageBucket: "arakanartarea-note.firebasestorage.app",
+  messagingSenderId: "695659736666",
+  appId: "1:695659736666:web:1e76494c0e6819609bf263",
+  measurementId: "G-Y9Y5SK15M9"
 };
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-/*import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";*/
 import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, signOut, onAuthStateChanged, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-const adminEmail = "arakanartarea@gmail.com"; // မင်းမေးလ်ထည့်
+const adminEmail = "zawmyo@gmail.com";
 let unsubscribe = null;
-// ==========================================
-// GLOBAL & SCREEN NAVIGATION
-// ==========================================
+
+getRedirectResult(auth).catch(e => alert(e.message));
+
+// GLOBAL
 let currentEditId = null;
-let currentSearchText = ""; // Search စာသားသိမ်းဖို့
-let debounceTimer = null; // Debounce အတွက်
-let allWords = []; // Global မှာ ကြိုကြေညာထားပါ
-// ၂။ ဂျာဗားစခရစ် အပေါ်ဆုံး (let တွေကြေညာတဲ့နေရာ) မှာ ဒါလေးထပ်တိုးပါ
-let currentSortMode = 'time-new'; // အရင် 'alphabet' ကို 'time-new' ပြောင်း
+let currentSearchText = "";
+let debounceTimer = null;
+let allWords = [];
+let currentSortMode = 'time-new';
 
 
 const mainScreen = document.getElementById('main-screen');
@@ -89,13 +87,11 @@ function startListening() {
 }
 
 const authBtn = document.getElementById('authBtn');
-authBtn.onclick = async () => {
-  if (!auth.currentUser) {
-    await signInWithPopup(auth, provider);
-  } else {
-    let out = confirm("OK=ထွက်မယ်, Cancel=ပြောင်းမယ်");
-    if (out) await signOut(auth);
-    else await signInWithPopup(auth, provider);
+authBtn.onclick = () => {
+  if (!auth.currentUser) signInWithRedirect(auth, provider);
+  else {
+    if (confirm("OK=ထွက်မယ် Cancel=ပြောင်းမယ်")) signOut(auth);
+    else signInWithRedirect(auth, provider);
   }
 };
 
@@ -106,7 +102,7 @@ onAuthStateChanged(auth, (user) => {
     if (unsubscribe) unsubscribe();
   } else if (user.email !== adminEmail) {
     authBtn.innerText = "🚫";
-    expandableList.innerHTML = `<p style="text-align:center;padding:20px;">${user.email}<br>ခွင့်မရှိပါ</p>`;
+    expandableList.innerHTML = `<p style="text-align:center;padding:20px;">${user.email}<br>ခွင့်မရှိ</p>`;
     if (unsubscribe) unsubscribe();
   } else {
     authBtn.innerText = "✅";
