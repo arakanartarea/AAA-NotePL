@@ -1,4 +1,4 @@
-const firebaseConfig = {
+const firebaseConfig = { 
         apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U",
         authDomain: "arakanartarea-note.firebaseapp.com",
         projectId: "arakanartarea-note",
@@ -8,10 +8,8 @@ const firebaseConfig = {
         appId: "1:695659736666:web:1e76494c0e6819609bf263",
         measurementId: "G-Y9Y5SK15M9"
 };
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
@@ -207,7 +205,6 @@ searchBox.addEventListener('input', () => {
     showWords(); // ရှာပြီးပြန်ပြ
   }, 300);
 });
-
 // ✖ ခလုတ်နှိပ်ရင် Clear
 clearBtn.addEventListener('click', () => {
   searchBox.value = "";
@@ -216,7 +213,6 @@ clearBtn.addEventListener('click', () => {
   showWords();
 });
 // Search ဆ
-
 // SCREEN 1: MAIN SCREEN (Group -> SubGroup Accordion)//==============ဆ
 
 
@@ -279,22 +275,16 @@ function showSubGroupContents(notes, sgName, gName) {
   
   changeScreen(viewScreen);
 }
-
 // highlightWord နဲ့ escapeRegExp function 2 ခု လုံးဝဖျက်ပစ်လို့ရပြီ။ မလိုတော့ဘူး။
 // SCREEN 2: VIEW SCREEN (မူလ Expan ကိုဖျောက်ပြီး Content အကုန်လုံး စုပြုံပြသခြင်း) ================ဆ
-
-
 
 // SCREEN 3: EDIT SCREEN ================စ
 const cancelEditBtn = document.getElementById('cancel-edit-btn');
 const saveWordBtn = document.getElementById('save-word-btn');
 const contentArea = document.getElementById('content');
-
 let undoStack = [];
 let redoStack = [];
-
 cancelEditBtn.addEventListener('click', () => changeScreen(mainScreen));
-
 saveWordBtn.addEventListener('click', async () => {
   const noteData = {
     group: document.getElementById('group').value.trim() || "အခြား",
@@ -324,7 +314,6 @@ saveWordBtn.addEventListener('click', async () => {
     alert('မရဘူး');
   }
 });
-
 // Undo: space ရိုက်ပြီးမှမှတ်၊ တစ်လုံးစီမမှတ်တော့ဘူး
 contentArea.addEventListener('keyup', (e) => {
   if (e.key === ' ' || e.key === 'Enter' || e.key === '၊' || e.key === '။') {
@@ -335,7 +324,6 @@ contentArea.addEventListener('keyup', (e) => {
     }
   }
 });
-
 // Toolbar
 document.getElementById('editor-toolbar').addEventListener('click', async (e) => {
   const btn = e.target.closest('button');
@@ -395,7 +383,6 @@ document.getElementById('editor-toolbar').addEventListener('click', async (e) =>
     }
   }
 });
-
 function resetUndoStack(text) {
   undoStack = [text || ''];
   redoStack = [];
