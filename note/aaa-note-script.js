@@ -10,7 +10,7 @@ const firebaseConfig = {
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, signInWithRedirect, GoogleAuthProvider, signOut, onAuthStateChanged, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -61,13 +61,14 @@ const authBtn = document.getElementById('authBtn');
 
 authBtn.onclick = async () => {
   if (!auth.currentUser) {
-    await signInWithPopup(auth, provider);
+    await signInWithRedirect(auth, provider);
   } else {
     let out = confirm("OK=ထွက်မယ်, Cancel=ပြောင်းမယ်");
     if (out) await signOut(auth);
-    else await signInWithPopup(auth, provider);
+    else await signInWithRedirect(auth, provider);
   }
 };
+getRedirectResult(auth).catch((e) => console.error(e));
 
 onAuthStateChanged(auth, async (user) => {
   if (unsubscribe) { unsubscribe(); unsubscribe = null; }
@@ -76,7 +77,7 @@ onAuthStateChanged(auth, async (user) => {
   if (!user) {
     authBtn.innerText = "👤";
     expandableList.innerHTML = `<div style="text-align:center;padding:40px;"><h3>🔒 Login ဝင်ပါ</h3><p>Admin မှသာ ကြည့်ခွင့်ရှိသည်</p><button id="tempLoginBtn" style="padding:10px 20px;background:#605639;color:white;border:none;border-radius:20px;margin-top:10px;">Google ဖြင့် Login</button></div>`;
-    document.getElementById('tempLoginBtn')?.addEventListener('click', () => signInWithPopup(auth, provider));
+    document.getElementById('tempLoginBtn')?.addEventListener('click', () => signInWithRedirect(auth, provider));
     return;
   }
 
