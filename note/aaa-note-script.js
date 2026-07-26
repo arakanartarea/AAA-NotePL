@@ -7,6 +7,7 @@ const firebaseConfig = {
         appId: "1:695659736666:web:1e76494c0e6819609bf263",
         measurementId: "G-Y9Y5SK15M9"
 };
+console.log("JS Version: FINAL-2025-REDIRECT-FIX LOADED");
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -41,7 +42,7 @@ const newWordBtn = document.getElementById('new-word-btn');
 newWordBtn.addEventListener('click', () => {
 currentEditId = null;
 document.querySelectorAll('.input-form input').forEach(input => input.value = "");
-if(document.getElementById('content')) document.getElementById('content').value = "";
+const c = document.getElementById('content'); if(c) c.value = "";
 changeScreen(editScreen);
 });
 
@@ -49,44 +50,41 @@ document.getElementById('sort-select').addEventListener('change', (e) => {
     currentSortMode = e.target.value;
     showWords();
 });
-
 document.getElementById('Screen-select').addEventListener('change', function() {
-    if (this.value) {
-         window.location.href = this.value;
-    }
+    if (this.value) window.location.href = this.value;
 });
 
-// AUTH + ADMIN CHECK
 const authBtn = document.getElementById('authBtn');
-
 authBtn.onclick = async () => {
   if (!auth.currentUser) {
     await signInWithRedirect(auth, provider);
   } else {
-    let out = confirm("OK=ထွက်မယ်, Cancel=ပြောင်းမယ်");
-    if (out) await signOut(auth);
-    else await signInWithRedirect(auth, provider);
+    if(confirm("Logout လုပ်မလား?")) await signOut(auth);
   }
 };
-getRedirectResult(auth).catch((e) => console.error(e));
+getRedirectResult(auth).then(res => {
+  if(res) console.log("Redirect Login Success", res.user.email);
+}).catch((e) => {
+  console.error("Redirect Error", e);
+  alert("Login Error: " + e.message);
+});
 
 onAuthStateChanged(auth, async (user) => {
   if (unsubscribe) { unsubscribe(); unsubscribe = null; }
   allWords = [];
-
   if (!user) {
     authBtn.innerText = "👤";
-    expandableList.innerHTML = `<div style="text-align:center;padding:40px;"><h3>🔒 Login ဝင်ပါ</h3><p>Admin မှသာ ကြည့်ခွင့်ရှိသည်</p><button id="tempLoginBtn" style="padding:10px 20px;background:#605639;color:white;border:none;border-radius:20px;margin-top:10px;">Google ဖြင့် Login</button></div>`;
+    expandableList.innerHTML = `<div style="text-align:center;padding:40px;"><h3>🔒 Login ဝင်ပါ</h3><p>Admin မှသာ ကြည့်ခွင့်ရှိ</p><button id="tempLoginBtn" style="padding:12px 24px;background:#605639;color:white;border:none;border-radius:20px;margin-top:15px;font-weight:bold;">Google ဖြင့် Login</button><p style="font-size:12px;color:#888;margin-top:10px;">JS: FINAL-2025</p></div>`;
     document.getElementById('tempLoginBtn')?.addEventListener('click', () => signInWithRedirect(auth, provider));
     return;
   }
-
   authBtn.innerText = "⏳";
   try {
     const adminSnap = await getDoc(doc(db, "admins", user.email));
     if (!adminSnap.exists()) {
       authBtn.innerText = "🚫";
-      expandableList.innerHTML = `<p style="text-align:center;padding:20px;">${user.email}<br>ခွင့်မရှိပါ</p>`;
+      expandableList.innerHTML = `<p style="text-align:center;padding:20px;">${user.email}<br>ခွင့်မပြုပါ<br><button id="logoutBtn2" style="margin-top:10px;padding:8px 16px;">Logout</button></p>`;
+      document.getElementById('logoutBtn2')?.addEventListener('click', () => signOut(auth));
       return;
     }
     authBtn.innerText = "✅";
@@ -115,24 +113,16 @@ function showWords() {
   expandableList.innerHTML = "";
   let filteredData = allWords.filter(note => {
     const search = currentSearchText.toLowerCase();
-    return (
-      (note.group || "").toLowerCase().includes(search) ||
-      (note.subGroup || "").toLowerCase().includes(search) ||
-      (note.content || "").toLowerCase().includes(search)
-    );
+    return ((note.group || "").toLowerCase().includes(search) || (note.subGroup || "").toLowerCase().includes(search) || (note.content || "").toLowerCase().includes(search));
   });
   if (filteredData.length === 0) {
     expandableList.innerHTML = `<p style="text-align: center; color: #888; padding-top: 20px;">ရှာမတွေ့ပါ...</p>`;
     return;
   }
-  filteredData.forEach(w => {
-    w.group = w.group || "အခြား";
-    w.subGroup = w.subGroup || "အထွေထွေ";
-  });
+  filteredData.forEach(w => { w.group = w.group || "အခြား"; w.subGroup = w.subGroup || "အထွေထွေ"; });
   const groups = {};
   filteredData.forEach((data) => {
-    const gName = data.group;
-    const sgName = data.subGroup;
+    const gName = data.group; const sgName = data.subGroup;
     if (!groups[gName]) groups[gName] = {};
     if (!groups[gName][sgName]) groups[gName][sgName] = [];
     groups[gName][sgName].push(data);
@@ -150,17 +140,13 @@ function showWords() {
       const timeB = Math.min(...Object.values(groups[b]).flat().map(n => new Date(n.updateTime || 0).getTime()));
       return timeA - timeB;
     });
-  } else if (currentSortMode === 'az') {
-    sortedGroups.sort((a, b) => a.localeCompare(b, 'my'));
-  } else if (currentSortMode === 'za') {
-    sortedGroups.sort((a, b) => b.localeCompare(a, 'my'));
-  }
+  } else if (currentSortMode === 'az') sortedGroups.sort((a, b) => a.localeCompare(b, 'my'));
+  else if (currentSortMode === 'za') sortedGroups.sort((a, b) => b.localeCompare(a, 'my'));
+
   sortedGroups.forEach((gName) => {
     const groupWrapper = document.createElement('div');
-    groupWrapper.className = "group-wrapper";
     groupWrapper.style.marginBottom = "8px";
     const groupHeader = document.createElement('div');
-    groupHeader.className = "group-header";
     groupHeader.style.cssText = "cursor: pointer; padding: 12px; background: #e6dbb3; font-weight: bold; border-radius: 4px;";
     groupHeader.innerText = `📁 ${gName}`;
     groupWrapper.appendChild(groupHeader);
@@ -169,32 +155,16 @@ function showWords() {
     subGroupContainer.style.display = "none";
     subGroupContainer.style.paddingLeft = "10px";
     let sortedSubGroups = Object.keys(groups[gName]);
-    if (currentSortMode === 'time-new') {
-      sortedSubGroups.sort((a, b) => {
-        const timeA = Math.max(...groups[gName][a].map(n => new Date(n.updateTime || 0).getTime()));
-        const timeB = Math.max(...groups[gName][b].map(n => new Date(n.updateTime || 0).getTime()));
-        return timeB - timeA;
-      });
-    } else if (currentSortMode === 'time-old') {
-      sortedSubGroups.sort((a, b) => {
-        const timeA = Math.min(...groups[gName][a].map(n => new Date(n.updateTime || 0).getTime()));
-        const timeB = Math.min(...groups[gName][b].map(n => new Date(n.updateTime || 0).getTime()));
-        return timeA - timeB;
-      });
-    } else if (currentSortMode === 'az') {
-      sortedSubGroups.sort((a, b) => a.localeCompare(b, 'my'));
-    } else if (currentSortMode === 'za') {
-      sortedSubGroups.sort((a, b) => b.localeCompare(a, 'my'));
-    }
+    if (currentSortMode === 'time-new') sortedSubGroups.sort((a, b) => Math.max(...groups[gName][b].map(n=>new Date(n.updateTime||0).getTime())) - Math.max(...groups[gName][a].map(n=>new Date(n.updateTime||0).getTime())));
+    else if (currentSortMode === 'time-old') sortedSubGroups.sort((a, b) => Math.min(...groups[gName][a].map(n=>new Date(n.updateTime||0).getTime())) - Math.min(...groups[gName][b].map(n=>new Date(n.updateTime||0).getTime())));
+    else if (currentSortMode === 'az') sortedSubGroups.sort((a,b)=>a.localeCompare(b,'my'));
+    else if (currentSortMode === 'za') sortedSubGroups.sort((a,b)=>b.localeCompare(a,'my'));
     sortedSubGroups.forEach((sgName) => {
       const subGroupHeader = document.createElement('div');
       subGroupHeader.style.cssText = "padding: 10px 15px; margin-top: 5px; font-weight: bold; color: #444; cursor: pointer; background-color: #f1f1f1; border-radius: 4px; border-bottom: 1px dashed #ccc;";
       subGroupHeader.innerText = `📂 ${sgName}`;
       subGroupContainer.appendChild(subGroupHeader);
-      subGroupHeader.addEventListener('click', (e) => {
-        e.stopPropagation();
-        showSubGroupContents(groups[gName][sgName], sgName, gName);
-      });
+      subGroupHeader.addEventListener('click', (e) => { e.stopPropagation(); showSubGroupContents(groups[gName][sgName], sgName, gName); });
     });
     groupWrapper.appendChild(subGroupContainer);
     expandableList.appendChild(groupWrapper);
@@ -205,7 +175,6 @@ function showWords() {
     });
   });
 }
-
 const searchBox = document.getElementById('searchBox');
 const clearBtn = document.getElementById('clearSearchBtn');
 searchBox.addEventListener('input', () => {
@@ -216,58 +185,18 @@ searchBox.addEventListener('input', () => {
     showWords();
   }, 300);
 });
-clearBtn.addEventListener('click', () => {
-  searchBox.value = "";
-  currentSearchText = "";
-  clearBtn.style.display = 'none';
-  showWords();
-});
+clearBtn.addEventListener('click', () => { searchBox.value = ""; currentSearchText = ""; clearBtn.style.display = 'none'; showWords(); });
 
 function showSubGroupContents(notes, sgName, gName) {
-  viewScreen.innerHTML = `
-    <div style="text-align:center; padding:15px; background:#e6dbb3; font-weight:bold; font-size:18px; border-bottom:1px solid #ccc;">
-      📖 ${gName} / ${sgName} (${notes.length} ခု)
-    </div>
-    <div id="view-contents-container" style="padding: 15px; padding-bottom: 80px; overflow-y: auto; max-height: calc(100vh - 120px);"></div>
-    <div style="position: fixed; bottom: 0; left: 0; width: 100%; padding: 12px; background: #e6dbb3; text-align: center; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); display: flex; gap: 10px; justify-content: center;">
-      <button id="back-main-btn" style="flex:1; padding: 10px 25px; background: #605639; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">⬅️ Back</button>
-      <button id="new-in-subgroup-btn" style="flex:1; padding: 10px 25px; background: #2d6a4f; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">➕ New</button>
-    </div>
-  `;
+  viewScreen.innerHTML = `<div style="text-align:center; padding:15px; background:#e6dbb3; font-weight:bold; font-size:18px; border-bottom:1px solid #ccc;">📖 ${gName} / ${sgName} (${notes.length} ခု)</div><div id="view-contents-container" style="padding: 15px; padding-bottom: 80px; overflow-y: auto; max-height: calc(100vh - 120px);"></div><div style="position: fixed; bottom: 0; left: 0; width: 100%; padding: 12px; background: #e6dbb3; text-align: center; display: flex; gap: 10px; justify-content: center;"><button id="back-main-btn" style="flex:1; padding: 10px 25px; background: #605639; color: white; border: none; border-radius: 4px; font-weight: bold;">⬅️ Back</button><button id="new-in-subgroup-btn" style="flex:1; padding: 10px 25px; background: #2d6a4f; color: white; border: none; border-radius: 4px; font-weight: bold;">➕ New</button></div>`;
   const container = document.getElementById('view-contents-container');
   notes.forEach(data => {
     const noteCard = document.createElement('div');
     noteCard.style.cssText = "padding: 15px; margin-bottom: 15px; border-left: 5px solid #605639; background: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.08); border-radius: 0 4px 4px 0;";
     const favIcon = data.role === 3? '⭐ ' : '';
-    noteCard.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
-        <p style="margin: 0; color: #605639; font-size: 16px; white-space: pre-wrap; flex:1;">${favIcon}${data.content || '-'}</p>
-        <div style="display:flex; gap:6px; margin-left:10px;">
-          <button class="inline-copy-btn" style="padding: 4px 10px; background: #e6dbb3; color: #605639; border: 1px solid #605639; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;">📋</button>
-          <button class="inline-edit-btn" style="padding: 4px 10px; background: #e6dbb3; color: #605639; border: 1px solid #605639; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;">✏️</button>
-        </div>
-      </div>
-      <p style="margin: 3px 0; font-size: 12px; color: #888; text-align:right;">
-        ${new Date(data.updateTime).toLocaleString('my-MM')}
-      </p>
-    `;
+    noteCard.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;"><p style="margin: 0; color: #605639; font-size: 16px; white-space: pre-wrap; flex:1;">${favIcon}${data.content || '-'}</p><div style="display:flex; gap:6px; margin-left:10px;"><button class="inline-copy-btn" style="padding: 4px 10px; background: #e6dbb3; color: #605639; border: 1px solid #605639; border-radius: 4px; font-size: 12px; font-weight: bold;">📋</button><button class="inline-edit-btn" style="padding: 4px 10px; background: #e6dbb3; color: #605639; border: 1px solid #605639; border-radius: 4px; font-size: 12px; font-weight: bold;">✏️</button></div></div><p style="margin: 3px 0; font-size: 12px; color: #888; text-align:right;">${new Date(data.updateTime).toLocaleString('my-MM')}</p>`;
     noteCard.querySelector('.inline-copy-btn').addEventListener('click', async () => {
-      const textToCopy = data.content || '';
-      try {
-        await navigator.clipboard.writeText(textToCopy);
-        const btn = noteCard.querySelector('.inline-copy-btn');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '✅';
-        btn.style.background = '#2d6a4f';
-        btn.style.color = 'white';
-        setTimeout(() => {
-          btn.innerHTML = originalText;
-          btn.style.background = '#e6dbb3';
-          btn.style.color = '#605639';
-        }, 1000);
-      } catch (err) {
-        alert('Copy မရပါ: ' + err);
-      }
+      try { await navigator.clipboard.writeText(data.content || ''); const btn = noteCard.querySelector('.inline-copy-btn'); btn.innerHTML = '✅'; setTimeout(()=>btn.innerHTML='📋',1000); } catch (err) { alert('Copy မရပါ'); }
     });
     noteCard.querySelector('.inline-edit-btn').addEventListener('click', () => {
       currentEditId = data.id;
@@ -282,51 +211,29 @@ function showSubGroupContents(notes, sgName, gName) {
   document.getElementById('back-main-btn').addEventListener('click', () => changeScreen(mainScreen));
   document.getElementById('new-in-subgroup-btn').addEventListener('click', () => {
     currentEditId = null;
-    document.querySelectorAll('.input-form input,.input-form textarea').forEach(input => input.value = "");
+    document.querySelectorAll('.input-form input, #content').forEach(input => input.value = "");
     document.getElementById('group').value = gName;
     document.getElementById('subGroup').value = sgName;
     changeScreen(editScreen);
-    setTimeout(() => document.getElementById('content').focus(), 100);
   });
   changeScreen(viewScreen);
 }
-
 const cancelEditBtn = document.getElementById('cancel-edit-btn');
 const saveWordBtn = document.getElementById('save-word-btn');
 const contentArea = document.getElementById('content');
-let undoStack = [];
-let redoStack = [];
-
+let undoStack = []; let redoStack = [];
 cancelEditBtn.addEventListener('click', () => changeScreen(mainScreen));
-
 saveWordBtn.addEventListener('click', async () => {
-  const noteData = {
-    group: document.getElementById('group').value.trim() || "အခြား",
-    subGroup: document.getElementById('subGroup').value.trim() || "အထွေထွေ",
-    content: contentArea.value.trim(),
-    role: 1,
-    updateTime: new Date().toISOString()
-  };
-  if (!noteData.content) {
-    alert("မှတ်စုထဲစာဖြည့်ဦး");
-    return;
-  }
+  const noteData = { group: document.getElementById('group').value.trim() || "အခြား", subGroup: document.getElementById('subGroup').value.trim() || "အထွေထွေ", content: contentArea.value.trim(), role: 1, updateTime: new Date().toISOString() };
+  if (!noteData.content) { alert("မှတ်စုထဲစာဖြည့်ဦး"); return; }
   try {
-    if (currentEditId) {
-      await updateDoc(doc(db, "AAAnotes", currentEditId), noteData);
-    } else {
-      await addDoc(collection(db, "AAAnotes"), noteData);
-    }
+    if (currentEditId) await updateDoc(doc(db, "AAAnotes", currentEditId), noteData);
+    else await addDoc(collection(db, "AAAnotes"), noteData);
     currentEditId = null;
-    document.getElementById('group').value = "";
-    document.getElementById('subGroup').value = "";
-    contentArea.value = "";
+    document.getElementById('group').value = ""; document.getElementById('subGroup').value = ""; contentArea.value = "";
     changeScreen(mainScreen);
-  } catch (error) {
-    alert('မရဘူး: ' + error.message);
-  }
+  } catch (error) { alert('မရဘူး: ' + error.message); }
 });
-
 contentArea.addEventListener('keyup', (e) => {
   if (e.key === ' ' || e.key === 'Enter' || e.key === '၊' || e.key === '။') {
     if (undoStack[undoStack.length - 1]!== contentArea.value) {
@@ -336,63 +243,16 @@ contentArea.addEventListener('keyup', (e) => {
     }
   }
 });
-
 document.getElementById('editor-toolbar').addEventListener('click', async (e) => {
-  const btn = e.target.closest('button');
-  if (!btn ||!btn.dataset.cmd) return;
-  e.preventDefault();
-  contentArea.focus();
-  const cmd = btn.dataset.cmd;
-  const start = contentArea.selectionStart;
-  const end = contentArea.selectionEnd;
-  if (cmd === 'undo') {
-    if (undoStack.length > 1) {
-      redoStack.push(undoStack.pop());
-      contentArea.value = undoStack[undoStack.length - 1] || '';
-    }
-  }
-  if (cmd === 'redo') {
-    if (redoStack.length > 0) {
-      const val = redoStack.pop();
-      undoStack.push(val);
-      contentArea.value = val;
-    }
-  }
-  if (cmd === 'copy') {
-    await navigator.clipboard.writeText(contentArea.value.substring(start, end) || contentArea.value);
-  }
-  if (cmd === 'paste') {
-    try {
-      const text = await navigator.clipboard.readText();
-      contentArea.value = contentArea.value.slice(0, start) + text + contentArea.value.slice(end);
-      contentArea.setSelectionRange(start + text.length, start + text.length);
-    } catch {}
-  }
+  const btn = e.target.closest('button'); if (!btn ||!btn.dataset.cmd) return;
+  e.preventDefault(); contentArea.focus();
+  const cmd = btn.dataset.cmd; const start = contentArea.selectionStart; const end = contentArea.selectionEnd;
+  if (cmd === 'undo') { if (undoStack.length > 1) { redoStack.push(undoStack.pop()); contentArea.value = undoStack[undoStack.length - 1] || ''; } }
+  if (cmd === 'redo') { if (redoStack.length > 0) { const val = redoStack.pop(); undoStack.push(val); contentArea.value = val; } }
+  if (cmd === 'copy') await navigator.clipboard.writeText(contentArea.value.substring(start, end) || contentArea.value);
+  if (cmd === 'paste') { try { const text = await navigator.clipboard.readText(); contentArea.value = contentArea.value.slice(0, start) + text + contentArea.value.slice(end); } catch {} }
   if (cmd === 'selectAll') contentArea.select();
   if (cmd === 'left') contentArea.setSelectionRange(Math.max(0, start - 1), Math.max(0, start - 1));
   if (cmd === 'right') contentArea.setSelectionRange(start + 1, start + 1);
-  if (cmd === 'up') {
-    const lines = contentArea.value.substr(0, start).split('\n');
-    const currentLine = lines.length - 1;
-    const currentCol = lines[currentLine].length;
-    if (currentLine > 0) {
-      const newPos = lines.slice(0, currentLine - 1).join('\n').length + Math.min(currentCol, lines[currentLine - 1].length) + 1;
-      contentArea.setSelectionRange(newPos, newPos);
-    }
-  }
-  if (cmd === 'down') {
-    const lines = contentArea.value.split('\n');
-    const beforeCursor = contentArea.value.substr(0, start).split('\n');
-    const currentLine = beforeCursor.length - 1;
-    const currentCol = beforeCursor[currentLine].length;
-    if (currentLine < lines.length - 1) {
-      const newPos = lines.slice(0, currentLine + 1).join('\n').length + Math.min(currentCol, lines[currentLine + 1].length) + 1;
-      contentArea.setSelectionRange(newPos, newPos);
-    }
-  }
 });
-
-function resetUndoStack(text) {
-  undoStack = [text || ''];
-  redoStack = [];
-}
+function resetUndoStack(text) { undoStack = [text || '']; redoStack = []; }
