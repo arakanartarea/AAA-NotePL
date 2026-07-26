@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Login Debug Test</title>
+  
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+
+  <style>
+    body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background: #f4f4f9; }
+    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; max-width: 380px; width: 90%; }
+    button { background-color: #4285F4; color: white; border: none; padding: 10px 18px; font-size: 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+    #user-info { display: none; margin-top: 15px; }
+    #user-img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid #4285F4; }
+    
+    /* Live Log Box ဒီဇိုင်း */
+    #log-box {
+      background: #1e1e1e;
+      color: #00ff66;
+      font-family: monospace;
+      padding: 10px;
+      margin-top: 15px;
+      height: 140px;
+      overflow-y: auto;
+      text-align: left;
+      font-size: 12px;
+      border-radius: 6px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Google Login Debug</h2>
+    <button id="login-btn">Google နဲ့ Login ဝင်မည်</button>
+
+    <div id="user-info">
+      <img id="user-img" src="" alt="Profile">
+      <h3 id="user-name"></h3>
+      <p id="user-email"></p>
+    </div>
+
+    <!-- နောက်ကွယ်က အဆင့်တွေကို ပြပေးမယ့် Box -->
+    <div id="log-box">[SYSTEM] အဆင်သင့်ဖြစ်ပါပြီ...</div>
+  </div>
+
+  <script>
+    // Live Log ထုတ်ပေးမယ့် Helper Function
+    function printLog(msg, isError = false) {
+      const logBox = document.getElementById('log-box');
+      const time = new Date().toLocaleTimeString();
+      const color = isError ? '#ff4d4d' : '#00ff66';
+      logBox.innerHTML += `<div style="color:${color};">[${time}] ${msg}</div>`;
+      logBox.scrollTop = logBox.scrollHeight; // အမြဲအောက်ဆုံးကို Auto scroll ဆွဲပေးမယ်
+    }
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U",
+  authDomain: "arakanartarea-note.firebaseapp.com",
+  projectId: "arakanartarea-note",
+  storageBucket: "arakanartarea-note.firebasestorage.app",
+  messagingSenderId: "695659736666",
+  appId: "1:695659736666:web:1e76494c0e6819609bf263"
+};
+
+    try {
+      firebase.initializeApp(firebaseConfig);
+      printLog("Firebase Init အဆင်ပြေတယ်။");
+    } catch (e) {
+      printLog("Firebase Init မှာ Error တက်နေတယ်: " + e.message, true);
+    }
+
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    document.getElementById('login-btn').addEventListener('click', () => {
+      printLog("1. Login ခလုတ်ကို နှိပ်လိုက်ပြီ။");
+      printLog("2. Google Popup ပွင့်ဖို့ တောင်းဆိုနေပါပြီ...");
+
+      firebase.auth().signInWithPopup(provider)
+        .then((result) => {
+          printLog("3. Google Account ရွေးချယ်မှု အောင်မြင်တယ်။");
+          const user = result.user;
+
+          printLog(`4. User Data ရပြီ: ${user.displayName} (${user.email})`);
+
+          document.getElementById('user-img').src = user.photoURL;
+          document.getElementById('user-name').innerText = user.displayName;
+          document.getElementById('user-email').innerText = user.email;
+          document.getElementById('user-info').style.display = 'block';
+
+          printLog("5. UI ပေါ်မှာ ပုံနဲ့ နာမည် ပြသပြီးပါပြီ! ✅");
+        })
+        .catch((error) => {
+          printLog(`❌ Error ဖြစ်သွားတယ်! [${error.code}]: ${error.message}`, true);
+        });
+    });
+  </script>
+
+</body>
+</html>

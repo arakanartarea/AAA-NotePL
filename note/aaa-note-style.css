@@ -184,3 +184,26 @@ header h2 {
 
 #user-main-screen.hidden { display: none !important; }
 /* ===== SCREEN 4:ဆ ===== ===== ===== ===== ===== ===== ===== =====  */
+/* တိုက်ရိုက် */
+#log-box {
+  background: #1e1e1e;   /* အမည်းရောင် နောက်ခံ */
+  color: #00ff66;         /* အစိမ်းရောင် စာသား */
+  font-family: monospace;
+  padding: 10px;
+  height: 150px;         /* Box ရဲ့ အမြင့် */
+  overflow-y: auto;      /* စာများရင် Scroll တက်လာမယ် */
+  font-size: 12px;
+  border-radius: 6px;
+  white-space: pre-wrap;
+}
+#log-box {
+  background: #1e1e1e;   /* အမည်းရောင် နောက်ခံ */
+  color: #00ff66;         /* အစိမ်းရောင် စာသား */
+  font-family: monospace;
+  padding: 10px;
+  height: 150px;         /* Box ရဲ့ အမြင့် */
+  overflow-y: auto;      /* စာများရင် Scroll တက်လာမယ် */
+  font-size: 12px;
+  border-radius: 6px;
+  white-space: pre-wrap;
+}
