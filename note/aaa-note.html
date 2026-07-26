@@ -1,157 +1,132 @@
 <!DOCTYPE html>
 <html lang="my">
-<head> 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notepad</title>
-    <link rel="stylesheet" href="aaa-note-style.css">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AAA Note - Admin Only</title>
+<style>
+body{margin:0;font-family:sans-serif;background:#fffbe6}
+#top{padding:10px 15px;background:white;border-bottom:1px solid #ddd;display:flex;gap:10px;align-items:center}
+#searchBox{width:100%;padding:10px 35px;border:1px solid #ccc;border-radius:20px;outline:none}
+#authBtn{width:40px;height:40px;border-radius:50%;border:1px solid #ddd;background:#f5f5f5;cursor:pointer;font-size:20px;flex-shrink:0}
+#expandable-list{padding:15px;padding-bottom:80px}
+.group-header{cursor:pointer;padding:12px;background:#e6dbb3;font-weight:bold;border-radius:4px;margin-bottom:8px}
+.hidden{display:none!important}
+#main-toolbar{display:flex;gap:10px;padding:10px;background:#605639;overflow-x:auto}
+#main-toolbar button, #main-toolbar select{padding:8px 16px;background:#e6dbb3;color:#605639;border:none;border-radius:20px;font-weight:bold;flex-shrink:0;cursor:pointer}
+</style>
 </head>
 <body>
-
-    <div class="notepad-container">
-<!-- Screen 1  Main စ ============= ============ ============ ============ -->
-<div id="main-screen" class="screen">
-       <header>
-  <div style="padding: 10px 15px; background: white; border-bottom: 1px solid #ddd; display:flex; align-items:center; gap:10px;">
-    
-    <!-- Search Box -->
-    <div style="position: relative; flex:1; display: flex; align-items: center;">
-      <span style="position: absolute; left: 12px; color: #999;">🔍</span>
-      <input type="text" id="searchBox" placeholder="စကားလုံး၊ အဓိပ္ပါယ်၊ အမျိုးအစား ရှာရန်..." 
-        style="width: 100%; padding: 10px 35px 10px 35px; border: 1px solid #ccc; border-radius: 20px; font-size: 14px; outline: none;">
-      <button id="clearSearchBtn" style="position: absolute; right: 8px; background: none; border: none; font-size: 18px; color: #999; cursor: pointer; display: none;">✖</button>
-    </div>
-
-    <!-- Login Icon Button -->
-<button id="authBtn" onclick="window.location.href='https://accounts.google.com'" style="width:40px;height:40px;border-radius:50%;border:1px solid #ddd;background:#f5f5f5;cursor:pointer;font-size:20px;position:relative;z-index:9999;">👤</button>
-  </div>
-</header>
-
-<main class="content-area">
-  <div id="expandable-list"></div>
-</main>
-
-
-            <div class="bottom-toolbar" id="main-toolbar" style="display: flex; overflow-x: auto; white-space: nowrap; padding: 10px; background: #605639; gap: 10px; -webkit-overflow-scrolling: touch; width: 100%; box-sizing: border-box;">
-
-    <button id="new-word-btn" style="padding: 8px 16px; background: #e6dbb3; color: #605639; border: none; border-radius: 20px; font-weight: bold; flex-shrink: 0; cursor: pointer;">➕ New </button>
-    
-<select id="sort-select" style="padding: 8px 16px; background: #e6dbb3; color: #605639; border: none; border-radius: 20px; font-weight: bold; flex-shrink: 0; cursor: pointer; outline: none;">
-    <option value="time-new">🕐 အသစ်ဆုံး</option>
-    <option value="time-old">🕐 အဟောင်းဆုံး</option>
-    <option value="az">🔤 A-Z</option>
-    <option value="za">🔤 Z-A</option>
-</select>
-
-<select id="Screen-select" style="padding: 8px 16px; background: #e6dbb3; color: #605639; border: none; border-radius: 20px; font-weight: bold; flex-shrink: 0; cursor: pointer; outline: none;">
-    <option value="https://arakanartarea.github.io/AAA-NotePL/AAA/AAA_Index.html">🎙️ ArakanArtArea</option>
-    <option value="https://arakanartarea.github.io/AAA-NotePL/ASD/AllUserList-AD.html">🎙️ AAA AllUserList</option>
-    
-    <option value="https://arakanartarea.github.io/AAA-NotePL/ASD/ASD_inbox.html">📝 သတ်ပုံကျမ်း ( လက်ခံဝဘ် )</option>
-    <option value="https://arakanartarea.github.io/AAA-NotePL/ASD/ArakaneseSpellingDict_index.html">📝 သတ်ပုံကျမ်း (ပြသ)</option>
-    
-    <option value="https://arakanartarea.github.io/AAA-NotePL/ASD/#">📝 အဘိဓာန် (လက်ခံဝဘ်) မရှိသေး...</option>
-    <option value="https://arakanartarea.github.io/AAA-NotePL/ASD/ArakaneseDictionary_Index.html">📝 အဘိဓာန်(ပြသ) </option>
-    
-</select>
-
+<div id="top">
+<div style="flex:1;position:relative;display:flex;align-items:center"><span style="position:absolute;left:12px">🔍</span><input id="searchBox" placeholder="ရှာရန်..."></div>
+<button id="authBtn">👤</button>
+</div>
+<div id="main-screen"><main class="content-area"><div id="expandable-list">Loading...</div></main>
+<div id="main-toolbar">
+<button id="new-word-btn">➕ New</button>
+<select id="sort-select"><option value="time-new">🕐 အသစ်ဆုံး</option><option value="time-old">🕐 အဟောင်းဆုံး</option><option value="az">🔤 A-Z</option><option value="za">🔤 Z-A</option></select>
+<select id="Screen-select"><option value="">Menu</option><option value="https://arakanartarea.github.io/AAA-NotePL/AAA/AAA_Index.html">🎙️ ArakanArtArea</option></select>
+</div></div>
+<div id="view-screen" class="hidden"></div>
+<div id="edit-screen" class="hidden" style="display:flex;flex-direction:column;height:100vh">
+<div style="padding:10px;background:#e6dbb3;display:flex;gap:8px"><input id="group" placeholder="အုပ်စု" style="flex:1;padding:8px"><input id="subGroup" placeholder="အုပ်စုခွဲ" style="flex:1;padding:8px"></div>
+<textarea id="content" placeholder="မှတ်စု..." style="flex:1;padding:12px;border:none;resize:none;outline:none;font-size:16px"></textarea>
+<div id="editor-toolbar" style="display:flex;gap:4px;padding:8px;background:#f5f5f5;border-top:1px solid #ddd"><button data-cmd="undo">↶</button><button data-cmd="redo">↷</button><button id="cancel-edit-btn" style="margin-left:auto;padding:8px 16px;background:#605639;color:white;border:none;border-radius:4px">⬅️</button><button id="save-word-btn" style="padding:8px 16px;background:#2d6a4f;color:white;border:none;border-radius:4px">💾</button></div>
 </div>
 
-        </div>
-        
-        <!-- Success Modal -->
-<!-- Success Modal သိမ်းပြီး မစ်ဆေ့ -->
-<div id="successModal"
-style="display:none; 
-position:fixed; 
-top:0; left:0; 
-width:100%; 
-height:100%; 
-background:rgba(0,0,0,0.5); 
-z-index:9999; 
-justify-content:center; 
-align-items:center;">
-    
-<div 
-style="background:white; 
-padding:25px; 
-border-radius:10px; 
-text-align:center; 
-max-width:300px; 
-box-shadow:0 5px 20px rgba(0,0,0,0.3);">
-        
-<p 
-id="successMsg" 
-style="font-size:16px; 
-color:#333; margin-bottom:20px;">သတ်ပုံစာလုံး သိမ်းပြီးပါပြီ။</p>
-        
-<div style="display:flex; gap:10px; justify-content:center;">
-            <button id="btnNew" style="flex:1; padding:10px; background:#605639; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold;">New</button>
-            <button id="btnOk" style="flex:1; padding:10px; background:#ccc; color:#333; border:none; border-radius:5px; cursor:pointer;">OK</button>
-        </div>
-    </div>
-</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, signInWithRedirect, GoogleAuthProvider, signOut, onAuthStateChanged, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-<!-- Screen 1  Main ဆ ============= ============ ============ ============ -->
+const firebaseConfig = { apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U", authDomain: "arakanartarea-note.firebaseapp.com", projectId: "arakanartarea-note", storageBucket: "arakanartarea-note.firebasestorage.app", messagingSenderId: "695659736666", appId: "1:695659736666:web:1e76494c0e6819609bf263" };
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-<!-- Screen 2 View စ ============= ============ ============ ============ ============  -->
-<div id="view-screen" class="screen hidden">
-           <!-- <header>
-                <h2>📖 Word Details</h2>
-            </header>
-            
-            <main class="content-area">
-                <div id="dictionaryContainer">
-                    <div class="word-card">
-                        <h3 id="view-title">က — <span id="view-pos" class="pos">[ဝိဘတ်]</span></h3>
-                        <p class="meaning" id="view-definition">နေရာညွှန်ပြရာ၌ သုံးသည်။</p>
-                        <p class="eg"><strong>ဥပမာ:</strong> <span id="view-example">ရန်ကုန် က လာပါသည်။</span></p>
-                        <p class="eng"><strong>အင်္ဂလိပ်လို:</strong> <span id="view-english">from</span></p>
-                        <p class="audio"><strong>အသံထွက်:</strong> <span id="view-pronounce">KA</span> <button class="play-btn">▶️ အသံနာထောင်ရန်</button></p>
-                    </div>
-                </div>
-            </main>
--->
-<!-- <div class="bottom-toolbar">
-                <button id="back-main-btn" class="toolbar-btn">⬅️ Back to List</button>
-            </div>
-            -->
-        </div>
-<!-- Screen 2 View ဆ ============= ============ ============ ============ ============ -->
+let allWords=[], currentSearchText="", debounceTimer=null, currentSortMode='time-new', unsubscribe=null, currentEditId=null;
 
-<!-- Screen 3 edit စ -->
-<div id="edit-screen" class="screen hidden" style="display:flex; flex-direction:column; height:100vh;">
-    
-    <!-- 1. အပေါ် Group 2 ခုပဲ -->
-    <div style="padding:10px; background:#e6dbb3; display:flex; gap:8px;">
-        <input type="text" id="group" placeholder="အုပ်စု" style="flex:1; padding:8px; border:1px solid #999; border-radius:4px; background:white;">
-        <input type="text" id="subGroup" placeholder="အုပ်စုခွဲ" style="flex:1; padding:8px; border:1px solid #999; border-radius:4px; background:white;">
-    </div>
-    
-    <!-- 2. Content - ကျန်နေရာအပြည့်ယူ -->
-    <textarea id="content" placeholder="မှတ်စု..." style="flex:1; padding:12px; border:none; resize:none; font-size:16px; line-height:1.6; outline:none;"></textarea>
-    
-    <!-- 3. အောက်ခြေ Toolbar - ကီးဘုတ်တက်ရင် ကီးဘုတ်အပေါ်ကပ်မယ် -->
-   <div id="editor-toolbar" style="display:flex; gap:4px; padding:8px; background:#f5f5f5; border-top:1px solid #ddd; overflow-x:auto;">
-    <button type="button" data-cmd="undo" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">↶</button>
-    <button type="button" data-cmd="redo" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">↷</button>
-    <button type="button" data-cmd="copy" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">📋</button>
-    <button type="button" data-cmd="paste" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">📥</button>
-    <button type="button" data-cmd="selectAll" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">☰</button>
-    <button type="button" data-cmd="left" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">←</button>
-    <button type="button" data-cmd="right" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">→</button>
-    <button type="button" data-cmd="up" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">↑</button>
-    <button type="button" data-cmd="down" style="padding:8px 12px; background:white; border:1px solid #ccc; border-radius:4px;">↓</button>
-    <div style="flex:1;"></div>
-    <button id="cancel-edit-btn" style="padding:8px 16px; background:#605639; color:white; border:none; border-radius:4px; font-weight:bold;">⬅️</button>
-    <button id="save-word-btn" style="padding:8px 16px; background:#2d6a4f; color:white; border:none; border-radius:4px; font-weight:bold;">💾</button>
-</div>
-    
-</div>
-<!-- Screen 3 edit ဆ -->
+const mainScreen=document.getElementById('main-screen'), editScreen=document.getElementById('edit-screen'), viewScreen=document.getElementById('view-screen');
+const expandableList=document.getElementById('expandable-list');
+function changeScreen(t){ mainScreen.classList.add('hidden'); editScreen.classList.add('hidden'); viewScreen.classList.add('hidden'); t.classList.remove('hidden'); }
 
+window.doLogin = () => signInWithRedirect(auth, provider);
+window.doLogout = () => signOut(auth);
 
-<script type="module" src="aaa-note-script.js?v=final2025"></script>
-<!--<script type="module" src="../script/AAA-Note.js?v=final2025"></script> -->
+document.getElementById('authBtn').onclick = () => { if(!auth.currentUser) window.doLogin(); else if(confirm("Logout?")) window.doLogout(); };
+document.getElementById('new-word-btn').onclick = () => { currentEditId=null; document.getElementById('group').value=""; document.getElementById('subGroup').value=""; document.getElementById('content').value=""; changeScreen(editScreen); };
+document.getElementById('sort-select').onchange = (e) => { currentSortMode=e.target.value; showWords(); };
+document.getElementById('Screen-select').onchange = function(){ if(this.value) location.href=this.value; };
+
+getRedirectResult(auth).catch(e=>{ alert("Login Fail: "+e.message+"\n\nFirebase > Auth > Authorized domains မှာ arakanartarea.github.io ထည့်ရမယ်"); });
+
+onAuthStateChanged(auth, async (user)=>{
+  if(unsubscribe){ unsubscribe(); unsubscribe=null; }
+  allWords=[];
+  if(!user){
+    document.getElementById('authBtn').innerText="👤";
+    expandableList.innerHTML=`<div style="text-align:center;padding:40px"><h3>🔒 Login ဝင်ပါ</h3><p>Admin မှသာ ကြည့်ခွင့်ရှိ</p><button onclick="doLogin()" style="padding:12px 24px;background:#605639;color:white;border:none;border-radius:20px;margin-top:15px;font-weight:bold;cursor:pointer">Google ဖြင့် Login</button><p style="font-size:12px;color:#888;margin-top:10px">vFINAL-FIXED</p></div>`;
+    return;
+  }
+  document.getElementById('authBtn').innerText="⏳";
+  try{
+    const snap = await getDoc(doc(db, "admins", user.email));
+    if(!snap.exists()){
+      document.getElementById('authBtn').innerText="🚫";
+      expandableList.innerHTML=`<p style="text-align:center;padding:20px">${user.email}<br>ခွင့်မရှိပါ<br><button onclick="doLogout()" style="margin-top:10px;padding:8px 16px">Logout</button></p>`;
+      return;
+    }
+    document.getElementById('authBtn').innerText="✅";
+    unsubscribe = onSnapshot(collection(db,"AAAnotes"), (s)=>{
+      allWords=[]; s.forEach(d=>{ const data=d.data(); if(data.role!==2) allWords.push({id:d.id,...data}); }); showWords();
+    }, (err)=>{ expandableList.innerHTML=`<p style="color:red;text-align:center">Permission: ${err.message}</p>`; });
+  }catch(err){ expandableList.innerHTML=`<p style="color:red;text-align:center">${err.message}</p>`; }
+});
+
+function showWords(){
+  expandableList.innerHTML="";
+  let filtered = allWords.filter(n=>{ const s=currentSearchText.toLowerCase(); return (n.group||"").toLowerCase().includes(s) || (n.subGroup||"").toLowerCase().includes(s) || (n.content||"").toLowerCase().includes(s); });
+  if(filtered.length===0){ expandableList.innerHTML=`<p style="text-align:center;color:#888;padding-top:20px">ရှာမတွေ့ပါ</p>`; return; }
+  filtered.forEach(w=>{ w.group=w.group||"အခြား"; w.subGroup=w.subGroup||"အထွေထွေ"; });
+  const groups={}; filtered.forEach(d=>{ if(!groups[d.group]) groups[d.group]={}; if(!groups[d.group][d.subGroup]) groups[d.group][d.subGroup]=[]; groups[d.group][d.subGroup].push(d); });
+  let sortedG = Object.keys(groups);
+  if(currentSortMode==='time-new') sortedG.sort((a,b)=>Math.max(...Object.values(groups[b]).flat().map(x=>new Date(x.updateTime||0).getTime()))-Math.max(...Object.values(groups[a]).flat().map(x=>new Date(x.updateTime||0).getTime())));
+  sortedG.forEach(gName=>{
+    const wrap=document.createElement('div'); wrap.style.marginBottom="8px";
+    const h=document.createElement('div'); h.className="group-header"; h.innerText=`📁 ${gName}`;
+    const subBox=document.createElement('div'); subBox.style.display="none"; subBox.style.paddingLeft="10px";
+    Object.keys(groups[gName]).forEach(sgName=>{
+      const sh=document.createElement('div'); sh.style.cssText="padding:10px 15px;margin-top:5px;font-weight:bold;background:#f1f1f1;border-radius:4px;cursor:pointer"; sh.innerText=`📂 ${sgName}`;
+      sh.onclick=(e)=>{ e.stopPropagation(); showSubGroupContents(groups[gName][sgName], sgName, gName); };
+      subBox.appendChild(sh);
+    });
+    h.onclick=()=>{ const open=subBox.style.display==="block"; document.querySelectorAll('#expandable-list > div > div:nth-child(2)').forEach(el=>el.style.display="none"); subBox.style.display=open?"none":"block"; };
+    wrap.appendChild(h); wrap.appendChild(subBox); expandableList.appendChild(wrap);
+  });
+}
+const searchBox=document.getElementById('searchBox');
+searchBox.addEventListener('input', ()=>{ clearTimeout(debounceTimer); debounceTimer=setTimeout(()=>{ currentSearchText=searchBox.value; showWords(); },300); });
+
+function showSubGroupContents(notes, sgName, gName){
+  viewScreen.innerHTML=`<div style="text-align:center;padding:15px;background:#e6dbb3;font-weight:bold">📖 ${gName}/${sgName} (${notes.length})</div><div id="view-contents-container" style="padding:15px;padding-bottom:80px"></div><div style="position:fixed;bottom:0;left:0;width:100%;padding:12px;background:#e6dbb3;display:flex;gap:10px"><button id="back-main-btn" style="flex:1;padding:10px;background:#605639;color:white;border:none;border-radius:4px">⬅️ Back</button><button id="new-in-subgroup-btn" style="flex:1;padding:10px;background:#2d6a4f;color:white;border:none;border-radius:4px">➕ New</button></div>`;
+  const container=document.getElementById('view-contents-container');
+  notes.forEach(data=>{
+    const card=document.createElement('div'); card.style.cssText="padding:15px;margin-bottom:15px;border-left:5px solid #605639;background:white";
+    card.innerHTML=`<div style="display:flex;justify-content:space-between"><p style="margin:0;white-space:pre-wrap;flex:1">${data.content}</p><div><button class="c">📋</button><button class="e">✏️</button></div></div>`;
+    card.querySelector('.c').onclick=async()=>{ await navigator.clipboard.writeText(data.content); };
+    card.querySelector('.e').onclick=()=>{ currentEditId=data.id; document.getElementById('group').value=data.group; document.getElementById('subGroup').value=data.subGroup; document.getElementById('content').value=data.content; changeScreen(editScreen); };
+    container.appendChild(card);
+  });
+  document.getElementById('back-main-btn').onclick=()=>changeScreen(mainScreen);
+  document.getElementById('new-in-subgroup-btn').onclick=()=>{ currentEditId=null; document.getElementById('group').value=gName; document.getElementById('subGroup').value=sgName; document.getElementById('content').value=""; changeScreen(editScreen); };
+  changeScreen(viewScreen);
+}
+document.getElementById('cancel-edit-btn').onclick=()=>changeScreen(mainScreen);
+document.getElementById('save-word-btn').onclick=async()=>{
+  const noteData={ group:document.getElementById('group').value.trim()||"အခြား", subGroup:document.getElementById('subGroup').value.trim()||"အထွေထွေ", content:document.getElementById('content').value.trim(), role:1, updateTime:new Date().toISOString() };
+  if(!noteData.content){ alert("စာဖြည့်"); return; }
+  try{ if(currentEditId) await updateDoc(doc(db,"AAAnotes",currentEditId), noteData); else await addDoc(collection(db,"AAAnotes"), noteData); changeScreen(mainScreen); }catch(e){ alert(e.message); }
+};
+</script>
 </body>
 </html>
