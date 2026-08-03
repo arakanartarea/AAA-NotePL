@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AAAnotes</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="app">
+
+  <!-- MAIN SCREEN -->
+  <div id="mainScreen" class="screen">
+    <div id="bigLoginWrap">
+      <button id="bigLoginBtn" class="big-login">Google နဲ့ Login ဝင်ပါ</button>
+    </div>
+
+    <div id="mainTop">
+      <div id="searchWrap" class="hidden">
+        <input id="searchBox" type="text" placeholder="ရှာမယ်...">
+      </div>
+    </div>
+
+    <div class="content" id="mainContent">
+      <!-- group list here -->
+    </div>
+
+    <div class="toolbar" id="mainToolbar">
+      <button class="tool-btn" id="btnFav">⭐<span>Fav</span></button>
+      <button class="tool-btn" id="btnSort">🔤<span>Sort</span></button>
+      <button class="tool-btn" id="btnSearch">🔍<span>Search</span></button>
+      <button class="tool-btn primary" id="btnNew">➕<span>New</span></button>
+      <button class="tool-btn" id="btnSettings">⚙️<span>Settings</span></button>
+      <button class="tool-btn" id="btnMore">⋯<span>More</span></button>
+    </div>
+  </div>
+
+  <!-- VIEW SCREEN -->
+  <div id="viewScreen" class="screen hidden">
+    <div class="content" id="viewContent"></div>
+    <div class="toolbar" id="viewToolbar">
+      <button class="tool-btn" id="viewBack">⬅️<span>Back</span></button>
+      <button class="tool-btn primary" id="viewNew">➕<span>New</span></button>
+    </div>
+  </div>
+
+  <!-- EDIT SCREEN -->
+  <div id="editScreen" class="screen hidden">
+    <div class="content" id="editContent">
+      <input id="editGroup" placeholder="Group">
+      <input id="editSubGroup" placeholder="SubGroup">
+      <textarea id="editText" rows="15" placeholder="Content ရေးပါ"></textarea>
+    </div>
+    <div class="toolbar scroll-x" id="editToolbar">
+      <button class="tool-btn primary" id="btnSave">💾<span>Save</span></button>
+      <button class="tool-btn" id="btnCancel">❌<span>Cancel</span></button>
+      <button class="tool-btn" id="btnLeft">←</button>
+      <button class="tool-btn" id="btnUp">↑</button>
+      <button class="tool-btn" id="btnDown">↓</button>
+      <button class="tool-btn" id="btnRight">→</button>
+      <button class="tool-btn" id="btnUndo">↩️<span>Undo</span></button>
+      <button class="tool-btn" id="btnRedo">↪️<span>Redo</span></button>
+    </div>
+  </div>
+
+  <!-- TRASH SCREEN -->
+  <div id="trashScreen" class="screen hidden">
+    <div class="content" id="trashContent"></div>
+    <div class="toolbar">
+      <button class="tool-btn" id="trashBack">⬅️<span>Back</span></button>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settingsBox" class="hidden">
+    <div id="smallProfile"></div>
+    <button class="tool-btn" id="dayNightBtn">🌙 Day/Night</button>
+    <button class="tool-btn" id="trashBtn">🗑️ Trash</button>
+    <button class="tool-btn" id="closeSettings">Close</button>
+  </div>
+
+  <!-- MORE BOX -->
+  <div id="moreBox" class="hidden">
+    <a href="#">About</a>
+    <a href="#">Help</a>
+    <button class="tool-btn" id="closeMore">Close</button>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<div id="confirmBox" class="hidden">
+  <p id="confirmText"></p>
+  <button id="confirmYes" class="tool-btn primary">Yes</button>
+  <button id="confirmNo" class="tool-btn">No</button>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

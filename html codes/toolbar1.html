@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+
+/* ===== ၁. နေ့/ည အရောင် ဗူး ===== */
+:root {
+  --bar-bg: white;
+  --item-color: #8a7e6f;
+  --active-bg: #3d2e1f;
+  --active-text: white;
+  --page-bg: #fdf8ef;
+  --header-bg: white;
+    /* Search အတွက် အသစ် */
+  --search-bg: #f1f1f1;      /* Search Box နောက်ခံ - နည်းနည်းပြာ */
+  --search-border: #ddd;     /* Border - ခဲရောင် */
+  --main-text: black;      /* စာသား - အမဲ */
+
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bar-bg: #1e1e1e;
+    --item-color: #cccccc;
+    --active-bg: white;
+    --active-text: black;
+    --page-bg: #121212;
+    --header-bg: #1e1e1e;
+      /* Search အတွက် ညမုဒ် */
+  --search-bg: #2a2a2a;      /* Box ကို မဲပြာလေး */
+  --search-border: #444;     /* Border ကို ဖြူဖျော့ဖျော့ */
+  --main-text: white;      /* စာသားကို ဖြူ */
+  }
+}
+/* ကိုယ်ထည်  ========= Body=========================================*/ 
+body.dark {
+  --bar-bg: #1e1e1e;
+  --item-color: #cccccc;
+  --active-bg: white;
+  --active-text: black;
+  --page-bg: #121212;
+  --header-bg: #1e1e1e;
+    /* Search အတွက် ညမုဒ် */
+  --search-bg: #2a2a2a;      /* Box ကို မဲပြာလေး */
+  --search-border: #444;     /* Border ကို ဖြူဖျော့ဖျော့ */
+  --main-text: white;      /* စာသားကို ဖြူ */
+}
+body { 
+  background: var(--page-bg); 
+  margin: 0; 
+  height: 100dvh; /* 100vh ထက် 100dvh က ဖုန်းမှာ ပိုမှန်တယ် */
+  display: flex;
+  flex-direction: column; /* အပေါ် -> အောက် စီမယ် */
+  font-family: sans-serif;
+  transition: background 0.3s;
+}
+
+/*  ခေါင်းစည်းဘား ========= Header =========================================*/ 
+/* ===== ၃. အထပ် ၃ ထပ် ===== */
+.header {
+  /* height:10% ကို ဖြုတ် */
+  height: auto; /* အထဲက Search Box အမြင့်အတိုင်း အလိုလို ယူ */
+  padding: 12px 15px; /* အပေါ်အောက် 12px ခွာပေး - ဒါက အဓိက */
+  background: var(--header-bg);
+  display: flex;
+  align-items: center;
+}
+/* အထဲက ၂ မျိုးလုံး အပြည့်ယူ */
+.main-header, .search-header{
+  width:100%;
+}
+
+/* ရှာဖွေရေး  ========= Search Box=========================================*/ 
+.search-box{
+  display:flex;
+  align-items:center;
+  background:var(--search-bg);      /* page-bg မဟုတ်တော့ */
+  border:1px solid var(--search-border); /* #ddd မဟုတ်တော့ */
+  border-radius:12px;
+  padding:8px 12px;
+  gap:8px;
+}
+.search-box input{
+  flex:1;
+  border:none;
+  outline:none;
+  background:transparent;
+  font-size:16px;
+  color:var(--main-text); /* စာသားအရောင် - ညမှာ ဖြူလာမယ် */
+}
+.search-box .material-icons{
+  color:var(--main-text); /* Search icon လည်း ဖြူလာအောင် */
+  opacity:0.6;
+}
+#clearBtn{
+  border:none;
+  background:#eee;
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  cursor:pointer;
+  font-size:18px;
+  line-height:1;
+}
+
+/* ပေ့ခ်ျ */ 
+.page {
+  flex: 1; /* ကျန်တာ အကုန် သူ့အပိုင် - ဒါက 80% အစား */
+  overflow-y: auto;
+}
+
+/*  တူးဘား ========= toolbar=========================================*/ 
+/* တူးဘား */
+.toolbar-wrapper {
+  /* height:10% ကို ဖြုတ် */
+  height: auto; /* တူးဘား အမြင့်အတိုင်း */
+  padding: 12px 0 20px 0; /* အောက်နားနည်းနည်းပိုခွာ - ဖုန်းမှာ လက်နဲ့ ထိရလွယ်အောင် */
+  display: flex;
+  justify-content: center;
+  background: transparent;
+}
+.toolbar{ 
+  display:flex; 
+  background:var(--bar-bg); 
+  padding:8px; 
+  border-radius:25px; 
+  gap:5px; }
+.item{ 
+  display:flex; 
+  flex-direction:column; 
+  align-items:center; 
+  padding:12px 22px; 
+  border-radius:18px; 
+  color:var(--item-color); 
+  border:none;
+  background:transparent; 
+  cursor:pointer; }
+.item.active{ 
+  background:var(--active-bg); 
+  color:var(--active-text); }
+  
+/* menu */
+/* ၁. Wrapper - Menu ကို ခလုတ်အပေါ်မှာ ပေါ်အောင် ချုပ်မယ့်ကြိုး */
+.menu-wrapper{
+  position: relative; /* အရေးအကြီးဆုံး */
+}
+/* ၂. Menu အကြီး - တူးဘားအထက် ပေါ်မယ့်ဟာ */
+.menu{
+  position: absolute;
+  bottom: 100%; /* ခလုတ်ရဲ့ အပေါ် 100% မှာ ကပ် */
+  right: 0; /* ညာဘက်ကပ်ထား - Settings က ညာဘက်ဆုံးမို့ */
+  margin-bottom: 12px; /* တူးဘားနဲ့ နည်းနည်းခွာ */
+  background: var(--bar-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 6px;
+  min-width: 180px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  z-index: 100;
+}
+/* ၃. Menu Item - Icon + Text */
+.menu-item{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 14px;
+}
+.menu-item:hover{
+  background: var(--card-bg);
+}
+.menu-item .material-icons{
+  font-size: 20px;
+}
+.menu-item .arrow{
+  margin-left: auto; /* › ကို ညာအဆုံးပို့ */
+}
+
+/* ၄. SubMenu - Menu ရဲ့ ဘေးမှာ ထွက်မယ့်ဟာ */
+.submenu{
+  position: absolute;
+  top: 0; /* အရင် bottom:0 ကို ဖြုတ်ပြီး top:0 */
+  left: 100%; /* ခလုတ်ရဲ့ ညာဘက် 100% */
+  margin-left: 8px;
+  /* ကျန်တာ အရင်အတိုင်း */
+  background: var(--bar-bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 6px;
+  min-width: 140px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  z-index: 101;
+}
+/* ဖုန်းမှာ SubMenu ညာဘက်ထွက်ရင် ပြင်ထွက်သွားမှာစိုးလို့ - ဘယ်ဘက် ပြန်ထွက် */
+@media (max-width: 400px){
+  .submenu{
+    left: auto;
+    right: 100%;
+    margin-left: 0;
+    margin-right: 8px;
+  }
+}
+
+/* မစ်ဆေ့ */ 
+.toast{
+  position:fixed;
+  bottom:80px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:#333;
+  color:white;
+  padding:10px 16px;
+  border-radius:20px;
+  font-size:14px;
+  opacity:0;
+  pointer-events:none;
+  transition:0.3s;
+  z-index:999;
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+</style>
+
+</head>
+
+<body>
+<div class="header">
+  <!-- ၁. ပုံမှန် အချိန် ပြမယ့် ဟာ -->
+  <div id="mainHeader" class="main-header">
+    <h3>စမ်းသပ် </h3>
+  </div>
+  
+  <!-- ၂. Search နှိပ်မှ ပြမယ့် ဟာ -->
+  <div id="searchHeader" class="search-header" style="display:none;">
+    <div class="search-box">
+      <span class="material-icons">search</span>
+      <input type="text" id="searchInput" placeholder="Search...">
+      <button id="clearBtn" onclick="clearSearch()">×</button>
+    </div>
+  </div>
+</div>
+
+  <div class="page">စာတွေ</div>
+  
+  <div class="toolbar-wrapper">
+    <div class="toolbar">
+  <!-- ဒါတွေက အလုပ်တူ - id မလို -->
+  <button class="item active" onclick="setActive(this)">
+    <span class="material-icons">home</span>Home
+  </button>
+  
+  <button class="item" onclick="setActive(this)">
+    <span class="material-icons">favorite_border</span>Saved
+  </button>
+  
+  <button class="item" onclick="setActive(this)">
+    <span class="material-icons">grid_view</span>Explore
+  </button>
+  
+  <!-- ဒါက အလုပ်ကွဲ - Search - id ပေး -->
+<button class="item" id="searchBtn" onclick="toggleSearch()">
+  <span class="material-icons" id="searchIcon">search</span>Search
+</button>
+
+  
+  <!-- ဒါက အလုပ်ကွဲ - Theme - id ပေး -->
+  <button class="item" id="themeBtn" onclick="toggleTheme()">
+    <span class="material-icons">brightness_6</span>Theme
+  </button>
+  
+  <button class="item" onclick="setActive(this)">
+    <span class="material-icons">person_outline</span>Profile
+  </button>
+    <div class="menu-wrapper">
+    <button class="item" id="settingsBtn" onclick="toggleMenu()">
+      <span class="material-icons">settings</span>Settings
+    </button>
+    
+    <!-- Menu အကြီး -->
+    <div id="mainMenu" class="menu" style="display:none;">
+      
+      <button class="menu-item" id="authItem"><span class="material-icons">login</span><span>Login</span></button>
+      
+  <!-- Sort ကို Wrapper ခံလိုက် -->
+  <div class="menu-item-wrap" style="position:relative;">
+    <button class="menu-item" id="sortItem" onclick="toggleSubMenu('sortSub')">
+      <span class="material-icons">sort</span><span>Sort</span><span class="arrow">›</span>
+    </button>
+    <!-- Sort ရဲ့ Sub က သူ့အထဲမှာပဲ နေရမယ် -->
+    <div id="sortSub" class="submenu" style="display:none;">
+      <button class="menu-item">A-Z ✓</button>
+      <button class="menu-item">Date</button>
+    </div>
+  </div>
+  
+  <!-- Theme လည်း အတူတူ -->
+  <div class="menu-item-wrap" style="position:relative;">
+    <button class="menu-item" id="themeItem" onclick="toggleSubMenu('themeSub')">
+      <span class="material-icons">dark_mode</span><span>D/N Mode</span><span class="arrow">›</span>
+    </button>
+    <div id="themeSub" class="submenu" style="display:none;">
+      <button class="menu-item">Light</button>
+      <button class="menu-item">Dark ✓</button>
+      <button class="menu-item">auto</button>
+    </div>
+  </div>
+  
+      <button class="menu-item" id="trashItem"><span class="material-icons">delete</span><span>Trash</span></button>
+      
+    </div>
+    
+
+  </div>
+  
+</div>
+  </div>
+
+
+<!-- မစ်ဆေ့  -->
+<div id="toast" class="toast"></div>
+
+<script>
+  // ၁. တူးဘား ခလုတ် active ဖြစ်ဖို့
+function setActive(el) {
+  document.querySelectorAll('.item').forEach(i => {
+    if (i !== el || el.innerText.includes('Theme') === false) {
+      // Theme ခလုတ်ကလွဲရင် active ဖြုတ်မယ်
+    }
+  });
+  // Theme ခလုတ်မဟုတ်မှ active လုပ်
+  if (!el.innerText.includes('Theme')) {
+    document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
+    el.classList.add('active');
+  }
+}
+
+// ၂. နေ့/ည ပြောင်းဖို့ - ဒါက အသစ်
+function toggleTheme() {
+  document.body.classList.toggle('dark');
+}
+
+// ရှာဖွေရေး //
+let isSearchOn = false;
+function toggleSearch(){
+  isSearchOn = !isSearchOn;
+  const icon = document.getElementById('searchIcon');
+  
+  if(isSearchOn){
+    icon.innerText = "close";
+    document.getElementById('mainHeader').style.display = "none";
+    document.getElementById('searchHeader').style.display = "block";
+    document.getElementById('searchInput').focus(); // စာရိုက်ဖို့ တန်း focus
+  } else {
+    icon.innerText = "search";
+    document.getElementById('mainHeader').style.display = "block";
+    document.getElementById('searchHeader').style.display = "none";
+  }
+}
+function clearSearch(){
+  document.getElementById('searchInput').value = ""; // စာအကုန်ဖျက်
+}
+
+// မီနူး ======Menu + subMenu
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.innerText = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// Menu အကြီး ပေါ်/ပျောက်
+function toggleMenu() {
+  const menu = document.getElementById('mainMenu');
+  const isHidden = menu.style.display === 'none' || menu.style.display === '';
+  
+  // SubMenu တွေ အကုန် အရင်ပိတ်
+  document.getElementById('sortSub').style.display = 'none';
+  document.getElementById('themeSub').style.display = 'none';
+  
+  if (isHidden) {
+    menu.style.display = 'block';
+  } else {
+    menu.style.display = 'none';
+  }
+}
+// SubMenu ပေါ်/ပျောက်
+function toggleSubMenu(id) {
+  const sub = document.getElementById(id);
+  const otherId = id === 'sortSub' ? 'themeSub' : 'sortSub';
+  
+  // ကျန်တဲ့ SubMenu ပိတ်
+  document.getElementById(otherId).style.display = 'none';
+  
+  if (sub.style.display === 'none' || sub.style.display === '') {
+    sub.style.display = 'block';
+  } else {
+    sub.style.display = 'none';
+  }
+}
+
+// Menu Item တွေ နှိပ်ရင် - လောလောဆယ် စနစ်မရှိ Toast
+document.getElementById('authItem').onclick = () => showToast('Login စနစ် မရှိသေးပါ');
+document.getElementById('trashItem').onclick = () => showToast('Trash စနစ် မရှိသေးပါ');
+
+// Sort / Theme SubMenu Item တွေ
+document.querySelectorAll('#sortSub .menu-item').forEach(btn => {
+  btn.onclick = () => showToast('Sort: ' + btn.innerText + ' - စနစ် မရှိသေးပါ');
+});
+document.querySelectorAll('#themeSub .menu-item').forEach(btn => {
+  btn.onclick = () => showToast('Theme: ' + btn.innerText + ' - စနစ် မရှိသေးပါ');
+});
+
+// အပြင်နှိပ်ရင် Menu ပိတ်အောင်
+document.addEventListener('click', (e) => {
+  const wrapper = document.querySelector('.menu-wrapper');
+  if (!wrapper.contains(e.target)) {
+    document.getElementById('mainMenu').style.display = 'none';
+    document.getElementById('sortSub').style.display = 'none';
+    document.getElementById('themeSub').style.display = 'none';
+  }
+});
+</script>
+
+</body>
+</html>
+

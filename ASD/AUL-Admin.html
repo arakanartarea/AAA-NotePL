@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AD - User List</title>
+<link rel="stylesheet" href="AllUserList-AD.css">
+<style>
+#login-screen{position:fixed;inset:0;background:#fdf6e3;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.header-profile{position:relative;cursor:pointer;width:38px;height:38px;border-radius:50%;background:#e6dbb3;display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden;flex-shrink:0}
+.header-profile img{width:100%;height:100%;object-fit:cover}
+#profile-tooltip{position:absolute;top:45px;right:0;background:#333;color:#fff;padding:6px 10px;border-radius:6px;font-size:12px;white-space:nowrap;display:none;z-index:100}
+#profile-menu{position:absolute;top:50px;right:0;background:#fff;border-radius:10px;box-shadow:0 4px 15px rgba(0,0,0,.2);min-width:180px;display:none;z-index:101;overflow:hidden}
+#profile-menu div{padding:12px 15px;cursor:pointer;font-size:14px} #profile-menu div:hover{background:#f5f5f5}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div id="login-screen">
+    <h2>Admin Login လိုအပ်သည်</h2>
+    <button id="admin-login-btn" style="padding:12px 24px;background:#605639;color:#fff;border:none;border-radius:8px;font-weight:bold;">Google နဲ့ ဝင်မယ်</button>
+</div>
+
+<div class="notepad-container">
+<div id="main-screen" class="screen">
+<header style="display:flex;justify-content:space-between;align-items:center;padding:12px 15px;background:#e6dbb3;">
+    <h2 style="margin:0;">📝 AD - User List</h2>
+    <div id="header-profile-wrap" style="position:relative;">
+        <div id="header-profile" class="header-profile">👤</div>
+        <div id="profile-tooltip"></div>
+        <div id="profile-menu">
+            <div id="menu-name" style="font-weight:bold;border-bottom:1px solid #eee;"></div>
+            <div id="menu-logout">🚪 ထွက်မယ်</div>
+            <div id="menu-switch">🔄 အကောင့်ပြောင်းမယ်</div>
+        </div>
+    </div>
+</header>
+<main class="content-area"><div id="expandable-list"></div></main>
+<div class="bottom-toolbar" id="main-toolbar" style="display:flex;gap:10px;padding:10px;background:#605639;overflow-x:auto;">
+    <button id="new-word-btn" class="toolbar-btn">➕ New</button>
+    <select id="Screen-select" style="padding:8px 16px;border-radius:20px;border:none;background:#e6dbb3;font-weight:bold;"><option value="">Page</option><option value="https://arakanartarea.github.io/AAA-NotePL/AAA/AAA_Index.html">ArakanArtArea</option><option value="https://arakanartarea.github.io/AAA-NotePL/ASD/AllUserList-AD.html">AllUserList</option></select>
+</div>
+</div>
+
+<div id="view-screen" class="screen hidden"><div class="bottom-toolbar"><button id="back-main-btn" class="toolbar-btn">⬅️ Back</button></div></div>
+
+<div id="edit-screen" class="screen hidden">
+<header><h2>✍️ Add/Edit User</h2></header>
+<main class="content-area"><div class="input-form" style="display:flex;flex-direction:column;gap:12px;padding:10px;">
+<div style="display:flex;gap:8px;"><span style="padding:8px;background:#e6dbb3;border-radius:4px 0 0 4px;">A-</span><input id="subGroup" maxlength="7" placeholder="7 လုံး" style="flex:1;border-radius:0 4px 4px 0;"><button id="check-aid-btn">စစ်</button></div><small id="aid-error" style="display:none;color:red"></small>
+<input id="pos" placeholder="GID"><input id="definition" placeholder="Name"><input id="example" placeholder="Acc"><input id="english" placeholder="Time">
+<select id="pronounce"><option value="Viewer">Viewer</option><option value="Editor">Editor</option><option value="Admin">Admin</option><option value="Banned">Banned</option></select>
+</div></main>
+<div class="bottom-toolbar split-buttons"><button id="cancel-edit-btn">Back</button><button id="save-word-btn">Save</button></div>
+</div>
+</div>
+<script type="module" src="AllUserList-AD.js"></script>
+</body>
+</html>

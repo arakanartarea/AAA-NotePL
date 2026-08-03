@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<title>Notepad</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="notepad-container">
+  <div id="main-screen" class="screen">
+    <header>
+<div class="search-bar hidden" id="topSearchBar">
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="searchBox" placeholder="စကားလုံး၊ အဓိပ္ပါယ်၊ အမျိုးအစား ရှာရန်...">
+          <button id="clearSearchBtn">✖</button>
+        </div>
+        <button id="authBtn">
+          <span id="authIcon">👤</span>
+          <img id="authImg" alt="">
+        </button>
+      </div>
+    </header>
+    <main class="content-area"><div id="expandable-list"></div></main>
+   <div class="bottom-toolbar" id="mainToolbar">
+  <button class="tool-btn" id="favBtn">⭐<span>Fav</span></button>
+  <button class="tool-btn" id="sortBtn">↕️<span>Sort</span></button>
+  <button class="tool-btn" id="toggleSearchBtn">🔍<span>Search</span></button>
+  <button class="tool-btn primary" id="new-word-btn">➕<span>New</span></button>
+  <button class="tool-btn" id="settingsBtn">⚙️<span>Settings</span></button>
+  <button class="tool-btn" id="moreBtn">⋯<span>More</span></button>
+  <button class="tool-btn" id="extraBtn" style="display:none;">➕</button>
+</div>
+
+  </div>
+  <div id="view-screen" class="screen hidden"></div>
+  <div id="edit-screen" class="screen hidden">
+    <div class="edit-top">
+      <input id="group" placeholder="အုပ်စု">
+      <input id="subGroup" placeholder="အုပ်စုခွဲ">
+    </div>
+    <textarea id="content" placeholder="မှတ်စု..."></textarea>
+    <div class="edit-bottom">
+      <button id="cancel-edit-btn">⬅️</button>
+      <button id="save-word-btn">💾</button>
+    </div>
+  </div>
+</div>
+
+<div id="authMenuBackdrop"></div>
+<div id="authMenu">
+  <div id="authMenuUser"></div>
+  <button id="switchAccountBtn">🔄 အကောင့်ပြောင်းမယ်</button>
+  <button id="logoutBtn">🚪 ထွက်မယ်</button>
+</div>
+
+<script src="js/app.js"></script>
+</body>
+</html>

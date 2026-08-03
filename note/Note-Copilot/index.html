@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <title>AAAnotes</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <div class="app">
+    <div class="content" id="content"></div>
+    <div class="toolbar">
+      <button class="tool-btn" onclick="showFav()">⭐<span>Fav</span></button>
+      <button class="tool-btn" onclick="toggleSort()">🔤<span>Sort</span></button>
+      <button class="tool-btn" onclick="toggleSearch()">🔍<span>Search</span></button>
+      <button class="tool-btn primary" onclick="newNote()">➕<span>New</span></button>
+      <button class="tool-btn" onclick="openSettings()">⚙️<span>Settings</span></button>
+      <button class="tool-btn" onclick="openMore()">⋯<span>More</span></button>
+    </div>
+  </div>
+
+  <!-- Search box -->
+  <div id="searchBox" style="display:none; padding:10px;">
+    <input type="text" id="searchInput" placeholder="ရှာရန်...">
+  </div>
+
+  <!-- Login -->
+  <div id="loginScreen" style="display:flex; justify-content:center; align-items:center; height:100dvh;">
+    <button onclick="login()" style="font-size:24px; padding:20px;">Login with Google</button>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" style="display:none;"></div>
+
+  <!-- Confirm -->
+  <div id="confirm" style="display:none;">
+    <div id="confirmBox">
+      <p id="confirmMsg"></p>
+      <button onclick="confirmYes()">Yes</button>
+      <button onclick="confirmNo()">No</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

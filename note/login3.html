@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width">
+<title>Notepad</title>
+<link rel="stylesheet" href="../CSS/ASD_inbox.css">
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="notepad-container">
+<div id="main-screen" class="screen">
+<header>
+<div style="padding:10px 15px;background:white;border-bottom:1px solid #ddd;display:flex;gap:10px;align-items:center;">
+<div style="position:relative;flex:1;display:flex;align-items:center;">
+<span style="position:absolute;left:12px;">🔍</span>
+<input type="text" id="searchBox" placeholder="စကားလုံး၊ အဓိပ္ပါယ်၊ အမျိုးအစား ရှာရန်..." style="width:100%;padding:10px 35px;border:1px solid #ccc;border-radius:20px;">
+<button id="clearSearchBtn" style="position:absolute;right:8px;background:none;border:none;display:none;">✖</button>
+</div>
+<button id="authBtn" style="width:40px;height:40px;border-radius:50%;border:1px solid #ddd;background:#f5f5f5;">👤</button>
+</div>
+</header>
+<main class="content-area"><div id="expandable-list"></div></main>
+<div class="bottom-toolbar" style="display:flex;gap:10px;padding:10px;background:#605639;">
+<button id="new-word-btn" style="padding:8px 16px;background:#e6dbb3;border:none;border-radius:20px;font-weight:bold;">➕ New</button>
+</div>
+</div>
+<div id="view-screen" class="screen hidden"></div>
+<div id="edit-screen" class="screen hidden" style="display:flex;flex-direction:column;height:100vh;">
+<div style="padding:10px;background:#e6dbb3;display:flex;gap:8px;">
+<input id="group" placeholder="အုပ်စု" style="flex:1;padding:8px;"><input id="subGroup" placeholder="အုပ်စုခွဲ" style="flex:1;padding:8px;">
+</div>
+<textarea id="content" placeholder="မှတ်စု..." style="flex:1;padding:12px;"></textarea>
+<div style="padding:10px;display:flex;gap:10px;background:#f5f5f5;">
+<button id="cancel-edit-btn" style="flex:1;padding:10px;background:#605639;color:white;border:none;border-radius:4px;">⬅️</button>
+<button id="save-word-btn" style="flex:1;padding:10px;background:#2d6a4f;color:white;border:none;border-radius:4px;">💾</button>
+</div>
+</div>
+</div>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U",
+  authDomain: "arakanartarea-note.firebaseapp.com",
+  projectId: "arakanartarea-note"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const provider = new firebase.auth.GoogleAuthProvider();
+provider.setCustomParameters({prompt:'select_account'});
+
+let allWords=[], unsubscribe=null, currentSearchText="", currentEditId=null;
+const list=document.getElementById('expandable-list');
+const authBtn=document.getElementById('authBtn');
+const mainScreen=document.getElementById('main-screen');
+const viewScreen=document.getElementById('view-screen');
+const editScreen=document.getElementById('edit-screen');
+
+function changeScreen(s){ [mainScreen,viewScreen,editScreen].forEach(x=>x.classList.add('hidden')); s.classList.remove('hidden'); }
+
+authBtn.onclick=()=> auth.signInWithPopup(provider).catch(e=>alert(e.message));
+auth.onAuthStateChanged(async (user)=>{
+ if(!user){ authBtn.innerText="👤"; list.innerHTML="Login ဝင်ပါ"; if(unsubscribe)unsubscribe(); return; }
+ const docSnap=await db.collection("admins").doc(user.email.toLowerCase()).get();
+ if(!docSnap.exists){ authBtn.innerText="🚫"; list.innerHTML=user.email+" ခွင့်မရှိ"; return; }
+ authBtn.innerText="✅";
+ if(unsubscribe)unsubscribe();
+ unsubscribe=db.collection("AAAnotes").onSnapshot(snap=>{
+  allWords=[]; snap.forEach(d=>{ if(d.data().role!==2) allWords.push({id:d.id,...d.data()}); });
+  showWords();
+ }, err=>{ list.innerHTML="Rule Error: "+err.message; });
+});
+
+function showWords(){
+ list.innerHTML="";
+ let filtered=allWords.filter(n=>(n.group+n.subGroup+n.content).toLowerCase().includes(currentSearchText.toLowerCase()));
+ filtered.forEach(w=>{ w.group=w.group||"အခြား"; w.subGroup=w.subGroup||"အထွေထွေ"; });
+ const groups={};
+ filtered.forEach(d=>{ if(!groups[d.group])groups[d.group]={}; if(!groups[d.group][d.subGroup])groups[d.group][d.subGroup]=[]; groups[d.group][d.subGroup].push(d); });
+ Object.keys(groups).forEach(gName=>{
+  const wrap=document.createElement('div'); wrap.style.marginBottom="8px";
+  const header=document.createElement('div'); header.style="padding:12px;background:#e6dbb3;font-weight:bold;cursor:pointer;border-radius:4px;"; header.innerText="📁 "+gName;
+  const subCon=document.createElement('div'); subCon.style.display="none"; subCon.style.paddingLeft="10px";
+  Object.keys(groups[gName]).forEach(sg=>{
+   const sgH=document.createElement('div'); sgH.style="padding:10px;margin-top:5px;background:#f1f1f1;cursor:pointer;border-radius:4px;"; sgH.innerText="📂 "+sg;
+   sgH.onclick=()=> showSubGroupContents(groups[gName][sg],sg,gName);
+   subCon.appendChild(sgH);
+  });
+  header.onclick=()=>{ subCon.style.display=subCon.style.display==="none"?"block":"none"; };
+  wrap.appendChild(header); wrap.appendChild(subCon); list.appendChild(wrap);
+ });
+}
+function showSubGroupContents(notes,sg,gName){
+ viewScreen.innerHTML=`<div style="text-align:center;padding:15px;background:#e6dbb3;font-weight:bold;">📖 ${gName}/${sg} (${notes.length})</div><div id="vc" style="padding:15px;padding-bottom:80px;"></div><div style="position:fixed;bottom:0;left:0;width:100%;padding:12px;background:#e6dbb3;display:flex;gap:10px;"><button id="back-main-btn" style="flex:1;padding:10px;background:#605639;color:white;border:none;border-radius:4px;">⬅️ Back</button><button id="new-in-subgroup-btn" style="flex:1;padding:10px;background:#2d6a4f;color:white;border:none;border-radius:4px;">➕ New</button></div>`;
+ const c=document.getElementById('vc');
+ notes.forEach(d=>{
+  const div=document.createElement('div'); div.style="padding:15px;margin-bottom:10px;background:#fff;border-left:5px solid #605639;";
+  div.innerHTML=`<p style="white-space:pre-wrap;margin:0;">${d.content}</p><div style="text-align:right;margin-top:8px;"><button class="eBtn" style="padding:4px 10px;">✏️</button></div>`;
+  div.querySelector('.eBtn').onclick=()=>{ currentEditId=d.id; document.getElementById('group').value=d.group; document.getElementById('subGroup').value=d.subGroup; document.getElementById('content').value=d.content; changeScreen(editScreen); };
+  c.appendChild(div);
+ });
+ document.getElementById('back-main-btn').onclick=()=>changeScreen(mainScreen);
+ document.getElementById('new-in-subgroup-btn').onclick=()=>{ currentEditId=null; document.getElementById('group').value=gName; document.getElementById('subGroup').value=sgName; document.getElementById('content').value=""; changeScreen(editScreen); };
+ changeScreen(viewScreen);
+}
+document.getElementById('searchBox').oninput=(e)=>{ currentSearchText=e.target.value; document.getElementById('clearSearchBtn').style.display=currentSearchText?'block':'none'; showWords(); };
+document.getElementById('clearSearchBtn').onclick=()=>{ document.getElementById('searchBox').value=""; currentSearchText=""; document.getElementById('clearSearchBtn').style.display='none'; showWords(); };
+document.getElementById('new-word-btn').onclick=()=>{ currentEditId=null; document.getElementById('group').value=""; document.getElementById('subGroup').value=""; document.getElementById('content').value=""; changeScreen(editScreen); };
+document.getElementById('cancel-edit-btn').onclick=()=>changeScreen(mainScreen);
+document.getElementById('save-word-btn').onclick=async()=>{
+ const data={ group:document.getElementById('group').value.trim()||"အခြား", subGroup:document.getElementById('subGroup').value.trim()||"အထွေထွေ", content:document.getElementById('content').value.trim(), role:1, updateTime:new Date().toISOString() };
+ if(!data.content)return alert("စာဖြည့်ပါ");
+ if(currentEditId) await db.collection("AAAnotes").doc(currentEditId).update(data);
+ else await db.collection("AAAnotes").add(data);
+ changeScreen(mainScreen);
+};
+</script>
+</body>
+</html>

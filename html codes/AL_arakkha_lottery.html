@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arakkha Lottery</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<style>
+
+  body{font-family:'Myanmar Text',system-ui;background:#f5f7fb;margin:0;padding-bottom:90px;}
+ .container{max-width:900px;margin:0 auto;padding:16px;}
+ .top-controls{display:flex;gap:8px;flex-wrap:wrap;background:#fff;padding:12px;border-radius:14px;border:1px solid #e5e7eb;position:sticky;top:8px;}
+ .top-controls input,.top-controls select{flex:1;padding:10px;border:1px solid #ddd;border-radius:8px;}
+ .top-controls button{padding:10px 14px;border:none;border-radius:8px;background:#111827;color:#fff;}
+ .screen{display:none;}.screen.active{display:block;}
+ .group{margin-bottom:10px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;}
+ .group-header{padding:12px 14px;background:#f8fafc;display:flex;justify-content:space-between;cursor:pointer;font-weight:600;}
+ .child{padding:8px 14px;border-bottom:1px dashed #eee;display:flex;justify-content:space-between;}
+ .child.highlight{background:#fff9c4;}
+ .edit-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px;margin-bottom:12px;}
+ .form-row{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+ .form-row input{flex:1;padding:8px;border:1px solid #ddd;border-radius:6px;}
+ .toolbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:space-around;padding:8px 0;}
+ .toolbar button{flex:1;background:none;border:none;font-size:12px;}
+ .toolbar button.active{color:#2563eb;font-weight:700;}
+ .modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:99;padding:20px;}
+ .modal.show{display:flex;}
+ 
+ #roundSelect{
+  pointer-events:none;
+  opacity:0;
+  position:absolute;
+  bottom:70px;
+  left:50%;
+  transform:translateX(-50%);
+  width:160px;
+  background:white;
+  border:1px solid #ccc;
+  border-radius:12px;
+  padding:8px;
+  box-shadow:0 -8px 20px rgba(0,0,0,0.2);
+  max-height:50vh;
+  z-index:9999;
+  transition:0.2s;
+}
+#roundSelect.show{
+  opacity:1;
+  pointer-events:auto;
+}
+
+/* ပိုစတာ စ */
+#posterView{display:none; padding:10px; background:#f9f9f9;}
+#posterView.show{display:block;}
+.poster-row{display:flex; gap:10px; flex-wrap:wrap; justify-content:space-between; margin-bottom:12px;}
+.poster-single{background:linear-gradient(90deg,#ddd,#bbb); border-radius:0 12px 12px 0; padding:4px 14px; min-width:140px; position:relative;}
+.poster-single.label{background:#333; color:#fff; padding:2px 8px; border-radius:6px 6px 0 0; font-size:12px; display:inline-block; margin:-4px 0 4px -14px;}
+.poster-box{flex:1 1 100%; background:linear-gradient(90deg,#ddd,#bbb); border-radius:10px; padding:6px; margin-bottom:10px;}
+.poster-box.label{background:#333; color:#fff; padding:2px 10px; border-radius:6px; font-size:13px; display:inline-block; margin-bottom:6px;}
+.poster-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(90px,1fr)); gap:4px 10px; font-family:monospace; font-size:15px;}
+/* ပိုစတာ ဆ */
+</style>
+
+</head>
+<body>
+  
+<div class="container">
+  <h2 style="text-align:center;">ဗဟိုအကောက်ခွန်နန့်အခွန်ဌာန</h2>
+  <h3 style="text-align:center;">၂ကြိမ်မြောက် အာရက္ခလောင်ပေါ်ပေါက်စိုင်</h3>
+  
+  <div id="viewScreen" class="screen active">
+    
+<div class="top-controls">
+  <input id="searchInput" placeholder="နံပါတ်ရိုက်ရှာ">
+  <button id="btnToggleView" onclick="togglePoster()">🖼️ ပိုစတာ</button>
+  <button onclick="alert('QR နောက်မှ')">📷 QR</button>
+</div>
+<div id="lotteryView"></div>
+<div id="posterView"></div>
+  </div>
+  
+  <div id="editScreen" class="screen">
+  <div class="edit-card">
+    <div class="form-row">
+      <select id="editRoundSelect" style="flex:1;"><option>Loading...</option></select>
+      <input id="editRound" placeholder="2/26" style="flex:0.5;">
+      <input id="editDate" type="date" style="flex:0.7;">
+    </div>
+    <div class="form-row">
+      <button onclick="loadEditData()" style="background:#eee;color:#111;flex:1;">ရှိပြီးသား ခေါ်</button>
+      <button onclick="saveToFirestore()" style="background:#2563eb;color:white;flex:2;">Firestore သိမ်းမယ်</button>
+    </div>
+  </div>
+
+  <div class="edit-card">
+    <h4>အတန်းသစ် ထည့်ရန်</h4>
+    <div class="form-row">
+      <input id="pName" placeholder="ဆုအမည်">
+      <input id="pNumber" placeholder="ဆုနံပတ်">
+    </div>
+    <div class="form-row">
+      <input id="pAmount" placeholder="ဆုတန်ဖိုး ကိန်း 75000000">
+      <input id="pAmountText" placeholder="ဆုတန်ဖိုး စာဖြင့် သိန်းခုနှစ်ဆယ်">
+    </div>
+    <div class="form-row">
+      <input id="pLocation" placeholder="ထုတ်ယူနိုင်သည့်နေရာ">
+      <button onclick="addPrizeToList()">+ ထည့်</button>
+    </div>
+  </div>
+
+  <div class="edit-card">
+    <h4>ရှိပြီးသား အကုန် - ပြင်မယ်/ဖျက်မယ်</h4>
+    <div style="overflow:auto;">
+      <table id="editTable" style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead><tr style="background:#f3f4f6;"><th>စဉ်</th><th>ဆုအမည်</th><th>နံပတ်</th><th>တန်ဖိုး</th><th>စာဖြင့်</th><th>နေရာ</th><th>လုပ်ဆောင်ချက်</th></tr></thead>
+        <tbody id="editTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="toolbar">
+  <button id="btnView" class="active" onclick="switchScreen('view')">🔍<br>View</button>
+  <button id="btnRound">🎰<br><span id="roundLabel">အကြိမ်</span>
+    <select id="roundSelect"></select>
+  </button>
+  <button id="btnEdit" onclick="switchScreen('edit')">✏️<br>Edit</button>
+  <button onclick="document.getElementById('aboutModal').classList.add('show')">ℹ️<br>About</button>
+</div>
+
+<div id="aboutModal" 
+class="modal" 
+onclick="this.classList.remove('show')"><div style="background:#fff;padding:20px;border-radius:12px;max-width:400px;"><p style="font-size:14px;">ကိုယ်ပိုင်မှတ်တမ်းသာ။ လွဲမှားနိုင်သဖြင့် တရားဝင်စာရွက်နှင့် ပြန်တိုက်ပါ။ အစိုးရနှင့် မသက်ဆိုင်ပါ။</p><button onclick="document.getElementById('aboutModal').classList.remove('show')" style="width:100%;padding:8px;background:#111827;color:#fff;border:none;border-radius:8px;">OK</button></div></div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyC7N9_TNTp_aThC_olEDyMcEo2pAhOFEGI",
+  authDomain: "arakanese-dictionary.firebaseapp.com",
+  projectId: "arakanese-dictionary" };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let tempPrizes = [];
+let allRounds = [];
+
+function switchScreen(m){
+  document.getElementById('viewScreen').classList.remove('active');
+  document.getElementById('editScreen').classList.remove('active');
+  document.getElementById('btnView').classList.remove('active');
+  document.getElementById('btnEdit').classList.remove('active');
+  if(m==='view'){
+    document.getElementById('viewScreen').classList.add('active');
+    document.getElementById('btnView').classList.add('active');
+    loadRounds();
+  } else {
+    document.getElementById('editScreen').classList.add('active');
+    document.getElementById('btnEdit').classList.add('active');
+    loadEditRounds();
+    renderEditTable();
+  }
+}
+
+async function loadRounds(){
+  const sel=document.getElementById('roundSelect');
+  if(!sel) return;
+  const cached = localStorage.getItem('arakkha_cache_all');
+  if(cached){
+    try{
+      allRounds = JSON.parse(cached);
+      sel.innerHTML=''; allRounds.forEach(r=>{ let o=document.createElement('option'); o.value=r.id; o.textContent=r.round||r.id; sel.appendChild(o); });
+      renderView(allRounds[0]);
+    }catch(e){}
+  }
+  try{
+    const snap=await db.collection('arakkha_lottery').get();
+    if(snap.empty) return;
+    let onlineRounds=[];
+    snap.forEach(d=> onlineRounds.push({id:d.id,...d.data()}));
+    onlineRounds.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+    localStorage.setItem('arakkha_cache_all', JSON.stringify(onlineRounds));
+    const cachedIds = (allRounds||[]).map(r=>r.id).join(',');
+    const onlineIds = onlineRounds.map(r=>r.id).join(',');
+    if(!cached || cachedIds!==onlineIds){
+      allRounds = onlineRounds;
+      sel.innerHTML=''; allRounds.forEach(r=>{ let o=document.createElement('option'); o.value=r.id; o.textContent=r.round||r.id; sel.appendChild(o); });
+      if(!cached) renderView(allRounds[0]);
+    }
+  }catch(e){ console.log('offline:', e.message); }
+}
+
+function renderView(data){
+  const c=document.getElementById('lotteryView'); if(!c) return;
+  c.innerHTML='';
+  if(!data) return;
+  let rows = data.rows || data.prizes || [];
+  if(rows.length===0){ c.innerHTML='ဆုမရှိ'; return; }
+  const groups = {};
+  rows.forEach(r=>{ if(!groups[r.name]) groups[r.name]=[]; groups[r.name].push(r); });
+  function toNumber(str){
+    if(!str) return 0;
+    const mmMap={'၀':'0','၁':'1','၂':'2','၃':'3','၄':'4','၅':'5','၆':'6','၇':'7','၈':'8','၉':'9'};
+    let s=str.toString().replace(/[၀-၉]/g,m=>mmMap[m]).replace(/[^0-9]/g,'');
+    return parseInt(s||'0',10);
+  }
+  const sortedNames = Object.keys(groups).sort((a,b)=> toNumber(groups[b][0].amount) - toNumber(groups[a][0].amount));
+  sortedNames.forEach(name=>{
+    const list = groups[name];
+    const g=document.createElement('div'); g.className='group';
+    g.innerHTML=`<div class="group-header" onclick="this.nextElementSibling.style.display=(this.nextElementSibling.style.display==='none'?'block':'none')"><span>${name} - ${list[0].amount||''} (${list.length})</span><span>▼</span></div><div>${list.map(r=>`<div class="child" data-num="${r.number}"><span>${r.number} - ${r.amountText||''}</span><span>${r.amount||''}</span></div>`).join('')}</div>`;
+    c.appendChild(g);
+  });
+  const lbl=document.getElementById('roundLabel'); if(lbl) lbl.textContent = data.round || data.id;
+}
+let isPoster = false;
+function togglePoster(){
+  isPoster =!isPoster;
+  document.getElementById('lotteryView').style.display = isPoster?'none':'block';
+  document.getElementById('posterView').style.display = isPoster?'block':'none';
+  document.getElementById('btnToggleView').innerHTML = isPoster?'📋 List':'🖼️ ပိုစတာ';
+  if(isPoster) renderPosterView(allRounds.find(x=>x.id===document.getElementById('roundSelect').value));
+}
+
+/* ပိုစတာ ဆ */ 
+function renderPosterView(data){
+  const c=document.getElementById('posterView');
+  if(!c ||!data) return;
+  let rows = data.rows || data.prizes || [];
+  const groups={}; rows.forEach(r=>{ if(!groups[r.name]) groups[r.name]=[]; groups[r.name].push(r); });
+  function toNum(s){ if(!s) return 0; const m={'၀':'0','၁':'1','၂':'2','၃':'3','၄':'4','၅':'5','၆':'6','၇':'7','၈':'8','၉':'9'}; return parseInt(s.toString().replace(/[၀-၉]/g,x=>m[x]).replace(/[^0-9]/g,'')||'0',10); }
+  const sorted = Object.keys(groups).sort((a,b)=> toNum(groups[b][0].amount)-toNum(groups[a][0].amount));
+
+  // အပေါ် ၅ ဆု = တစ်လုံးချင်း
+  const top = sorted.filter(n=>groups[n].length===1);
+  const bottom = sorted.filter(n=>groups[n].length>1);
+
+  let html='';
+  // 1st row - ပထမဆု တစ်ယောက်တည်း
+  if(top[0]) html+=`<div class="poster-row"><div class="poster-single"><div class="label">${top[0]} ${groups[top[0]][0].amountText||''}</div><div style="font-size:22px; letter-spacing:4px;">${groups[top[0]][0].number}</div></div></div>`;
+  // 2nd,3rd row - ၂ ခုတစ်တန်း
+  for(let i=1;i<top.length;i+=2){
+    html+=`<div class="poster-row">`;
+    [top[i], top[i+1]].forEach(name=>{
+      if(!name) return;
+      html+=`<div class="poster-single"><div class="label">${name} ${groups[name][0].amountText||''}</div><div style="font-size:20px; letter-spacing:3px;">${groups[name][0].number}</div></div>`;
+    });
+    html+=`</div>`;
+  }
+  // အောက် Box တွေ
+  bottom.forEach(name=>{
+    const list=groups[name];
+    html+=`<div class="poster-box"><div class="label">${name} ${list[0].amountText||''}</div><div class="poster-grid">${list.map(r=>`<div>${r.number}</div>`).join('')}</div></div>`;
+  });
+  c.innerHTML=html;
+}
+/* ပိုစတာ ဆ */
+
+// Toolbar drop-up
+const btnRound = document.getElementById('btnRound');
+if(btnRound){
+  btnRound.onclick = ()=>{
+    const s=document.getElementById('roundSelect');
+    if(!s) return;
+    s.classList.toggle('show');
+    s.style.pointerEvents='auto';
+  };
+}
+const roundSel = document.getElementById('roundSelect');
+if(roundSel){
+  roundSel.onchange = function(){
+    const f = allRounds.find(x=>x.id===this.value);
+    if(f) renderView(f);
+    this.classList.remove('show');
+  };
+}
+
+const searchInput = document.getElementById('searchInput');
+if(searchInput){
+  searchInput.addEventListener('input',function(){
+    const q=this.value.trim();
+    document.querySelectorAll('.child').forEach(ch=>{
+      const num=ch.getAttribute('data-num')||'';
+      if(q===''||num.includes(q)){
+        ch.style.display='flex';
+        if(q!==''&&num.includes(q)) ch.classList.add('highlight'); else ch.classList.remove('highlight');
+      } else { ch.style.display='none'; }
+    });
+  });
+}
+
+async function loadEditRounds(){
+  const sel=document.getElementById('editRoundSelect'); if(!sel) return;
+  try{
+    const snap=await db.collection('arakkha_lottery').get();
+    sel.innerHTML='<option value="">-- အကြိမ်ရွေး --</option>';
+    snap.forEach(d=>{ const o=document.createElement('option'); o.value=d.id; o.textContent=d.data().round||d.id; sel.appendChild(o); });
+    sel.onchange = async function(){ if(!this.value) return; await loadEditDataById(this.value); };
+  }catch(e){ sel.innerHTML='<option>'+e.message+'</option>'; }
+}
+async function loadEditDataById(docId){
+  const snap=await db.collection('arakkha_lottery').doc(docId).get();
+  if(!snap.exists){ alert('မရှိ'); return; }
+  const data=snap.data();
+  document.getElementById('editRound').value = data.round || docId.replace(/-/g,'/');
+  document.getElementById('editDate').value = data.date||'';
+  let rows = data.rows || data.prizes || [];
+  tempPrizes = rows;
+  const draft = localStorage.getItem('arakkha_draft_'+docId);
+  if(draft){ try{ const d=JSON.parse(draft); if(d.length>0) tempPrizes=d; }catch(e){} }
+  renderEditTable();
+}
+async function loadEditData(){
+  const round=document.getElementById('editRound').value.trim();
+  if(!round){ alert('အကြိမ်ရိုက်ပါ'); return; }
+  const docId=round.replace(/\//g,'-');
+  await loadEditDataById(docId);
+}
+async function addPrizeToList(){
+  const name=document.getElementById('pName').value.trim();
+  const numberRaw=document.getElementById('pNumber').value.trim();
+  const amount=document.getElementById('pAmount').value.trim();
+  const amountText=document.getElementById('pAmountText').value.trim();
+  const location=document.getElementById('pLocation').value.trim();
+  if(!name||!numberRaw){ alert('ဆုအမည် နှင့် နံပါတ် ထည့်ပါ'); return; }
+  const numbers = numberRaw.split(',').map(s=>s.trim()).filter(Boolean);
+  numbers.forEach(num=>{ tempPrizes.push({name, number:num, amount, amountText, location}); });
+  localStorage.setItem('arakkha_draft_'+document.getElementById('editRound').value.trim().replace(/\//g,'-'), JSON.stringify(tempPrizes));
+  renderEditTable();
+  document.getElementById('pName').value=''; document.getElementById('pNumber').value=''; document.getElementById('pAmount').value=''; document.getElementById('pAmountText').value=''; document.getElementById('pLocation').value='';
+}
+function renderEditTable(){
+  const tbody=document.getElementById('editTableBody'); if(!tbody) return;
+  tbody.innerHTML = tempPrizes.map((r,i)=>`<tr style="border-bottom:1px solid #eee;"><td>${i+1}</td><td contenteditable="true" onblur="tempPrizes[${i}].name=this.innerText.trim()">${r.name||''}</td><td contenteditable="true" onblur="tempPrizes[${i}].number=this.innerText.trim()">${r.number||''}</td><td contenteditable="true" onblur="tempPrizes[${i}].amount=this.innerText.trim()">${r.amount||''}</td><td contenteditable="true" onblur="tempPrizes[${i}].amountText=this.innerText.trim()">${r.amountText||''}</td><td contenteditable="true" onblur="tempPrizes[${i}].location=this.innerText.trim()">${r.location||''}</td><td><button onclick="tempPrizes.splice(${i},1);renderEditTable()" style="color:red;background:none;border:none;cursor:pointer;">ဖျက်</button></td></tr>`).join('');
+}
+async function saveToFirestore(){
+  const roundInput = document.getElementById('editRound').value.trim();
+  const date = document.getElementById('editDate').value;
+  if(!roundInput){ alert('အကြိမ် ဥပမာ 2/26 ထည့်ပါ'); return; }
+  if(tempPrizes.length===0){ alert('ထည့်စရာ မရှိသေးပါ'); return; }
+  const docId = roundInput.replace(/\//g,'-');
+  try{
+    await db.collection('arakkha_lottery').doc(docId).set({ round: roundInput, date: date || new Date().toISOString().split('T')[0], rows: tempPrizes, prizes: tempPrizes, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    localStorage.removeItem('arakkha_draft_'+docId);
+    localStorage.removeItem('arakkha_cache_all');
+    alert('Saved OK: '+docId+' ('+tempPrizes.length+' rows)');
+    allRounds = [];
+    switchScreen('view');
+  }catch(e){ alert('Save Error: '+e.message); console.error(e); }
+}
+loadRounds();
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+ content="width=device-width, initial-scale=1.0">
+<title>AAA Note - Login</title>
+<link rel="stylesheet" href="aaa-note.css">
+<link rel="stylesheet"
+ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+ 
+<!-- Login Box -->
+<div id="loginScreen" class="center-box">
+ <img id="profileImg"
+  class="profile-circle hidden" src="">
+ <div id="profileName">Not Login</div>
+ <div id="profileEmail"></div>
+ <button id="loginBtn" class="login-btn">
+  <span class="material-symbols-rounded">login</span>
+  <span>Login</span>
+ </button>
+ <div id="msg"></div>
+</div>
+
+<!-- Main Screen -->
+ <!-- ===== MS ===== -->
+ <div id="mainScreen">
+  <div id="mainList"
+   class="expand-box">
+  </div>
+ </div>
+
+<!-- Bottom Toolbar -->
+<div id="bottomToolbar" class="bottom-toolbar hidden">
+ <button class="t-btn">
+  <span class="material-symbols-rounded">home</span>
+ </button>
+ <button class="t-btn">
+  <span class="material-symbols-rounded">search</span>
+ </button>
+ <button class="t-btn">
+  <span class="material-symbols-rounded">add</span>
+ </button>
+ <button class="t-btn">
+  <span class="material-symbols-rounded">settings</span>
+ </button>
+</div>
+
+
+
+
+
+
+
+
+
+<script src="aaa-note.js"></script>
+</body>
+</html>

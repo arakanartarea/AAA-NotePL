@@ -1,0 +1,182 @@
+<!-- ၁၈၅၄ -->
+
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Note App V2</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+.material-symbols-rounded { font-size: 22px; line-height: 1; }
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+<!-- Login -->
+<div id="bigLoginScreen" class="big-login">
+  <h2>Note App</h2>
+  <p>ဝင်ရောက်ရန်</p>
+  <button class="btn-9" id="bigLoginBtn">🔐 Login with Google</button>
+  <p id="bigLoginMsg"></p>
+</div>
+<!-- search -->
+<div id="app" class="app hidden">
+<div id="searchBar" class="search-bar hidden">
+  <input id="searchInput" type="text" placeholder="ရှာမယ်...">
+  <button class="btn-9" onclick="toggleSearch()"><span class="material-symbols-rounded">close</span></button>
+</div>
+
+<div id="contentArea" class="content">
+    <div id="mainList"></div>
+    <div id="viewList" class="hidden"></div>
+    <div id="editScreen" class="hidden">
+      <input id="editGroup" placeholder="Group">
+      <input id="editSubGroup" placeholder="SubGroup">
+      <textarea id="editContent" placeholder="Content..." rows="10"></textarea>
+    </div>
+    <div id="trashList" class="hidden"></div>
+  </div>
+
+<div id="toolbarMain" class="toolbar">
+  <button class="btn-9" id="favBtn" onclick="toggleFavMode()"><span class="material-symbols-rounded" id="favIcon">star</span><small id="favLabel">Fav</small></button>
+  <button class="btn-9" onclick="openSort()"><span class="material-symbols-rounded">swap_vert</span><small id="sortLabel">new</small></button>
+  <button class="btn-9" onclick="toggleSearch()"><span class="material-symbols-rounded">search</span><small>Search</small></button>
+  <button class="btn-9" onclick="newNote()"><span class="material-symbols-rounded">add</span><small>New</small></button>
+  <button class="btn-9" onclick="openSettings()"><span class="material-symbols-rounded">settings</span><small>Set</small></button>
+  <button class="btn-9" onclick="openMore()"><span class="material-symbols-rounded">more_horiz</span><small>More</small></button>
+</div>
+
+<!-- viewScreen -->
+<div id="toolbarView" class="toolbar hidden">
+  <button class="btn-9" onclick="goBackMain()"><span class="material-symbols-rounded">arrow_back</span><small>Back</small></button>
+  <button class="btn-9" onclick="newNoteInCurrent()"><span class="material-symbols-rounded">add</span><small>New</small></button>
+</div>
+
+<!-- editScreen -->
+<div id="toolbarEdit" class="toolbar hidden">
+  <button class="btn-9" onclick="saveNote()"><span class="material-symbols-rounded">save</span><small>Save</small></button>
+  <button class="btn-9" onclick="cancelEdit()"><span class="material-symbols-rounded">close</span><small>Cancel</small></button>
+  <button class="btn-9" onclick="insertAtCursor('←')"><span class="material-symbols-rounded">west</span></button>
+  <button class="btn-9" onclick="insertAtCursor('→')"><span class="material-symbols-rounded">east</span></button>
+  <button class="btn-9" onclick="insertAtCursor('↑')"><span class="material-symbols-rounded">north</span></button>
+  <button class="btn-9" onclick="insertAtCursor('↓')"><span class="material-symbols-rounded">south</span></button>
+  <button class="btn-9" onclick="doUndo()"><span class="material-symbols-rounded">undo</span></button>
+  <button class="btn-9" onclick="doRedo()"><span class="material-symbols-rounded">redo</span></button>
+</div>
+
+</div>
+<div id="settingsModal" class="modal hidden">
+ <div class="modal-box">
+  <h3>Settings</h3>
+
+<button class="menu-item"
+ id="smallLoginBtn">
+ <span class="material-symbols-rounded
+  menu-icon">person</span>
+ <span class="menu-text">Login</span>
+</button>
+  <p id="userEmailText"></p>
+
+  <div class="sub-dropup"
+   id="sortWrapper">
+<button class="menu-item"
+ id="sortDropupBtn">
+ <span class="material-symbols-rounded
+  menu-icon">swap_vert</span>
+ <span class="menu-text"
+  id="currentSortLabel">Sort</span>
+</button>
+   <div class="sub-dropup-menu hidden"
+    id="sortDropupMenu">
+    <button class="sub-dropup-item"
+     data-sort="new">New</button>
+    <button class="sub-dropup-item"
+     data-sort="old">Old</button>
+   </div>
+  </div>
+
+  <div class="sub-dropup"
+   id="themeDropupWrapper">
+<button class="menu-item"
+ id="themeDropupBtn">
+ <span class="material-symbols-rounded
+  menu-icon">dark_mode</span>
+ <span class="menu-text"
+  id="currentThemeLabel">Mode</span>
+</button>
+   <div class="sub-dropup-menu hidden"
+    id="themeDropupMenu">
+    <button class="sub-dropup-item"
+     data-mode="light">Day</button>
+    <button class="sub-dropup-item"
+     data-mode="dark">Night</button>
+    <button class="sub-dropup-item"
+     data-mode="auto">Auto</button>
+   </div>
+  </div>
+
+  <button class="menu-item"
+   id="trashToggleBtn">
+   <span class="menu-icon">🗑</span>
+   <span class="menu-text"
+    id="trashLabel">အမှိုက်ပုံး</span>
+   <small id="trashCount"></small>
+  </button>
+
+ </div>
+</div>
+<!--
+<div id="settingsModal" class="modal hidden">
+  <div class="modal-box">
+    <h3>Settings</h3>
+    <button class="sub-btn" id="smallLoginBtn" onclick="doLogin()">🔐 Login / Profile</button>
+    <p id="userEmailText"></p>
+    <button class="sub-btn" id="nightBtn" onclick="toggleNight()"><span id="nightIcon">🌙</span> <span id="nightLabel">Night</span></button>
+    <button class="sub-btn" id="trashToggleBtn" onclick="openTrash()"><span id="trashIcon">🗑️</span> <span id="trashLabel">အမှိုက်ပုံး</span> <small id="trashCount"></small></button>
+    <hr>
+    <button class="sub-btn" onclick="closeSettings()">Close</button>
+  </div>
+</div>
+-->
+
+<!-- MoreWeb -->
+<div id="moreModal" class="modal hidden">
+  <div class="modal-box">
+    <h3>More Links</h3>
+    <a class="sub-btn" href="https://google.com" target="_blank">Link1 - Google</a>
+    <a class="sub-btn" href="https://youtube.com" target="_blank">Link2 - Youtube</a>
+    <button class="sub-btn" onclick="closeMore()">Close</button>
+  </div>
+</div>
+<!-- Sort -->
+<div id="sortModal" class="modal hidden">
+  <div class="modal-box">
+    <h3>Sort ရွေး</h3>
+    <button class="sub-btn" id="sort-new" onclick="setSortMode('new')">🕒 အသစ် -> အဟောင်း</button>
+    <button class="sub-btn" id="sort-old" onclick="setSortMode('old')">🕒 အဟောင်း -> အသစ်</button>
+    <button class="sub-btn" id="sort-a-z" onclick="setSortMode('a-z')">🔤 A -> Z</button>
+    <button class="sub-btn" id="sort-z-a" onclick="setSortMode('z-a')">🔤 Z -> A</button>
+    <button class="sub-btn" onclick="closeSort()">Close</button>
+  </div>
+</div>
+<!-- confirm -->
+<div id="confirmModal" class="modal hidden">
+  <div class="modal-box">
+    <p id="confirmText">ဖျက်မှာလား?</p>
+    <div style="display:flex; gap:10px;">
+      <button class="sub-btn primary" id="confirmYes">Yes</button>
+      <button class="sub-btn" onclick="closeConfirm()">No</button>
+    </div>
+  </div>
+</div>
+<!-- မစ်ဆေ့ -->
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

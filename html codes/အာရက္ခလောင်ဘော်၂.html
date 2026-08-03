@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<title>ထီပေါက်စဉ် - ကာလာဇယား</title>
+<style>
+  body { font-family: 'Myanmar Text', sans-serif; background: #f0f0f0; padding: 20px; display:flex; justify-content:center; }
+ .frame { background:white; width:900px; padding:40px 45px; border:2px solid #333; }
+ .header { text-align:center; border-bottom:2px solid #000; padding-bottom:12px; margin-bottom:20px; }
+ .header h2 { margin:0; font-size:22px; }
+ .header h3 { margin:5px 0 0 0; font-size:16px; font-weight:normal; }
+ .date-row { display:flex; justify-content:flex-end; gap:12px; margin-bottom:15px; }
+ .date-row span { border-bottom:1px dotted #000; min-width:70px; text-align:center; display:inline-block; }
+
+  table { width:100%; border-collapse:collapse; }
+  th, td { border:1px solid #000; padding:9px 6px; text-align:center; font-size:14px; }
+  th { background:#222; color:white; }
+
+  /* တစ်တန်းခြား ကာလာ - ဒါက အဓိက */
+  tbody tr:nth-child(odd) { background-color: #ffffff; }
+  tbody tr:nth-child(even) { background-color: #e8f0ff; } /* အပြာနုလေး */
+  tbody tr:nth-child(even) td[contenteditable]:focus { background-color: #fff3b0; }
+  tbody tr:hover { background-color: #fff9c4!important; }
+
+  td[contenteditable] { outline:none; text-align:left; }
+
+ .controls { text-align:right; margin:15px 0 5px 0; }
+ .controls button { padding:6px 12px; cursor:pointer; font-family:inherit; border:1px solid #333; background:#eee; }
+ .footer { margin-top:20px; font-size:11px; color:#777; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="frame">
+  <div class="header">
+    <h2>ဗဟိုအခွန် ဦးစီးဌာန</h2>
+    <h3>ထီပေါက်စဉ် မှတ်တမ်း</h3>
+  </div>
+
+  <div class="date-row">
+    နေ့: <span contenteditable="true"></span>
+    လ: <span contenteditable="true"></span>
+    နှစ်: <span contenteditable="true"></span>
+  </div>
+
+  <table id="lotteryTable">
+    <thead>
+      <tr>
+        <th>စဉ်</th>
+        <th>ဆုအမည်</th>
+        <th>ဆုနံပတ်</th>
+        <th>ဆုတန်ဖိုး</th>
+        <th>ဆုတန်ဖိုး(စာဖြင့်)</th>
+        <th>ထုတ်ယူနိုင်သည့်နေရာ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>၁</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+      <tr><td>၂</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+      <tr><td>၃</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+      <tr><td>၄</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+      <tr><td>၅</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+      <tr><td>၆</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+    </tbody>
+  </table>
+
+  <div class="controls">
+    <button onclick="addRow()">+ အတန်းသစ်ထည့်မယ်</button>
+  </div>
+
+  <div class="footer">တစ်ခုခြား ကာလာဖြင့် သိသာအောင်ပြုလုပ်ထားသည်</div>
+</div>
+
+<script>
+function addRow(){
+  const tbody = document.querySelector("#lotteryTable tbody");
+  const count = tbody.rows.length + 1;
+  const newRow = tbody.insertRow();
+  newRow.innerHTML = `<td>${count}</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td>`;
+}
+</script>
+
+</body>
+</html>

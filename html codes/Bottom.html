@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="my">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bottom Button Gallery - 15 Types</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<style>
+:root{
+  --bg:#f6f6f7; --card:#fff; --text:#111; --muted:#666; --border:#e6e6e6;
+  --toolbar:#fff; --btn-bg:#f0f0f0;
+}
+body.night{
+  --bg:#0f0f0f; --card:#1c1c1c; --text:#fff; --muted:#aaa; --border:#2a2a2a;
+  --toolbar:#1e1e1e; --btn-bg:#2d2d2d;
+}
+*{box-sizing:border-box}
+body{margin:0; font-family:system-ui; background:var(--bg); color:var(--text); transition:.2s}
+header{position:sticky; top:0; z-index:10; background:var(--toolbar); border-bottom:1px solid var(--border); padding:12px 16px; display:flex; justify-content:space-between; align-items:center}
+h1{font-size:16px; margin:0}
+#nightToggle{padding:8px 14px; border-radius:20px; border:1px solid var(--border); background:var(--card); color:var(--text); cursor:pointer}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px; padding:16px}
+.item{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:14px; display:flex; flex-direction:column; gap:10px; align-items:center}
+.item b{font-size:12px; color:var(--muted)}
+.item .preview{min-height:60px; display:flex; align-items:center; justify-content:center; width:100%}
+
+/* 1 pill */
+.btn-1{display:flex; flex-direction:column; align-items:center; gap:2px; min-width:62px; height:54px; padding:0 14px; border-radius:20px; border:none; background:#f0f0f0; color:#111; cursor:pointer}
+.btn-1 .mat{font-size:22px} .btn-1 small{font-size:10px}
+
+/* 2 outline */
+.btn-2{display:flex; flex-direction:column; align-items:center; gap:2px; min-width:62px; height:54px; border-radius:20px; border:1.5px solid #111; background:transparent; color:#111; cursor:pointer}
+
+/* 3 filled primary */
+.btn-3{display:flex; flex-direction:column; align-items:center; gap:2px; min-width:62px; height:54px; border-radius:20px; border:none; background:#111; color:#fff; cursor:pointer}
+
+/* 4 soft shadow */
+.btn-4{display:flex; flex-direction:column; align-items:center; gap:2px; min-width:62px; height:54px; border-radius:20px; border:none; background:#fff; color:#111; box-shadow:0 4px 12px rgba(0,0,0,.12); cursor:pointer}
+
+/* 5 gradient */
+.btn-5{display:flex; flex-direction:column; align-items:center; gap:2px; min-width:62px; height:54px; border-radius:20px; border:none; background:linear-gradient(135deg,#6a5cff,#3ac6ff); color:#fff; cursor:pointer}
+
+/* 6 glass */
+.btn-6{display:flex; flex-direction:column; align-items:center; gap:2px; min-width:62px; height:54px; border-radius:20px; border:1px solid rgba(255,255,255,.3); background:rgba(255,255,255,.2); backdrop-filter:blur(8px); color:#111; cursor:pointer}
+
+/* 7 icon circle */
+.btn-7{width:52px; height:52px; border-radius:50%; border:none; background:#f0f0f0; color:#111; display:grid; place-items:center; cursor:pointer}
+
+/* 8 3D */
+.btn-8{display:flex; flex-direction:column; align-items:center; gap:2px; min-width:62px; height:54px; border-radius:20px; border:none; background:#fff; color:#111; box-shadow:0 4px 0 #ddd, 0 6px 12px rgba(0,0,0,.15); cursor:pointer}
+.btn-8:active{transform:translateY(3px); box-shadow:0 1px 0 #ddd}
+
+/* 9 neon */
+.btn-9{display:flex; flex-direction:column; align-items:center; gap:2px; min-width:62px; height:54px; border-radius:20px; border:1px solid #00e5ff; background:#e6fbff; color:#00a0b5; box-shadow:0 0 12px rgba(0,229,255,.4); cursor:pointer}
+
+/* 10 minimal text */
+.btn-10{display:flex; flex-direction:column; align-items:center; gap:2px; min-width:62px; height:54px; border-radius:12px; border:none; background:transparent; color:#111; cursor:pointer}
+
+/* 11 rounded rect large */
+.btn-11{display:flex; align-items:center; gap:8px; padding:0 16px; height:44px; border-radius:12px; border:none; background:#111; color:#fff; cursor:pointer}
+
+/* 12 segmented */
+.btn-12{display:flex; align-items:center; gap:6px; padding:0 14px; height:40px; border-radius:999px; border:1px solid #ddd; background:#fff; color:#111; cursor:pointer}
+
+/* 13 ghost with bg on hover */
+.btn-13{display:flex; flex-direction:column; align-items:center; gap:2px; min-width:62px; height:54px; border-radius:20px; border:none; background:#f5f5f5; color:#333; cursor:pointer}
+.btn-13:hover{background:#111; color:#fff}
+
+/* 14 double layer */
+.btn-14{position:relative; width:64px; height:56px; border-radius:18px; border:none; background:#111; color:#fff; cursor:pointer}
+.btn-14 span{position:relative; z-index:1}
+.btn-14::before{content:''; position:absolute; inset:0; border-radius:18px; background:#333; transform:translate(3px,3px); z-index:0}
+
+/* 15 dot indicator */
+.btn-15{display:flex; flex-direction:column; align-items:center; gap:4px; min-width:62px; height:54px; border-radius:20px; border:none; background:#fff; color:#111; position:relative; cursor:pointer}
+.btn-15::after{content:''; width:6px; height:6px; background:#ff3b30; border-radius:50%; position:absolute; top:8px; right:14px}
+
+body.night .btn-1, body.night .btn-7, body.night .btn-15{background:#2d2d2d; color:#fff}
+body.night .btn-2{border-color:#fff; color:#fff}
+body.night .btn-4{background:#2a2a2a; color:#fff; box-shadow:none}
+body.night .btn-6{background:rgba(255,255,255,.08); color:#fff}
+body.night .btn-8{background:#2a2a2a; box-shadow:0 4px 0 #000}
+body.night .btn-10, body.night .btn-13{color:#fff}
+body.night .btn-13{background:#2a2a2a}
+body.night .btn-12{background:#2a2a2a; border-color:#444; color:#fff}
+body.night .btn-11{background:#fff; color:#111}
+
+#toast{position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#111; color:#fff; padding:10px 16px; border-radius:999px; font-size:13px; opacity:0; transition:.3s; pointer-events:none}
+#toast.show{opacity:1}
+body.night #toast{background:#fff; color:#111}
+.material-symbols-rounded{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Bottom.html - Button 15 Types (Day/Night)</h1>
+<button id="nightToggle" onclick="document.body.classList.toggle('night')">🌙 Night</button>
+</header>
+
+<div class="grid" id="grid"></div>
+<div id="toast">CSS Copied!</div>
+
+<script>
+const buttons = [
+{id:1, name:'Pill Soft', cls:'btn-1', html:'<span class="material-symbols-rounded mat">star</span><small>Fav</small>', css:`.btn-1{
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  min-width:62px; height:54px; padding:0 14px;
+  border-radius:20px; border:none;
+  background:#f0f0f0; color:#111; cursor:pointer;
+}
+body.night .btn-1{ background:#2d2d2d; color:#fff; }`},
+{id:2, name:'Outline', cls:'btn-2', html:'<span class="material-symbols-rounded">favorite</span><small>Fav</small>', css:`.btn-2{
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  min-width:62px; height:54px; border-radius:20px;
+  border:1.5px solid #111; background:transparent; color:#111;
+}
+body.night .btn-2{ border-color:#fff; color:#fff; }`},
+{id:3, name:'Filled Black', cls:'btn-3', html:'<span class="material-symbols-rounded">star</span><small>Fav</small>', css:`.btn-3{
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  min-width:62px; height:54px; border-radius:20px;
+  border:none; background:#111; color:#fff;
+}`},
+{id:4, name:'Soft Shadow', cls:'btn-4', html:'<span class="material-symbols-rounded">search</span><small>Search</small>', css:`.btn-4{
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  min-width:62px; height:54px; border-radius:20px; border:none;
+  background:#fff; color:#111;
+  box-shadow:0 4px 12px rgba(0,0,0,.12);
+}
+body.night .btn-4{ background:#2a2a2a; color:#fff; }`},
+{id:5, name:'Gradient', cls:'btn-5', html:'<span class="material-symbols-rounded">add</span><small>New</small>', css:`.btn-5{
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  min-width:62px; height:54px; border-radius:20px; border:none;
+  background:linear-gradient(135deg,#6a5cff,#3ac6ff); color:#fff;
+}`},
+{id:6, name:'Glass', cls:'btn-6', html:'<span class="material-symbols-rounded">settings</span><small>Set</small>', css:`.btn-6{
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  min-width:62px; height:54px; border-radius:20px;
+  border:1px solid rgba(255,255,255,.3);
+  background:rgba(255,255,255,.2); backdrop-filter:blur(8px); color:#111;
+}`},
+{id:7, name:'Circle Icon', cls:'btn-7', html:'<span class="material-symbols-rounded">more_horiz</span>', css:`.btn-7{
+  width:52px; height:52px; border-radius:50%; border:none;
+  background:#f0f0f0; color:#111; display:grid; place-items:center;
+}
+body.night .btn-7{ background:#2d2d2d; color:#fff; }`},
+{id:8, name:'3D Press', cls:'btn-8', html:'<span class="material-symbols-rounded">save</span><small>Save</small>', css:`.btn-8{
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  min-width:62px; height:54px; border-radius:20px; border:none;
+  background:#fff; color:#111;
+  box-shadow:0 4px 0 #ddd, 0 6px 12px rgba(0,0,0,.15);
+}
+.btn-8:active{ transform:translateY(3px); box-shadow:0 1px 0 #ddd; }`},
+{id:9, name:'Neon Border', cls:'btn-9', html:'<span class="material-symbols-rounded">bolt</span><small>More</small>', css:`.btn-9{
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  min-width:62px; height:54px; border-radius:20px;
+  border:1px solid #00e5ff; background:#e6fbff; color:#00a0b5;
+  box-shadow:0 0 12px rgba(0,229,255,.4);
+}`},
+{id:10, name:'Ghost Minimal', cls:'btn-10', html:'<span class="material-symbols-rounded">close</span><small>Cancel</small>', css:`.btn-10{
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  min-width:62px; height:54px; border-radius:12px; border:none;
+  background:transparent; color:#111;
+}
+body.night .btn-10{ color:#fff; }`},
+{id:11, name:'Rect + Icon', cls:'btn-11', html:'<span class="material-symbols-rounded">arrow_back</span> Back', css:`.btn-11{
+  display:flex; align-items:center; gap:8px;
+  padding:0 16px; height:44px; border-radius:12px;
+  border:none; background:#111; color:#fff;
+}
+body.night .btn-11{ background:#fff; color:#111; }`},
+{id:12, name:'Capsule', cls:'btn-12', html:'<span class="material-symbols-rounded">swap_vert</span> z-a', css:`.btn-12{
+  display:flex; align-items:center; gap:6px;
+  padding:0 14px; height:40px; border-radius:999px;
+  border:1px solid #ddd; background:#fff; color:#111;
+}
+body.night .btn-12{ background:#2a2a2a; border-color:#444; color:#fff; }`},
+{id:13, name:'Hover Invert', cls:'btn-13', html:'<span class="material-symbols-rounded">undo</span><small>Undo</small>', css:`.btn-13{
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+  min-width:62px; height:54px; border-radius:20px; border:none;
+  background:#f5f5f5; color:#333;
+}
+.btn-13:hover{ background:#111; color:#fff; }
+body.night .btn-13{ background:#2a2a2a; color:#fff; }`},
+{id:14, name:'Double Layer', cls:'btn-14', html:'<span class="material-symbols-rounded">redo</span>', css:`.btn-14{
+  position:relative; width:64px; height:56px; border-radius:18px;
+  border:none; background:#111; color:#fff;
+}
+.btn-14::before{
+  content:''; position:absolute; inset:0; border-radius:18px;
+  background:#333; transform:translate(3px,3px); z-index:0;
+}`},
+{id:15, name:'With Dot', cls:'btn-15', html:'<span class="material-symbols-rounded">notifications</span><small>New</small>', css:`.btn-15{
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  min-width:62px; height:54px; border-radius:20px; border:none;
+  background:#fff; color:#111; position:relative;
+}
+.btn-15::after{
+  content:''; width:6px; height:6px; background:#ff3b30;
+  border-radius:50%; position:absolute; top:8px; right:14px;
+}
+body.night .btn-15{ background:#2d2d2d; color:#fff; }`},
+];
+
+const grid = document.getElementById('grid');
+buttons.forEach(b=>{
+  const div = document.createElement('div');
+  div.className='item';
+  div.innerHTML=`<div class="preview"><button class="${b.cls}">${b.html}</button></div><b>${b.id}. ${b.name}</b><small style="font-size:10px;color:#888">click to copy CSS</small>`;
+  div.querySelector('button').onclick=()=>copy(b.css);
+  div.onclick=(e)=>{ if(e.target.tagName!=='BUTTON') copy(b.css) };
+  grid.appendChild(div);
+});
+
+function copy(text){
+  navigator.clipboard.writeText(text);
+  const t=document.getElementById('toast');
+  t.textContent='Copied: '+text.slice(0,30)+'...';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),1800);
+}
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="my">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arakkha Lottery</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<style>
+  :root{ --bg:#f5f7fb; --card:#ffffff; --primary:#111827; --accent:#2563eb; --muted:#6b7280; --border:#e5e7eb; }
+  *{box-sizing:border-box;}
+  body{font-family:'Myanmar Text','Noto Sans Myanmar',system-ui; background:var(--bg); margin:0; padding-bottom:95px; color:#111827;}
+  .container{max-width:900px; margin:0 auto; padding:16px;}
+  .header{padding:18px 0 8px; text-align:center;}
+  .header h1{margin:0; font-size:26px;}
+  .header p{margin:6px 0 0; color:var(--muted); font-size:12px;}
+
+  .top-controls{display:flex; gap:8px; flex-wrap:wrap; margin:14px 0; background:var(--card); padding:12px; border-radius:14px; border:1px solid var(--border); position:sticky; top:8px; z-index:5;}
+  .top-controls input, .top-controls select{padding:10px 12px; border:1px solid var(--border); border-radius:10px; font-family:inherit; font-size:14px; flex:1; min-width:100px;}
+  .top-controls button{padding:10px 14px; border:none; border-radius:10px; background:var(--primary); color:white; cursor:pointer;}
+  .btn-qr{background:#0ea5e9!important;}
+
+  .screen{display:none;}
+  .screen.active{display:block;}
+
+  .group{margin-bottom:12px; background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden;}
+  .group-header{padding:14px 16px; background:#f8fafc; cursor:pointer; display:flex; justify-content:space-between; align-items:center; font-weight:600;}
+  .group-header small{font-weight:400; color:var(--muted);}
+  .group-body{padding:0 0 6px 0;}
+  .child{padding:10px 14px; border-bottom:1px dashed #f1f5f9; display:flex; justify-content:space-between; font-size:14px;}
+  .child:last-child{border-bottom:none;}
+  .child .num{font-weight:700; letter-spacing:1px;}
+  .child.highlight{background:#fff9c4; border-radius:8px; margin:0 6px;}
+
+  .edit-card{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:14px;}
+  .form-row{display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap;}
+  .form-row input{flex:1; padding:9px 10px; border:1px solid var(--border); border-radius:8px; font-family:inherit; min-width:90px;}
+  .form-row button{padding:9px 12px; border:none; border-radius:8px; cursor:pointer; background:#111827; color:white;}
+
+  .toolbar{position:fixed; bottom:0; left:0; right:0; background:rgba(255,255,255,0.98); border-top:1px solid var(--border); display:flex; justify-content:space-around; padding:8px 0; z-index:20;}
+  .toolbar button{flex:1; background:none; border:none; padding:6px; font-family:inherit; font-size:12px; cursor:pointer; color:var(--muted);}
+  .toolbar button.active{color:var(--accent); font-weight:700;}
+  .toolbar button span{display:block; font-size:20px;}
+
+  .modal{position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:50; padding:20px;}
+  .modal.show{display:flex;}
+  .modal-box{background:white; border-radius:16px; padding:20px; max-width:480px; width:100%;}
+  .modal-box p{font-size:14px; line-height:1.7; color:#374151;}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>ထီစစ်ဆေး</h1>
+    <p>ကိုယ်ပိုင်မှတ်တမ်း • တရားဝင် ထုတ်ပြန်ချက်မဟုတ်</p>
+  </div>
+
+  <div id="viewScreen" class="screen active">
+    <div class="top-controls">
+      <select id="roundSelect"><option>Loading...</option></select>
+      <input id="searchInput" type="text" placeholder="ထီနံပါတ် ရိုက်ရှာမယ်">
+      <button id="qrBtn" class="btn-qr">📷 QR</button>
+    </div>
+    <div id="lotteryView"></div>
+    <div id="noResult" style="text-align:center;color:#9ca3af;margin-top:20px;display:none;">မတွေ့ပါ</div>
+  </div>
+
+  <div id="editScreen" class="screen">
+    <div class="edit-card">
+      <h3>အကြိမ်သစ် / ပြင်ဆင်ရန်</h3>
+      <div class="form-row">
+        <input id="editRound" placeholder="ဥပမာ 2/26">
+        <input id="editDate" type="date">
+      </div>
+      <div class="form-row">
+        <button type="button" onclick="loadEditData()" style="background:#e5e7eb;color:#111;">ရှိပြီးသား ပြန်ခေါ်မယ်</button>
+        <button type="button" onclick="saveToFirestore()" style="background:#2563eb;color:white;flex:1;">Firestore သို့ သိမ်းမယ်</button>
+      </div>
+      <div style="font-size:11px;color:#6b7280;">Doc ID: 2/26 -> 2-26 အဖြစ်သိမ်းမယ် | Collection: arakkha_lottery</div>
+    </div>
+    <div class="edit-card">
+      <h3>ဆုများ</h3>
+      <div class="form-row">
+        <input id="pName" placeholder="ဆုအမည်">
+        <input id="pAmount" placeholder="တန်ဖိုး">
+        <input id="pNumbers" placeholder="နံပါတ်များ ကော်မာခြား">
+        <button type="button" onclick="addPrizeToList()">+ ထည့်</button>
+      </div>
+      <div id="prizePreview"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toolbar">
+  <button id="btnView" class="active" onclick="switchScreen('view')"><span>🔍</span><div id="btnViewText">View</div></button>
+  <button id="btnEdit" onclick="switchScreen('edit')"><span>✏️</span><div id="btnEditText">Edit</div></button>
+  <button onclick="openAbout()"><span>ℹ️</span>About</button>
+</div>
+
+<div id="aboutModal" class="modal" onclick="if(event.target===this) this.classList.remove('show')">
+  <div class="modal-box">
+    <h3>အသိပေးချက်</h3>
+    <p>
+      ဤ App သည် ထီပေါက်စဉ်များကို အလွယ်တကူ မှတ်သားပြီး တိုက်စစ်နိုင်ရန် ပြုလုပ်ထားသော <b>ကိုယ်ပိုင်မှတ်တမ်း</b> သာဖြစ်ပါသည်။<br><br>
+      အချက်အလက်များကို အကောင်းဆုံး မှန်ကန်အောင် ထည့်သော်လည်း လူသားပြုလုပ်ခြင်းဖြစ်သည့်အတွက် လွဲမှားနိုင်ပါသည်။<br><br>
+      တရားဝင် အတည်ပြုချက်အတွက် သက်ဆိုင်ရာ တရားဝင်ထုတ်ပြန်ချက်ကိုသာ အတည်ယူပါ။ ဤ App သည် အစိုးရအဖွဲ့အစည်းနှင့် မသက်ဆိုင်ပါ။<br><br>
+      ထီတိုက်သည့်အခါ မူရင်းစာရွက်နှင့် ပြန်လည်တိုက်ဆိုင်စစ်ဆေးပါ။
+    </p>
+    <button type="button" onclick="document.getElementById('aboutModal').classList.remove('show')" style="width:100%;padding:10px;border:none;border-radius:10px;background:#111827;color:white;margin-top:10px;">နားလည်ပြီ</button>
+  </div>
+</div>
+
+<script>
+// --- Firebase v8 ---
+const firebaseConfig = { apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U", authDomain: "arakanartarea-note.firebaseapp.com", projectId: "arakanartarea-note" };
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// State
+let tempPrizes = [];
+let allRounds = [];
+
+// Switch View/Edit
+function switchScreen(mode){
+  document.getElementById('viewScreen').classList.remove('active');
+  document.getElementById('editScreen').classList.remove('active');
+  document.getElementById('btnView').classList.remove('active');
+  document.getElementById('btnEdit').classList.remove('active');
+  
+  if(mode==='view'){
+    document.getElementById('viewScreen').classList.add('active');
+    document.getElementById('btnView').classList.add('active');
+    document.getElementById('btnViewText').innerText='View';
+    document.getElementById('btnEditText').innerText='Edit';
+    loadRounds();
+  } else {
+    document.getElementById('editScreen').classList.add('active');
+    document.getElementById('btnEdit').classList.add('active');
+    document.getElementById('btnViewText').innerText='View';
+    document.getElementById('btnEditText').innerText='Edit';
+  }
+}
+
+function openAbout(){ document.getElementById('aboutModal').classList.add('show'); }
+
+async function loadRounds(){
+  const sel=document.getElementById('roundSelect');
+  try{
+    const snap=await db.collection('arakkha_lottery').get();
+    if(snap.empty){ sel.innerHTML='<option>Data မရှိသေးပါ</option>'; document.getElementById('lotteryView').innerHTML=''; return; }
+    allRounds=[];
+    snap.forEach(doc=> allRounds.push({id:doc.id, ...doc.data()}));
+    allRounds.sort((a,b)=> (b.date||'').localeCompare(a.date||'') );
+    sel.innerHTML='';
+    allRounds.forEach(r=>{
+      const opt=document.createElement('option');
+      opt.value=r.id; opt.textContent=r.round || r.id;
+      sel.appendChild(opt);
+    });
+    sel.onchange = function(){ const found=allRounds.find(x=>x.id===this.value); renderView(found); };
+    renderView(allRounds[0]);
+  }catch(e){
+    sel.innerHTML='<option>Error: '+e.message+'</option>';
+    console.error(e);
+  }
+}
+
+function renderView(data){
+  const container=document.getElementById('lotteryView');
+  container.innerHTML='';
+  if(!data || !data.prizes || data.prizes.length===0){ container.innerHTML="<p style='text-align:center;color:#9ca3af'>ဆု မရှိသေးပါ</p>"; return; }
+  data.prizes.forEach(p=>{
+    const group=document.createElement('div');
+    group.className='group';
+    group.innerHTML=`
+      <div class="group-header" onclick="var b=this.nextElementSibling; b.style.display = (b.style.display==='none'?'block':'none')">
+        <span>${p.name} - ${Number(p.amount||0).toLocaleString()} ကျပ် <small>(${p.numbers.length} စောင်)</small></span>
+        <span>▼</span>
+      </div>
+      <div class="group-body" style="display:block">
+        ${p.numbers.map(n=>`<div class="child" data-num="${n}"><span class="num">${n}</span><span>${Number(p.amount||0).toLocaleString()} ကျပ်</span></div>`).join('')}
+      </div>
+    `;
+    container.appendChild(group);
+  });
+  applySearch();
+}
+
+function applySearch(){
+  const q=document.getElementById('searchInput').value.trim();
+  const groups=document.querySelectorAll('.group');
+  let any=false;
+  groups.forEach(g=>{
+    const childs=g.querySelectorAll('.child');
+    let has=false;
+    childs.forEach(c=>{
+      const num=c.getAttribute('data-num')||'';
+      if(q==='' || num.includes(q)){
+        c.style.display='flex';
+        if(q!=='' && num.includes(q)){ c.classList.add('highlight'); has=true; any=true; }
+        else { c.classList.remove('highlight'); if(q==='') has=true; }
+      } else {
+        c.style.display='none'; c.classList.remove('highlight');
+      }
+    });
+    g.style.display = has ? 'block' : (q===''?'block':'none');
+    if(has) g.querySelector('.group-body').style.display='block';
+  });
+  document.getElementById('noResult').style.display = (!any && q!=='') ? 'block' : 'none';
+}
+
+document.getElementById('searchInput').addEventListener('input', applySearch);
+document.getElementById('qrBtn').addEventListener('click', function(){ alert('QR Scan ကို နောက်မှ html5-qrcode library ထည့်မယ်။'); });
+
+function addPrizeToList(){
+  const name=document.getElementById('pName').value.trim();
+  const amount=document.getElementById('pNumbers') ? document.getElementById('pAmount').value.trim() : '';
+  const numbersRaw=document.getElementById('pNumbers').value.trim();
+  if(!name || !numbersRaw){ alert('ဆုအမည် နှင့် နံပါတ် ထည့်ပါ'); return; }
+  const numbers=numbersRaw.split(',').map(s=>s.trim()).filter(Boolean);
+  tempPrizes.push({name:name, amount:amount||0, numbers:numbers});
+  renderTemp();
+  document.getElementById('pName').value=''; document.getElementById('pNumbers').value=''; document.getElementById('pAmount').value='';
+}
+function renderTemp(){
+  const box=document.getElementById('prizePreview');
+  box.innerHTML=tempPrizes.map((p,i)=>`
+    <div style="border:1px dashed #d1d5db; border-radius:10px; padding:8px; margin-bottom:8px;">
+      <b>${p.name}</b> - ${p.amount} <a href="#" onclick="tempPrizes.splice(${i},1);renderTemp();return false;" style="float:right;color:red;">ဖျက်</a>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;">${p.numbers.map(n=>`<span style="background:#eef2ff;padding:2px 6px;border-radius:4px;font-size:12px;">${n}</span>`).join('')}</div>
+    </div>
+  `).join('');
+}
+async function saveToFirestore(){
+  const round=document.getElementById('editRound').value.trim();
+  const date=document.getElementById('editDate').value;
+  if(!round){ alert('အကြိမ် ထည့်ပါ ဥပမာ 2/26'); return; }
+  if(tempPrizes.length===0){ alert('ဆု တစ်ခု ထည့်ပါ'); return; }
+  const docId=round.replace(/\//g,'-');
+  try{
+    await db.collection('arakkha_lottery').doc(docId).set({
+      round: round,
+      date: date || new Date().toISOString().split('T')[0],
+      prizes: tempPrizes,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    alert('Saved! '+docId);
+    tempPrizes=[]; renderTemp();
+    switchScreen('view');
+  }catch(e){ alert('Error: '+e.message); }
+}
+async function loadEditData(){
+  const round=document.getElementById('editRound').value.trim();
+  if(!round){ alert('အကြိမ် ရိုက်ထည့်ပါ'); return; }
+  const docId=round.replace(/\//g,'-');
+  try{
+    const snap=await db.collection('arakkha_lottery').doc(docId).get();
+    if(!snap.exists){ alert('မရှိသေးပါ'); return; }
+    const data=snap.data();
+    tempPrizes=data.prizes||[];
+    renderTemp();
+    document.getElementById('editDate').value=data.date||'';
+  }catch(e){ alert(e.message); }
+}
+
+// init
+loadRounds();
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</html>

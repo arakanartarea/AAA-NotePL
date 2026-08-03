@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ထီပေါက်စဉ် မှတ်တမ်း</title>
+<style>
+  body {
+    font-family: 'Myanmar Text', 'Noto Sans Myanmar', sans-serif;
+    background: #f0f0f0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+  }
+ .frame {
+    background: white;
+    width: 850px;
+    padding: 40px 50px;
+    border: 2px solid #333;
+  }
+ .header {
+    text-align: center;
+    border-bottom: 2px solid #000;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+  }
+ .header h2 {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: 1px;
+  }
+ .header h3 {
+    margin: 5px 0 0 0;
+    font-size: 18px;
+    font-weight: normal;
+  }
+ .date-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-bottom: 20px;
+    font-size: 15px;
+  }
+ .date-row span {
+    border-bottom: 1px dotted #000;
+    min-width: 80px;
+    display: inline-block;
+    text-align: center;
+    padding: 2px;
+  }
+ .date-row span[contenteditable] { outline: none; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  th, td {
+    border: 1px solid #000;
+    padding: 10px 8px;
+    text-align: center;
+    font-size: 14px;
+  }
+  th {
+    background: #eeeeee;
+    font-weight: bold;
+  }
+  td {
+    height: 28px;
+  }
+  td[contenteditable] { outline: none; text-align: left; }
+  td[contenteditable]:focus { background: #fffbe6; }
+
+ .footer {
+    margin-top: 25px;
+    font-size: 12px;
+    color: #555;
+    text-align: center;
+  }
+ .note {
+    margin-top: 30px;
+    font-size: 13px;
+  }
+  @media print {
+    body { background: white; padding: 0; }
+   .frame { border: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="frame" id="capture-area">
+  <div class="header">
+    <h2>ဗဟိုအခွန် ဦးစီးဌာန</h2>
+    <h3>ထီပေါက်စဉ် မှတ်တမ်း (ကိုယ်ပိုင်မှတ်တမ်း)</h3>
+  </div>
+
+  <div class="date-row">
+    နေ့: <span contenteditable="true"> </span>
+    လ: <span contenteditable="true"> </span>
+    နှစ်: <span contenteditable="true"> </span>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:5%">စဉ်</th>
+        <th style="width:20%">ဆုအမည်</th>
+        <th style="width:15%">ဆုနံပတ်</th>
+        <th style="width:15%">ဆုတန်ဖိုး (ကိန်း)</th>
+        <th style="width:25%">ဆုတန်ဖိုး (စာဖြင့်)</th>
+        <th style="width:20%">ထုတ်ယူနိုင်သည့်နေရာ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>၁</td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+      </tr>
+      <tr>
+        <td>၂</td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+      </tr>
+      <tr>
+        <td>၃</td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+      </tr>
+      <tr>
+        <td>၄</td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+      </tr>
+      <tr>
+        <td>၅</td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <b>မှတ်ချက်:</b> ဆုကြီး - မြို့နယ်အခွန်ရုံး / ဆုသေး - သတ်မှတ်ရောင်းချသည့်ဆိုင် တွင် ထုတ်ယူနိုင်ပါသည်။ <span contenteditable="true">(ကိုယ်လိုချင်တာဖြည့်ရေး)</span>
+  </div>
+
+  <div class="footer">
+    ကိုယ်ပိုင်မှတ်တမ်းအဖြစ်သာ - တရားဝင်အထောက်အထားမဟုတ်
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<title>ထီမှတ်တမ်း - လှလှလေး</title>
+<style>
+  body{font-family:'Myanmar Text',sans-serif; background:#f5f7fb; padding:20px; display:flex; justify-content:center;}
+ .frame{width:920px; background:white; border-radius:16px; padding:30px 35px; box-shadow:0 8px 25px rgba(0,0,0,0.08); border:1px solid #e5e7eb;}
+ .top-title{text-align:center; margin-bottom:10px;}
+ .top-title h2{margin:0; font-size:24px;}
+ .top-title p{margin:4px 0; color:#6b7280; font-size:14px;}
+ .date-row{display:flex; justify-content:flex-end; gap:10px; margin:18px 0; font-size:14px;}
+ .date-row span{border-bottom:1px dashed #9ca3af; min-width:60px; display:inline-block; text-align:center;}
+
+  table{width:100%; border-collapse:separate; border-spacing:0; border-radius:12px; overflow:hidden; border:1px solid #e5e7eb;}
+  th{padding:12px 8px; font-size:14px; background:#f8fafc; color:#334155; border-bottom:1px solid #e5e7eb;}
+  td{padding:10px 8px; font-size:14px; border-bottom:1px solid #f1f5f9; border-right:1px solid #f1f5f9;}
+  td:last-child{border-right:none;}
+
+  /* တစ်ခုခြားကာလာ - ဆုတန်ဖိုး သိသာအောင် */
+  tbody tr:nth-child(odd){background:#ffffff;}
+  tbody tr:nth-child(even){background:#eef4ff;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:#fff7cc!important;}
+
+  td[contenteditable]{outline:none;}
+  td[contenteditable]:focus{background:#fffbeb; box-shadow:inset 0 0 0 1px #f59e0b;}
+
+ .controls{display:flex; justify-content:space-between; margin-top:16px; align-items:center;}
+ .controls button{border:none; padding:8px 14px; border-radius:8px; cursor:pointer; background:#111827; color:white; font-family:inherit;}
+ .controls.hint{font-size:12px; color:#9ca3af;}
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="top-title">
+    <h2>ထီပေါက်စဉ် ကိုယ်ပိုင်မှတ်တမ်း</h2>
+    <p>ဒုတိယအကြိမ် - ဆုအကြီး + ဆုအသေး</p>
+  </div>
+
+  <div class="date-row">
+    နေ့: <span contenteditable="true">၁</span>
+    လ: <span contenteditable="true">သြဂုတ်</span>
+    နှစ်: <span contenteditable="true">၂၀၂၆</span>
+  </div>
+
+  <table id="tbl">
+    <thead>
+      <tr>
+        <th style="width:6%">စဉ်</th>
+        <th style="width:14%">ဆုအမည်</th>
+        <th style="width:14%">ဆုနံပတ်</th>
+        <th style="width:16%">ဆုတန်ဖိုး(ကိန်း)</th>
+        <th style="width:25%">ဆုတန်ဖိုး(စာဖြင့်)</th>
+        <th style="width:25%">ထုတ်ယူနိုင်သည့်နေရာ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>၁</td><td contenteditable="true">ပထမဆု</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+      <tr><td>၂</td><td contenteditable="true">ဒုတိယဆု</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+      <tr><td>၃</td><td contenteditable="true">တတိယဆု</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+      <tr><td>၄</td><td contenteditable="true">စတုတ္ထဆု</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+      <tr><td>၅</td><td contenteditable="true">ပဉ္စမဆု</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+      <tr><td>၆</td><td contenteditable="true">ဆဋ္ဌမဆု</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+    </tbody>
+  </table>
+
+  <div class="controls">
+    <span class="hint">ကိုယ်ပိုင်မှတ်တမ်း - တရားဝင်မဟုတ် • တစ်တန်းခြား ကာလာဖြင့်</span>
+    <button onclick="addRow()">+ အတန်းသစ်ထည့်မယ် (ဆုသေး)</button>
+  </div>
+</div>
+
+<script>
+function addRow(){
+  const tbody=document.querySelector("#tbl tbody");
+  const n=tbody.rows.length+1;
+  const r=tbody.insertRow();
+  r.innerHTML=`<td>${n}</td><td contenteditable="true">ဆုသေး</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td>`;
+}
+</script>
+</body>
+</html>
