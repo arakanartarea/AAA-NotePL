@@ -38,7 +38,7 @@ auth.onAuthStateChanged(async (user)=>{
   bigLogin.classList.add('hidden'); app.classList.remove('hidden');
   startSnapshot();
 });
-/*
+
 //login
 function doLogin(){
   const provider = new firebase.auth.GoogleAuthProvider();
@@ -46,21 +46,6 @@ function doLogin(){
   auth.signInWithPopup(provider);
 }
 document.getElementById('bigLoginBtn').onclick = doLogin;
-*/
-
-//login - AIDE WebView အတွက် ပြင်ထားတာ
-function doLogin() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({ prompt: 'select_account' });
-  auth.signInWithRedirect(provider);
-}
-// Redirect ကနေ ပြန်လာတာကို ဖမ်းဖို့
-auth.getRedirectResult().then((result) => {
-  // login အောင်မြင်ရင် onAuthStateChanged က အလိုလို အလုပ်လုပ်မယ်
-}).catch((error) => {
-  console.log(error);
-  document.getElementById('bigLoginMsg').innerText = error.message;
-});
 
 function startSnapshot(){
   db.collection('AAAnotes').onSnapshot(snap=>{

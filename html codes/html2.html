@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:#111}
+.app{width:100%;height:100dvh;display:flex}
+.content{flex:1;background:#000;display:flex;align-items:center;justify-content:center;color:#555}
+
+.toolbar-wrapper{display:flex;padding:12px;z-index:100}
+.toolbar{display:flex;background:#222;border:2px solid #ff2a2a;border-radius:28px;padding:6px;gap:4px}
+.item{width:44px;height:44px;position:relative;border:none;background:transparent;color:#aaa;border-radius:20px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.item.pos-active{outline:2px solid #ff2a2a}
+
+/* === MENU BASE - နေရာ မပါ === */
+.menu, .submenu{
+  position:absolute;
+  background:#2a2a2a;
+  border:1px solid #444;
+  border-radius:16px;
+  padding:6px;
+  min-width:190px;
+  display:none;
+  flex-direction:column;
+  gap:2px;
+  box-shadow:0 10px 30px rgba(0,0,0,.6);
+}
+.menu.show, .submenu.show{display:flex}
+.menu-title{padding:10px 12px 4px;font-size:12px;color:#888;font-weight:700;letter-spacing:.5px}
+.menu-item{position:relative;padding:11px 12px;border-radius:10px;color:#ccc;display:flex;align-items:center;justify-content:space-between;cursor:pointer;white-space:nowrap}
+.menu-item:hover{background:#3a3a3a;color:#fff}
+.menu-item.active-pick{background:#ff2a2a !important;color:#fff !important}
+
+/* scroll ဖြစ်မယ့်အပိုင်းကို သပ်သပ်ခွဲ - ဒါမှ sub မညှပ်မှာ */
+.menu-scroll{max-height:80vh;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+
+/* === POSITION LOGIC === */
+.toolbar-wrapper.bottom{position:fixed;left:0;right:0;bottom:0;justify-content:center}
+.toolbar-wrapper.bottom .toolbar{flex-direction:row;width:95%;max-width:480px}
+.toolbar-wrapper.bottom .menu{bottom:calc(100% + 14px);left:0}
+.toolbar-wrapper.bottom .submenu{left:calc(100% + 8px);top:0}
+
+.toolbar-wrapper.left{order:-1;align-items:center}
+.toolbar-wrapper.left .toolbar{flex-direction:column}
+.toolbar-wrapper.left .menu{left:calc(100% + 14px);top:0}
+.toolbar-wrapper.left .submenu{left:calc(100% + 8px);top:0}
+
+.toolbar-wrapper.right{order:1;align-items:center}
+.toolbar-wrapper.right .toolbar{flex-direction:column}
+.toolbar-wrapper.right .menu{right:calc(100% + 14px);left:auto;top:0}
+.toolbar-wrapper.right .submenu{right:calc(100% + 8px);left:auto;top:0}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="toolbar-wrapper bottom" id="toolbarRoot">
+    <div class="toolbar">
+      <button class="item" id="mainBtn" onclick="toggleMenu(this)">
+        <span class="material-icons">settings</span>
+        <div class="menu" id="mainMenu">
+          <div class="menu-title">ဆက်တင်များ</div>
+          <div class="menu-scroll">
+            <div class="menu-item" onclick="event.stopPropagation(); toggleSub(this)">Theme <span class="material-icons" style="font-size:18px">chevron_right</span>
+              <div class="submenu"><div class="menu-item">အလင်း</div><div class="menu-item">အမှောင်</div></div>
+            </div>
+            <div class="menu-item" onclick="event.stopPropagation(); toggleSub(this)">Sort <span class="material-icons" style="font-size:18px">chevron_right</span>
+              <div class="submenu"><div class="menu-item">A-Z</div><div class="menu-item">အသစ်-အဟောင်း</div></div>
+            </div>
+            <div class="menu-item" onclick="event.stopPropagation(); toggleSub(this)">Tool bar <span class="material-icons" style="font-size:18px">chevron_right</span>
+              <div class="submenu" id="posSub">
+                <div class="menu-item" data-pos="left" onclick="event.stopPropagation(); moveToolbar('left')">ဘယ်ကပ်</div>
+                <div class="menu-item active-pick" data-pos="bottom" onclick="event.stopPropagation(); moveToolbar('bottom')">အောက်ကပ်</div>
+                <div class="menu-item" data-pos="right" onclick="event.stopPropagation(); moveToolbar('right')">ညာကပ်</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </button>
+      <button class="item"><span class="material-icons">favorite</span></button>
+    </div>
+  </div>
+  <div class="content">Content Area</div>
+</div>
+
+<script>
+function moveToolbar(pos){
+  const root=document.getElementById('toolbarRoot');
+  root.classList.remove('bottom','left','right');
+  root.classList.add(pos);
+  localStorage.setItem('toolbar-pos',pos);
+  document.querySelectorAll('#posSub .menu-item').forEach(el=>{
+    el.classList.toggle('active-pick', el.dataset.pos===pos);
+  });
+}
+
+function toggleMenu(btn){
+  const menu=btn.querySelector('.menu');
+  const isShow=menu.classList.contains('show');
+  closeAll();
+  if(!isShow){
+    menu.classList.add('show');
+    autoFix(menu); // menu ကိုပါ screen ထဲ ပြန်သွင်း
+  }
+}
+
+function toggleSub(item){
+  const sub=item.querySelector('.submenu');
+  if(!sub) return;
+  const isShow=sub.classList.contains('show');
+  item.parentElement.querySelectorAll('.submenu').forEach(s=>{if(s!==sub)s.classList.remove('show')});
+  if(isShow){sub.classList.remove('show');return;}
+  sub.classList.add('show');
+  autoFix(sub);
+}
+
+function autoFix(el){
+  requestAnimationFrame(()=>{
+    el.style.top=''; el.style.bottom=''; el.style.left=''; el.style.right='';
+    const r=el.getBoundingClientRect();
+    const m=8;
+    // အောက်လျှံ
+    if(r.bottom > innerHeight - m){
+      el.style.top='auto';
+      el.style.bottom='0';
+    }
+    // အပေါ်လျှံ
+    if(r.top < m){
+      el.style.top=m+'px';
+      el.style.bottom='auto';
+    }
+    // ညာလျှံ
+    if(r.right > innerWidth - m){
+      if(el.classList.contains('submenu')){
+        el.style.left='auto';
+        el.style.right='calc(100% + 8px)';
+      }else{
+        el.style.left='auto';
+        el.style.right='0';
+      }
+    }
+    // ဘယ်လျှံ
+    if(r.left < m){
+      if(el.classList.contains('submenu')){
+        // right toolbar မှာ left:auto ဖြစ်နေတာကို ပြန်ပြင်
+        const parentPos=document.getElementById('toolbarRoot').classList.contains('right') ? 'right' : 'left';
+        if(parentPos==='right'){ /* already handled */ } else {
+          el.style.left='calc(100% + 8px)';
+          el.style.right='auto';
+        }
+      }
+    }
+  });
+}
+
+function closeAll(){
+  document.querySelectorAll('.menu,.submenu').forEach(m=>m.classList.remove('show'));
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.item')) closeAll();});
+(function(){const s=localStorage.getItem('toolbar-pos'); if(s) moveToolbar(s);})();
+</script>
+</body>
+</html>

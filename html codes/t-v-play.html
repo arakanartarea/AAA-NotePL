@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Video Stream Test</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #0088cc;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background-color: #2a2a2a;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+        input[type="text"]:focus {
+            border-color: #0088cc;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #0088cc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:active {
+            background-color: #006699;
+        }
+        .video-container {
+            width: 100%;
+            background-color: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        video {
+            width: 100%;
+            display: block;
+            max-height: 400px;
+        }
+        .status {
+            margin-top: 12px;
+            font-size: 13px;
+            color: #aaa;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Telegram Video Test</h2>
+    
+    <div class="input-group">
+        <input type="text" id="videoUrl" placeholder="Direct Video Link (https://...mp4) ထည့်ပါ">
+        <button id="playBtn" onclick="playVideo()">▶ Play Video</button>
+    </div>
+
+    <div class="video-container">
+        <video id="myVideo" controls playsinline crossorigin="anonymous">
+            Your browser does not support HTML5 video.
+        </video>
+    </div>
+
+    <div id="statusMsg" class="status">Direct Link ထည့်ပြီး Play နှိပ်ပါ။</div>
+</div>
+
+<script>
+    function playVideo() {
+        var url = document.getElementById('videoUrl').value.trim();
+        var video = document.getElementById('myVideo');
+        var status = document.getElementById('statusMsg');
+
+        if (!url) {
+            alert('ကျေးဇူးပြု၍ Video Link တစ်ခုခု ထည့်ပါ!');
+            return;
+        }
+
+        status.innerText = "ဗီဒီယို တက်မတက် စစ်ဆေးနေသည်...";
+        status.style.color = "#ffb74d";
+
+        video.src = url;
+        video.load();
+        
+        var playPromise = video.play();
+        if (playPromise !== undefined) {
+            playPromise.then(_ => {
+                status.innerText = "ဗီဒီယို အလုပ်လုပ်နေပါပြီ! 🎬";
+                status.style.color = "#81c784";
+            }).catch(error => {
+                status.innerText = "Error: " + error.message;
+                status.style.color = "#e57373";
+            });
+        }
+    }
+</script>
+
+</body>
+</html>
