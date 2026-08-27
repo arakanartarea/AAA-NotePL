@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Web - ArakanArtArea</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;600&family=Noto+Sans+Myanmar:wght@600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{background:#0e0e11;color:#fff;font-family:Inter,'Noto Sans Myanmar',sans-serif}
+.top{max-width:1020px;margin:0 auto;padding:16px;display:flex;justify-content:space-between;align-items:center}
+.logo{display:flex;gap:10px;align-items:center}.logo-b{width:36px;height:36px;border-radius:50%;background:#FFE066;color:#000;display:grid;place-items:center;font-weight:800}
+.b1{font-size:13px;letter-spacing:.12em;font-weight:700}.b2{font-size:11px;opacity:.45}
+.wrap{max-width:1020px;margin:0 auto;padding:0 16px 30px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin:12px 0}
+.btn{height:36px;padding:0 16px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:#1e1e22;color:rgba(255,255,255,.8);cursor:pointer;font-size:13px;font-weight:600}
+.btn.y{background:#FFE066;color:#000;border:0}
+.btn.ghost{background:transparent}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.grid.list{grid-template-columns:1fr}
+.card{background:#1a1a1e;border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;cursor:pointer;transition:.15s;position:relative}
+.card:hover{border-color:rgba(255,224,102,.35);transform:translateY(-1px)}
+.ic{width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#FFE066,#FFD60A);color:#000;display:grid;place-items:center;font-weight:800;flex-shrink:0}
+.tt{font-weight:700;font-size:14px;line-height:1.2}.uu{font-size:11px;opacity:.45;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.del{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;border:0;background:rgba(255,255,255,.06);color:rgba(255,255,255,.4);cursor:pointer;display:none}
+.card:hover .del{display:grid;place-items:center}.del:hover{background:#ff4d4d;color:#fff}
+.sec{margin:20px 0 8px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;opacity:.4;font-weight:700}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);display:none;place-items:center;z-index:99}
+.modal.on{display:grid}
+.box{background:#1e1e22;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:16px;width:min(380px,92vw)}
+.lab{font-size:11px;text-transform:uppercase;letter-spacing:.06em;opacity:.45;font-weight:600;margin:10px 0 6px;display:block}
+.inp{width:100%;height:40px;padding:0 12px;border-radius:10px;background:#101012;border:1px solid rgba(255,255,255,.08);color:#fff;outline:none}
+.inp:focus{border-color:rgba(255,224,102,.4)}
+</style>
+</head>
+<body>
+<div class="top"><div class="logo"><div class="logo-b">AAA</div><div><div class="b1">MY WEB • ARAKANARTAREA</div><div class="b2">အာရက္ခ အနုပညာ ရပ်ဝန်း</div></div></div>
+<div style="display:flex;gap:8px"><button class="btn ghost" id="btnList">☰ List</button><button class="btn ghost" id="btnGrid">⊞ Grid</button><button class="btn y" id="btnAdd">+ Add Link</button></div></div>
+<div class="wrap">
+<div class="sec">Permanent • ကုဒ်ထဲမှာ သေချာထည့်ထားတဲ့ လင့်များ</div>
+<div id="perm" class="grid"></div>
+<div class="sec">My Links • Local မှာ သိမ်းထားတဲ့ ယာယီလင့်များ</div>
+<div id="my" class="grid"></div>
+</div>
+
+<div id="modal" class="modal"><div class="box">
+<div style="display:flex;justify-content:space-between;align-items:center"><b>Add Link</b><button class="btn ghost" id="btnClose" style="height:28px">✕</button></div>
+<label class="lab">Name / အမည်</label><input id="fName" class="inp" placeholder="ဥပမာ - Lyrics Web">
+<label class="lab">Link / URL</label><input id="fUrl" class="inp" placeholder="https://...">
+<label class="lab">Icon / အတို (2 လုံး)</label><input id="fIcon" class="inp" placeholder="LY" maxlength="2">
+<div style="display:flex;gap:8px;margin-top:14px"><button class="btn y" id="btnSave" style="flex:1">Save to Local</button><button class="btn" id="btnCancel" style="flex:1">Cancel</button></div>
+<div style="font-size:11px;opacity:.35;margin-top:10px">သေချာပြီဆို ကုဒ်ထဲက <b>PERMANENT_LINKS</b> array ထဲကို ပေါင်းရေးလိုက်။</div>
+</div></div>
+
+<script>
+// === ဒီနေရာမှာ သေချာတဲ့ လင့်တွေကို ကုဒ်ထဲမှာ အမြဲ ပေါင်းရေးလို့ရတယ် ===
+const PERMANENT_LINKS = [
+  {name:'Cover Studio - သမ်နူး', url:'./cover.html', icon:'CV'},
+  {name:'Note Web', url:'./note.html', icon:'NT'},
+  {name:'Lyrics Web', url:'./lyrics.html', icon:'LY'},
+  // {name:'Other Web', url:'./other.html', icon:'OW'},
+];
+
+let myLinks = JSON.parse(localStorage.getItem('aaa_my_links')||'[]');
+let view='grid';
+const permEl=document.getElementById('perm');
+const myEl=document.getElementById('my');
+
+function render(){
+  permEl.className='grid '+(view==='list'?'list':'');
+  myEl.className='grid '+(view==='list'?'list':'');
+  permEl.innerHTML='';
+  PERMANENT_LINKS.forEach(l=>{
+    const d=document.createElement('div'); d.className='card'; d.onclick=()=>window.open(l.url,'_blank');
+    d.innerHTML=`<div class="ic">${l.icon}</div><div><div class="tt">${l.name}</div><div class="uu">${l.url}</div></div>`;
+    permEl.appendChild(d);
+  });
+  myEl.innerHTML='';
+  if(myLinks.length===0){
+    myEl.innerHTML='<div style="opacity:.3;font-size:13px;padding:12px">ယာယီလင့် မရှိသေးဘူး - Add Link နဲ့ စထည့်လိုက်ပါ</div>';
+  } else {
+    myLinks.forEach((l,i)=>{
+      const d=document.createElement('div'); d.className='card'; d.onclick=(e)=>{ if(e.target.classList.contains('del'))return; window.open(l.url,'_blank'); };
+      d.innerHTML=`<div class="ic" style="background:#26262b;color:#FFE066;border:1px solid rgba(255,224,102,.2)">${l.icon||l.name.slice(0,2).toUpperCase()}</div><div><div class="tt">${l.name}</div><div class="uu">${l.url}</div></div><button class="del" data-i="${i}">✕</button>`;
+      myEl.appendChild(d);
+    });
+    myEl.querySelectorAll('.del').forEach(b=>{ b.onclick=(e)=>{ e.stopPropagation(); const i=+b.dataset.i; myLinks.splice(i,1); save(); }; });
+  }
+}
+function save(){ localStorage.setItem('aaa_my_links', JSON.stringify(myLinks)); render(); }
+
+document.getElementById('btnAdd').onclick=()=>document.getElementById('modal').classList.add('on');
+document.getElementById('btnClose').onclick=document.getElementById('btnCancel').onclick=()=>document.getElementById('modal').classList.remove('on');
+document.getElementById('btnSave').onclick=()=>{
+  const name=document.getElementById('fName').value.trim();
+  const url=document.getElementById('fUrl').value.trim();
+  const icon=document.getElementById('fIcon').value.trim().toUpperCase()||name.slice(0,2).toUpperCase();
+  if(!name||!url){ alert('Name နဲ့ Link ထည့်ပါ'); return; }
+  myLinks.unshift({name,url,icon}); save();
+  document.getElementById('fName').value=''; document.getElementById('fUrl').value=''; document.getElementById('fIcon').value='';
+  document.getElementById('modal').classList.remove('on');
+};
+document.getElementById('btnGrid').onclick=()=>{ view='grid'; render(); };
+document.getElementById('btnList').onclick=()=>{ view='list'; render(); };
+
+render();
+</script>
+</body>
+</html>

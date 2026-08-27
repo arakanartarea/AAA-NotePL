@@ -1,0 +1,81 @@
+<!-- ၁၁ ၂၇ -->
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login Test</title>
+</head>
+<body style="font-family: sans-serif; padding:20px; text-align:center;">
+    <h2>Login စမ်းသပ်ခြင်း</h2>
+    <button id="login-btn" style="padding:12px 20px; font-size:16px;">Google နဲ့ဝင်မယ်</button>
+    <button id="logout-btn" style="display:none; padding:12px 20px;">ထွက်မယ်</button>
+    <p id="status" style="margin-top:20px; background:#eee; padding:10px; white-space: pre-wrap;"></p>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyC7N9_TNTp_aThC_olEDyMcEo2pAhOFEGI",
+    authDomain: "arakanese-dictionary.firebaseapp.com",
+    projectId: "arakanese-dictionary",
+    storageBucket: "arakanese-dictionary.firebasestorage.app",
+    messagingSenderId: "955711906003",
+    appId: "1:955711906003:web:6d9b60bd4cdaa8a8953426"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+const loginBtn = document.getElementById('login-btn');
+const logoutBtn = document.getElementById('logout-btn');
+const status = document.getElementById('status');
+
+loginBtn.addEventListener('click', () => signInWithPopup(auth, provider).catch(e => status.textContent = e.message));
+logoutBtn.addEventListener('click', () => signOut(auth));
+
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        loginBtn.style.display = "none";
+        logoutBtn.style.display = "inline-block";
+        
+        // ၁. UID နဲ့ တိုက်ရိုက်ရှာ - where မလိုတော့ဘူး
+        const userRef = doc(db, "AllUserList", user.uid);
+        const snap = await getDoc(userRef);
+
+        if (snap.exists()) {
+            const d = snap.data();
+            status.textContent = `ရှိပြီးသား\nAID: ${d.AID}\nGID: ${d.GID}\nRole: ${d.Role}`;
+        } else {
+            // ၂. AID - timestamp နဲ့ ထုတ် - getNextAid() က Rule နဲ့ ငြိလို့ မသုံးတော့ဘူး
+            const newAid = `A-${Date.now().toString().slice(-7)}`;
+            const now = new Date();
+            const userData = {
+                AID: newAid,
+                GID: user.uid, // အဆင့်၂=အဆင့်၃ တူ
+                Name: user.displayName || "",
+                Acc: user.email || "",
+                ProfileImage: user.photoURL || "",
+                Time: now.toISOString(),
+                TimeMs: now.getTime(),
+                Year: now.getFullYear().toString(),
+                Month: String(now.getMonth()+1).padStart(2,'0'),
+                Role: "Viewer",
+                createdAt: serverTimestamp()
+            };
+            await setDoc(userRef, userData);
+            status.textContent = `အောင်မြင်စွာ သိမ်းပြီးပြီ!\nAID: ${newAid}\nGID: ${user.uid}\nDocID = GID တူပြီ`;
+        }
+    } else {
+        loginBtn.style.display = "inline-block";
+        logoutBtn.style.display = "none";
+        status.textContent = "အကောင့်မဝင်ရသေးပါ";
+    }
+});
+</script>
+</body>
+</html> 

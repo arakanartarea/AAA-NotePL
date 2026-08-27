@@ -5,49 +5,409 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
 <style>
-:root{ --row-h: clamp(44px, 10vw, 56px); --bg-day:#e3f2fd; --bg-night:#2a2a2a; --toolbar-bg-day:#e3f2fd; --toolbar-bg-night:#1a1a1a; }
-html[data-theme="light"]{ --bg:var(--toolbar-bg-day); --icon:#111; }
-html[data-theme="dark"]{ --bg:var(--toolbar-bg-night); --icon:#fff; }
+:root{ 
+ --row-h: 
+  clamp(44px, 10vw, 56px); 
+ --bg-day:#e3f2fd; 
+ --bg-night:#2a2a2a; 
+ --toolbar-bg-day:#e3f2fd; 
+ --toolbar-bg-night:#1a1a1a; 
+ --search-box-day:#fff; --search-text-day:#111; --search-border-day:#888;
+ --search-box-night:#2a2a2a; --search-text-night:#fff; --search-border-night:#555;
+}
+ 
+html[data-theme="light"]{ 
+  --bg:var(--toolbar-bg-day); --icon:#111; }
+html[data-theme="dark"]{ 
+  --bg:var(--toolbar-bg-night); --icon:#fff; }
+html[data-theme="light"]{ 
+  --search-box:var(--search-box-day); --search-text:var(--search-text-day); --search-border:var(--search-border-day); }
+html[data-theme="dark"]{ 
+  --search-box:var(--search-box-night); --search-text:var(--search-text-night); --search-border:var(--search-border-night); }
+
 *{box-sizing:border-box;margin:0;padding:0}
-.toolbar-row{ width:100vw; height:var(--row-h); background:var(--bg); display:flex; align-items:stretch; justify-content:space-evenly; position:fixed; left:0; right:0; bottom:0; border-top:1px solid #333; z-index:900; }
-.t-btn{ height:100%; width:var(--row-h); min-width:var(--row-h); flex-shrink:0; background:var(--bg-day); border:none; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; box-shadow: inset 0 1px 1px rgba(255,255,255,.8), inset 0 -1px 1px rgba(0,0,0,.2), 0 2px 4px rgba(0,0,0,.2); }
-html[data-theme="dark"] .t-btn{ background:var(--bg-night); }
-.t-btn .material-icons{ font-size:22px; color:var(--icon); }
-.t-label{ font-size:9px; background:#ffcdd2; color:#111; padding:1px 4px; border-radius:6px; margin-top:2px; display:none; }
-@media (min-width:600px){ .t-label{ display:block; } }
-.more-popup{ position:fixed; background:#2a2a2a; border:1px solid #444; border-radius:14px; padding:6px; min-width:170px; max-height:70vh; overflow:visible; display:none; flex-direction:column; gap:2px; box-shadow:0 10px 30px rgba(0,0,0,.6); z-index:999; }
-.more-popup.show{ display:flex; }
-.more-item{ padding:11px 12px; border-radius:10px; color:#ccc; display:flex; align-items:center; justify-content:space-between; white-space:nowrap; cursor:pointer; position:relative; }
-.more-item:hover{ background:#3a3a3a; color:#fff; }
-.more-item .submenu{ position:absolute; left:calc(100% + 8px); top:0; background:#2a2a2a; border:1px solid #444; border-radius:14px; padding:6px; min-width:150px; display:none; flex-direction:column; gap:2px; z-index:1000; }
+
+.header-row{
+  width:100%; height:var(--row-h);
+  position:fixed; top:0; left:0; right:0;
+  background:var(--bg-day); border-bottom:1px solid #333;
+  display:flex; align-items:stretch; /* center ကနေ stretch */
+  justify-content:space-between;
+  padding:0; z-index:900; box-sizing:border-box;
+}
+html[data-theme="dark"] .header-row{ background:var(--bg-night); }
+
+.header-left{ 
+  flex:1; min-width:0; height:100%; display:flex; align-items:stretch; overflow:hidden; padding:0; margin:0; }
+
+/* layout 1,2 ဘာအရွယ်မှ မပေး - အပြည့်ယူခိုင်း */
+.header-layout{ width:100%; height:100%; display:flex; align-items:stretch; }
+.header-layout.hidden{ display:none !important; }
+.layout1{ background:var(--bg-day); padding:0; }
+html[data-theme="dark"] .layout1{ background:var(--bg-night); }
+
+.header-wrapper{ 
+  width:100%; height:100%; 
+  display:flex; align-items:center; justify-content:space-between; 
+  gap:10px; 
+  padding:0 10px; /* ဘယ်ညာ 10px ချန် */
+  box-sizing:border-box; 
+}
+.nav-flag{ width:28px; height:28px; flex-shrink:0; }
+
+.brand-container{ flex:1; height:100%; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+.scrolling-text{
+  display:flex; flex-direction:column; align-items:center;
+  animation: scrollUp 6s linear infinite;
+}
+.nav-text-item{
+  height:var(--row-h); display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:16px; letter-spacing:0.5px;
+  /* ၃ ရောင် ရောထားတဲ့ gradient text */
+  background: linear-gradient(90deg, #2e7bff 0%, #ffffff 50%, #ff2e2e 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text;
+  /* လှအောင် glow */
+  filter: drop-shadow(0 0 6px rgba(255,255,255,0.6));
+  animation: shine 3s linear infinite;
+}
+html[data-theme="light"] .nav-text-item{
+  background: linear-gradient(90deg, #0a3d9c 0%, #111 50%, #b80000 100%);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  filter:none;
+}
+@keyframes shine{
+  0%{ background-position:0% 50%; }
+  100%{ background-position:200% 50%; }
+}
+@keyframes scrollUp{
+  0%{ transform:translateY(75%); }
+  100%{ transform:translateY(-75%); }
+}
+
+
+/* ရှာဖွေရေး */
+.search-box{
+  width:100%; height:100%;
+  display:flex; align-items:stretch;
+  background:var(--search-box); 
+  border:none; /* border အသေ ဖြုတ် */
+  border-radius:0;
+  box-sizing:border-box;
+  overflow:hidden;
+}
+#searchInput{
+  flex:1; height:100%; width:100%;
+  border:none; outline:none; border-radius:0; /* အသေ ဖြုတ် */
+  background:transparent; color:var(--search-text);
+  padding:0 10px; margin:0;
+  box-sizing:border-box;
+  font-size:16px;
+  display:flex; align-items:center;
+}
+.search-clear{
+  height:100%; width:var(--row-h); min-width:var(--row-h);
+  flex-shrink:0;
+  background:var(--bg-day); border:none; border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; color:var(--icon); font-size:22px;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.8), inset 0 -1px 1px rgba(0,0,0,.2), 0 2px 4px rgba(0,0,0,.2);
+}
+html[data-theme="dark"] .search-clear{ background:var(--bg-night); }
+
+.h-btn{
+  height:calc(var(--row-h) - 8px); min-width:var(--row-h);
+  flex-shrink:0; background:var(--bg-day); border:none; border-radius:12px;
+  display:flex; align-items:center; gap:6px; padding:0 8px;
+  cursor:pointer; box-shadow: inset 0 1px 1px rgba(255,255,255,.8), inset 0 -1px 1px rgba(0,0,0,.2), 0 2px 4px rgba(0,0,0,.2);
+}
+html[data-theme="dark"] .h-btn{ background:var(--bg-night); }
+/* 
+.h-img{ width:28px; height:28px; border-radius:50%; object-fit:cover; }
+*/
+/* .h-texts{ display:flex; flex-direction:column; align-items:flex-start; line-height:1; } */
+/* .h-label{ font-size:12px; color:var(--icon); font-weight:bold; }
+.h-role{ font-size:9px; color:var(--icon); opacity:.7; } */
+/* 
+.h-img{ 
+  width:28px; height:28px; 
+  font-size:28px; 
+  display:flex; align-items:center; justify-content:center; 
+  border-radius:50%;
+  background:var(--bg-day); 
+  color:var(--icon);
+}
+html[data-theme="dark"] .h-img{ background:var(--bg-night); }
+*/
+/* .h-img{ width:28px; height:28px; flex-shrink:0; border-radius:50%; object-fit:cover; display:flex; align-items:center; justify-content:center; font-size:28px; background:var(--bg-day); color:var(--icon); }
+.h-img.img-mode{ padding:0; background:transparent; }
+.h-texts{ overflow:hidden; max-width:90px; position:relative; }
+.h-label.scrolling{
+  white-space:nowrap;
+  display:inline-block;
+  padding-left:100%; /* ညာဘက်ကနေ စဝင် */
+  animation: marquee 8s linear infinite;
+} */
+/* @keyframes marquee{
+  0%{ transform:translateX(0); }
+  100%{ transform:translateX(-200%); }
+} */
+.h-img{ 
+  width:28px; height:28px; flex-shrink:0; border-radius:50%; 
+  display:flex; align-items:center; justify-content:center; 
+  font-size:22px; background:var(--bg-day); color:var(--icon);
+  border:1px solid #888;
+}
+html[data-theme="dark"] .h-img{
+  background:var(--bg-night);
+  color:#fff;
+  border-color:#aaa;
+}
+html[data-theme="dark"] .h-img.img-mode{
+  background:transparent;
+  border-color:#fff;
+}
+img.h-img{
+  display:block; padding:0; object-fit:cover; 
+  width:28px; height:28px; /* အဝိုင်းသေး */
+  border:1.5px solid var(--icon);
+}
+.h-img.img-mode{ 
+  background:transparent; }
+.h-texts{ 
+  display:flex; flex-direction:column; align-items:flex-start; line-height:1.1; overflow:hidden; max-width:90px; }
+.h-label{ 
+  font-size:12px; color:var(--icon); font-weight:bold; white-space:nowrap; width:100%; overflow:hidden; }
+.h-role{ font-size:9px; color:var(--icon); opacity:.7; white-space:nowrap; }
+.marquee{ width:75px; overflow:hidden; white-space:nowrap; }
+.marquee-track{ display:inline-flex; animation: scrollLoop 8s linear infinite; }
+.marquee-track span{ 
+  white-space:nowrap; padding-right:15px; font-size:12px; font-weight:bold; color:var(--icon); }
+@keyframes scrollLoop{
+  0%{ transform:translateX(0); }
+  100%{ transform:translateX(-50%); }
+}
+
+
+/* ===================တူးဘားတန်း ============== */
+.toolbar-row{ 
+  width:100vw; height:var(--row-h); background:var(--bg); display:flex; align-items:stretch; justify-content:space-evenly; position:fixed; left:0; right:0; bottom:0; border-top:1px solid #333; z-index:900; }
+.t-btn{ 
+  height:100%; width:var(--row-h); min-width:var(--row-h); flex-shrink:0; background:var(--bg-day); border:none; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; box-shadow: inset 0 1px 1px rgba(255,255,255,.8), inset 0 -1px 1px rgba(0,0,0,.2), 0 2px 4px rgba(0,0,0,.2); }
+html[data-theme="dark"] 
+.t-btn{ 
+  background:var(--bg-night); }
+.t-btn .material-icons{ 
+  font-size:22px; color:var(--icon); }
+.t-label{ 
+  font-size:9px; background:#ffcdd2; color:#111; padding:1px 4px; border-radius:6px; margin-top:2px; display:none; }
+@media (min-width:600px){ 
+  .t-label{ display:block; } }
+  
+/* .more-popup{ 
+  position:fixed; background:#2a2a2a; border:1px solid #444; border-radius:14px; padding:6px; min-width:170px; max-height:70vh; overflow:visible; display:none; flex-direction:column; gap:2px; box-shadow:0 10px 30px rgba(0,0,0,.6); z-index:999; } */
+.more-popup{ 
+  position:fixed; background:var(--bg-day); border:1px solid #444; border-radius:14px; padding:6px; min-width:170px; max-height:70vh; overflow:visible; display:none; flex-direction:column; gap:2px; box-shadow:0 10px 30px rgba(0,0,0,.6); z-index:999; }
+html[data-theme="dark"] .more-popup{ background:var(--bg-night); }
+
+.more-popup.show{ 
+  display:flex; }
+/*.more-item{ 
+  padding:11px 12px; border-radius:10px; color:#ccc; display:flex; align-items:center; justify-content:space-between; white-space:nowrap; cursor:pointer; position:relative; }*/
+.more-item{ 
+  padding:11px 12px; border-radius:10px; color:var(--icon); display:flex; align-items:center; justify-content:space-between; white-space:nowrap; cursor:pointer; position:relative; }
+
+/*.more-item:hover{ 
+  background:#3a3a3a; color:#fff; } */
+/*
+.more-item .submenu{ 
+  position:absolute; left:calc(100% + 8px); top:0; background:#2a2a2a; border:1px solid #444; border-radius:14px; padding:6px; min-width:150px; display:none; flex-direction:column; gap:2px; z-index:1000; }*/
+  
+.more-item:hover{ 
+  background:var(--toolbar-bg-day); color:var(--icon); }
+html[data-theme="dark"] .more-item:hover{ background:#3a3a3a; color:#fff; }
+
+.more-item .submenu{ 
+  position:absolute; left:calc(100% + 8px); top:0; 
+  background:var(--bg-day); border:1px solid #444; border-radius:14px; 
+  padding:6px; min-width:150px; 
+  max-height: 300px; /* 7-10 ခုစာ - ဒါက အသစ် */
+  overflow-y: auto; overflow-x: hidden; /* ဒါက အသစ် */
+  display:none; flex-direction:column; gap:2px; z-index:1000; 
+}
+html[data-theme="dark"] .more-item .submenu{ background:var(--bg-night); }
+
 .more-item .submenu.show{ display:flex; }
-#toast{ position:fixed; left:50%; bottom:80px; transform:translateX(-50%) translateY(20px); background:#333; color:#fff; padding:10px 16px; border-radius:20px; font-size:13px; opacity:0; pointer-events:none; transition:.25s; z-index:9999; }
-#toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* မစ်ဆေ့ပြ */
+#toast{ 
+  position:fixed; left:50%; bottom:80px; transform:translateX(-50%) translateY(20px); background:#333; color:#fff; padding:10px 16px; border-radius:20px; font-size:13px; opacity:0; pointer-events:none; transition:.25s; z-index:9999; }
+#toast.show{ 
+  opacity:1; transform:translateX(-50%) translateY(0); }
+
+/*klw .btn-12{
+  display:flex; align-items:center; gap:6px;
+  padding:0 14px; height:40px; border-radius:999px;
+  border:1px solid #ddd; background:#fff; color:#111;
+}
+body.night .btn-12{ background:#2a2a2a; border-color:#444; color:#fff; } klw*/
+
+/* font စ */
+/* --- Font Changer System Styles --- */
+
+/* GitHub Direct Raw Links များ */
+@font-face { font-family: 'Arakan_Danyawaddy'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Arakan_Danyawaddy.ttf'); }
+@font-face { font-family: 'BeautiUNI-7'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/BeautiUNI-7.ttf'); }
+@font-face { font-family: 'Hopone'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Hopone.ttf'); }
+@font-face { font-family: 'Hsi-Hseng'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Hsi-Hseng.ttf'); }
+@font-face { font-family: 'KyaungChee'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/KyaungChee.ttf'); }
+
+@font-face { font-family: 'MM_Jasmine_v1.01'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/MM_Jasmine_v1.01.ttf'); }
+@font-face { font-family: 'Myanmar_PhikselSmooth'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_PhikselSmooth.ttf'); }
+@font-face { font-family: 'Myanmar_Bagan_v1.0'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Bagan_v1.0.ttf'); }
+@font-face { font-family: 'Myanmar_Jojar_v2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Jojar_v2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Kalay_v2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Kalay_v2.0_2017.ttf'); }
+
+@font-face { font-family: 'Myanmar_Love_2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Love_2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Pixel'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pixel.ttf'); }
+@font-face { font-family: 'Myanmar_Ponenyet'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Ponenyet.ttf'); }
+@font-face { font-family: 'Myanmar_Pyay_v2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pyay_v2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Pyu_Pro_2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pyu_Pro_2.0_2017.ttf'); }
+
+@font-face { font-family: 'Myanmar_Pyu_v2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pyu_v2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Tagu'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Tagu.ttf'); }
+@font-face { font-family: 'Myanmar_Taunggyi_v1.00'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Taunggyi_v1.00.ttf'); }
+@font-face { font-family: 'Myanmar_Thuriya'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Thuriya.ttf'); }
+@font-face { font-family: 'Myanmar_Waso'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Waso.ttf'); }
+
+@font-face { font-family: 'Myanmar_Yinmar'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Yinmar.ttf'); }
+@font-face { font-family: 'NK_SSmart_3'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/NK_SSmart_3.ttf'); }
+@font-face { font-family: 'Roboto_Bold'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Roboto_Bold.ttf'); }
+@font-face { font-family: 'Samsung_Myanmar'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Samsung_Myanmar.ttf'); }
+@font-face { font-family: 'YoeYar_One_Bold'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/YoeYar_One_Bold.ttf'); }
+
+@font-face { font-family: 'YoeYar_One_Light'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/YoeYar_One_Light.ttf'); }
+@font-face { font-family: 'notosan_grand_pro'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/notosan_grand_pro.ttf'); }
+@font-face { font-family: 'notosans_myanmar'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/notosans_myanmar.ttf'); }
+@font-face { font-family: 'yaungki'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/yaungki.ttf'); }
+
+
+/* Dynamic Font ပြောင်းလဲမှုတွင် ချောမွေ့စေရန် */
+* {
+    transition: font-family 0.2s ease;
+}
+
+
 </style>
 </head>
 <body>
+  <!-- ခေါင်းစည်းတန်း -->
+<div class="header-row" id="headerRow">
+  <div class="header-left">
+  <!-- layout 1 -->
+<div id="headerTitle" class="header-layout layout1">
+  <div class="header-wrapper">
+    <img src="https://media.tenor.com/_EreiMKqzs4AAAAj/arakan-flag-rakhine-flag.gif" class="nav-flag" alt="Flag">
+<div class="brand-container">
+  <div class="scrolling-text">
+    <span class="nav-text-item">Arakan Art Area</span>
+<span class="nav-text-item">အာရက္ခ အနုပညာ နယ်မြီ</span>
+<span class="nav-text-item">ရခိုင် အနုပညာ နယ်မြေ</span>
+<span class="nav-text-item">All Arakan Assets</span>
+
+  </div>
+</div>
+    <img src="https://media.tenor.com/_EreiMKqzs4AAAAj/arakan-flag-rakhine-flag.gif" class="nav-flag" alt="Flag">
+  </div>
+</div>
+  <!-- layout 2 -->
+  <div id="headerSearch" class="header-layout layout2 hidden">
+    <div class="search-box">
+      <input id="searchInput" type="text" placeholder="ရှာမယ်...">
+<button id="searchClear" class="search-clear"><span class="material-icons">close</span></button>
+    </div>
+  </div>
+</div>
+  <button class="h-btn" id="headerAccountBtn">
+<span class="material-icons h-img">person</span>
+    <div class="h-texts">
+      <span class="h-label">Login</span>
+      <span class="h-role">Viewer</span>
+    </div>
+  </button>
+</div>
+
+  <!-- တူးဘားတန်း -->
 <div class="toolbar-row" id="toolbarRow"></div>
 <div class="more-popup" id="morePopup"></div>
 <div id="toast"></div>
+
 <script>
+let currentThemeMode = localStorage.getItem('themeMode') || 'auto';
+
+const ACCOUNT = { 
+  guest:{icon:'person', label:'Login', role:'Viewer'}, user:{img:'profile.jpg', label:'Myo', role:'Admin'} }
 const BUTTONS = [
   {id:'home', icon:'home', label:'Home'}, {id:'search', icon:'search', label:'Search'},
   {id:'fav', icon:'favorite', label:'Fav'}, {id:'settings', icon:'settings', label:'Settings'},
   {id:'person', icon:'person', label:'Profile'}, {id:'mail', icon:'mail', label:'Mail'},
   {id:'notif', icon:'notifications', label:'Noti'}, {id:'more1', icon:'star', label:'Star'}, {id:'more2', icon:'info', label:'Info'},
 ];
+const FONTS = [
+  { id: 'Arakan_Danyawaddy', label: 'ဒညဝတီ - Arakan Danyawaddy', font: 'Arakan_Danyawaddy' },
+  { id: 'BeautiUNI-7', label: 'Beauti UNI', font: 'BeautiUNI-7' },
+  { id: 'Hopone', label: 'ဟိုပုံး', font: 'Hopone' },
+  { id: 'Hsi-Hseng', label: 'ဆီဆိုင်', font: 'Hsi-Hseng' },
+  { id: 'KyaungChee', label: 'ကျောင်းချီ', font: 'KyaungChee' },
+  { id: 'MM_Jasmine_v1.01', label: 'စံပယ်ပန်း', font: 'MM_Jasmine_v1.01' },
+  { id: 'Myanmar_PhikselSmooth', label: 'ဖိတ်စင် Smooth', font: 'Myanmar_PhikselSmooth' },
+  { id: 'Myanmar_Bagan_v1.0', label: 'ပုဂံ', font: 'Myanmar_Bagan_v1.0' },
+  { id: 'Myanmar_Jojar_v2.0_2017', label: 'ကျောက်စာ', font: 'Myanmar_Jojar_v2.0_2017' },
+  { id: 'Myanmar_Kalay_v2.0_2017', label: 'ကလေး', font: 'Myanmar_Kalay_v2.0_2017' },
+  { id: 'Myanmar_Love_2.0_2017', label: 'အချစ်', font: 'Myanmar_Love_2.0_2017' },
+  { id: 'Myanmar_Pixel', label: 'Pixel', font: 'Myanmar_Pixel' },
+  { id: 'Myanmar_Ponenyet', label: 'ပုံနှိပ်', font: 'Myanmar_Ponenyet' },
+  { id: 'Myanmar_Pyay_v2.0_2017', label: 'ပြည်', font: 'Myanmar_Pyay_v2.0_2017' },
+  { id: 'Myanmar_Pyu_Pro_2.0_2017', label: 'ပျူ Pro', font: 'Myanmar_Pyu_Pro_2.0_2017' },
+  { id: 'Myanmar_Pyu_v2.0_2017', label: 'ပျူ', font: 'Myanmar_Pyu_v2.0_2017' },
+  { id: 'Myanmar_Tagu', label: 'တန်ခူး', font: 'Myanmar_Tagu' },
+  { id: 'Myanmar_Taunggyi_v1.00', label: 'တောင်ကြီး', font: 'Myanmar_Taunggyi_v1.00' },
+  { id: 'Myanmar_Thuriya', label: 'သူရိယ', font: 'Myanmar_Thuriya' },
+  { id: 'Myanmar_Waso', label: 'ဝါဆို', font: 'Myanmar_Waso' },
+  { id: 'Myanmar_Yinmar', label: 'ယုန်မာ', font: 'Myanmar_Yinmar' },
+  { id: 'NK_SSmart_3', label: 'Smart 3', font: 'NK_SSmart_3' },
+  { id: 'Roboto_Bold', label: 'Roboto Bold', font: 'Roboto_Bold' },
+  { id: 'Samsung_Myanmar', label: 'Samsung', font: 'Samsung_Myanmar' },
+  { id: 'YoeYar_One_Bold', label: 'ရိုးရာ Bold', font: 'YoeYar_One_Bold' },
+  { id: 'YoeYar_One_Light', label: 'ရိုးရာ Light', font: 'YoeYar_One_Light' },
+  { id: 'notosan_grand_pro', label: 'Noto Grand', font: 'notosan_grand_pro' },
+  { id: 'notosans_myanmar', label: 'Noto Sans', font: 'notosans_myanmar' },
+  { id: 'yaungki', label: 'ရောင်ကီ', font: 'yaungki' },
+];
 const SETTINGS_MENU = [
   { id:'login', icon:'login', label:'Login' },
   { id:'theme', icon:'palette', label:'Theme', children:[ {id:'light', label:'နေ့'}, {id:'dark', label:'ည'}, {id:'auto', label:'အော်တို'} ]},
+  { id: 'font', icon: 'text_fields', label: 'ဖေါင့်', children: FONTS },
   { id:'sort', icon:'sort', label:'Sort', children:[ {id:'az', label:'A-Z'}, {id:'za', label:'Z-A'}, {id:'old', label:'Old Time'}, {id:'new', label:'New Time'} ]},
   { id:'mode', icon:'view_module', label:'Mode' },
 ];
+/*
+const SETTINGS_MENU = [
+  { id: 'login', icon: 'login', label: 'Login' },
+  { id: 'theme', icon: 'palette', label: 'Theme', children: [{ id: 'light', label: 'နေ့' }, { id: 'dark', label: 'ည' }, { id: 'auto', label: 'အော်တို' }] },
+  { id: 'font', icon: 'text_fields', label: 'ဖေါင့်', children: FONTS },
+  { id: 'sort', icon: 'sort', label: 'Sort', children: [{ id: 'az', label: 'A-Z' }, { id: 'za', label: 'Z-A' }, { id: 'old', label: 'Old Time' }, { id: 'new', label: 'New Time' }] },
+];
+*/
 const row=document.getElementById('toolbarRow');
 const popup=document.getElementById('morePopup');
 let lastAnchor=null;
-function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._timer); t._timer=setTimeout(()=>t.classList.remove('show'),2000); }
-function closePopup(){ popup.classList.remove('show'); popup.style.visibility=''; popup.style.left=''; popup.style.top=''; document.querySelectorAll('.submenu.show').forEach(s=>s.classList.remove('show')); lastAnchor=null; }
+function toast(msg){ 
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._timer); t._timer=setTimeout(()=>t.classList.remove('show'),2000); }
+function closePopup(){ 
+  popup.classList.remove('show'); popup.style.visibility=''; popup.style.left=''; popup.style.top=''; document.querySelectorAll('.submenu.show').forEach(s=>s.classList.remove('show')); lastAnchor=null; }
 function positionMenu(menu, anchorBtn){
   menu.classList.add('show'); menu.style.visibility='hidden'; menu.style.left='0px'; menu.style.top='0px';
   requestAnimationFrame(()=>{
@@ -83,7 +443,36 @@ function openMenuAt(anchorBtn, menuData){
     div.innerHTML=`<span style="display:flex;gap:8px;align-items:center"><span class="material-icons" style="font-size:18px">${item.icon||'circle'}</span>${item.label}</span> ${item.children ? '<span class="material-icons" style="font-size:16px">chevron_right</span>' : ''}`;
     if(item.children){
       const sub=document.createElement('div'); sub.className='submenu';
-      item.children.forEach(ch=>{ const s=document.createElement('div'); s.className='more-item'; s.textContent=ch.label; s.onclick=(e)=>{ e.stopPropagation(); toast(ch.label); closePopup(); }; sub.appendChild(s); });
+      /*item.children.forEach(ch=>{ const s=document.createElement('div'); s.className='more-item'; s.textContent=ch.label; s.onclick=(e)=>{ e.stopPropagation(); toast(ch.label); closePopup(); }; sub.appendChild(s); });*/
+      
+      /* 
+      item.children.forEach(ch=>{ 
+  const s=document.createElement('div'); s.className='more-item'; s.textContent=ch.label; 
+  s.onclick = (e) => {
+  e.stopPropagation();
+  if (['light', 'dark', 'auto'].includes(ch.id)) {
+    applyTheme(ch.id);
+  }
+  toast(ch.label);
+  closePopup();
+};
+  sub.appendChild(s); 
+});
+*/
+item.children.forEach(ch=>{ 
+  const s=document.createElement('div'); s.className='more-item'; 
+  s.textContent=ch.label;
+  if(ch.font){ s.style.fontFamily=`'${ch.font}'`; s.style.fontSize='18px'; }
+  
+  s.onclick = (e) => {
+    e.stopPropagation();
+    if(['light','dark','auto'].includes(ch.id)){ applyTheme(ch.id); }
+    else if(FONTS.some(f=>f.id===ch.id)){ changeGlobalFont(ch.font); }
+    else { toast(ch.label); }
+    closePopup();
+  };
+  sub.appendChild(s); 
+});
       div.appendChild(sub); div.onclick=(e)=>{ e.stopPropagation(); toggleSub(div); };
     }else{ div.onclick=(e)=>{ e.stopPropagation(); toast(item.label); closePopup(); }; }
     popup.appendChild(div);
@@ -108,13 +497,23 @@ function render(){
   const rowW=row.clientWidth; const btnW=parseInt(getComputedStyle(document.documentElement).getPropertyValue('--row-h')) || 56;
   const maxFit=Math.floor(rowW / btnW) - 1; let visible=BUTTONS; let hidden=[];
   if(BUTTONS.length * btnW > rowW){ visible=BUTTONS.slice(0, maxFit); hidden=BUTTONS.slice(maxFit); }
+  /*
   visible.forEach(b=>{
     const btn=document.createElement('button'); btn.className='t-btn'; btn.id=b.id;
     btn.innerHTML=`<span class="material-icons">${b.icon}</span><span class="t-label">${b.label}</span>`;
     if(b.id==='settings'){ btn.onclick=(e)=>{ e.stopPropagation(); openMenuAt(btn, SETTINGS_MENU); }; }
     else{ btn.onclick=(e)=>{ e.stopPropagation(); toast(b.label); }; }
     row.appendChild(btn);
+  });*/
+  visible.forEach(b=>{
+    const btn=document.createElement('button'); btn.className='t-btn'; btn.id=b.id;
+    btn.innerHTML=`<span class="material-icons">${b.icon}</span><span class="t-label">${b.label}</span>`;
+    if(b.id==='settings'){ btn.onclick=(e)=>{ e.stopPropagation(); openMenuAt(btn, SETTINGS_MENU); }; }
+    else if(b.id==='search'){ btn.onclick=(e)=>{ e.stopPropagation(); showSearch(); }; }
+    else{ btn.onclick=(e)=>{ e.stopPropagation(); toast(b.label); }; }
+    row.appendChild(btn);
   });
+  
   if(hidden.length>0){
     const moreBtn=document.createElement('button'); moreBtn.className='t-btn'; moreBtn.id='more-btn';
     moreBtn.innerHTML=`<span class="material-icons">more_horiz</span><span class="t-label">More</span>`;
@@ -123,12 +522,324 @@ function render(){
   }
 }
 const mq=window.matchMedia('(prefers-color-scheme: dark)');
-function applyTheme(){ document.documentElement.dataset.theme=mq.matches?'dark':'light'; }
-mq.addEventListener('change', applyTheme); applyTheme();
+/* 
+function applyTheme(){ 
+  document.documentElement.dataset.theme=mq.matches?'dark':'light'; } */
+function applyTheme(mode = currentThemeMode) {
+  currentThemeMode = mode;
+  localStorage.setItem('themeMode', mode);
+  if (mode === 'auto') {
+    document.documentElement.dataset.theme = mq.matches ? 'dark' : 'light';
+  } else {
+    document.documentElement.dataset.theme = mode;
+  }
+}
+function changeGlobalFont(fontFamily){
+  let st=document.getElementById('global-font-style');
+  if(!st){ st=document.createElement('style'); st.id='global-font-style'; document.head.appendChild(st); }
+  // .more-item ကို ချန်ထားမှ preview မပျက်မှာ
+  st.innerHTML=`body, body *:not(.material-icons):not(.more-item):not(.more-item *){ font-family:'${fontFamily}' !important; }`;
+  localStorage.setItem('aaaUserFont', fontFamily);
+}
+function applySavedFont(){
+  const f=localStorage.getItem('aaaUserFont');
+  if(f) changeGlobalFont(f);
+}
+applySavedFont();
+
+/* mq.addEventListener('change', applyTheme); applyTheme();*/
+mq.addEventListener('change', () => { if (currentThemeMode === 'auto') applyTheme('auto'); });
+applyTheme(currentThemeMode);
 new ResizeObserver(()=>render()).observe(row);
 document.addEventListener('click',(e)=>{ if(!e.target.closest('#morePopup') && !e.target.closest('#toolbarRow')) closePopup(); });
 document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') closePopup(); });
 render();
+// search toggle
+const titleEl = document.getElementById('headerTitle');
+const searchEl = document.getElementById('headerSearch');
+function showSearch(){ 
+  const isHidden = searchEl.classList.contains('hidden');
+  if(isHidden){
+    titleEl.classList.add('hidden'); searchEl.classList.remove('hidden'); 
+    document.getElementById('searchInput').focus();
+  } else {
+    hideSearch();
+  }
+}
+function hideSearch(){ 
+  searchEl.classList.add('hidden'); titleEl.classList.remove('hidden'); 
+}
+// bottom toolbar က search ခလုတ်နဲ့ ထိန်းမယ်
+// BUTTONS ထဲက search ကို နှိပ်ရင်
+document.addEventListener('click', (e)=>{
+  if(e.target.closest('#search')) showSearch();
+});
+document.getElementById('searchClear').onclick = ()=>{
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchInput').focus();
+};
 </script>
+<!-- Firebase Login Integration -->
+<!--
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyC7N9_TNTp_aThC_olEDyMcEo2pAhOFEGI",
+    authDomain: "arakanese-dictionary.firebaseapp.com",
+    projectId: "arakanese-dictionary",
+    storageBucket: "arakanese-dictionary.firebasestorage.app",
+    messagingSenderId: "955711906003",
+    appId: "1:955711906003:web:6d9b60bd4cdaa8a8953426"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+// ---- UI Update ----
+const headerBtn = document.getElementById('headerAccountBtn');
+/*
+function updateHeaderUI(userData){
+  if(userData){
+    headerBtn.innerHTML = `
+      <img class="h-img" src="${userData.ProfileImage}" style="border-radius:50%">
+      <div class="h-texts">
+        <span class="h-label">${userData.Name.split(' ')[0]}</span>
+        <span class="h-role">${userData.Role}</span>
+      </div>`;
+    localStorage.setItem('aaaUser', JSON.stringify(userData));
+  } else {
+    headerBtn.innerHTML = `
+      <span class="material-icons h-img">person</span>
+      <div class="h-texts"><span class="h-label">Login</span><span class="h-role">Viewer</span></div>`;
+    localStorage.removeItem('aaaUser');
+  }
+}
+*/
+/*
+function updateHeaderUI(userData) {
+  if (userData) {
+    const shortName = userData.Name; // အပြည့်အစုံယူ
+const needScroll = userData.Name.length > 10;
+    headerBtn.innerHTML = `
+      <img class="h-img img-mode" src="${userData.ProfileImage}" alt="p">
+      <div class="h-texts" style="overflow:hidden; max-width:90px;">
+        <span class="h-label ${needScroll?'scrolling':''}" style="${needScroll?'padding-left:1px':''}">${shortName}</span>
+        <span class="h-role">${userData.Role}</span>
+      </div>`;
+    localStorage.setItem('aaaUser', JSON.stringify(userData));
+  } else {
+    headerBtn.innerHTML = `
+      <span class="material-icons h-img">person</span>
+      <div class="h-texts"><span class="h-label">Login</span><span class="h-role">Viewer</span></div>`;
+    localStorage.removeItem('aaaUser');
+  }
+}
+၁၉၄၁ */
+function updateHeaderUI(userData) {
+  if (userData) {
+    const name = userData.Name;
+    const needScroll = name.length > 9;
+    headerBtn.innerHTML = `
+      <img class="h-img img-mode" src="${userData.ProfileImage}" alt="p">
+      <div class="h-texts">
+        ${needScroll ? `
+        <div class="marquee">
+          <div class="marquee-track">
+            <span>${name} &nbsp;🔓&nbsp; </span>
+            <span>${name} &nbsp;🔓&nbsp; </span>
+          </div>
+        </div>` : `<span class="h-label">${name}</span>`}
+        <span class="h-role">${userData.Role}</span>
+      </div>`;
+  } else {
+    headerBtn.innerHTML = `<span class="material-icons h-img">person</span><div class="h-texts"><span class="h-label">Login</span><span class="h-role">Viewer</span></div>`;
+  }
+}
+
+
+// ---- Core Login Logic (မင်းစမ်းသပ်ကုဒ်အတိုင်း) ----
+async function handleLoginFlow(){
+  try{
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    const userRef = doc(db, "AllUserList", user.uid);
+    const snap = await getDoc(userRef);
+    let data;
+    if(snap.exists()){
+      data = snap.data();
+    } else {
+      const newAid = `A-${Date.now().toString().slice(-7)}`;
+      const now = new Date();
+      data = {
+        AID: newAid, GID: user.uid, Name: user.displayName||"", Acc: user.email||"",
+        ProfileImage: user.photoURL||"", Time: now.toISOString(), TimeMs: now.getTime(),
+        Year: now.getFullYear().toString(), Month: String(now.getMonth()+1).padStart(2,'0'),
+        Role: "Viewer", createdAt: serverTimestamp()
+      };
+      await setDoc(userRef, data);
+    }
+    updateHeaderUI(data);
+    toast(`မင်္ဂလာပါ ${data.Name}`);
+  }catch(e){ toast(e.message); }
+}
+
+window.doLogout = async () => { await signOut(auth); updateHeaderUI(null); toast("ထွက်ပြီးပါပြီ"); closePopup(); };
+window.doSwitch = async () => { closePopup(); await handleLoginFlow(); };
+window.doLogin = handleLoginFlow;
+
+// ---- Auth State Watcher ----
+onAuthStateChanged(auth, async (user)=>{
+  if(user){
+    const snap = await getDoc(doc(db, "AllUserList", user.uid));
+    if(snap.exists()) updateHeaderUI(snap.data());
+  } else {
+    const saved = localStorage.getItem('aaaUser');
+    if(!saved) updateHeaderUI(null);
+  }
+});
+// ---- Header Button Click ----
+headerBtn.onclick = (e)=>{
+  e.stopPropagation();
+  const saved = localStorage.getItem('aaaUser');
+  if(!saved){ handleLoginFlow(); }
+  else { openMenuAt(headerBtn, [{id:'logout', icon:'logout', label:'ထွက်မယ်'}, {id:'switch', icon:'switch_account', label:'ပြောင်းမယ်'}]); }
+};
+
+// ---- Patch SETTINGS_MENU login click ----
+const originalOpenMenuAt = window.openMenuAt || openMenuAt;
+window.openMenuAt = function(anchorBtn, menuData){
+  originalOpenMenuAt(anchorBtn, menuData);
+  // settings > login item ကို override
+  setTimeout(()=>{
+    document.querySelectorAll('#morePopup .more-item').forEach(el=>{
+      if(el.textContent.includes('Login')){
+        el.onclick = (e)=>{ e.stopPropagation(); closePopup(); handleLoginFlow(); };
+      }
+      if(el.textContent.includes('ထွက်မယ်')) el.onclick = window.doLogout;
+      if(el.textContent.includes('ပြောင်းမယ်')) el.onclick = window.doSwitch;
+    });
+  },10);
+};
+
+// initial load from local
+const cached = localStorage.getItem('aaaUser');
+if(cached) updateHeaderUI(JSON.parse(cached));
+</script>-->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyC7N9_TNTp_aThC_olEDyMcEo2pAhOFEGI",
+    authDomain: "arakanese-dictionary.firebaseapp.com",
+    projectId: "arakanese-dictionary",
+    storageBucket: "arakanese-dictionary.firebasestorage.app",
+    messagingSenderId: "955711906003",
+    appId: "1:955711906003:web:6d9b60bd4cdaa8a8953426"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({ prompt: 'select_account' }); // အကောင့်ရွေးခိုင်းဖို့ အရေးကြီး
+
+const headerBtn = document.getElementById('headerAccountBtn');
+let isLoggingOut = false;
+
+function updateHeaderUI(userData) {
+  if (userData) {
+    const name = userData.Name;
+    const needScroll = name.length > 9;
+    headerBtn.innerHTML = `
+      <img class="h-img img-mode" src="${userData.ProfileImage}" alt="p">
+      <div class="h-texts">
+        ${needScroll ? `
+        <div class="marquee"><div class="marquee-track">
+          <span>${name} &nbsp;🔓&nbsp; </span><span>${name} &nbsp;🔓&nbsp; </span>
+        </div></div>` : `<span class="h-label">${name}</span>`}
+        <span class="h-role">${userData.Role}</span>
+      </div>`;
+    localStorage.setItem('aaaUser', JSON.stringify(userData));
+  } else {
+    headerBtn.innerHTML = `<span class="material-icons h-img">person</span><div class="h-texts"><span class="h-label">Login</span><span class="h-role">Viewer</span></div>`;
+    localStorage.removeItem('aaaUser');
+  }
+}
+
+async function handleLoginFlow(){
+  try{
+    isLoggingOut = false;
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    const userRef = doc(db, "AllUserList", user.uid);
+    const snap = await getDoc(userRef);
+    let data;
+    if(snap.exists()){ data = snap.data(); }
+    else {
+      const now = new Date();
+      data = { AID:`A-${Date.now().toString().slice(-7)}`, GID:user.uid, Name:user.displayName||"", Acc:user.email||"", ProfileImage:user.photoURL||"", Time:now.toISOString(), TimeMs:now.getTime(), Year:now.getFullYear().toString(), Month:String(now.getMonth()+1).padStart(2,'0'), Role:"Viewer", createdAt:serverTimestamp() };
+      await setDoc(userRef, data);
+    }
+    updateHeaderUI(data);
+    toast(`မင်္ဂလာပါ ${data.Name}`);
+  }catch(e){ toast(e.message); }
+}
+
+window.doLogout = async () => {
+  isLoggingOut = true;
+  localStorage.removeItem('aaaUser');
+  await signOut(auth);
+  updateHeaderUI(null);
+  toast("ထွက်ပြီးပါပြီ"); closePopup();
+};
+
+window.doSwitch = async () => {
+  closePopup();
+  isLoggingOut = true;
+  localStorage.removeItem('aaaUser');
+  await signOut(auth); // အဟောင်းကို အပြတ်ဖျက်မှ အသစ်ရွေးလို့ရ
+  await handleLoginFlow();
+};
+
+window.doLogin = handleLoginFlow;
+
+onAuthStateChanged(auth, async (user)=>{
+  if(isLoggingOut){ return; } // logout လုပ်နေရင် auto ပြန်သွင်းတာပိတ်
+  if(user){
+    const snap = await getDoc(doc(db, "AllUserList", user.uid));
+    if(snap.exists()) updateHeaderUI(snap.data());
+  } else {
+    updateHeaderUI(null);
+  }
+});
+
+headerBtn.onclick = (e)=>{
+  e.stopPropagation();
+  const saved = localStorage.getItem('aaaUser');
+  if(!saved){ handleLoginFlow(); }
+  else { openMenuAt(headerBtn, [{id:'logout', icon:'logout', label:'ထွက်မယ်'}, {id:'switch', icon:'switch_account', label:'ပြောင်းမယ်'}]); }
+};
+
+const originalOpenMenuAt = window.openMenuAt || openMenuAt;
+window.openMenuAt = function(anchorBtn, menuData){
+  originalOpenMenuAt(anchorBtn, menuData);
+  setTimeout(()=>{
+    document.querySelectorAll('#morePopup .more-item').forEach(el=>{
+      if(el.textContent.includes('Login')) el.onclick = (e)=>{ e.stopPropagation(); closePopup(); handleLoginFlow(); };
+      if(el.textContent.includes('ထွက်မယ်')) el.onclick = window.doLogout;
+      if(el.textContent.includes('ပြောင်းမယ်')) el.onclick = window.doSwitch;
+    });
+  },10);
+};
+
+const cached = localStorage.getItem('aaaUser');
+if(cached) try{ updateHeaderUI(JSON.parse(cached)); }catch(e){}
+</script>
+
 </body>
 </html>

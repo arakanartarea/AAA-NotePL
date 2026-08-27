@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+
+<style>
+.material-symbols-rounded{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
+  /* ဒါက အရောင်ဘဏ် - နေ့ရောညပါ ဒီမှာပဲ ပြင်ရမယ် */
+  :root{
+    --bg: #F8FAFC;        /* နောက်ခံ */
+    --card: #FFFFFF;      /* ကဒ်အဖြူ */
+    --text: #1E293B;      /* စာအနက် */
+    --muted: #94A3B8;     /* မှိန်တဲ့စာ , အတွက် */
+    --accent: #334155;    /* | အတွက် */
+    --lyric-size: 8px; /* မူလဆိုဒ် */
+  }
+  .dark-mode{
+    --bg: #0F172A;
+    --card: #1E293B;
+    --text: #E2E8F0;
+    --muted: #64748B;
+    --accent: #F1F5F9;
+  }
+  body{ 
+    background:var(--bg); 
+    color:var(--text); 
+    font-family: system-ui, sans-serif !important;
+    padding:9px; 
+    }
+  /* မြန်မာစာပါမှသာ မြန်မာဖောင့်သုံး */
+  .mm{ font-family: 'notounicode', 'Pyidaungsu', sans-serif; }
+  .verse{ 
+    background:var(--card); border:1px solid #E2E8F0; padding:12px; margin-bottom:10px; }
+  .sep{ 
+    color:var(--muted); } 
+  .sep-bar{ 
+    color:var(--accent); font-weight:bold; margin:0 8px; }
+    
+/* သီချင်းအမည် */
+.song-meta{
+  padding: 1px 1px;
+  margin-bottom: 3px;
+  border-left: 3px solid var(--text);
+}
+.song-title{
+  margin: 0 0 1px 0;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.song-sub{
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ကန်ပိုဘောက် */
+#top-right-stack{
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 128px;
+}
+#top-right-stack.hidden{ display:none !important; }
+.info-box{
+  background: var(--card);
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.dark-mode .info-box{ border-color: #334155; }
+.info-row{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  padding: 3px 0;
+  border-bottom: 1px dashed #E2E8F0;
+}
+.info-row:last-child{ border-bottom: none; }
+.info-label{ color: var(--text); font-size: 10px; text-transform: uppercase; }
+.info-value{ font-weight: 700; }
+#tempoInput{
+  width: 44px;
+  border: 1px solid #E2E8F0;
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text);
+  text-align: center;
+  font-size: 11px;
+  padding: 2px;
+}
+.info-title{ 
+  font-size: 10px; color: var(--text); text-transform: uppercase; margin-bottom: 6px; }
+.strum-grid{
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+.s-cell{
+  border: 1px solid #E2E8F0;
+  border-radius: 4px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+}
+.dark-mode .s-cell{ border-color: #334155; }
+#tempoInput {
+  width: 44px;
+  text-align: center;
+  border: 1px solid #E2E8F0;
+  border-radius: 4px;
+  padding: 2px;
+  font-family: system-ui, sans-serif;
+}
+
+/* သီချင်း အပိုဒ် ဘောက် */
+/*
+.verse{
+  background: var(--card);
+  border: 1px solid #E2E8F0;
+  border-left: 3px solid #CBD5E1;
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+}*/
+.dark-mode .verse{
+  border-color: #334155;
+  border-left-color: #475569;
+}
+/*
+.section-label{
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  background: var(--bg);
+  padding: 6px 4px;
+  border-radius: 4px;
+  align-self: flex-start;
+  text-transform: uppercase;
+}*/
+.verse {
+  background: var(--card);
+  border: 1px solid #E2E8F0;
+  border-left: 3px solid #CBD5E1;
+  display: flex;
+  gap: 4px;                    /* 10px မှ 4px သို့ လျှော့ထားသည် */
+  padding: 0.3em 0.5em;        /* em သုံးထားလို့ font size အတိုင်း အချိုးကျ သေးသွားမယ် */
+  margin-bottom: 4px;          /* 8px မှ 4px သို့ လျှော့ထားသည် */
+  border-radius: 6px;
+  
+}
+
+.section-label {
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+  font-size: 0.7em;            /* 10px အသေအစား em ပြောင်းထားသည် */
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--bg);
+  padding: 2px 3px;            /* 6px 4px မှ လျှော့ထားသည် */
+  border-radius: 3px;
+  align-self: flex-start;
+  text-transform: uppercase;
+}
+
+/* စာကြောင်းအကွာအဝေး ပိုကပ်ချင်ရင် ဒါပါ ထည့်ပေးပါ */
+pre.resizable-text {
+  line-height: 1.2 !important; 
+}
+
+.verse-content{
+  flex: 1;
+  min-width: 0;
+}
+.verse-content pre{
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: inherit;
+  line-height: 1.7;
+  font-size: 14px;
+}
+/* သီချင်းစာသားနဲ့ ကော့ဒ်ပဲ ဒီ size ယူ */
+.resizable-text,
+pre.cr {
+  font-size: var(--lyric-size) !important;
+  line-height: 1.8;
+  transition: font-size 0.15s ease;
+}
+/* Map အတွက် ခြားတဲ့ သင်္ကေတ */
+.sep{ color: var(--muted); margin: 0 2px; }
+.sep-bar{ color: var(--text); font-weight: 700; margin: 0 8px; }
+
+
+/* ကော့ */
+.chord-wrap{
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-right: 10px;
+  vertical-align: bottom;
+  position: relative;
+}
+.chord::after { display: none !important; }
+.chord{
+  font-size: var(--lyric-size);
+  font-weight: 700;
+  color: var(--bar-color); /* စာလုံးပါ ဘားအရောင်ပြောင်းမယ် */
+  font-family: inherit; /* စာသားနဲ့ ဖောင့်အတူတူ */
+  line-height: 1;
+  padding: 0;
+  border: none;
+  background: none;
+  margin-bottom: 0;
+  position: relative;
+  order: 1;
+  /* border-bottom: 2.5px*/
+  solid var(--bar-color, #94A3B8); 
+  /* padding-bottom: 0px; */
+  display: inline-block; 
+}
+.dark-mode .chord{ border-color: #334155; }
+
+/* ဘားကို ကော့ဒ်ရဲ့ အောက်တည့်တည့်မှာထား */
+/*.chord::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  height: 3px;
+  width: 22px;
+  border-radius: 2px;
+  background: var(--bar-color, #94A3B8);
+}*/
+.chord-wrap.bar-1{ --bar-color:#EAB308; } /* အဝါ 1 ဘား */
+.chord-wrap.bar-2{ --bar-color:#3B82F6; } /* အပြာ 2 ဘား */
+.chord-wrap.bar-3{ --bar-color:#22C55E; } /* အစိမ်း 3 ဘား */
+.chord-wrap.bar-4{ --bar-color:#EF4444; } /* အနီ 4 ဘား */
+.lyric {
+  font-size: var(--lyric-size);
+  font-family: inherit;
+  line-height: 1.6;
+  order: 1;
+  /* margin-top: 8px;*/
+  margin-top: -3px; !important; 
+}
+.hide-chords .chord{ display:none !important; }
+
+/* ခလုတ် */
+#fab-container{
+  position: fixed;
+  bottom: 27px;
+  right: 27px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 10px;
+}
+#fab-toggle{
+  width: 54px; height: 54px;
+  border-radius: 50%;
+  border: 1px solid #E2E8F0;
+  background: var(--muted);
+  color: var(--text);
+  display: grid; place-items: center;
+}
+#fab-menu{
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  padding: 5px;
+  border-radius: 18px;
+  border: 5px solid #E2E8F0;
+  background: var(--card);
+}
+#fab-menu.show{ display: flex; }
+.fab-btn{
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: var(--muted);
+  color: var(--text);
+  display: grid; place-items: center;
+}
+.fab-btn svg{ width:20px; height:20px; }
+
+/* about */
+#about-overlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+#about-overlay.hidden{ display:none !important; }
+#about-box{
+  background: var(--card);
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 18px 16px;
+  width: 100%;
+  max-width: 320px;
+}
+.dark-mode #about-box{ border-color:#334155; }
+.about-title{
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 10px;
+}
+.about-text{
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+}
+#about-close{
+  margin-top: 14px;
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #E2E8F0;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+}
+
+/* Karaoke */
+
+#kara-countdown{
+  position:fixed; inset:0; background:transparent; pointer-events:none;
+  display:flex; align-items:center; justify-content:center;
+  z-index:9999; font-size:120px; font-weight:900; color:#ff9800;
+  text-shadow:0 2px 20px rgba(0,0,0,.5);
+}
+#kara-countdown.hidden{ display:none; }
+
+/* KARAOKE FIX - ဒါပဲ လိုတယ် */
+.chord-wrap.active.chord{ background:#ffeb3b!important; color:#000!important; border-radius:4px; padding:0 4px; }
+.verse.current-section-highlight{ border-left:4px solid #22C55E!important; background:rgba(34,197,94,0.08)!important; }
+.lyric{ transition: none; } /* JS က duration ထည့်မယ် */
+</style>
+
+</head>
+<body>
+
+<div class="song-meta">
+  <h1 class="song-title" id="view-title"></h1>
+  <div class="song-sub">တေးရေး — <span id="view-writer"></span></div>
+  <div class="song-sub">တေးဆို — <span id="view-singer"></span></div>
+</div>
+
+<!-- info box -->
+<div id="top-right-stack">
+  <div class="info-box">
+    <div class="info-row"><span class="info-label">Capo</span><span class="info-value" id="capoValue"></span></div>
+    <div class="info-row"><span class="info-label">Key</span><span class="info-value" id="keyValue"></span></div>
+    <div class="info-row"><span class="info-label">BPM</span><input id="tempoInput" type="text" inputmode="numeric" pattern="[0-9]*"></div>
+  </div>
+  <div class="info-box">
+    <div class="info-title">Strum</div>
+    <div class="strum-grid" id="strumGrid"></div>
+  </div>
+</div>
+
+
+<!-- စာသား -->
+<!-- map -->
+<div class="verse">
+    <pre class="cr" data-map="In,V1,Pre1,Cho|Out">In,V1,Pre1,Cho|Out</pre>
+  </div>
+  
+<!-- lyrics -->
+<div class="verse">
+  <div class="section-label">Verse 1</div>
+  <div class="verse-content">
+    <pre class="resizable-text">ပြန်မဆုံနိုင်တော့ [Esus2 4]ဘူး အတိတ်က ငါတို့နှစ် [Ab4 4]ဦး အရာရာ [Gbm 4]ပြီးဆုံးသွားပြီးမှ</pre>
+    <pre class="resizable-text">[Am 2]အသစ်ကအစပြန် [B2 2]မရဘူး... [E2 4]နာကျင်နေတဲ့ [B 4]သူ ငိုတဲ့အသံရယ် မထွက် [Ab4 4]ဘူး...</pre>
+    <pre class="resizable-text">[Gbm 4]အခြားသော အရပ်သို့ရောက်မှ [Am 2]အားလုံးနေသား [B2 2]တကျ...</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">Pre Chorus1</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[Dbsus2 4]ဒဏ္ဍာရီလိုလို ပုံပြင်လိုလို [Abm 4]ကျန်ခဲ့တယ်</pre>
+    <pre class="resizable-text">ပြန် [D 4]တွေးမိလိုက်တိုင်း တစ်သက်စာငါ [A 2]နောင်တတို့သာ [B 2]ရခဲ့...</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">Chorus</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[Dbm 2]မေ့နိုင်သမျှသာ [B2 2]မေ့ပစ်ဖို့ကို [A 4]ငါကြိုးစား...</pre>
+    <pre class="resizable-text">ဒီ [E 2]သံသရာထဲ [Gbm 2]ထပ်လွဲကြရပြန်ပြီ [A 1]အချစ် [B2 3]ဆုံးရာ...</pre>
+    <pre class="resizable-text">[Dbm 2]တို့နှစ်ဦးဆုံတွေ့တဲ့ [B2 2]အတိတ်က တို့ရဲ့ [A 4]ဝဋ်ကြွေးလား...</pre>
+    <pre class="resizable-text">ဒီလို [E 2]ဆိုရင်တော့ [Gbm 2]ငါ့အပြစ် [A 1]ငါဝဋ် [B2 3]ကြွေးဟာ... [Dbsus2 2]နောင်တပါ [B2 2]နောင်တ... [A 4]</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">Verse 2</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[E 4]ဒါဏ်ရာအိုလေး [B 4]တစ်ခု မျက်ရည်မခြောက် [Absus4 4]ခမ်းဘူး.. နာကျင် [Gbsus2 4]မှုနဲ့ ဆုံးရှုံးမှုက</pre>
+    <pre class="resizable-text">ထပ် [A 2]တိုးသွားတဲ့ ဝေ [Bsus2 2]ဒနာ...တစ်ခု [Esus2 4]ပြန်မဆုံနိုင်သော [B 4]သူရေ မင်းရဲ့ဒါဏ်ရာ [Abm7 4]လေးတွေ...</pre>
+    <pre class="resizable-text">[Gbsus2 4]အထပ်ထပ်တိုးရင်း တိုးလာချိန်နင် [A 2]မုန်းသွားတာမဆန်း [B2 2]ဘူး</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">Pre Chorus2</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[Dbsus2 4]ဒဏ္ဍာရီလိုလို ပုံပြင်လိုလို [Abm 4]ကျန်ခဲ့တယ်</pre>
+    <pre class="resizable-text">[D 4]မှားယွင်းမှုတို့များစွာနဲ့ ငါ့ကို [A 2]အချစ်က ဒါဏ်ခတ် [Bsus2 2]ခဲ့တယ်...</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">Bridge</div>
+  <div class="verse-content">
+    <pre class="resizable-text">ဒီလို [E 2]ဆိုရင်တော့ [Gbsus2 2]ငါ့အပြစ် ငါဝဋ် [A 1]ကြွေးဟာ... [Bsus4 3]နောင်တ [Dbm 2]ပါ ___ [B2 2]</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">Solo</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[AM7 4]_______ [E 2]____ [Gb 2]_____ [A7 1]_____ [Bsus4 3]_______</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">Chorus 2</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[Dbm 1]မေ့နိုင်သမျှ [Bsus2 3]သာ မေ့ပစ်ဖို့ကို [Am7 4]ငါကြိုးစား... ဒီသံသ [E 2]ရာထဲ ထပ် [Gbm 2]လွဲကြရပြန်ပြီ [A 1]အချစ် [B 3]ဆုံးရာ...</pre>
+    <pre class="resizable-text">[Dbm 2]တို့နှစ်ဦးဆုံတွေ့တဲ့ [B 2]အတိတ်က တို့ရဲ့ [A 4]ဝဋ်ကြွေးလား...</pre>
+    <pre class="resizable-text">ဒီလို [E 1]ဆိုရင် [Gbm 3]တော့ ငါ့အပြစ် ငါ [A 2]ဝဋ်ကြွေး.. [B 2]ဟာ... နောင် [E 4]တပါ</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">Outro</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[B 4]____ [Dbm 4]_______ [A 4]____ [Dbm 4]_______</pre>
+  </div>
+</div>
+
+<!-- စမ်း -->
+
+
+<div class="verse">
+  <div class="section-label">Verse 2</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[C 4]C key  chord's [Dm 4][Em 4][F 4][G 4][Am 4][Bm 4]</pre>
+    <pre class="resizable-text">[D 1]D key </pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">Map</div>
+  <div class="verse-content">
+    <pre class="cr" data-map="In,V1,Pre1,Cho,V2,Pre2,Cho,Bri,Cho2|Out">In,V1,Pre1,Cho,V2,Pre2,Cho,Bri,Cho2|Out</pre>
+  </div>
+</div>
+
+<!-- ကီး 
+
+<div class="verse">
+  <div class="section-label">C Key</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[C 4]C major [Dm 4]D minor [Em 4]E minor [F 4]F major [G 4]G major [Am 4]A minor [Bm7b5 4]B m7b5</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">Db Key</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[Db 4]Db major [Ebm 4]Eb minor [Fm 4]F minor [Gb 4]Gb major [Ab 4]Ab major [Bbm 4]Bb minor [Cm7b5 4]C m7b5</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">D Key</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[D 4]D major [Em 4]E minor [Gbm 4]Gb minor [G 4]G major [A 4]A major [Bm 4]B minor [Dbm7b5 4]Db m7b5</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">Eb Key</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[Eb 4]Eb major [Fm 4]F minor [Gm 4]G minor [Ab 4]Ab major [Bb 4]Bb major [Cm 4]C minor [Dm7b5 4]D m7b5</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">E Key</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[E 4]E major [Gbm 4]Gb minor [Abm 4]Ab minor [A 4]A major [B 4]B major [Dbm 4]Db minor [Ebm7b5 4]Eb m7b5</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">F Key</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[F 4]F major [Gm 4]G minor [Am 4]A minor [Bb 4]Bb major [C 4]C major [Dm 4]D minor [Em7b5 4]E m7b5</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">Gb Key</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[Gb 4]Gb major [Abm 4]Ab minor [Bbm 4]Bb minor [B 4]B major [Db 4]Db major [Ebm 4]Eb minor [Fm7b5 4]F m7b5</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">G Key</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[G 4]G major [Am 4]A minor [Bm 4]B minor [C 4]C major [D 4]D major [Em 4]E minor [Gbm7b5 4]Gb m7b5</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">Ab Key</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[Ab 4]Ab major [Bbm 4]Bb minor [Cm 4]C minor [Db 4]Db major [Eb 4]Eb major [Fm 4]F minor [Gm7b5 4]G m7b5</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">A Key</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[A 4]A major [Bm 4]B minor [Dbm 4]Db minor [D 4]D major [E 4]E major [Gbm 4]Gb minor [Abm7b5 4]Ab m7b5</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">Bb Key</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[Bb 4]Bb major [Cm 4]C minor [Dm 4]D minor [Eb 4]Eb major [F 4]F major [Gm 4]G minor [Am7b5 4]A m7b5</pre>
+  </div>
+</div>
+
+<div class="verse">
+  <div class="section-label">B Key</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[B 4]B major [Dbm 4]Db minor [Ebm 4]Eb minor [E 4]E major [Gb 4]Gb major [Abm 4]Ab minor [Bbm7b5 4]Bb m7b5</pre>
+  </div>
+</div>
+-->
+<div class="verse">
+  <div class="section-label">TEST12</div>
+  <div class="verse-content">
+    <pre class="resizable-text">[C 4][Dm 4][Em 4][F 4][G 4][Am 4][Bm7b5 4] - C
+[Db 4][Ebm 4][Fm 4][Gb 4][Ab 4][Bbm 4][Cm7b5 4] - Db
+[D 4][Em 4][Gbm 4][G 4][A 4][Bm 4][Dbm7b5 4] - D
+[Eb 4][Fm 4][Gm 4][Ab 4][Bb 4][Cm 4][Dm7b5 4] - Eb
+[E 4][Gbm 4][Abm 4][A 4][B 4][Dbm 4][Ebm7b5 4] - E
+[F 4][Gm 4][Am 4][Bb 4][C 4][Dm 4][Em7b5 4] - F
+[Gb 4][Abm 4][Bbm 4][B 4][Db 4][Ebm 4][Fm7b5 4] - Gb
+[G 4][Am 4][Bm 4][C 4][D 4][Em 4][Gbm7b5 4] - G
+[Ab 4][Bbm 4][Cm 4][Db 4][Eb 4][Fm 4][Gm7b5 4] - Ab
+[A 4][Bm 4][Dbm 4][D 4][E 4][Gbm 4][Abm7b5 4] - A
+[Bb 4][Cm 4][Dm 4][Eb 4][F 4][Gm 4][Am7b5 4] - Bb
+[B 4][Dbm 4][Ebm 4][E 4][Gb 4][Abm 4][Bbm7b5 4] - B</pre>
+  </div>
+</div>
+<!--ကီးဆ -->
+
+<!-- ခလုတ် -->
+<!-- <div id="fab-container">
+  <button id="fab-toggle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83l.06-.06A1.65 0 0 0 9 15a1.65 1.65 0 0 0-1-1.51V13a2 2 0 0 1 0-4v-.49c.29-.2.6-.36.92-.51A1.65 0 0 0 9 6.18a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 13.32 2a1.65 1.65 0 0 0 1-1.51V0a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51c.32.15.63.31.92.51V3a2 2 0 0 1 0 4v.49c-.29.2-.6.36-.92.51Z"/></svg>
+  </button>
+  <div id="fab-menu">
+    <button class="fab-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+    <button class="fab-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7V5h16v2M9 20h6M12 4v16"/></svg></button>
+    <button class="fab-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7V5h16v2M9 20h6M12 14v-4"/></svg></button>
+    <button class="fab-btn" id="dark-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3a6 6 0 0 0 9 9c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9Z"/></svg></button>
+  </div>
+</div> -->
+<!-- <div id="fab-container">
+  <button id="fab-toggle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83l.06-.06A1.65 0 0 0 9 15a1.65 1.65 0 0 0-1-1.51V13a2 2 0 0 1 0-4v-.49c.29-.2.6-.36.92-.51A1.65 0 0 0 9 6.18a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 13.32 2a1.65 1.65 0 0 0 1-1.51V0a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51c.32.15.63.31.92.51V3a2 2 0 0 1 0 4v.49c-.29.2-.6.36-.92.51Z"/></svg>
+  </button>
+  <div id="fab-menu">
+    <button class="fab-btn" id="btn-info-box" title="Info Box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 15h6"/></svg></button>
+    <button class="fab-btn" id="btn-about" title="About"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></button>
+    <button class="fab-btn" id="btn-capo-up" title="Capo +"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 15h14M12 5v10M9 8l3-3 3 3"/></svg></button>
+    <button class="fab-btn" id="btn-capo-down" title="Capo -"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 9h14M12 15V5M9 12l3 3 3-3"/></svg></button>
+    <button class="fab-btn" id="btn-font-up" title="Font +"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h8M6 4v8M14 20l3-12 3 12M15.5 17h5"/></svg></button>
+    <button class="fab-btn" id="btn-font-down" title="Font -"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 6h8M6 4v8M14 20l2-5h4l2 5"/></svg></button>
+    <button class="fab-btn" id="btn-chord-row" title="Chord Row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6h18M3 12h18M3 18h18"/><circle cx="8" cy="6" r="1" fill="currentColor"/><circle cx="14" cy="12" r="1" fill="currentColor"/></svg></button>
+    <button class="fab-btn" id="btn-theme" title="Theme"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 3a6 6 0 0 0 9 9c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9Z"/></svg></button>
+    <button class="fab-btn" id="btn-kara-play" title="Kara Play"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21" fill="currentColor" stroke="none"/></svg></button>
+    <button class="fab-btn" id="btn-kara-restart" title="Kara Restart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg></button>
+    <button id="btn-easy-toggle" class="fab-btn">အလွယ်</button>
+  </div>
+</div> -->
+
+<div id="fab-container">
+  <button id="fab-toggle">
+    <span class="material-symbols-rounded">settings</span>
+  </button>
+  <div id="fab-menu">
+    <button class="fab-btn" id="btn-info-box" title="Info Box"><span class="material-symbols-rounded">info</span></button>
+    <button class="fab-btn" id="btn-about" title="About"><span class="material-symbols-rounded">movie</span></button>
+    <button class="fab-btn" id="btn-capo-up" title="Capo +"><span class="material-symbols-rounded">keyboard_arrow_up</span></button>
+    <button class="fab-btn" id="btn-capo-down" title="Capo -"><span class="material-symbols-rounded">keyboard_arrow_down</span></button>
+    <button class="fab-btn" id="btn-font-up" title="Font +"><span class="material-symbols-rounded">text_increase</span></button>
+    <button class="fab-btn" id="btn-font-down" title="Font -"><span class="material-symbols-rounded">text_decrease</span></button>
+    <button class="fab-btn" id="btn-chord-row" title="Chord Row"><span class="material-symbols-rounded">queue_music</span></button>
+    <button class="fab-btn" id="btn-theme" title="Theme"><span class="material-symbols-rounded">dark_mode</span></button>
+    <button class="fab-btn" id="btn-kara-play" title="Kara Play"><span class="material-symbols-rounded">play_arrow</span></button>
+    <button class="fab-btn" id="btn-kara-restart" title="Kara Restart"><span class="material-symbols-rounded">restart_alt</span></button>
+    <!-- <button id="btn-easy-toggle" class="fab-btn"><span class="material-symbols-rounded">tune</span> <span class="btn-text">အလွယ်</span></button>-->
+    <button class="fab-btn" id="btn-easy-toggle" title="အလွယ်"><span class="material-symbols-rounded">tune</span></button>
+  </div>
+</div>
+
+<!-- about -->
+<div id="about-overlay" class="hidden">
+<div id="about-box"
+  data-title="အဉ္စနလီညှင်း"
+  data-writer="မြတ်ခိုင်ကျော်၊ မြတ်သာထွန်း"
+  data-singer="မြတ်ခိုင်ကျော်"
+  data-key="C"
+  data-capo="0"
+  data-bpm="70"
+  data-songmap="Verse 1, Verse 2, Verse 1, TEST12">
+    <div class="about-title mm">အကြောင်းအရာ</div>
+    <div class="about-text mm">
+      သီချင်း — <span id="ab-title"></span><br>
+      တေးရေး — <span id="ab-writer"></span><br>
+      တေးဆို — <span id="ab-singer"></span><br>
+      Key — <span id="ab-key"></span> | Capo — <span id="ab-capo"></span> | BPM — <span id="ab-bpm"></span>
+    </div>
+    <button id="about-close">ပိတ်မယ်</button>
+  </div>
+</div>
+<!--အချိန်ရေတွက် -->
+<div id="kara-countdown" class="hidden">3</div>
+
+
+<script>
+const fabToggle = document.getElementById('fab-toggle');
+const fabMenu = document.getElementById('fab-menu');
+const aboutOverlay = document.getElementById('about-overlay');
+const btnAbout = document.getElementById('btn-about');
+const aboutClose = document.getElementById('about-close');
+
+fabToggle.onclick = () => fabMenu.classList.toggle('show');
+document.getElementById('btn-info-box').onclick = () => document.getElementById('top-right-stack').classList.toggle('hidden');
+
+btnAbout.onclick = () => { aboutOverlay.classList.remove('hidden'); fabMenu.classList.remove('show'); };
+aboutClose.onclick = () => aboutOverlay.classList.add('hidden');
+aboutOverlay.onclick = (e) => { if (e.target === aboutOverlay) aboutOverlay.classList.add('hidden'); };
+
+// Font size
+let lyricSize = parseInt(localStorage.getItem('lyricSize')) || 10;
+const MIN_SIZE=1, MAX_SIZE=45;
+function applyLyricSize(){ 
+  document.documentElement.style.setProperty('--lyric-size', lyricSize+'px'); localStorage.setItem('lyricSize', lyricSize); }
+document.getElementById('btn-font-up').onclick = () => { if(lyricSize<MAX_SIZE){ lyricSize++; applyLyricSize(); } };
+document.getElementById('btn-font-down').onclick = () => { if(lyricSize>MIN_SIZE){ lyricSize--; applyLyricSize(); } };
+applyLyricSize();
+document.getElementById('btn-chord-row').onclick = () => document.body.classList.toggle('hide-chords');
+
+function renderMaps(){
+  document.querySelectorAll('[data-map]').forEach(el=>{
+    const raw=el.getAttribute('data-map'); if(!raw) return;
+    el.innerHTML=raw.replace(/,/g,'<span class="sep">,</span>').replace(/\|/g,'<span class="sep-bar">|</span>');
+  });
+}
+function syncAll(){
+  const box=document.getElementById('about-box'); if(!box) return;
+  const g=k=>box.getAttribute('data-'+k)||'';
+  const set=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
+  set('ab-title',g('title')); set('ab-writer',g('writer')); set('ab-singer',g('singer')); set('ab-key',g('key')); set('ab-capo',g('capo')); set('ab-bpm',g('bpm'));
+  set('view-title',g('title')); set('view-writer',g('writer')); set('view-singer',g('singer')); set('capoValue',g('capo')); set('keyValue',g('key'));
+  const bi=document.getElementById('tempoInput'); if(bi) bi.value=g('bpm');
+  const grid=document.getElementById('strumGrid');
+  if(grid){ grid.innerHTML=''; ['↓','↓','↑','↓','','↓','↑','↑'].forEach(s=>{ const c=document.createElement('div'); c.className='s-cell'; c.textContent=s; grid.appendChild(c); }); }
+}
+function renderChords(){
+  document.querySelectorAll('pre.resizable-text').forEach(pre=>{
+    if(pre.dataset.chorded==='1') return;
+    let t=pre.textContent;
+    t=t.replace(/\[([^\s\]]+)\s+([1-4])\]([^\[\]\s]*)/g,(m,chord,bar,lyric)=>`<span class="chord-wrap bar-${bar}"><span class="chord">${chord}</span><span class="lyric">${lyric||'&nbsp;'}</span></span><span class="lyric">`);
+    t=t.replace(/\[([^\s\]]+)\s+([1-4])\]/g,(m,chord,bar)=>`<span class="chord-wrap bar-${bar}"><span class="chord">${chord}</span><span class="lyric">&nbsp;</span></span>`);
+    t=t.replace(/\[([^\]]+)\]/g,`<span class="chord-wrap bar-1"><span class="chord">$1</span><span class="lyric">&nbsp;</span></span>`);
+    pre.innerHTML=t; pre.dataset.chorded='1';
+  });
+}
+renderChords(); renderMaps(); syncAll();
+
+// စမ်းသပ် ၁ - verse label ရလား
+/* let testQ = [];
+(function() {
+  const mapStr = document.getElementById('about-box').getAttribute('data-map') || '';
+  const order = mapStr.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  const verses = [...document.querySelectorAll('.verse')];
+  verses.forEach(v => {
+    const label = (v.querySelector('.section-label')?.textContent || '').trim().toLowerCase();
+    console.log("label:", label, "-> wraps:", v.querySelectorAll('.chord-wrap').length);
+  });
+  console.log("map order:", order);
+})();
+*/
+// စမ်းသပ် ၂ - ပထမဆုံး စာကြောင်းကို အရောင်ပြေးကြည့်
+/*
+(function() {
+  const firstWrap = document.querySelector('.chord-wrap');
+  if (!firstWrap) { console.log("wrap မတွေ့"); return; }
+  const lyric = firstWrap.querySelector('.lyric');
+  const bpm = 95;
+  const dur = (60000 / bpm) * 4; // 4 beat စမ်း
+  console.log("testing lyric:", lyric?.textContent, "dur:", dur);
+  
+  lyric.style.backgroundImage = `linear-gradient(to right, #EF4444 50%, #000 50%)`;
+  lyric.style.backgroundSize = '200% 100%';
+  lyric.style.backgroundPosition = '100% 0';
+  lyric.style.webkitBackgroundClip = 'text';
+  lyric.style.webkitTextFillColor = 'transparent';
+  lyric.style.display = 'inline-block';
+  lyric.style.transition = 'none';
+  void lyric.offsetWidth;
+  lyric.style.transition = `background-position ${dur}ms linear`;
+  lyric.style.backgroundPosition = '0% 0';
+  
+  console.log("အရောင်ပြေးနေပြီလား ကြည့်");
+})();*/
+// ======== ကီး ကော့ ကန်ပို စ ============
+let originalKey = document.getElementById('about-box').getAttribute('data-key') || 'A';
+let currentCapo = parseInt(document.getElementById('about-box').getAttribute('data-capo')) || 0;
+let capoVal = currentCapo;
+let isEasyMode = localStorage.getItem('chord-easy')!== 'false';
+let isDark = localStorage.getItem('theme') === 'dark';
+let isPlaying = false;
+
+const SCALE_FLAT = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const SCALE_SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const SHARP_KEYS = ['G','D','A','E','B','F#','C#'];
+function noteIndex(note){ const map={'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11}; return map[note]??0; }
+function getScaleForKey(key){ if(isEasyMode) return SCALE_FLAT; if(SHARP_KEYS.includes(key)) return SCALE_SHARP; return SCALE_FLAT; }
+function transposeNote(root,semi,targetKey){ let i=(noteIndex(root)+semi)%12; if(i<0)i+=12; return getScaleForKey(targetKey)[i]; }
+function simplifyChord(s){ if(!isEasyMode) return s; return s.replace(/m7b5/g,'m').replace(/dim7/g,'dim').replace(/add9/g,''); }
+function transposeChord(str,semi,targetKey){ const m=str.match(/^([A-G][b#]?)(.*)$/); if(!m) return str; return simplifyChord(transposeNote(m[1],semi,targetKey)+m[2]); }
+
+function applyCapo(newCapo){
+  currentCapo=newCapo; capoVal=newCapo;
+  let temp=transposeNote(originalKey,-newCapo,originalKey);
+  let actual=transposeNote(originalKey,-newCapo,temp);
+  document.getElementById('capoValue').textContent=currentCapo;
+  document.getElementById('keyValue').textContent=actual;
+  const abC=document.getElementById('ab-capo'); if(abC) abC.textContent=currentCapo;
+  const abK=document.getElementById('ab-key'); if(abK) abK.textContent=actual;
+  document.querySelectorAll('.chord').forEach(el=>{
+    if(!el.dataset.orig) el.dataset.orig=el.textContent.trim();
+    el.textContent=transposeChord(el.dataset.orig,-newCapo,actual);
+  });
+}
+
+const themeBtn=document.getElementById('btn-theme');
+const easyBtn=document.getElementById('btn-easy-toggle');
+const playBtn=document.getElementById('btn-kara-play');
+
+function updateThemeIcon(){
+  themeBtn.innerHTML=`<span class="material-symbols-rounded">${isDark?'light_mode':'dark_mode'}</span>`;
+  document.documentElement.setAttribute('data-theme', isDark?'dark':'light');
+  document.body.classList.toggle('dark-mode', isDark); // မင်းအရင် css အတွက် ပြန်ထည့်
+}
+function updateEasyIcon(){ easyBtn.innerHTML=`<span class="material-symbols-rounded">${isEasyMode?'tune':'auto_awesome'}</span>`; }
+function updatePlayIcon(){ playBtn.innerHTML=`<span class="material-symbols-rounded">${isPlaying?'pause':'play_arrow'}</span>`; }
+
+themeBtn.onclick=()=>{ isDark=!isDark; localStorage.setItem('theme', isDark?'dark':'light'); updateThemeIcon(); };
+easyBtn.onclick=()=>{ isEasyMode=!isEasyMode; localStorage.setItem('chord-easy', isEasyMode); updateEasyIcon(); applyCapo(currentCapo); };
+document.getElementById('btn-capo-up').onclick=()=>{ if(capoVal<12) applyCapo(capoVal+1); };
+document.getElementById('btn-capo-down').onclick=()=>{ if(capoVal>0) applyCapo(capoVal-1); };
+/* 
+playBtn.onclick=()=>{ isPlaying=!isPlaying; updatePlayIcon(); console.log(isPlaying?'play':'pause'); };
+document.getElementById('btn-kara-restart').onclick=()=>console.log('kara restart'); */
+
+
+console.log("chord-wrap count:", document.querySelectorAll('.chord-wrap').length);
+console.log("verse count:", document.querySelectorAll('.verse').length);
+var karaIdx=0, karaList=[], karaTimer=null;
+
+
+function buildMap(){
+  var mapStr = document.getElementById('about-box').getAttribute('data-songmap') || '';
+  var order = mapStr.split(',').map(function(s){return s.trim().toLowerCase();}).filter(Boolean);
+  var verses = document.querySelectorAll('.verse');
+  var db=[];
+  for(var i=0;i<verses.length;i++){
+    var v=verses[i];
+    var labelEl=v.querySelector('.section-label');
+    var label=labelEl? labelEl.textContent.trim().toLowerCase() : '';
+    var chords=v.querySelectorAll('.chord');
+    if(chords.length==0) continue;
+    db.push({label:label, el:v, chords:chords});
+  }
+  var q=[];
+  if(order.length>0){
+    for(var o=0;o<order.length;o++){
+      var name=order[o];
+      for(var j=0;j<db.length;j++){
+        if(db[j].label.indexOf(name)>-1 || name.indexOf(db[j].label)>-1){
+          for(var k=0;k<db[j].chords.length;k++){
+            q.push({chord:db[j].chords[k], verseEl:db[j].el, wrap:db[j].chords[k].parentNode});
+          }
+        }
+      }
+    }
+  }
+  if(q.length==0){
+    for(var j=0;j<db.length;j++){
+      for(var k=0;k<db[j].chords.length;k++){
+        q.push({chord:db[j].chords[k], verseEl:db[j].el, wrap:db[j].chords[k].parentNode});
+      }
+    }
+  }
+  return q;
+}
+
+/*function clearAll(){
+  var act=document.querySelectorAll('.chord.active');
+  for(var i=0;i<act.length;i++) act[i].classList.remove('active');
+  var cur=document.querySelectorAll('.verse.current-section-highlight');
+  for(var i=0;i<cur.length;i++) cur[i].classList.remove('current-section-highlight');
+}*/
+
+
+document.getElementById('btn-kara-play').onclick=function(){
+  if(karaList.length==0){
+    karaList=buildMap();
+    console.log("total chords:", karaList.length);
+  }
+  if(karaTimer){ clearTimeout(karaTimer); karaTimer=null; this.innerHTML='<span class="material-symbols-rounded">play_arrow</span>'; return; }
+  this.innerHTML='<span class="material-symbols-rounded">pause</span>';
+  playNext();
+};
+document.getElementById('btn-kara-restart').onclick=function(){
+  clearTimeout(karaTimer); karaTimer=null; karaIdx=0; karaList=[];
+  clearAll();
+  document.getElementById('btn-kara-play').innerHTML='<span class="material-symbols-rounded">play_arrow</span>';
+};
+
+
+
+/* function clearAll(){
+  document.querySelectorAll('.chord').forEach(function(c){ c.style.background=''; c.style.color=''; c.style.borderRadius=''; });
+  document.querySelectorAll('.verse.current-section-highlight').forEach(function(v){ v.classList.remove('current-section-highlight'); });
+}
+function playNext(){
+  if(karaIdx>=karaList.length){
+    document.querySelectorAll('.lyric').forEach(function(l){
+      l.style.backgroundImage=''; l.style.webkitTextFillColor=''; l.style.backgroundPosition=''; l.style.transition=''; l.style.webkitBackgroundClip='';
+    });
+    clearAll(); karaIdx=0; karaList=[];
+    document.getElementById('btn-kara-play').innerHTML='<span class="material-symbols-rounded">play_arrow</span>';
+    return;
+  }
+  var item=karaList[karaIdx];
+  var chordEl=item.chord, verseEl=item.verseEl, wrap=item.wrap, lyric=wrap.querySelector('.lyric');
+  var bpm=parseInt(document.getElementById('tempoInput').value)||95;
+  var beat=1;
+  if(wrap.className.includes('bar-4')) beat=4;
+  else if(wrap.className.includes('bar-3')) beat=3;
+  else if(wrap.className.includes('bar-2')) beat=2;
+
+  if(karaIdx>0 && karaList[karaIdx].verseEl!==karaList[karaIdx-1].verseEl){
+    karaList[karaIdx-1].verseEl.querySelectorAll('.lyric').forEach(function(l){
+      l.style.backgroundImage=''; l.style.webkitTextFillColor=''; l.style.backgroundPosition=''; l.style.transition=''; l.style.webkitBackgroundClip='';
+    });
+  }
+
+  document.querySelectorAll('.chord').forEach(function(c){ c.style.background=''; c.style.color=''; });
+  document.querySelectorAll('.verse.current-section-highlight').forEach(function(v){ v.classList.remove('current-section-highlight'); });
+  chordEl.style.background='#ffeb3b'; chordEl.style.color='#000'; chordEl.style.borderRadius='4px';
+  verseEl.classList.add('current-section-highlight');
+
+  if(lyric && lyric.textContent.trim()){
+    lyric.style.backgroundImage='linear-gradient(to right, #EF4444 50%, var(--text) 50%)';
+    lyric.style.backgroundSize='200% 100%';
+    lyric.style.backgroundPosition='100% 0';
+    lyric.style.webkitBackgroundClip='text';
+    lyric.style.webkitTextFillColor='transparent';
+    lyric.style.display='inline-block';
+    lyric.style.transition='none';
+    void lyric.offsetWidth;
+    lyric.style.transition='background-position '+(60000/bpm*beat)+'ms linear';
+    lyric.style.backgroundPosition='0% 0';
+  }
+
+  karaIdx++;
+  karaTimer=setTimeout(playNext, 60000/bpm*beat);
+}*/
+var currentPre = null;
+
+function clearAll(){
+  document.querySelectorAll('.chord').forEach(c=>{c.style.background='';c.style.color='';});
+  document.querySelectorAll('.verse.current-section-highlight').forEach(v=>v.classList.remove('current-section-highlight'));
+}
+
+function playNext(){
+  if(karaIdx>=karaList.length){
+    document.querySelectorAll('pre.resizable-text').forEach(p=>{
+      p.style.backgroundImage='';p.style.webkitTextFillColor='';p.style.backgroundPosition='';p.style.transition='';p.style.webkitBackgroundClip='';
+    });
+    clearAll(); karaIdx=0; karaList=[]; currentPre=null;
+    document.getElementById('btn-kara-play').innerHTML='<span class="material-symbols-rounded">play_arrow</span>';
+    return;
+  }
+  var item=karaList[karaIdx];
+  var chordEl=item.chord, verseEl=item.verseEl, wrap=item.wrap;
+  var bpm=parseInt(document.getElementById('tempoInput').value)||95;
+  var beat=wrap.className.includes('bar-4')?4:wrap.className.includes('bar-3')?3:wrap.className.includes('bar-2')?2:1;
+  var pre = wrap.closest('pre.resizable-text');
+
+  if(karaIdx>0 && karaList[karaIdx].verseEl!==karaList[karaIdx-1].verseEl){
+    karaList[karaIdx-1].verseEl.querySelectorAll('pre.resizable-text').forEach(p=>{
+      p.style.backgroundImage='';p.style.webkitTextFillColor='';p.style.backgroundPosition='';p.style.transition='';p.style.webkitBackgroundClip='';
+    });
+    currentPre=null;
+  }
+
+  document.querySelectorAll('.chord').forEach(c=>{c.style.background='';c.style.color='';});
+  document.querySelectorAll('.verse.current-section-highlight').forEach(v=>v.classList.remove('current-section-highlight'));
+  chordEl.style.background='#ffeb3b'; chordEl.style.color='#000'; chordEl.style.borderRadius='4px';
+  verseEl.classList.add('current-section-highlight');
+
+  if(pre!==currentPre){
+    currentPre=pre;
+    var wrapsInPre=pre.querySelectorAll('.chord-wrap');
+    var total=0;
+    wrapsInPre.forEach(w=>{ total+=w.className.includes('bar-4')?4:w.className.includes('bar-3')?3:w.className.includes('bar-2')?2:1; });
+    pre.style.backgroundImage='linear-gradient(to right, #EF4444 50%, var(--text) 50%)';
+    pre.style.backgroundSize='200% 100%';
+    pre.style.backgroundPosition='100% 0';
+    pre.style.webkitBackgroundClip='text';
+    pre.style.webkitTextFillColor='transparent';
+    pre.style.transition='none'; void pre.offsetWidth;
+    pre.style.transition='background-position '+(60000/bpm*total)+'ms linear';
+    pre.style.backgroundPosition='0% 0';
+    pre.querySelectorAll('.chord').forEach(ch=>{ ch.style.webkitTextFillColor='#000'; ch.style.webkitBackgroundClip='initial'; ch.style.backgroundClip='initial'; });
+  }
+
+  karaIdx++;
+  karaTimer=setTimeout(playNext, 60000/bpm*beat);
+}
+
+</script>
+</body>
+</html>
