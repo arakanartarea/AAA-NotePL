@@ -57,9 +57,49 @@ body{ margin:0; font-family: sans-serif; background:var(--bg); color:var(--text)
 .note-card{ background:var(--card2); border:1px solid var(--border); border-radius:10px; margin:8px 0; overflow:hidden; }
 .note-card p{ margin:0; padding:12px; white-space:pre-wrap; word-break:break-word; line-height:1.6; }
 .card-actions{ display:flex; justify-content:space-around; background:var(--card); padding:4px; width:100%; border-top:1px solid var(--border); }
+/* edit စ */
+/* --- Edit Screen ကို နေရာအပြည့်ယူခိုင်းတာ ဒီက စတယ် --- */
+#editScreen {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  min-height: calc(100dvh - 80px); /* toolbar အမြင့် ချန်တာ */
+  gap: 6px;
+  padding: 0;
+}
 
-#editScreen input, #editScreen textarea{ width:100%; margin:6px 0; padding:10px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); }
+#editScreen.hidden {
+  display: none !important;
+}
 
+#editScreen input {
+  width: 100%;
+  margin: 0;
+  padding: 12px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  flex-shrink: 0; /* input တွေ မကျုံ့သွားအောင် */
+}
+
+#editContent {
+  width: 100% !important;
+  flex: 1 !important; /* ကျန်တဲ့နေရာအကုန်ယူ */
+  height: auto !important;
+  min-height: 0;
+  margin: 0 !important;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  resize: none;
+  overflow-y: auto;
+  line-height: 1.7;
+}
+/* edit ဆ */
 .toast{ position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:#333; color:#fff; padding:10px 18px; border-radius:20px; z-index:1000; font-size:14px; }
 
 /* MODAL - BOTTOM SHEET - LOW LEVEL SIMPLE */
