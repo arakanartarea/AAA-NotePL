@@ -151,6 +151,23 @@ header{position:sticky;top:0;z-index:1100;display:flex;justify-content:space-bet
 .form-group input,.form-group textarea{width:100%;padding:8px;background:#1E293B;border:1px solid #334155;border-radius:6px;color:white;box-sizing:border-box;font-family:inherit}
 .form-row{display:flex;gap:8px}
 .form-row .form-group{flex:1}
+/* edit text box စ */
+/* --- ဒီ ၂ ခုက အသစ်ထပ်တိုးတာ --- */
+.form-group:has(#inp-content){
+  display:flex;
+  flex-direction:column;
+  flex:1;
+  height: 70vh; /* ဒီအကွက်တစ်ခုလုံးကို မျက်နှာပြင် 70% ယူခိုင်း */
+}
+#inp-content{
+  flex:1 !important;
+  height:100% !important;
+  min-height:450px;
+  resize:none;
+  font-family: monospace;
+  white-space: pre;
+}
+/* edit text box ဆ */
 #config-modal{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;place-items:center;justify-content:center;z-index:3000}
 #config-modal.hidden{display:none}
 .modal-box{background:#1E293B;padding:20px;border-radius:12px;width:90%;max-width:400px;border:1px solid #334155}
@@ -291,7 +308,7 @@ header{position:sticky;top:0;z-index:1100;display:flex;justify-content:space-bet
 
 <div id="countdown-overlay" class="hidden"><span id="countdown-text"></span></div>
 <div id="chordDisplayBar"><div id="currentChord">Ready</div><div id="nextChord"></div></div>
-<div id="walker-emoji"><img src="../byarla.gif" width="81" style="display:block;"></div>
+<div id="walker-emoji"><img src="byarla.gif" width="81" style="display:block;"></div>
 
 <script>
 let db=null;
