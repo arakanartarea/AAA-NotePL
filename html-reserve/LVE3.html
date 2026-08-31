@@ -4,178 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AAA Songs - Combined</title>
+ <link rel="stylesheet" href="LVE3.css">
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-<style>
-@font-face {
-  font-family: "Optimistic";
-  font-style: normal;
-  font-weight: 400 600;
-  font-display: swap;
-  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Optimistic Mono";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
-}
-:where(html) { font-family: "Optimistic", system-ui, sans-serif; }
-:where(code, pre, kbd, samp) { font-family: "Optimistic Mono", ui-monospace, monospace; }
-.material-symbols-rounded{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
-:root{--bg:#F8FAFC;--card:#FFFFFF;--text:#1E293B;--muted:#94A3B8;--accent:#334155;--lyric-size:14px}
-.dark-mode{--bg:#0F172A;--card:#1E293B;--text:#E2E8F0;--muted:#64748B;--accent:#F1F5F9}
-body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif!important;padding:9px;padding-bottom:90px;margin:0}
-.verse{background:var(--card);border:1px solid #E2E8F0;border-left:3px solid #CBD5E1;display:flex;gap:4px;padding:0.3em 0.5em;margin-bottom:4px;border-radius:6px;position:relative;z-index:1}
-.dark-mode .verse{border-color:#334155;border-left-color:#475569}
-.section-label{writing-mode:vertical-lr;transform:rotate(180deg);font-size:0.7em;font-weight:600;color:var(--muted);background:var(--bg);padding:2px 3px;border-radius:3px;align-self:flex-start;text-transform:uppercase}
-.verse-content{flex:1;min-width:0}
-.verse-content pre{margin:0;white-space:pre-wrap;font-family:inherit;line-height:1.7;font-size:14px}
-.resizable-text{font-size:var(--lyric-size)!important;line-height:1.8}
-.song-meta{padding:1px 1px;margin-bottom:3px;border-left:3px solid var(--text)}
-.song-title{margin:0 0 1px 0;font-size:19px;font-weight:700}
-.song-sub{font-size:15px;color:var(--muted);line-height:1.6}
-#top-right-stack{position:fixed;top:12px;right:12px;z-index:900;width:280px}
-#top-right-stack.hidden{display:none!important}
-.strum-widget{background:#1a1a1b;border:1px solid #333;border-radius:8px;padding:8px;box-shadow:0 4px 15px rgba(0,0,0,0.6);overflow:hidden}
-.widget-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
-.bpm-box{display:flex;align-items:center;gap:4px;font-size:11px;color:#ccc}
-.bpm-box input{width:42px;background:#000;border:1px solid #444;color:#fff;text-align:center;border-radius:3px;padding:2px;font-size:11px}
-.pattern-data{display:none!important}
-.staff-wrapper{display:flex;background:#101012;border-radius:4px;padding:4px 4px 4px 0}
-.string-numbers{display:flex;flex-direction:column;justify-content:space-between;padding:4px 5px;font-size:10px;font-weight:bold;color:#aaa;text-align:center}
-.svg-container{flex-grow:1}
-.svg-container svg{width:100%;height:90px;display:block}
-.strum-arrow{transition:filter 0.08s,opacity 0.08s;opacity:0.85}
-.strum-arrow.active{opacity:1;filter:drop-shadow(0 0 8px currentColor)}
-.strum-arrow.active line{stroke-width:4}
-.strum-arrow.played{opacity:0.85}
-.pluck-wrapper{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-top:6px;width:100%;box-sizing:border-box}
-.pluck-box{background:#101012;border:1px solid #333;border-radius:4px;height:28px;display:flex;justify-content:space-around;align-items:center;min-width:0;overflow:hidden;position:relative}
-.pluck-box.active-box{border-color:#00FFFF;box-shadow:0 0 6px rgba(0,255,255,0.4)}
-.pluck-box.completed{border-color:#22C55E}
-.pluck-note{font-size:11px;font-weight:bold;color:#FFFFFF;width:20px;height:20px;display:grid;place-items:center;border-radius:50%;transition:all 0.12s}
-.pluck-note.active{background:#FFFF00;color:#000;box-shadow:0 0 12px #FFFF00, 0 0 20px #e2b714;transform:scale(1.4);font-size:12px}
-.pluck-note.played{background:#444;color:#aaa}
-.pluck-note.empty{opacity:0.3}
-.chord-wrap{display:inline-flex;flex-direction:column;align-items:flex-start;margin-right:10px;vertical-align:bottom;position:relative}
-.chord{font-size:var(--lyric-size);font-weight:700;color:var(--bar-color);font-family:inherit;line-height:1;padding:0;border:none;background:none;margin-bottom:0;position:relative;order:1;display:inline-block;transition:all 0.15s}
-.lyric{font-size:var(--lyric-size);font-family:inherit;line-height:1.6;order:1;margin-top:-3px!important}
-.hide-chords .chord{display:none!important}
-.chord-wrap.bar-1{--bar-color:#EAB308}.chord-wrap.bar-2{--bar-color:#3B82F6}.chord-wrap.bar-3{--bar-color:#22C55E}.chord-wrap.bar-4{--bar-color:#EF4444}
-.chord-wrap:not(:first-child){margin-left:2px}
 
-#fab-container{position:fixed;bottom:27px;right:27px;z-index:1000;display:none;flex-direction:column-reverse;align-items:flex-end;gap:10px}
-#fab-toggle{width:54px;height:54px;border-radius:50%;border:1px solid #E2E8F0;background:var(--card);color:var(--text);display:grid;place-items:center;cursor:pointer;}
-#fab-menu{display:none;flex-direction:column;gap:8px;padding:5px;border-radius:18px;border:5px solid #E2E8F0;background:var(--card)}
-#fab-menu.show{display:flex}
-.fab-btn{width:40px;height:40px;border-radius:50%;border:none;background:var(--muted);color:var(--text);display:grid;place-items:center;cursor:pointer;}
-
-#about-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(12px);z-index:2000;display:grid;place-items:center;padding:20px}
-#about-overlay.hidden{display:none!important}
-#about-box{position:relative;width:80%;max-width:520px;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);border:1px solid rgba(255,255,255,0.12);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.08) inset;font-family:'Noto Sans Myanmar','Pyidaungsu',system-ui,sans-serif}
-.about-banner{height:96px;background:linear-gradient(135deg,#3b82f6 0%,#8b5cf6 35%,#ec4899 70%,#f59e0b 100%);position:relative;display:flex;align-items:flex-end;padding:0 20px 14px}
-.about-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent)}
-.about-content{padding:18px 20px 16px}
-.about-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px}
-.about-main-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.2}
-.about-year-badge{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;font-size:11px;padding:4px 10px;border-radius:20px;white-space:nowrap}
-.about-info-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
-.about-info-row{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 12px}
-.about-info-icon{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;flex-shrink:0}
-.about-info-icon.writer{background:linear-gradient(135deg,#f59e0b,#ef4444)}
-.about-info-icon.singer{background:linear-gradient(135deg,#06b6d4,#3b82f6)}
-.about-info-icon.album{background:linear-gradient(135deg,#8b5cf6,#ec4899)}
-.about-info-icon .material-symbols-rounded{font-size:18px;color:#fff}
-.about-info-label{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px}
-.about-info-value{font-size:14px;color:#f1f5f9;font-weight:600;margin-top:1px}
-.about-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.chip{display:flex;align-items:center;gap:6px;background:#0f172a;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:6px 12px;font-size:12px;color:#cbd5e1}
-.chip b{color:#fff;font-size:13px}
-.chip.key{border-color:#3b82f6;background:rgba(59,130,246,0.15)}
-.chip.capo{border-color:#22c55e;background:rgba(34,197,94,0.15)}
-.chip.bpm{border-color:#eab308;background:rgba(234,179,8,0.15)}
-.about-meta{background:rgba(0,0,0,0.3);border-radius:12px;padding:10px 12px;font-size:11px;color:#64748b;line-height:1.5;border:1px dashed rgba(255,255,255,0.1)}
-#about-close{width:100%;margin-top:16px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-size:14px;font-weight:600;backdrop-filter:blur(8px);cursor:pointer}
-.rec-hint{position:absolute;top:14px;right:14px;display:flex;align-items:center;gap:6px;background:rgba(239,68,68,0.9);color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;z-index:2}
-.rec-dot{width:8px;height:8px;background:#fff;border-radius:50%;animation:pulse 1.2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-.aaa-brand{position:absolute;left:18px;bottom:14px;font-weight:800;font-size:18px;letter-spacing:.5px;color:white;text-shadow:0 2px 10px rgba(0,0,0,.6);line-height:1.1}
-.aaa-brand span{font-weight:400;font-size:11px;opacity:.9;letter-spacing:0}
-.aaa-footer{margin-top:14px;padding-top:10px;border-top:1px dashed #334155;text-align:center;font-size:11px;color:var(--muted);line-height:1.5}
-@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
-.bouncing-chord{animation-name:bounce;animation-timing-function:ease-in-out;position:relative}
-.verse.current-section-highlight{border-left:18px solid #00FF00!important;background:#f0f8ff;box-shadow:0 0 10px rgba(0,255,0,0.2)}
-.verse.next-section-highlight{border-left:9px solid #FFFF00!important}
-.dark-mode .verse.current-section-highlight{background:#1a2e1a}
-#chordDisplayBar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(150%);width:70%;max-width:400px;height:48px;background:rgba(0,0,0,0.92);border:1px solid #333;border-radius:25px;display:flex;align-items:center;padding:0 12px;z-index:999;transition:transform 0.3s;overflow:hidden}
-#chordDisplayBar.active{transform:translateX(-50%) translateY(0)}
-#currentChord{font-size:16px;font-weight:bold;padding:6px 14px;border-radius:12px;background:#ffeb3b;color:#000;min-width:50px;text-align:center;box-shadow:0 0 10px rgba(255,235,59,0.6);white-space:nowrap;flex-shrink:0}
-#nextChord{display:flex;gap:4px;margin-left:8px;overflow:hidden;align-items:center}
-.next-item{font-size:11px;color:#ffeb3b;background:#424242;border:1px solid #666;padding:3px 8px;border-radius:10px;white-space:nowrap}
-#walker-emoji{position:absolute;z-index:9999;pointer-events:none;display:none;line-height:0}
-#countdown-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:9999;background:rgba(0,0,0,0.0);transition:opacity 0.3s;pointer-events:none}
-#countdown-overlay.hidden{opacity:0;display:none!important}
-#countdown-text{font-size:45vw;color:#42a5f5;font-weight:bold;text-shadow:0 0 20px rgba(0,0,0,0.5);font-family:system-ui}
-.kara-active{background-image:linear-gradient(to right,#ff0000 50%,var(--text) 50%);background-size:200% 100%;background-position:100% 0;-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:inline-block;transition:none}
-.dark-mode .kara-active{background-image:linear-gradient(to right,#00ff00 50%,#E2E8F0 50%)}
-/* song map */
-#song-timeline-bar{display:flex;gap:6px;overflow-x:auto;padding:8px 2px 10px 2px;margin-bottom:10px;scrollbar-width:none;-ms-overflow-style:none}
-#song-timeline-bar::-webkit-scrollbar{display:none}
-
-.timeline-chip{flex-shrink:0;font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px;background:var(--card);border:1px solid #E2E8F0;color:var(--muted);cursor:pointer;transition:all 0.3s ease;position:relative;overflow:hidden;text-transform:uppercase;letter-spacing:0.5px}
-.timeline-chip.active{background:var(--text);color:var(--bg);transform:scale(1.08);border-color:var(--text);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
-.timeline-chip.passed{opacity:0.5;border-style:dashed}
-
-.view-section{display:none}
-.view-section.active{display:block}
-header{
-  position:sticky;top:0;z-index:1100;display:flex;justify-content:space-between;align-items:center;background:#1E293B;padding:10px 14px;border-radius:12px;margin-bottom:12px;border:1px solid #334155}
-.nav-btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-.btn{background:#3B82F6;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:4px}
-.btn-secondary{background:#475569}
-.status-badge{font-size:11px;padding:4px 8px;border-radius:20px;background:#334155;cursor:pointer;color:#fff;}
-.status-badge.online{background:#166534;color:#4ADE80}
-.accordion{margin-bottom:8px;border:1px solid #334155;border-radius:8px;overflow:hidden}
-.accordion-header{background:#1E293B;padding:12px;font-weight:bold;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:#E2E8F0}
-.accordion-content{display:none;background:#0F172A;padding:8px}
-.accordion.open .accordion-content{display:block}
-.song-item{display:flex;justify-content:space-between;align-items:center;padding:10px;background:#1E293B;margin-bottom:6px;border-radius:6px}
-.song-title-click{flex:1;cursor:pointer;font-weight:600;color:#E2E8F0}
-.item-actions{display:flex;gap:6px}
-.icon-btn{background:none;border:none;color:white;cursor:pointer;padding:4px;border-radius:4px;font-size:16px}
-.icon-btn:hover{background:rgba(255,255,255,0.1)}
-.form-group{margin-bottom:10px}
-.form-group label{display:block;font-size:12px;color:#94A3B8;margin-bottom:4px}
-.form-group input,.form-group textarea{width:100%;padding:8px;background:#1E293B;border:1px solid #334155;border-radius:6px;color:white;box-sizing:border-box;font-family:inherit}
-.form-row{display:flex;gap:8px}
-.form-row .form-group{flex:1}
-/* edit text box စ */
-/* --- ဒီ ၂ ခုက အသစ်ထပ်တိုးတာ --- */
-.form-group:has(#inp-content){
-  display:flex;
-  flex-direction:column;
-  flex:1;
-  height: 70vh; /* ဒီအကွက်တစ်ခုလုံးကို မျက်နှာပြင် 70% ယူခိုင်း */
-}
-#inp-content{
-  flex:1 !important;
-  height:100% !important;
-  min-height:450px;
-  resize:none;
-  font-family: monospace;
-  white-space: pre;
-}
-/* edit text box ဆ */
-#config-modal{
-  position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;place-items:center;justify-content:center;z-index:3000}
-#config-modal.hidden{display:none}
-.modal-box{background:#1E293B;padding:20px;border-radius:12px;width:90%;max-width:400px;border:1px solid #334155}
-</style>
 </head>
 <body>
 
@@ -217,6 +52,9 @@ header{
       <button id="btn-list-theme" onclick="toggleTheme()" title="Theme ပြောင်းရန်" style="width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;cursor:pointer;">
         <span class="material-symbols-rounded">dark_mode</span>
       </button>
+ <button onclick="openFontModal()" title="ဖောင့်ပြောင်းရန်" style="width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;cursor:pointer;">
+   <span class="material-symbols-rounded">font_download</span>
+ </button>
     </div>
   </div>
 </div>
@@ -281,6 +119,7 @@ header{
     <button class="fab-btn" id="btn-font-down"><span class="material-symbols-rounded">text_decrease</span></button>
     <button class="fab-btn" id="btn-chord-row"><span class="material-symbols-rounded">queue_music</span></button>
     <button class="fab-btn" id="btn-theme" onclick="toggleTheme()"><span class="material-symbols-rounded">dark_mode</span></button>
+    <button class="fab-btn" onclick="openFontModal()"><span class="material-symbols-rounded">font_download</span></button>
     <button class="fab-btn" id="btn-kara-play"><span class="material-symbols-rounded">play_arrow</span></button>
     <button class="fab-btn" id="btn-kara-restart"><span class="material-symbols-rounded">stop</span></button>
     <button class="fab-btn" id="btn-easy-toggle"><span class="material-symbols-rounded">tune</span></button>
@@ -292,7 +131,7 @@ header{
     <div class="rec-hint"><span class="rec-dot"></span> AAA • Arakan Art Area</div>
     <div class="about-banner"><div class="aaa-brand">All Arakan Assets<br><span>အာရက္ခ အနုပညာ ရပ်ဝန်း</span></div></div>
     <div class="about-content">
-      <div class="about-title-row"><div class="about-main-title" id="ab-title"></div><div class="about-year-badge">2024</div></div>
+      <div class="about-title-row"><div class="about-main-title" id="ab-title"></div><div class="about-year-badge">2026</div></div>
       <div class="about-info-list">
         <div class="about-info-row"><div class="about-info-icon writer"><span class="material-symbols-rounded">edit</span></div><div><div class="about-info-label">တေးရေး</div><div class="about-info-value" id="ab-writer"></div></div></div>
         <div class="about-info-row"><div class="about-info-icon singer"><span class="material-symbols-rounded">mic</span></div><div><div class="about-info-label">တေးဆို</div><div class="about-info-value" id="ab-singer"></div></div></div>
@@ -303,7 +142,7 @@ header{
         <div class="chip capo"><span class="material-symbols-rounded" style="font-size:16px">tune</span> Capo <b id="ab-capo"></b></div>
         <div class="chip bpm"><span class="material-symbols-rounded" style="font-size:16px">timer</span> <b id="ab-bpm"></b> BPM</div>
       </div>
-      <div class="about-meta">Intro → V1 → V2 → Cho → Solo → V3 → Cho2 → Out<br>Strum 16 steps = 4 beats | Pluck 16 steps = 4 beats</div>
+      <div class="about-meta"><br>Strum 16 steps = 4 beats | Pluck 16 steps = 4 beats</div>
       <div class="aaa-footer">• 3A Studio<br></div>
       <button id="about-close"> ကြည့်ရှုမယ် </button>
     </div>
@@ -314,580 +153,65 @@ header{
 <div id="chordDisplayBar"><div id="currentChord">Ready</div><div id="nextChord"></div></div>
 <div id="walker-emoji"><img src="byarla.gif" width="81" style="display:block;"></div>
 
-<script>
-let db=null;
-let editingDocId=null;
+<!-- Font စ  -->
+<div class="overlay" id="fontOverlay"></div>
+<div class="font-modal" id="fontModal">
+    <h3 style="margin-bottom: 15px; text-align: center; color: var(--text);">အသုံးပြုမည့် ဖောင့်ကို ရွေးပါ</h3>
+    <div class="font-item" data-font="Arakan_Danyawaddy" style="font-family: 'Arakan_Danyawaddy';" onclick="changeGlobalFont('Arakan_Danyawaddy', this)">Arakan - စမ်းသပ်စာသား</div>
+    <div class="font-item" data-font="BeautiUNI-7" style="font-family: 'BeautiUNI-7';" onclick="changeGlobalFont('BeautiUNI-7', this)">BeautiUNI-7 (လက်ရေး) - စမ်းသပ်စာသား</div>
+    <div class="font-item" data-font="Hsi-Hseng" style="font-family: 'Hsi-Hseng';" onclick="changeGlobalFont('Hsi-Hseng', this)">Hsi-Hseng (လက်ရေးလှ) - စမ်းသပ်စာသား</div>
+    <div class="font-item" data-font="KyaungChee" style="font-family: 'KyaungChee';" onclick="changeGlobalFont('KyaungChee', this)">KyaungChee (ပုံဖျက်) - စမ်းသပ်စာသား</div>
+    <div class="font-item" data-font="Hopone" style="font-family: 'Hopone';" onclick="changeGlobalFont('Hopone', this)">Hopone - စမ်းသပ်စာသား</div>
+    
+    <div class="font-item" data-font="MM_Jasmine_v1.01" style="font-family: 'MM_Jasmine_v1.01';" onclick="changeGlobalFont('MM_Jasmine_v1.01', this)">MM_Jasmine_v1.01 - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_PhikselSmooth" style="font-family: 'Myanmar_PhikselSmooth';" onclick="changeGlobalFont('Myanmar_PhikselSmooth', this)">Myanmar_PhikselSmooth - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Bagan_v1.0" style="font-family: 'Myanmar_Bagan_v1.0';" onclick="changeGlobalFont('Myanmar_Bagan_v1.0', this)">Myanmar_Bagan_v1.0 - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Jojar_v2.0_2017" style="font-family: 'Myanmar_Jojar_v2.0_2017';" onclick="changeGlobalFont('Myanmar_Jojar_v2.0_2017', this)">Myanmar_Jojar_v2.0_2017 - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Kalay_v2.0_2017" style="font-family: 'Myanmar_Kalay_v2.0_2017';" onclick="changeGlobalFont('Myanmar_Kalay_v2.0_2017', this)">Myanmar_Kalay_v2.0_2017 - နမူနာစာသား </div>
+    
+    <div class="font-item" data-font="Myanmar_Love_2.0_2017" style="font-family: 'Myanmar_Love_2.0_2017';" onclick="changeGlobalFont('Myanmar_Love_2.0_2017', this)">Myanmar_Love_2.0_2017 - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Pixel.ttf" style="font-family: 'Myanmar_Pixel.ttf';" onclick="changeGlobalFont('Myanmar_Pixel.ttf', this)">Myanmar_Pixel.ttf - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Ponenyet.ttf" style="font-family: 'Myanmar_Ponenyet.ttf';" onclick="changeGlobalFont('Myanmar_Ponenyet.ttf', this)">Myanmar_Ponenyet.ttf - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Pyay_v2.0_2017" style="font-family: 'Myanmar_Pyay_v2.0_2017';" onclick="changeGlobalFont('Myanmar_Pyay_v2.0_2017', this)">Myanmar_Pyay_v2.0_2017 - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Pyu_Pro_2.0_2017" style="font-family: 'Myanmar_Pyu_Pro_2.0_2017';" onclick="changeGlobalFont('Myanmar_Pyu_Pro_2.0_2017', this)">Myanmar_Pyu_Pro_2.0_2017 - နမူနာစာသား </div>
+    
+    <div class="font-item" data-font="Myanmar_Pyu_v2.0_2017" style="font-family: 'Myanmar_Pyu_v2.0_2017';" onclick="changeGlobalFont('Myanmar_Pyu_v2.0_2017', this)">Myanmar_Pyu_v2.0_2017 - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Tagu.ttf" style="font-family: 'Myanmar_Tagu.ttf';" onclick="changeGlobalFont('Myanmar_Tagu.ttf', this)">Myanmar_Tagu.ttf - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Taunggyi_v1.00" style="font-family: 'Myanmar_Taunggyi_v1.00';" onclick="changeGlobalFont('Myanmar_Taunggyi_v1.00', this)">Myanmar_Taunggyi_v1.00 - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Thuriya" style="font-family: 'Myanmar_Thuriya';" onclick="changeGlobalFont('Myanmar_Thuriya', this)">Myanmar_Thuriya - နမူနာစာသား </div>
+    <div class="font-item" data-font="Myanmar_Waso" style="font-family: 'Myanmar_Waso';" onclick="changeGlobalFont('Myanmar_Waso', this)">Myanmar_Waso - နမူနာစာသား </div>
+    
+    <div class="font-item" data-font="Myanmar_Yinmar" style="font-family: 'Myanmar_Yinmar';" onclick="changeGlobalFont('Myanmar_Yinmar', this)">Myanmar_Yinmar - နမူနာစာသား </div>
+    <div class="font-item" data-font="NK_SSmart_3" style="font-family: 'NK_SSmart_3';" onclick="changeGlobalFont('NK_SSmart_3', this)">NK_SSmart_3 - နမူနာစာသား </div>
+    <div class="font-item" data-font="Roboto_Bold" style="font-family: 'Roboto_Bold';" onclick="changeGlobalFont('Roboto_Bold', this)">Roboto_Bold - နမူနာစာသား </div>
+    <div class="font-item" data-font="Samsung_Myanmar" style="font-family: 'Samsung_Myanmar';" onclick="changeGlobalFont('Samsung_Myanmar', this)">Samsung_Myanmar - နမူနာစာသား </div>
+    <div class="font-item" data-font="YoeYar_One_Bold" style="font-family: 'YoeYar_One_Bold';" onclick="changeGlobalFont('YoeYar_One_Bold', this)">YoeYar_One_Bold - နမူနာစာသား </div>
+    
+    <div class="font-item" data-font="YoeYar_One_Light" style="font-family: 'YoeYar_One_Light';" onclick="changeGlobalFont('YoeYar_One_Light', this)">YoeYar_One_Light - နမူနာစာသား </div>
+    <div class="font-item" data-font="notosan_grand_pro" style="font-family: 'notosan_grand_pro';" onclick="changeGlobalFont('notosan_grand_pro', this)">notosan_grand_pro - နမူနာစာသား </div>
+    <div class="font-item" data-font="notosans_myanmar" style="font-family: 'notosans_myanmar';" onclick="changeGlobalFont('notosans_myanmar', this)">notosans_myanmar - နမူနာစာသား </div>
+    <div class="font-item" data-font="yaungki" style="font-family: 'yaungki';" onclick="changeGlobalFont('yaungki', this)">yaungki - နမူနာစာသား </div>
 
-function initFirebase(){
-  const savedCfg=localStorage.getItem('firebaseConfig');
-  if(!savedCfg){showConfigModal();return;}
-  try{
-    const config=JSON.parse(savedCfg);
-    if(!firebase.apps.length) firebase.initializeApp(config);
-    db=firebase.firestore();
-    document.getElementById('status-badge').className='status-badge online';
-    document.getElementById('status-badge').textContent=`Connected: ${config.projectId}`;
-    fetchSongs();
-  }catch(e){alert("Firebase error: "+e.message);showConfigModal();}
-}
+    
+</div>
+<!-- Font ဆ  -->
 
-function showConfigModal(){document.getElementById('config-modal').classList.remove('hidden')}
-function saveFirebaseConfig(){
-  const cfg={apiKey:document.getElementById('cfg-apiKey').value.trim(),projectId:document.getElementById('cfg-projectId').value.trim(),appId:document.getElementById('cfg-appId').value.trim()};
-  localStorage.setItem('firebaseConfig',JSON.stringify(cfg));
-  document.getElementById('config-modal').classList.add('hidden');
-  initFirebase();
-}
+ <script>
+    const uniqueTime = new Date().getTime();
+    
+    // CSS အသစ်ဆွဲရန်
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'AAA_Style.css?v=' + uniqueTime;
+    document.head.appendChild(link);
 
-// ====== VIEW CONTROL (တိကျစွာ display သတ်မှတ်ပေးခြင်း) ======
-function switchView(viewId, isBack = false){
-  if(!isBack && viewId !== 'list-view'){
-    history.pushState({ view: viewId }, '');
-  }
+    // JS အသစ်ဆွဲရန်
+    const script = document.createElement('script');
+    script.src = 'LVE3.js?v=1.0' + uniqueTime;
+    document.head.appendChild(script);
+</script> 
 
-  document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-  document.getElementById(viewId)?.classList.add('active');
 
-  const isList = viewId === 'list-view';
-  const isPlayer = viewId === 'player-view';
-  const isEdit = viewId === 'input-view';
-
-  // Header နှင့် Floating Action Buttons (FABs) များကို View အလိုက် ခွဲခြားပြသခြင်း
-  const header = document.getElementById('main-header');
-  if (header) header.style.display = isList ? 'flex' : 'none';
-
-  const listFab = document.getElementById('list-fab-container');
-  if (listFab) listFab.style.display = isList ? 'flex' : 'none';
-
-  const playerFab = document.getElementById('fab-container');
-  if (playerFab) playerFab.style.display = isPlayer ? 'flex' : 'none';
-
-  const editFab = document.getElementById('edit-fab-container');
-  if (editFab) editFab.style.display = isEdit ? 'flex' : 'none';
-
-  const topStack = document.getElementById('top-right-stack');
-  if (topStack) topStack.style.display = isPlayer ? 'block' : 'none';
-
-  if(isPlayer) window.scrollTo(0,0);
-  if(!isPlayer) stopPlayback();
-}
-
-window.addEventListener('popstate', () => {
-  const activeView = document.querySelector('.view-section.active')?.id;
-  if (activeView && activeView !== 'list-view') {
-    switchView('list-view', true);
-  }
-});
-
-let allSongsData = [];
-function fetchSongs() {
-  if (!db) return;
-  db.collection('AAASongs').onSnapshot(snapshot => {
-    allSongsData = [];
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      data.id = doc.id;
-      allSongsData.push(data);
-    });
-    filterSongs();
-  });
-}
-
-function filterSongs() {
-  const q = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
-  const filtered = allSongsData.filter(s =>
-    (s.title || '').toLowerCase().includes(q) ||
-    (s.singer || '').toLowerCase().includes(q) ||
-    (s.writer || '').toLowerCase().includes(q) ||
-    (s.album || '').toLowerCase().includes(q) ||
-    (s.content || '').toLowerCase().includes(q)
-  );
-  
-  const songsBySinger = {};
-  filtered.forEach(data => {
-    const singer = data.singer || 'အခြား/မသိရှိသူ';
-    if (!songsBySinger[singer]) songsBySinger[singer] = [];
-    songsBySinger[singer].push(data);
-  });
-  renderAccordion(songsBySinger);
-}
-
-function renderAccordion(groupedData){
-  const container=document.getElementById('accordion-container');
-  container.innerHTML='';
-  if(Object.keys(groupedData).length===0){container.innerHTML='<p style="color:var(--muted)">သီချင်းများ မရှိသေးပါ။</p>';return;}
-  for(const [singer,songs] of Object.entries(groupedData)){
-    const acc=document.createElement('div');acc.className='accordion';
-    let songsHTML=songs.map(song=>`
-      <div class="song-item">
-        <span class="song-title-click" onclick="playSong('${song.id}')">🎵 ${song.title}</span>
-        <div class="item-actions">
-          <button class="icon-btn" onclick="editSong('${song.id}')" title="Edit (Private)">📝</button>
-          <button class="icon-btn" onclick="deleteSong('${song.id}','${song.title.replace(/'/g,"\\'")}')">🗑️</button>
-        </div>
-      </div>
-    `).join('');
-    acc.innerHTML=`<div class="accordion-header" onclick="this.parentElement.classList.toggle('open')"><span>🎤 ${singer} (${songs.length})</span><span>▼</span></div><div class="accordion-content">${songsHTML}</div>`;
-    container.appendChild(acc);
-  }
-}
-
-function openCreateForm(){
-  editingDocId=null;
-  document.getElementById('form-title').textContent="သီချင်းသစ် ထည့်ရန် - Private";
-  document.querySelectorAll('#input-view input, #input-view textarea').forEach(i=>{if(i.id!=='inp-key'&&i.id!=='inp-capo'&&i.id!=='inp-bpm') i.value=''});
-  document.getElementById('inp-key').value='E';document.getElementById('inp-capo').value=0;document.getElementById('inp-bpm').value=70;
-  switchView('input-view');
-}
-
-function editSong(id){
-  db.collection('AAASongs').doc(id).get().then(doc=>{
-    if(!doc.exists) return;
-    const data=doc.data();editingDocId=id;
-    document.getElementById('form-title').textContent="သီချင်းပြင်ဆင်ရန် - Private";
-    document.getElementById('inp-title').value=data.title||'';
-    document.getElementById('inp-singer').value=data.singer||'';
-    document.getElementById('inp-writer').value=data.writer||'';
-    document.getElementById('inp-album').value=data.album||'';
-    document.getElementById('inp-key').value=data.key||'E';
-    document.getElementById('inp-capo').value=data.capo||0;
-    document.getElementById('inp-bpm').value=data.bpm||70;
-    document.getElementById('inp-strum').value=data.strum||'';
-    document.getElementById('inp-pluck').value=data.pluck||'';
-    document.getElementById('inp-songmap').value=data.songmap||'';
-    document.getElementById('inp-content').value=data.content||'';
-    switchView('input-view');
-  });
-}
-
-function saveSong(){
-  const payload={
-    title:document.getElementById('inp-title').value,
-    singer:document.getElementById('inp-singer').value,
-    writer:document.getElementById('inp-writer').value,
-    album:document.getElementById('inp-album').value,
-    key:document.getElementById('inp-key').value,
-    capo:parseInt(document.getElementById('inp-capo').value)||0,
-    bpm:parseInt(document.getElementById('inp-bpm').value)||70,
-    strum:document.getElementById('inp-strum').value,
-    pluck:document.getElementById('inp-pluck').value,
-    songmap:document.getElementById('inp-songmap').value,
-    content:document.getElementById('inp-content').value
-  };
-  if(editingDocId){db.collection('AAASongs').doc(editingDocId).update(payload).then(()=>switchView('list-view'))}
-  else{db.collection('AAASongs').add(payload).then(()=>switchView('list-view'))}
-}
-
-function deleteSong(id,title){
-  if(confirm(`"${title}" ဖျက်မှာလား?`)){db.collection('AAASongs').doc(id).delete()}
-}
-
-function playSong(id){
-  db.collection('AAASongs').doc(id).get().then(doc=>{
-    if(!doc.exists) return;
-    const data=doc.data();
-    const box=document.getElementById('about-box');
-    box.setAttribute('data-title',data.title||'');
-    box.setAttribute('data-writer',data.writer||'');
-    box.setAttribute('data-singer',data.singer||'');
-    box.setAttribute('data-album',data.album||'');
-    box.setAttribute('data-key',data.key||'E');
-    box.setAttribute('data-capo',data.capo||0);
-    box.setAttribute('data-bpm',data.bpm||70);
-    box.setAttribute('data-strum',data.strum||'');
-    box.setAttribute('data-pluck',data.pluck||'');
-    box.setAttribute('data-songmap',data.songmap||'');
-    document.getElementById('dynamic-verses').innerHTML = data.content || '<div class="verse"><div class="verse-content"><pre>Content မရှိသေးပါ</pre></div></div>';
-    switchView('player-view');
-    setTimeout(()=>{syncAll();renderChords();applyCapo(parseInt(data.capo)||0);},50);
-  });
-}
-
-// ====== VIEW CODE JS (PLAYER LOGIC) ======
-const fabToggle=document.getElementById('fab-toggle'),fabMenu=document.getElementById('fab-menu'),aboutOverlay=document.getElementById('about-overlay'),topStack=document.getElementById('top-right-stack');
-if(localStorage.getItem('infoBoxHidden')==='true') topStack.classList.add('hidden');
-fabToggle.onclick=()=>fabMenu.classList.toggle('show');
-document.getElementById('btn-info-box').onclick=()=>{topStack.classList.toggle('hidden');localStorage.setItem('infoBoxHidden',topStack.classList.contains('hidden'))};
-document.getElementById('btn-about').onclick=()=>{aboutOverlay.classList.remove('hidden');fabMenu.classList.remove('show')};
-document.getElementById('about-close').onclick=()=>aboutOverlay.classList.add('hidden');
-aboutOverlay.onclick=(e)=>{if(e.target===aboutOverlay) aboutOverlay.classList.add('hidden')};
-
-let lyricSize=parseInt(localStorage.getItem('lyricSize'))||14;
-function applyLyricSize(){document.documentElement.style.setProperty('--lyric-size',lyricSize+'px');localStorage.setItem('lyricSize',lyricSize)}
-document.getElementById('btn-font-up').onclick=()=>{if(lyricSize<45){lyricSize++;applyLyricSize()}};
-document.getElementById('btn-font-down').onclick=()=>{if(lyricSize>8){lyricSize--;applyLyricSize()}};
-document.getElementById('btn-chord-row').onclick=()=>document.body.classList.toggle('hide-chords');
-
-// ====== THEME TOGGLE ( List သရော Player ပါ ချိတ်ဆက်ရန် ) ======
-let isDark=localStorage.getItem('theme')==='dark';
-function updateThemeIcon(){
-  document.body.classList.toggle('dark-mode',isDark);
-  const iconName = isDark ? 'light_mode' : 'dark_mode';
-  const playerThemeBtn = document.getElementById('btn-theme');
-  const listThemeBtn = document.getElementById('btn-list-theme');
-  if(playerThemeBtn) playerThemeBtn.innerHTML = `<span class="material-symbols-rounded">${iconName}</span>`;
-  if(listThemeBtn) listThemeBtn.innerHTML = `<span class="material-symbols-rounded">${iconName}</span>`;
-}
-function toggleTheme(){
-  isDark = !isDark;
-  localStorage.setItem('theme', isDark ? 'dark' : 'light');
-  updateThemeIcon();
-}
-
-function renderChords() {
-  document.querySelectorAll('pre.resizable-text').forEach(pre => {
-    if (pre.dataset.chorded === '1') return;
-    if (!pre.textContent.includes('[')) return;
-    let t = pre.textContent;
-    t = t.replace(/\[([^\s\]]+)\s+([1-4])\]([^\[\]\n]*)/g, (m, chord, bar, lyric) => {
-      let cleanLyric = lyric || '';
-      return `<span class="chord-wrap bar-${bar}"><span class="chord">${chord}</span><span class="lyric">${cleanLyric || '&nbsp;'}</span></span>`;
-    });
-    t = t.replace(/\[([^\]]+)\]/g, `<span class="chord-wrap bar-1"><span class="chord">$1</span><span class="lyric">&nbsp;</span></span>`);
-    pre.innerHTML = t;
-    pre.dataset.chorded = '1';
-  });
-}
-
-const yPos={6:10,5:24,4:38,3:52,2:66,1:80};
-let tokens=[],pluckTokens=[];
-function renderBoard(){
-  const el=document.getElementById('strumPattern'),container=document.getElementById('staffContainer');
-  if(el&&container){
-    const rawText=el.innerText.trim(); tokens=rawText?rawText.split(/\s+/):[];
-    while(tokens.length<16) tokens.push('.');
-    const boxWidth=52,boxGap=4,totalWidth=(boxWidth*4)+(boxGap*3),height=90;
-    let svg=`<svg viewBox="0 0 ${totalWidth} ${height}"><defs><marker id="arr-d" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#ff0000"/></marker><marker id="arr-u" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#0000ff"/></marker></defs>`;
-    for(let b=0;b<4;b++){const boxX=b*(boxWidth+boxGap);svg+=`<rect x="${boxX}" y="2" width="${boxWidth}" height="${height-4}" rx="4" fill="#15151a" stroke="#2ed573" stroke-width="1.2" opacity="0.9"/>`; [6,5,4,3,2,1].forEach(num=>{svg+=`<line x1="${boxX+2}" y1="${yPos[num]}" x2="${boxX+boxWidth-2}" y2="${yPos[num]}" stroke="#333" stroke-width="1"/>`;});}
-    tokens.forEach((code,i)=>{if(i>=16) return; if(code==='.') return; const beat=Math.floor(i/4),sub=i%4,boxX=beat*(boxWidth+boxGap),x=boxX+(sub+0.5)*(boxWidth/4);const isDown=code.startsWith('D'),color=isDown?'#ff0000':'#0000ff',marker=isDown?'url(#arr-d)':'url(#arr-u)';let s=6,e=1; if(code.includes('HT')){s=6;e=3;} else if(code.includes('HB')){s=4;e=1;} else if(code.includes('F')){s=6;e=1;}const y1=isDown?yPos[s]:yPos[e],y2=isDown?yPos[e]:yPos[s];svg+=`<g class="strum-arrow" id="arrow-${i}" style="color:${color}"><line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${color}" stroke-width="2.5" marker-end="${marker}"/></g>`;});
-    svg+=`</svg>`; container.innerHTML=svg;
-  }
-  const pEl=document.getElementById('pluckPattern'),pContainer=document.getElementById('pluckContainer');
-  if(pEl&&pContainer){
-    const raw=pEl.innerText.trim(); 
-    pluckTokens=raw?raw.split(/\s+/).filter(t=>t!==''):[]; 
-    pluckTokens = pluckTokens.slice(0,16);
-    while(pluckTokens.length<16) pluckTokens.push('.');
-    pContainer.innerHTML="";
-    for(let b=0;b<4;b++){
-      let box=document.createElement('div');box.className='pluck-box';box.id=`pbox-${b}`;
-      let beatLabel=document.createElement('span');
-      beatLabel.textContent=(b+1);
-      beatLabel.style.cssText='position:absolute;top:-1px;left:2px;font-size:7px;color:#666;line-height:1';
-      box.style.position='relative';
-      box.appendChild(beatLabel);
-      for(let s=0;s<4;s++){
-        let idx=b*4+s;
-        let code=pluckTokens[idx]||".";
-        let note=document.createElement('div');note.className='pluck-note'+(code==='.'||code==='-'?' empty':'');note.id=`pluck-${idx}`;note.textContent=(code==='.'||code==='-')?'·':code;box.appendChild(note);
-      }
-      pContainer.appendChild(box);
-    }
-  }
-}
-
-let originalKey=document.getElementById('about-box').getAttribute('data-key')||'A';
-let currentCapo=parseInt(document.getElementById('about-box').getAttribute('data-capo'))||0;
-let capoVal=currentCapo;
-let isEasyMode=localStorage.getItem('chord-easy')!=='false';
-const SCALE_FLAT=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
-const SCALE_SHARP=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-const SHARP_KEYS=['G','D','A','E','B','F#','C#'];
-function noteIndex(n){const m={'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11};return m[n]??0}
-function getScaleForKey(k){if(isEasyMode) return SCALE_FLAT; if(SHARP_KEYS.includes(k)) return SCALE_SHARP; return SCALE_FLAT}
-function transposeNote(r,s,t){let i=(noteIndex(r)+s)%12; if(i<0)i+=12; return getScaleForKey(t)[i]}
-function simplifyChord(s){if(!isEasyMode) return s; return s.replace(/m7b5/g,'m').replace(/dim7/g,'dim').replace(/add9/g,'')}
-function transposeChord(str,semi,targetKey){const m=str.match(/^([A-G][b#]?)(.*)$/); if(!m) return str; return simplifyChord(transposeNote(m[1],semi,targetKey)+m[2])}
-
-function applyCapo(newCapo){
-  currentCapo=newCapo; capoVal=newCapo;
-  originalKey=document.getElementById('about-box').getAttribute('data-key')||'A';
-  let temp=transposeNote(originalKey,-newCapo,originalKey);
-  let actual=transposeNote(originalKey,-newCapo,temp);
-  document.getElementById('capoValue').textContent=currentCapo;
-  document.getElementById('keyValue').textContent=actual;
-  const abC=document.getElementById('ab-capo'); if(abC) abC.textContent=currentCapo;
-  const abK=document.getElementById('ab-key'); if(abK) abK.textContent=actual;
-  document.querySelectorAll('.chord').forEach(el=>{
-    if(!el.dataset.orig) el.dataset.orig=el.textContent.trim();
-    el.textContent=transposeChord(el.dataset.orig,-newCapo,actual);
-  });
-  parseSongStructure();
-}
-
-document.getElementById('btn-capo-up').onclick=()=>{if(capoVal<12) applyCapo(capoVal+1)};
-document.getElementById('btn-capo-down').onclick=()=>{if(capoVal>0) applyCapo(capoVal-1)};
-document.getElementById('btn-easy-toggle').onclick=()=>{isEasyMode=!isEasyMode;localStorage.setItem('chord-easy',isEasyMode);document.getElementById('btn-easy-toggle').innerHTML=`<span class="material-symbols-rounded">${isEasyMode?'tune':'auto_awesome'}</span>`;applyCapo(currentCapo)};
-
-function syncAll(){
-  const box=document.getElementById('about-box'); if(!box) return;
-  const g=k=>box.getAttribute('data-'+k)||'';
-  const set=(id,v)=>{const el=document.getElementById(id); if(el) el.textContent=v;};
-  set('ab-title',g('title')); set('ab-writer',g('writer')); set('ab-singer',g('singer')); set('ab-album',g('album')); set('ab-key',g('key')); set('ab-capo',g('capo')); set('ab-bpm',g('bpm')); set('view-title',g('title')); set('view-writer',g('writer')); set('view-singer',g('singer')); set('capoValue',g('capo')); set('keyValue',g('key'));
-  const bi=document.getElementById('tempoInput'); if(bi) bi.value=g('bpm');
-  document.getElementById('strumPattern').textContent = g('strum') || "";
-  document.getElementById('pluckPattern').textContent = g('pluck') || "";
-  renderBoard();
-  parseSongStructure();
-  renderTimeline();
-}
-
-let isPlaying=false,isPaused=false,highlightInterval=null,currentChordIndex=-1,countdownInterval=null;
-let activeSectionElement=null,activeSectionKey=null,nextSectionElement=null,walker=null;
-let songSections={},allChords=[],chordDisplayBar=document.getElementById('chordDisplayBar');
-let globalStrumPos=0, globalPluckPos=0;
-
-function parseSongStructure(){
-  songSections={};
-  document.querySelectorAll('.verse').forEach(v=>{
-    const labelEl=v.querySelector('.section-label'); if(!labelEl) return;
-    if(labelEl.textContent.toLowerCase().includes('map')) return;
-    const name=labelEl.textContent.trim();
-    const key=name.toLowerCase().replace(/\s+/g,'');
-    const wraps=v.querySelectorAll('.chord-wrap');
-    const chordsInSection=[];
-    wraps.forEach(w=>{
-      const chordEl=w.querySelector('.chord'); if(!chordEl) return;
-      let beats=1;
-      if(w.classList.contains('bar-4')) beats=4;
-      else if(w.classList.contains('bar-3')) beats=3;
-      else if(w.classList.contains('bar-2')) beats=2;
-      else beats=1;
-      chordsInSection.push({element:chordEl,wrap:w,beats:beats});
-    });
-    if(chordsInSection.length>0) songSections[key]={chords:chordsInSection,displayName:name,element:v};
-  });
-}
-
-function getPlaybackMapFromHtml() {
-  const box = document.getElementById('about-box');
-  const raw = box.getAttribute('data-songmap') || '';
-  return raw.split(',').map(s => s.trim()).filter(Boolean);
-}
-
-function buildQueueFromMap(map){
-  allChords=[];
-  map.forEach(secName => {
-    const secKey = secName.toLowerCase().replace(/\s+/g,'');
-    const foundKey = Object.keys(songSections).find(k=>k===secKey || k.includes(secKey) || secKey.includes(k));
-    const sec = songSections[foundKey];
-    if(sec){
-      sec.chords.forEach(c=>{
-        allChords.push({...c, sectionKey:foundKey, sectionDisplayName:sec.displayName, sectionElement:sec.element})
-      });
-    }
-  });
-  if(allChords.length===0){
-    document.querySelectorAll('.chord-wrap').forEach(w=>{
-      const chordEl=w.querySelector('.chord'); if(!chordEl) return;
-      let beats=1; if(w.classList.contains('bar-4')) beats=4; else if(w.classList.contains('bar-3')) beats=3; else if(w.classList.contains('bar-2')) beats=2;
-      allChords.push({element:chordEl,wrap:w,beats:beats,sectionKey:'all',sectionDisplayName:'All',sectionElement:w.closest('.verse')});
-    });
-  }
-}
-
-function renderTimeline() {
-  const bar = document.getElementById('song-timeline-bar');
-  if (!bar) return;
-  const map = getPlaybackMapFromHtml();
-  bar.innerHTML = '';
-  map.forEach((name, idx) => {
-    const chip = document.createElement('div');
-    chip.className = 'timeline-chip';
-    chip.id = `tl-${idx}`;
-    let shortName = name.replace('Intro','In').replace('Verse','V').replace('Chorus','Cho').replace('Pre Cho','Pre').replace('Bridge','Bri').replace('Outro','Out').replace('Solo','Solo').replace(/ /g,'');
-    chip.innerHTML = `<span class="chip-progress"></span><span style="position:relative;z-index:1">${shortName}</span>`;
-    chip.onclick = () => {
-      const key = name.toLowerCase().replace(/\s+/g, '');
-      const foundKey = Object.keys(songSections).find(k => key.includes(k) || k.includes(key));
-      if (foundKey && songSections[foundKey]) songSections[foundKey].element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    };
-    bar.appendChild(chip);
-  });
-}
-
-function updateTimelineProgress(currentIdx) {
-  const map = getPlaybackMapFromHtml();
-  let currentSectionIdx = -1;
-  if (allChords[currentIdx]) {
-    const curSecName = allChords[currentIdx].sectionDisplayName.toLowerCase().replace(/\s+/g, '');
-    currentSectionIdx = map.findIndex(m => {
-      const mm = m.toLowerCase().replace(/\s+/g, '');
-      return curSecName.includes(mm) || mm.includes(curSecName);
-    });
-  }
-  document.querySelectorAll('.timeline-chip').forEach((chip, i) => {
-    chip.classList.remove('active', 'passed');
-    const prog = chip.querySelector('.chip-progress');
-    if (prog) prog.style.width = '0%';
-    if (i < currentSectionIdx) chip.classList.add('passed');
-    if (i === currentSectionIdx) {
-      chip.classList.add('active');
-      const chordsInSection = allChords.filter(c => c.sectionDisplayName.toLowerCase().replace(/\s+/g, '') === allChords[currentIdx].sectionDisplayName.toLowerCase().replace(/\s+/g, ''));
-      const idxInSection = chordsInSection.findIndex(c => c === allChords[currentIdx]);
-      const pct = chordsInSection.length ? ((idxInSection + 1) / chordsInSection.length) * 100 : 0;
-      if (prog) prog.style.width = pct + '%';
-    }
-  });
-}
-
-function clearSectionHighlights(){
-  if(activeSectionElement){activeSectionElement.classList.remove('current-section-highlight');activeSectionElement=null;activeSectionKey=null}
-  if(nextSectionElement){nextSectionElement.classList.remove('next-section-highlight');nextSectionElement=null}
-}
-
-function updateActiveSectionAndScroll(el){
-  if(activeSectionElement===el) return;
-  if(activeSectionElement) activeSectionElement.classList.remove('current-section-highlight');
-  el.classList.add('current-section-highlight'); activeSectionElement=el;
-  el.scrollIntoView({behavior:'smooth',block:'center'});
-}
-
-function updateNextSectionNotifier(fromIndex){
-  if(nextSectionElement){nextSectionElement.classList.remove('next-section-highlight');nextSectionElement=null}
-  const curKey=allChords[fromIndex]?.sectionKey; if(!curKey) return;
-  for(let i=fromIndex+1;i<allChords.length;i++){ if(allChords[i].sectionKey!==curKey){ const nxt=songSections[allChords[i].sectionKey]; if(nxt){nxt.element.classList.add('next-section-highlight');nextSectionElement=nxt.element;break;} } }
-}
-
-function updateChordDisplayBar(idx){
-  const cur=document.getElementById('currentChord'),next=document.getElementById('nextChord');
-  if(allChords[idx]){ const el=allChords[idx].element; cur.textContent=el.textContent.trim(); const col=getComputedStyle(el.parentElement).getPropertyValue('--bar-color')||'#EAB308'; cur.style.background=col; cur.style.color='#000'; }
-  else { cur.textContent='END'; cur.style.background='#333'; cur.style.color='#fff' }
-  if(next){ next.innerHTML=''; for(let i=1;i<=4;i++){ const n=allChords[idx+i]; if(n){ const sp=document.createElement('span'); sp.className='next-item'; sp.textContent=n.element.textContent.trim(); next.appendChild(sp);} } }
-}
-
-function resetHighlights(){
-  document.querySelectorAll('.chord').forEach(c=>{c.style.background='';c.style.color='';c.style.padding='';c.style.borderRadius='';c.classList.remove('bouncing-chord');c.style.animation='';});
-  document.querySelectorAll('.lyric').forEach(l=>{l.classList.remove('kara-active');l.style.backgroundImage='';l.style.webkitTextFillColor='';l.style.backgroundPosition='';l.style.transition='';l.style.webkitBackgroundClip='';});
-  document.querySelectorAll('.strum-arrow').forEach(e=>{e.classList.remove('active');e.classList.remove('played')});
-  document.querySelectorAll('.pluck-note').forEach(e=>{e.classList.remove('active');e.classList.remove('played')});
-  document.querySelectorAll('.pluck-box').forEach(e=>{e.classList.remove('active-box');e.classList.remove('completed')});
-}
-
-function getTempo(){ const v=parseInt(document.getElementById('tempoInput')?.value)||80; return (isNaN(v)||v<30)?80:v; }
-
-function startCountdown(onComplete){
-  const overlay=document.getElementById('countdown-overlay'),txt=document.getElementById('countdown-text');
-  let count=4; overlay.classList.remove('hidden'); txt.textContent=count;
-  countdownInterval=setInterval(()=>{ count--; if(count>0) txt.textContent=count; else if(count===0) txt.textContent='Go!'; else {clearInterval(countdownInterval);countdownInterval=null;overlay.classList.add('hidden'); if(onComplete) onComplete();}},600);
-}
-
-function playStrumForBeats(beats, tempo, onDone){
-  const stepsNeeded = beats * 4;
-  const totalMs = (60/tempo)*1000*beats;
-  const stepMs = totalMs / stepsNeeded;
-  let stepCount=0;
-  function doStep(){
-    if(stepCount>=stepsNeeded || isPaused){ if(onDone && stepCount>=stepsNeeded) onDone(); return; }
-    const pos = (globalStrumPos + stepCount) % 16;
-    const pluckPos = (globalPluckPos + stepCount) % 16;
-    document.querySelectorAll('.strum-arrow').forEach(e=>e.classList.remove('active'));
-    const arrow=document.getElementById(`arrow-${pos}`);
-    if(arrow){ arrow.classList.add('active'); setTimeout(()=>{ arrow.classList.remove('active'); arrow.classList.add('played'); }, stepMs*0.8); }
-    document.querySelectorAll('.pluck-note').forEach(e=>e.classList.remove('active'));
-    const pNote = document.getElementById(`pluck-${pluckPos}`);
-    if (pNote && !pNote.classList.contains('empty')) {
-      pNote.classList.remove('played');
-      pNote.classList.add('active');
-      setTimeout(() => { pNote.classList.remove('active'); }, stepMs * 0.9);
-    }
-    document.querySelectorAll('.pluck-box').forEach(e=>e.classList.remove('active-box'));
-    document.getElementById(`pbox-${Math.floor(pos/4)}`)?.classList.add('active-box');
-    stepCount++;
-    setTimeout(doStep, stepMs);
-  }
-  doStep();
-  setTimeout(()=>{globalStrumPos = (globalStrumPos + stepsNeeded) % 16;globalPluckPos = (globalPluckPos + stepsNeeded) % 16;}, totalMs);
-}
-
-function highlightAndScheduleNext(){
-  if(isPaused) return;
-  if(currentChordIndex>=0&&allChords[currentChordIndex]){
-    const prev=allChords[currentChordIndex].element;
-    prev.style.background='';prev.style.padding='';prev.style.borderRadius='';prev.classList.remove('bouncing-chord');
-  }
-  currentChordIndex++;
-  if(currentChordIndex>=allChords.length){ stopPlayback(); return; }
-  const cur=allChords[currentChordIndex]; if(!cur) return;
-  const el=cur.element, wrap=cur.wrap, lyric=wrap.querySelector('.lyric');
-  const beats=cur.beats;
-  const tempo=getTempo();
-  const totalMs=(60/tempo)*1000*beats;
-  if(!walker) walker=document.getElementById('walker-emoji');
-  walker.style.display='block';
-  const rect=el.getBoundingClientRect();
-  walker.style.top=(rect.top+window.scrollY-38)+'px';
-  walker.style.left=(rect.left+window.scrollX)+'px';
-  window.lastPre=wrap.closest('pre');
-  if(cur.sectionKey!==activeSectionKey){ updateActiveSectionAndScroll(cur.sectionElement); activeSectionKey=cur.sectionKey; updateNextSectionNotifier(currentChordIndex); }
-  if(chordDisplayBar) updateChordDisplayBar(currentChordIndex);
-  if(typeof updateTimelineProgress === 'function'){ updateTimelineProgress(currentChordIndex); }
-  el.style.background='#ffeb3b'; el.style.padding='2px 6px'; el.style.borderRadius='6px'; el.style.fontWeight='bold';
-  if(beats>0){ el.classList.add('bouncing-chord'); el.style.animationDuration=(totalMs/1000/beats)+'s'; el.style.animationIterationCount=beats; }
-  if(lyric){
-    if(window.lastActivePre&&window.lastActivePre!==wrap.closest('pre')){
-      window.lastActivePre.querySelectorAll('.lyric').forEach(l=>{l.classList.remove('kara-active');l.style.backgroundImage='';l.style.webkitTextFillColor='';l.style.transition='';});
-    }
-    window.lastActivePre=wrap.closest('pre');
-    const isDark=document.body.classList.contains('dark-mode');
-    const activeColor=isDark?'#00FF00':'#ff0000';
-    const baseColor=isDark?'#E2E8F0':'#1E293B';
-    lyric.classList.add('kara-active');
-    lyric.style.backgroundImage=`linear-gradient(to right, ${activeColor} 50%, ${baseColor} 50%)`;
-    lyric.style.backgroundSize='200% 100%'; lyric.style.backgroundPosition='100% 0';
-    lyric.style.webkitBackgroundClip='text'; lyric.style.webkitTextFillColor='transparent';
-    lyric.style.transition='none'; void lyric.offsetWidth;
-    lyric.style.transition=`background-position ${totalMs}ms linear`;
-    lyric.style.backgroundPosition='0% 0';
-  }
-  playStrumForBeats(beats, tempo, null);
-  highlightInterval=setTimeout(highlightAndScheduleNext, totalMs);
-}
-
-function controlPlayback(){
-  document.getElementById('about-overlay').classList.add('hidden');
-  const btn=document.getElementById('btn-kara-play');
-  if(!isPlaying){
-    const map=getPlaybackMapFromHtml(); if(!map.length) return;
-    buildQueueFromMap(map); if(allChords.length===0) return;
-    isPlaying=true; btn.innerHTML='<span class="material-symbols-rounded">pause</span>';
-    globalStrumPos=0; globalPluckPos=0;
-    if(chordDisplayBar) chordDisplayBar.classList.add('active');
-    startCountdown(()=>{ isPaused=false; currentChordIndex=-1; resetHighlights(); clearSectionHighlights(); highlightAndScheduleNext(); });
-  } else {
-    if(!isPaused){ isPaused=true; clearTimeout(highlightInterval); btn.innerHTML='<span class="material-symbols-rounded">play_arrow</span>'; if(chordDisplayBar) chordDisplayBar.classList.remove('active'); }
-    else { isPaused=false; btn.innerHTML='<span class="material-symbols-rounded">pause</span>'; if(chordDisplayBar) chordDisplayBar.classList.add('active'); highlightAndScheduleNext(); }
-  }
-}
-
-function stopPlayback(){
-  if(countdownInterval){clearInterval(countdownInterval);countdownInterval=null;document.getElementById('countdown-overlay').classList.add('hidden')}
-  clearTimeout(highlightInterval); clearSectionHighlights(); resetHighlights();
-  isPlaying=false; isPaused=false; currentChordIndex=-1; globalStrumPos=0; globalPluckPos=0;
-  const btn=document.getElementById('btn-kara-play'); if(btn) btn.innerHTML='<span class="material-symbols-rounded">play_arrow</span>';
-  if(chordDisplayBar) chordDisplayBar.classList.remove('active');
-  if(walker) walker.style.display='none';
-  window.lastActivePre=null;
-}
-
-document.getElementById('btn-kara-play').onclick=controlPlayback;
-document.getElementById('btn-kara-restart').onclick=stopPlayback;
-
-function toggleListFabMenu() {
-  const menu = document.getElementById('list-fab-menu');
-  if (menu) {
-    menu.style.display = (menu.style.display === 'none' || !menu.style.display) ? 'flex' : 'none';
-  }
-}
-
-window.onload = ()=>{
-  initFirebase();
-  applyLyricSize();
-  updateThemeIcon();
-  switchView('list-view');
-  document.getElementById('btn-easy-toggle').innerHTML=`<span class="material-symbols-rounded">${isEasyMode?'tune':'auto_awesome'}</span>`;
-};
-</script>
 
 </body>
 </html>

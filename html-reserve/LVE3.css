@@ -1,0 +1,292 @@
+
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) { font-family: "Optimistic", system-ui, sans-serif; }
+:where(code, pre, kbd, samp) { font-family: "Optimistic Mono", ui-monospace, monospace; }
+.material-symbols-rounded{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}
+
+:root{
+  --primary: #E11D48;
+  --bg:#F8FAFC;
+  --card:#FFFFFF;
+  --text:#1E293B;
+  --muted:#94A3B8;
+  --accent:#334155;
+  --lyric-size:14px
+  
+}
+
+.dark-mode{--bg:#0F172A;--card:#1E293B;--text:#E2E8F0;--muted:#64748B;--accent:#F1F5F9}
+body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif!important;padding:9px;padding-bottom:90px;margin:0}
+.verse{background:var(--card);border:1px solid #E2E8F0;border-left:3px solid #CBD5E1;display:flex;gap:4px;padding:0.3em 0.5em;margin-bottom:4px;border-radius:6px;position:relative;z-index:1}
+.dark-mode .verse{border-color:#334155;border-left-color:#475569}
+.section-label{writing-mode:vertical-lr;transform:rotate(180deg);font-size:0.7em;font-weight:600;color:var(--muted);background:var(--bg);padding:2px 3px;border-radius:3px;align-self:flex-start;text-transform:uppercase}
+.verse-content{flex:1;min-width:0}
+.verse-content pre{margin:0;white-space:pre-wrap;font-family:inherit;line-height:1.7;font-size:14px}
+.resizable-text{font-size:var(--lyric-size)!important;line-height:1.8}
+.song-meta{padding:1px 1px;margin-bottom:3px;border-left:3px solid var(--text)}
+.song-title{margin:0 0 1px 0;font-size:19px;font-weight:700}
+.song-sub{font-size:15px;color:var(--muted);line-height:1.6}
+#top-right-stack{position:fixed;top:12px;right:12px;z-index:900;width:280px}
+#top-right-stack.hidden{display:none!important}
+.strum-widget{background:#1a1a1b;border:1px solid #333;border-radius:8px;padding:8px;box-shadow:0 4px 15px rgba(0,0,0,0.6);overflow:hidden}
+.widget-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.bpm-box{display:flex;align-items:center;gap:4px;font-size:11px;color:#ccc}
+.bpm-box input{width:42px;background:#000;border:1px solid #444;color:#fff;text-align:center;border-radius:3px;padding:2px;font-size:11px}
+.pattern-data{display:none!important}
+.staff-wrapper{display:flex;background:#101012;border-radius:4px;padding:4px 4px 4px 0}
+.string-numbers{display:flex;flex-direction:column;justify-content:space-between;padding:4px 5px;font-size:10px;font-weight:bold;color:#aaa;text-align:center}
+.svg-container{flex-grow:1}
+.svg-container svg{width:100%;height:90px;display:block}
+.strum-arrow{transition:filter 0.08s,opacity 0.08s;opacity:0.85}
+.strum-arrow.active{opacity:1;filter:drop-shadow(0 0 8px currentColor)}
+.strum-arrow.active line{stroke-width:4}
+.strum-arrow.played{opacity:0.85}
+.pluck-wrapper{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;margin-top:6px;width:100%;box-sizing:border-box}
+.pluck-box{background:#101012;border:1px solid #333;border-radius:4px;height:28px;display:flex;justify-content:space-around;align-items:center;min-width:0;overflow:hidden;position:relative}
+.pluck-box.active-box{border-color:#00FFFF;box-shadow:0 0 6px rgba(0,255,255,0.4)}
+.pluck-box.completed{border-color:#22C55E}
+.pluck-note{font-size:11px;font-weight:bold;color:#FFFFFF;width:20px;height:20px;display:grid;place-items:center;border-radius:50%;transition:all 0.12s}
+.pluck-note.active{background:#FFFF00;color:#000;box-shadow:0 0 12px #FFFF00, 0 0 20px #e2b714;transform:scale(1.4);font-size:12px}
+.pluck-note.played{background:#444;color:#aaa}
+.pluck-note.empty{opacity:0.3}
+.chord-wrap{display:inline-flex;flex-direction:column;align-items:flex-start;margin-right:10px;vertical-align:bottom;position:relative}
+.chord{font-size:var(--lyric-size);font-weight:700;color:var(--bar-color);font-family:inherit;line-height:1;padding:0;border:none;background:none;margin-bottom:0;position:relative;order:1;display:inline-block;transition:all 0.15s}
+.lyric{font-size:var(--lyric-size);font-family:inherit;line-height:1.6;order:1;margin-top:-3px!important}
+.hide-chords .chord{display:none!important}
+.chord-wrap.bar-1{--bar-color:#EAB308}.chord-wrap.bar-2{--bar-color:#3B82F6}.chord-wrap.bar-3{--bar-color:#22C55E}.chord-wrap.bar-4{--bar-color:#EF4444}
+.chord-wrap:not(:first-child){margin-left:2px}
+
+/* ဟာမိုနီစာသား */
+/* ကွင်းထဲက ဟာမိုနီ စာသားများအတွက် စတိုင် */
+.chord-wrap.harmony .lyric {
+  font-weight: bold;   /* ဘိုးလ် တင်ရန် */
+  font-style: italic;  /* စာလုံးစောင်းရန် */
+  opacity: 0.9;
+}
+/* Key တန်ဖိုး - ရွှေရောင် Badge စတိုင် */
+#keyValue {
+  font-size: 15px;
+  font-weight: bold;
+  color: #eab308;
+  background: rgba(234, 179, 8, 0.15);
+  padding: 2px 8px;
+  border-radius: 6px;
+  min-width: 24px;
+  text-align: center;
+}
+
+/* Capo တန်ဖိုး - အစိမ်းရောင် Badge စတိုင် */
+#capoValue {
+  font-size: 15px;
+  font-weight: bold;
+  color: #2ed573;
+  background: rgba(46, 213, 115, 0.15);
+  padding: 2px 8px;
+  border-radius: 6px;
+  min-width: 24px;
+  text-align: center;
+}
+
+
+#fab-container{position:fixed;bottom:27px;right:27px;z-index:1000;display:none;flex-direction:column-reverse;align-items:flex-end;gap:10px}
+#fab-toggle{width:54px;height:54px;border-radius:50%;border:1px solid #E2E8F0;background:var(--card);color:var(--text);display:grid;place-items:center;cursor:pointer;}
+#fab-menu{display:none;flex-direction:column;gap:8px;padding:5px;border-radius:18px;border:5px solid #E2E8F0;background:var(--card)}
+#fab-menu.show{display:flex}
+.fab-btn{width:40px;height:40px;border-radius:50%;border:none;background:var(--muted);color:var(--text);display:grid;place-items:center;cursor:pointer;}
+
+#about-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(12px);z-index:2000;display:grid;place-items:center;padding:20px}
+#about-overlay.hidden{display:none!important}
+#about-box{position:relative;width:80%;max-width:520px;background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0f172a 100%);border:1px solid rgba(255,255,255,0.12);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.08) inset;font-family:'Noto Sans Myanmar','Pyidaungsu',system-ui,sans-serif}
+.about-banner{height:96px;background:linear-gradient(135deg,#3b82f6 0%,#8b5cf6 35%,#ec4899 70%,#f59e0b 100%);position:relative;display:flex;align-items:flex-end;padding:0 20px 14px}
+.about-banner::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent)}
+.about-content{padding:18px 20px 16px}
+.about-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px}
+.about-main-title{font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px;line-height:1.2}
+.about-year-badge{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;font-size:11px;padding:4px 10px;border-radius:20px;white-space:nowrap}
+.about-info-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.about-info-row{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 12px}
+.about-info-icon{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;flex-shrink:0}
+.about-info-icon.writer{background:linear-gradient(135deg,#f59e0b,#ef4444)}
+.about-info-icon.singer{background:linear-gradient(135deg,#06b6d4,#3b82f6)}
+.about-info-icon.album{background:linear-gradient(135deg,#8b5cf6,#ec4899)}
+.about-info-icon .material-symbols-rounded{font-size:18px;color:#fff}
+.about-info-label{font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px}
+.about-info-value{font-size:14px;color:#f1f5f9;font-weight:600;margin-top:1px}
+.about-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{display:flex;align-items:center;gap:6px;background:#0f172a;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:6px 12px;font-size:12px;color:#cbd5e1}
+.chip b{color:#fff;font-size:13px}
+.chip.key{border-color:#3b82f6;background:rgba(59,130,246,0.15)}
+.chip.capo{border-color:#22c55e;background:rgba(34,197,94,0.15)}
+.chip.bpm{border-color:#eab308;background:rgba(234,179,8,0.15)}
+.about-meta{background:rgba(0,0,0,0.3);border-radius:12px;padding:10px 12px;font-size:11px;color:#64748b;line-height:1.5;border:1px dashed rgba(255,255,255,0.1)}
+#about-close{width:100%;margin-top:16px;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.08);color:#fff;font-size:14px;font-weight:600;backdrop-filter:blur(8px);cursor:pointer}
+.rec-hint{position:absolute;top:14px;right:14px;display:flex;align-items:center;gap:6px;background:rgba(239,68,68,0.9);color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;z-index:2}
+.rec-dot{width:8px;height:8px;background:#fff;border-radius:50%;animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.aaa-brand{position:absolute;left:18px;bottom:14px;font-weight:800;font-size:18px;letter-spacing:.5px;color:white;text-shadow:0 2px 10px rgba(0,0,0,.6);line-height:1.1}
+.aaa-brand span{font-weight:400;font-size:11px;opacity:.9;letter-spacing:0}
+.aaa-footer{margin-top:14px;padding-top:10px;border-top:1px dashed #334155;text-align:center;font-size:11px;color:var(--muted);line-height:1.5}
+@keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+.bouncing-chord{animation-name:bounce;animation-timing-function:ease-in-out;position:relative}
+.verse.current-section-highlight{border-left:18px solid #00FF00!important;background:#f0f8ff;box-shadow:0 0 10px rgba(0,255,0,0.2)}
+.verse.next-section-highlight{border-left:9px solid #FFFF00!important}
+.dark-mode .verse.current-section-highlight{background:#1a2e1a}
+#chordDisplayBar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(150%);width:70%;max-width:400px;height:48px;background:rgba(0,0,0,0.92);border:1px solid #333;border-radius:25px;display:flex;align-items:center;padding:0 12px;z-index:999;transition:transform 0.3s;overflow:hidden}
+#chordDisplayBar.active{transform:translateX(-50%) translateY(0)}
+#currentChord{font-size:16px;font-weight:bold;padding:6px 14px;border-radius:12px;background:#ffeb3b;color:#000;min-width:50px;text-align:center;box-shadow:0 0 10px rgba(255,235,59,0.6);white-space:nowrap;flex-shrink:0}
+#nextChord{display:flex;gap:4px;margin-left:8px;overflow:hidden;align-items:center}
+.next-item{font-size:11px;color:#ffeb3b;background:#424242;border:1px solid #666;padding:3px 8px;border-radius:10px;white-space:nowrap}
+#walker-emoji{position:absolute;z-index:9999;pointer-events:none;display:none;line-height:0}
+#countdown-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:9999;background:rgba(0,0,0,0.0);transition:opacity 0.3s;pointer-events:none}
+#countdown-overlay.hidden{opacity:0;display:none!important}
+#countdown-text{font-size:45vw;color:#42a5f5;font-weight:bold;text-shadow:0 0 20px rgba(0,0,0,0.5);font-family:system-ui}
+.kara-active{background-image:linear-gradient(to right,#ff0000 50%,var(--text) 50%);background-size:200% 100%;background-position:100% 0;-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:inline-block;transition:none}
+.dark-mode .kara-active{background-image:linear-gradient(to right,#00ff00 50%,#E2E8F0 50%)}
+/* song map */
+#song-timeline-bar{display:flex;gap:6px;overflow-x:auto;padding:8px 2px 10px 2px;margin-bottom:10px;scrollbar-width:none;-ms-overflow-style:none}
+#song-timeline-bar::-webkit-scrollbar{display:none}
+
+.timeline-chip{flex-shrink:0;font-size:11px;font-weight:600;padding:5px 10px;border-radius:20px;background:var(--card);border:1px solid #E2E8F0;color:var(--muted);cursor:pointer;transition:all 0.3s ease;position:relative;overflow:hidden;text-transform:uppercase;letter-spacing:0.5px}
+.timeline-chip.active{background:var(--text);color:var(--bg);transform:scale(1.08);border-color:var(--text);box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+.timeline-chip.passed{opacity:0.5;border-style:dashed}
+
+.view-section{display:none}
+.view-section.active{display:block}
+header{
+  position:sticky;top:0;z-index:1100;display:flex;justify-content:space-between;align-items:center;background:#1E293B;padding:10px 14px;border-radius:12px;margin-bottom:12px;border:1px solid #334155}
+.nav-btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.btn{background:#3B82F6;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:4px}
+.btn-secondary{background:#475569}
+.status-badge{font-size:11px;padding:4px 8px;border-radius:20px;background:#334155;cursor:pointer;color:#fff;}
+.status-badge.online{background:#166534;color:#4ADE80}
+.accordion{margin-bottom:8px;border:1px solid #334155;border-radius:8px;overflow:hidden}
+.accordion-header{background:#1E293B;padding:12px;font-weight:bold;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:#E2E8F0}
+.accordion-content{display:none;background:#0F172A;padding:8px}
+.accordion.open .accordion-content{display:block}
+.song-item{display:flex;justify-content:space-between;align-items:center;padding:10px;background:#1E293B;margin-bottom:6px;border-radius:6px}
+.song-title-click{flex:1;cursor:pointer;font-weight:600;color:#E2E8F0}
+.item-actions{display:flex;gap:6px}
+.icon-btn{background:none;border:none;color:white;cursor:pointer;padding:4px;border-radius:4px;font-size:16px}
+.icon-btn:hover{background:rgba(255,255,255,0.1)}
+.form-group{margin-bottom:10px}
+.form-group label{display:block;font-size:12px;color:#94A3B8;margin-bottom:4px}
+.form-group input,.form-group textarea{width:100%;padding:8px;background:#1E293B;border:1px solid #334155;border-radius:6px;color:white;box-sizing:border-box;font-family:inherit}
+.form-row{display:flex;gap:8px}
+.form-row .form-group{flex:1}
+/* edit text box စ */
+/* --- ဒီ ၂ ခုက အသစ်ထပ်တိုးတာ --- */
+.form-group:has(#inp-content){
+  display:flex;
+  flex-direction:column;
+  flex:1;
+  height: 70vh; /* ဒီအကွက်တစ်ခုလုံးကို မျက်နှာပြင် 70% ယူခိုင်း */
+}
+#inp-content{
+  flex:1 !important;
+  height:100% !important;
+  min-height:450px;
+  resize:none;
+  font-family: monospace;
+  white-space: pre;
+}
+/* edit text box ဆ */
+#config-modal{
+  position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;place-items:center;justify-content:center;z-index:3000}
+#config-modal.hidden{display:none}
+.modal-box{background:#1E293B;padding:20px;border-radius:12px;width:90%;max-width:400px;border:1px solid #334155}
+
+/* font စ */
+/* --- Font Changer System Styles --- */
+
+/* GitHub Direct Raw Links များ */
+@font-face { font-family: 'Arakan_Danyawaddy'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Arakan_Danyawaddy.ttf'); }
+@font-face { font-family: 'BeautiUNI-7'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/BeautiUNI-7.ttf'); }
+@font-face { font-family: 'Hopone'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Hopone.ttf'); }
+@font-face { font-family: 'Hsi-Hseng'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Hsi-Hseng.ttf'); }
+@font-face { font-family: 'KyaungChee'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/KyaungChee.ttf'); }
+
+@font-face { font-family: 'MM_Jasmine_v1.01'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/MM_Jasmine_v1.01.ttf'); }
+@font-face { font-family: 'Myanmar_PhikselSmooth'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_PhikselSmooth.ttf'); }
+@font-face { font-family: 'Myanmar_Bagan_v1.0'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Bagan_v1.0.ttf'); }
+@font-face { font-family: 'Myanmar_Jojar_v2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Jojar_v2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Kalay_v2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Kalay_v2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Love_2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Love_2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Pixel'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pixel.ttf'); }
+@font-face { font-family: 'Myanmar_Ponenyet'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Ponenyet.ttf'); }
+@font-face { font-family: 'Myanmar_Pyay_v2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pyay_v2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Pyu_Pro_2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pyu_Pro_2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Pyu_v2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pyu_v2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Tagu'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Tagu.ttf'); }
+@font-face { font-family: 'Myanmar_Taunggyi_v1.00'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Taunggyi_v1.00.ttf'); }
+@font-face { font-family: 'Myanmar_Thuriya'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Thuriya.ttf'); }
+@font-face { font-family: 'Myanmar_Waso'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Waso.ttf'); }
+@font-face { font-family: 'Myanmar_Yinmar'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Yinmar.ttf'); }
+
+@font-face { font-family: 'NK_SSmart_3'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/NK_SSmart_3.ttf'); }
+@font-face { font-family: 'Roboto_Bold'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Roboto_Bold.ttf'); }
+@font-face { font-family: 'Samsung_Myanmar'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Samsung_Myanmar.ttf'); }
+@font-face { font-family: 'YoeYar_One_Bold'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/YoeYar_One_Bold.ttf'); }
+@font-face { font-family: 'YoeYar_One_Light'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/YoeYar_One_Light.ttf'); }
+@font-face { font-family: 'notosan_grand_pro'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/notosan_grand_pro.ttf'); }
+@font-face { font-family: 'notosans_myanmar'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/notosans_myanmar.ttf'); }
+@font-face { font-family: 'yaungki'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/yaungki.ttf'); }
+
+
+/* Dynamic Font ပြောင်းလဲမှုတွင် ချောမွေ့စေရန် */
+* {
+    transition: font-family 0.2s ease;
+}
+
+.font-item {
+    padding: 12px 15px;
+    margin: 8px 0;
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+}
+/* font စ - Fix */
+#fontModal {
+    display: none;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--card);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    z-index: 10000;
+    width: 85%; max-width: 400px;
+    max-height: 70vh; overflow-y: auto;
+}
+#fontOverlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 9999;
+}
+.font-item.active {
+  background-color: var(--primary) !important;
+color: white !important;
+font-weight: bold;
+  }
+/* font ဆုံး */
+
+/* font ဆ */
+
+
