@@ -1,221 +1,64 @@
-// ===== FIREBASE HARDCODE + AUTH =====
-const firebaseConfig = {
-  apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U",
-  authDomain: "arakanartarea-note.firebaseapp.com",
-  projectId: "arakanartarea-note",
-  storageBucket: "arakanartarea-note.firebasestorage.app",
-  messagingSenderId: "695659736666",
-  appId: "1:695659736666:web:1e76494c0e6819609bf263",
-  measurementId: "G-Y9Y5SK15M9"
-};
-
 let db=null;
-let auth=null;
 let editingDocId=null;
-let isAdminUser = false;
-let currentUser = null;
 
 function initFirebase(){
+  const savedCfg=localStorage.getItem('firebaseConfig');
+  if(!savedCfg){showConfigModal();return;}
   try{
-    if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const config=JSON.parse(savedCfg);
+    if(!firebase.apps.length) firebase.initializeApp(config);
     db=firebase.firestore();
-    auth=firebase.auth();
-
-    // note.js မှာလို persistence
-    const urlParams = new URLSearchParams(window.location.search);
-    const persistence = urlParams.get('keep') === 'no'? firebase.auth.Auth.Persistence.SESSION : firebase.auth.Auth.Persistence.LOCAL;
-    auth.setPersistence(persistence);
-
-    // Auth နားထောင်မယ်
-    auth.onAuthStateChanged(async (user)=>{
-      currentUser = user;
-      if(!user){
-        isAdminUser = false;
-        updateAuthUI();
-        return;
-      }
-      // admin ဟုတ်မဟုတ် စစ် - မင်း Rules နဲ့ အတူတူပဲ
-      try{
-        const email = user.email.toLowerCase();
-        const adminDoc = await db.collection('admins').doc(email).get();
-        isAdminUser = adminDoc.exists;
-      }catch(e){ isAdminUser = false; }
-      updateAuthUI();
-    });
-
+    document.getElementById('status-badge').className='status-badge online';
+    document.getElementById('status-badge').textContent=`Connected: ${config.projectId}`;
     fetchSongs();
-  }catch(e){
-    console.error(e);
-    alert("Firebase error: "+e.message);
-  }
+  }catch(e){alert("Firebase error: "+e.message);showConfigModal();}
 }
 
-// ===== AUTH UI LOGIC - အသစ်ထည့်တာ ဒါပဲ =====
-/*
-function updateAuthUI(){
-  const badge = document.getElementById('status-badge');
-  const loginBtnIcon = document.querySelector('#btn-login.material-symbols-rounded');
-  const addBtn = document.querySelector('#list-fab-container button[onclick="openCreateForm()"]');
-
-  // Badge Viewer/Admin
-  if(badge){
-    if(isAdminUser && currentUser){
-      const name = currentUser.displayName || currentUser.email.split('@')[0];
-      badge.textContent = `Admin: ${name}`;
-      badge.className = 'status-badge admin'; // CSS မှာ.admin { background: #16a34a }.viewer { background: #eab308 }
-      badge.style.background = '#16a34a';
-      badge.style.color = '#fff';
-    } else {
-      badge.textContent = currentUser? `Viewer: ${currentUser.email.split('@')[0]}` : 'Viewer';
-      badge.className = 'status-badge viewer';
-      badge.style.background = '#eab308';
-      badge.style.color = '#000';
-    }
-    badge.onclick = handleAuthClick;
-  }
-
-  // Fab login/logout icon ၂မျိုး
-  if(loginBtnIcon){
-    loginBtnIcon.textContent = (isAdminUser || currentUser)? 'logout' : 'login';
-    document.getElementById('btn-login').title = (isAdminUser || currentUser)? 'လော့အောက် / အကောင့်ပြောင်း' : 'လော့အင်ဝင်မည်';
-  }
-
-  // Edit နဲ့ပတ်သက်တာ hide/show - Rules က အဓိက လုံခြုံရေးမို့ UI က ပုံစံပြရုံပဲ
-  const editRelated = [
-    document.getElementById('edit-fab-container'),
-    addBtn
-  ];
-  editRelated.forEach(el=>{
-    if(el) el.style.display = isAdminUser? 'grid' : 'none';
-  });
-  // Accordion ထဲက edit/delete icon တွေ
-  document.querySelectorAll('.item-actions').forEach(el=>{
-    el.style.display = isAdminUser? 'flex' : 'none';
-  });
+function showConfigModal(){
+  document.getElementById('config-modal').classList.remove('hidden')}
+function saveFirebaseConfig(){
+  const cfg={apiKey:document.getElementById('cfg-apiKey').value.trim(),projectId:document.getElementById('cfg-projectId').value.trim(),appId:document.getElementById('cfg-appId').value.trim()};
+  localStorage.setItem('firebaseConfig',JSON.stringify(cfg));
+  document.getElementById('config-modal').classList.add('hidden');
+  initFirebase();
 }
 
-function handleAuthClick(){
-  if(currentUser){
-    // လော့အင်ဝင်ပြီးသား - လော့အောက်/အကောင့်ပြောင်း ပြမယ်
-    if(confirm(`${currentUser.email}\n\nလော့အောက်ထွက်မလား?\nCancel = အကောင့်ပြောင်းမည်`)){
-      doLogout();
-    } else {
-      doLogin(); // အကောင့်ပြောင်း
-    }
-  } else {
-    doLogin();
-  }
-}
-
-function doLogin(){
-  const provider = new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({prompt:'select_account'});
-  auth.signInWithPopup(provider).catch(e=>alert(e.message));
-}
-
-function doLogout(){
-  auth.signOut();
-}
-*/
-//အကောင့် ပြောင်းထွက် စ
-// ===== AUTH FINAL - တစ်ခုတည်းပဲထား =====
-function handleAuthClick(){
-  if(currentUser){
-    const modal = document.getElementById('auth-modal');
-    const emailEl = document.getElementById('auth-modal-email');
-    if(emailEl) emailEl.textContent = currentUser.email;
-    if(modal) modal.classList.remove('hidden');
-  }else{
-    doLogin();
-  }
-}
-function closeAuthModal(){
-  document.getElementById('auth-modal')?.classList.add('hidden');
-}
-function doLogin(){
-  const provider = new firebase.auth.GoogleAuthProvider();
-  provider.setCustomParameters({prompt:'select_account'});
-  auth.signInWithPopup(provider).catch(e=>alert(e.message));
-}
-function doLogout(){
-  closeAuthModal();
-  auth.signOut();
-}
-function doSwitchAccount(){
-  closeAuthModal();
-  auth.signOut().then(()=>setTimeout(doLogin,400));
-}
-function updateAuthUI() {
-  const badge = document.getElementById('status-badge');
-  const addBtn = document.querySelector('#list-fab-container button[onclick="openCreateForm()"]');
-  const loginBtn = document.getElementById('btn-login');
-  
-  if (badge) {
-    if (isAdminUser && currentUser) {
-      const name = currentUser.displayName || currentUser.email.split('@')[0];
-      badge.textContent = `Admin: ${name}`;
-      badge.style.background = '#16a34a';
-      badge.style.color = '#fff';
-    } else {
-      badge.textContent = currentUser ? `Viewer: ${currentUser.email.split('@')[0]}` : 'Viewer';
-      badge.style.background = '#eab308';
-      badge.style.color = '#000';
-    }
-  }
-  
-  // login/logout icon
-  if (loginBtn) {
-    const icon = loginBtn.querySelector('.material-symbols-rounded');
-    if (icon) icon.textContent = (currentUser ? 'logout' : 'login');
-  }
-  
-  if (addBtn) addBtn.style.display = isAdminUser ? '' : 'none';
-  document.querySelectorAll('.item-actions').forEach(el => {
-    el.style.display = isAdminUser ? '' : 'none';
-  });
-  
-  // edit-fab ကို switchView ကပဲ ထိန်းမယ်၊ ဒီမှာ မထိန်းတော့ဘူး
-}
-// ခလုတ်တွေကို တစ်ခါတည်းပဲ ချိတ် - ထပ်မချိတ်နဲ့
-(function setupAuthOnce(){
-  document.getElementById('btn-auth-cancel')?.addEventListener('click', closeAuthModal);
-  document.getElementById('btn-auth-logout')?.addEventListener('click', doLogout);
-  document.getElementById('btn-auth-switch')?.addEventListener('click', doSwitchAccount);
-  document.getElementById('auth-modal')?.addEventListener('click', (e)=>{
-    if(e.target.id === 'auth-modal') closeAuthModal();
-  });
-  document.getElementById('status-badge')?.addEventListener('click', handleAuthClick);
-  document.getElementById('btn-login')?.addEventListener('click', handleAuthClick);
-})();
-//အကောင့် ပြောင်းထွက် ဆ
-
-// ====== VIEW CONTROL ======
+// ====== VIEW CONTROL (တိကျစွာ display သတ်မှတ်ပေးခြင်း) ======
 function switchView(viewId, isBack = false){
-  if(!isBack && viewId!== 'list-view'){
+  if(!isBack && viewId !== 'list-view'){
     history.pushState({ view: viewId }, '');
   }
+
   document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
   document.getElementById(viewId)?.classList.add('active');
+
   const isList = viewId === 'list-view';
   const isPlayer = viewId === 'player-view';
   const isEdit = viewId === 'input-view';
+
+  // Header နှင့် Floating Action Buttons (FABs) များကို View အလိုက် ခွဲခြားပြသခြင်း
   const header = document.getElementById('main-header');
-  if (header) header.style.display = isList? 'flex' : 'none';
+  if (header) header.style.display = isList ? 'flex' : 'none';
+
   const listFab = document.getElementById('list-fab-container');
-  if (listFab) listFab.style.display = isList? 'flex' : 'none';
+  if (listFab) listFab.style.display = isList ? 'flex' : 'none';
+
   const playerFab = document.getElementById('fab-container');
-  if (playerFab) playerFab.style.display = isPlayer? 'flex' : 'none';
+  if (playerFab) playerFab.style.display = isPlayer ? 'flex' : 'none';
+
   const editFab = document.getElementById('edit-fab-container');
-  if (editFab) editFab.style.display = (isEdit && isAdminUser)? 'flex' : 'none';
+  if (editFab) editFab.style.display = isEdit ? 'flex' : 'none';
+
   const topStack = document.getElementById('top-right-stack');
-  if (topStack) topStack.style.display = isPlayer? 'block' : 'none';
+  if (topStack) topStack.style.display = isPlayer ? 'block' : 'none';
+
   if(isPlayer) window.scrollTo(0,0);
   if(!isPlayer) stopPlayback();
 }
 
 window.addEventListener('popstate', () => {
   const activeView = document.querySelector('.view-section.active')?.id;
-  if (activeView && activeView!== 'list-view') {
+  if (activeView && activeView !== 'list-view') {
     switchView('list-view', true);
   }
 });
@@ -243,6 +86,7 @@ function filterSongs() {
     (s.album || '').toLowerCase().includes(q) ||
     (s.content || '').toLowerCase().includes(q)
   );
+  
   const songsBySinger = {};
   filtered.forEach(data => {
     const singer = data.singer || 'အခြား/မသိရှိသူ';
@@ -261,7 +105,7 @@ function renderAccordion(groupedData){
     let songsHTML=songs.map(song=>`
       <div class="song-item">
         <span class="song-title-click" onclick="playSong('${song.id}')">🎵 ${song.title}</span>
-        <div class="item-actions" style="display:${isAdminUser?'flex':'none'}">
+        <div class="item-actions">
           <button class="icon-btn" onclick="editSong('${song.id}')" title="Edit (Private)">📝</button>
           <button class="icon-btn" onclick="deleteSong('${song.id}','${song.title.replace(/'/g,"\\'")}')">🗑️</button>
         </div>
@@ -273,7 +117,6 @@ function renderAccordion(groupedData){
 }
 
 function openCreateForm(){
-  if(!isAdminUser){ alert('Admin login ဝင်မှ ထည့်လို့ရမယ်'); return; }
   editingDocId=null;
   document.getElementById('form-title').textContent="သီချင်းသစ် ထည့်ရန် - Private";
   document.querySelectorAll('#input-view input, #input-view textarea').forEach(i=>{if(i.id!=='inp-key'&&i.id!=='inp-capo'&&i.id!=='inp-bpm') i.value=''});
@@ -282,7 +125,6 @@ function openCreateForm(){
 }
 
 function editSong(id){
-  if(!isAdminUser){ alert('Admin login လိုအပ်သည်'); return; }
   db.collection('AAASongs').doc(id).get().then(doc=>{
     if(!doc.exists) return;
     const data=doc.data();editingDocId=id;
@@ -303,7 +145,6 @@ function editSong(id){
 }
 
 function saveSong(){
-  if(!isAdminUser) return;
   const payload={
     title:document.getElementById('inp-title').value,
     singer:document.getElementById('inp-singer').value,
@@ -317,13 +158,12 @@ function saveSong(){
     songmap:document.getElementById('inp-songmap').value,
     content:document.getElementById('inp-content').value
   };
-  if(editingDocId){db.collection('AAASongs').doc(editingDocId).update(payload).then(()=>switchView('list-view')).catch(e=>alert(e.message))}
-  else{db.collection('AAASongs').add(payload).then(()=>switchView('list-view')).catch(e=>alert(e.message))}
+  if(editingDocId){db.collection('AAASongs').doc(editingDocId).update(payload).then(()=>switchView('list-view'))}
+  else{db.collection('AAASongs').add(payload).then(()=>switchView('list-view'))}
 }
 
 function deleteSong(id,title){
-  if(!isAdminUser) return;
-  if(confirm(`"${title}" ဖျက်မှာလား?`)){db.collection('AAASongs').doc(id).delete().catch(e=>alert(e.message))}
+  if(confirm(`"${title}" ဖျက်မှာလား?`)){db.collection('AAASongs').doc(id).delete()}
 }
 
 function playSong(id){
@@ -347,7 +187,7 @@ function playSong(id){
   });
 }
 
-// ====== VIEW CODE JS (PLAYER LOGIC) မင်းဟာအတိုင်း အကုန်ထားထားတယ် ======
+// ====== VIEW CODE JS (PLAYER LOGIC) ======
 const fabToggle=document.getElementById('fab-toggle'),fabMenu=document.getElementById('fab-menu'),aboutOverlay=document.getElementById('about-overlay'),topStack=document.getElementById('top-right-stack');
 if(localStorage.getItem('infoBoxHidden')==='true') topStack.classList.add('hidden');
 fabToggle.onclick=()=>fabMenu.classList.toggle('show');
@@ -362,18 +202,19 @@ document.getElementById('btn-font-up').onclick=()=>{if(lyricSize<45){lyricSize++
 document.getElementById('btn-font-down').onclick=()=>{if(lyricSize>8){lyricSize--;applyLyricSize()}};
 document.getElementById('btn-chord-row').onclick=()=>document.body.classList.toggle('hide-chords');
 
+// ====== THEME TOGGLE ( List သရော Player ပါ ချိတ်ဆက်ရန် ) ======
 let isDark=localStorage.getItem('theme')==='dark';
 function updateThemeIcon(){
   document.body.classList.toggle('dark-mode',isDark);
-  const iconName = isDark? 'light_mode' : 'dark_mode';
+  const iconName = isDark ? 'light_mode' : 'dark_mode';
   const playerThemeBtn = document.getElementById('btn-theme');
   const listThemeBtn = document.getElementById('btn-list-theme');
   if(playerThemeBtn) playerThemeBtn.innerHTML = `<span class="material-symbols-rounded">${iconName}</span>`;
   if(listThemeBtn) listThemeBtn.innerHTML = `<span class="material-symbols-rounded">${iconName}</span>`;
 }
 function toggleTheme(){
-  isDark =!isDark;
-  localStorage.setItem('theme', isDark? 'dark' : 'light');
+  isDark = !isDark;
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
   updateThemeIcon();
 }
 
@@ -382,14 +223,19 @@ function renderChords() {
     if (pre.dataset.chorded === '1') return;
     if (!pre.textContent.includes('[')) return;
     let t = pre.textContent;
+
     let inHarmony = false;
     t = t.replace(/\[([^\s\]]+)\s+([1-4])\]([^\[\]\n]*)/g, (m, chord, bar, lyric) => {
       let cleanLyric = lyric || '';
+      
+      // ကွင်းစ ပါရင် harmony စပြီ၊ ကွင်းပိတ် ပါရင် ပိတ်ပြီ
       if (cleanLyric.includes('(')) inHarmony = true;
-      let harmClass = inHarmony? ' harmony' : '';
+      let harmClass = inHarmony ? ' harmony' : '';
       if (cleanLyric.includes(')')) inHarmony = false;
+
       return `<span class="chord-wrap bar-${bar}${harmClass}"><span class="chord">${chord}</span><span class="lyric">${cleanLyric || '&nbsp;'}</span></span>`;
     });
+
     t = t.replace(/\[([^\]]+)\]/g, `<span class="chord-wrap bar-1"><span class="chord">$1</span><span class="lyric">&nbsp;</span></span>`);
     pre.innerHTML = t;
     pre.dataset.chorded = '1';
@@ -398,6 +244,7 @@ function renderChords() {
 
 const yPos={6:10,5:24,4:38,3:52,2:66,1:80};
 let tokens=[],pluckTokens=[];
+
 function renderBoard(){
   const el=document.getElementById('strumPattern'),container=document.getElementById('staffContainer');
   if(el&&container){
@@ -411,8 +258,8 @@ function renderBoard(){
   }
   const pEl=document.getElementById('pluckPattern'),pContainer=document.getElementById('pluckContainer');
   if(pEl&&pContainer){
-    const raw=pEl.innerText.trim();
-    pluckTokens=raw?raw.split(/\s+/).filter(t=>t!==''):[];
+    const raw=pEl.innerText.trim(); 
+    pluckTokens=raw?raw.split(/\s+/).filter(t=>t!==''):[]; 
     pluckTokens = pluckTokens.slice(0,16);
     while(pluckTokens.length<16) pluckTokens.push('.');
     pContainer.innerHTML="";
@@ -432,7 +279,7 @@ function renderBoard(){
     }
   }
 }
-
+/*
 let originalKey=document.getElementById('about-box').getAttribute('data-key')||'A';
 let currentCapo=parseInt(document.getElementById('about-box').getAttribute('data-capo'))||0;
 let capoVal=currentCapo;
@@ -440,11 +287,43 @@ let isEasyMode=localStorage.getItem('chord-easy')!=='false';
 const SCALE_FLAT=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 const SCALE_SHARP=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const SHARP_KEYS=['G','D','A','E','B','F#','C#'];
+function noteIndex(n){const m={'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11};return m[n]??0}
+function getScaleForKey(k){if(isEasyMode) return SCALE_FLAT; if(SHARP_KEYS.includes(k)) return SCALE_SHARP; return SCALE_FLAT}
+function transposeNote(r,s,t){let i=(noteIndex(r)+s)%12; if(i<0)i+=12; return getScaleForKey(t)[i]}
+function simplifyChord(s){if(!isEasyMode) return s; return s.replace(/m7b5/g,'m').replace(/dim7/g,'dim').replace(/add9/g,'')}
+function transposeChord(str,semi,targetKey){const m=str.match(/^([A-G][b#]?)(.*)$/); if(!m) return str; return simplifyChord(transposeNote(m[1],semi,targetKey)+m[2])}
+
+function applyCapo(newCapo){
+  currentCapo=newCapo; capoVal=newCapo;
+  originalKey=document.getElementById('about-box').getAttribute('data-key')||'A';
+  let temp=transposeNote(originalKey,-newCapo,originalKey);
+  let actual=transposeNote(originalKey,-newCapo,temp);
+  document.getElementById('capoValue').textContent=currentCapo;
+  document.getElementById('keyValue').textContent=actual;
+  const abC=document.getElementById('ab-capo'); if(abC) abC.textContent=currentCapo;
+  const abK=document.getElementById('ab-key'); if(abK) abK.textContent=actual;
+  document.querySelectorAll('.chord').forEach(el=>{
+    if(!el.dataset.orig) el.dataset.orig=el.textContent.trim();
+    el.textContent=transposeChord(el.dataset.orig,-newCapo,actual);
+  });
+  parseSongStructure();
+}
+*/
+let originalKey=document.getElementById('about-box').getAttribute('data-key')||'A';
+let currentCapo=parseInt(document.getElementById('about-box').getAttribute('data-capo'))||0;
+let capoVal=currentCapo;
+let isEasyMode=localStorage.getItem('chord-easy')!=='false';
+const SCALE_FLAT=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const SCALE_SHARP=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const SHARP_KEYS=['G','D','A','E','B','F#','C#'];
+
+// Key ကို Base + Minor ခွဲထုတ်တဲ့ function အသစ်
 function parseKey(k){
   const m = k.match(/^([A-G][b#]?)(.*)$/i);
   if(!m) return {base:'C', suffix:''};
-  return {base: m[1], suffix: m[2] || ''};
+  return {base: m[1], suffix: m[2] || ''}; // Em => base E, suffix m
 }
+
 function noteIndex(n){
   const m={'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11};
   const p = parseKey(n);
@@ -466,13 +345,15 @@ function transposeChord(str,semi,targetKey){
   if(!m) return str;
   return simplifyChord(transposeNote(m[1],semi,targetKey)+m[2])
 }
+
 function applyCapo(newCapo){
   currentCapo=newCapo; capoVal=newCapo;
   originalKey=document.getElementById('about-box').getAttribute('data-key')||'A';
-  let parsed = parseKey(originalKey);
+  let parsed = parseKey(originalKey); // Em ကို ခွဲထား
   let temp=transposeNote(parsed.base,-newCapo,parsed.base);
   let actualBase=transposeNote(parsed.base,-newCapo,temp);
-  let actual = actualBase + parsed.suffix;
+  let actual = actualBase + parsed.suffix; // m ကို ပြန်တပ်
+
   document.getElementById('capoValue').textContent=currentCapo;
   document.getElementById('keyValue').textContent=actual;
   const abC=document.getElementById('ab-capo'); if(abC) abC.textContent=currentCapo;
@@ -483,6 +364,7 @@ function applyCapo(newCapo){
   });
   parseSongStructure();
 }
+
 document.getElementById('btn-capo-up').onclick=()=>{if(capoVal<12) applyCapo(capoVal+1)};
 document.getElementById('btn-capo-down').onclick=()=>{if(capoVal>0) applyCapo(capoVal-1)};
 document.getElementById('btn-easy-toggle').onclick=()=>{isEasyMode=!isEasyMode;localStorage.setItem('chord-easy',isEasyMode);document.getElementById('btn-easy-toggle').innerHTML=`<span class="material-symbols-rounded">${isEasyMode?'tune':'auto_awesome'}</span>`;applyCapo(currentCapo)};
@@ -526,11 +408,13 @@ function parseSongStructure(){
     if(chordsInSection.length>0) songSections[key]={chords:chordsInSection,displayName:name,element:v};
   });
 }
+
 function getPlaybackMapFromHtml() {
   const box = document.getElementById('about-box');
   const raw = box.getAttribute('data-songmap') || '';
   return raw.split(',').map(s => s.trim()).filter(Boolean);
 }
+
 function buildQueueFromMap(map){
   allChords=[];
   map.forEach(secName => {
@@ -551,6 +435,7 @@ function buildQueueFromMap(map){
     });
   }
 }
+
 function renderTimeline() {
   const bar = document.getElementById('song-timeline-bar');
   if (!bar) return;
@@ -570,6 +455,7 @@ function renderTimeline() {
     bar.appendChild(chip);
   });
 }
+
 function updateTimelineProgress(currentIdx) {
   const map = getPlaybackMapFromHtml();
   let currentSectionIdx = -1;
@@ -589,32 +475,37 @@ function updateTimelineProgress(currentIdx) {
       chip.classList.add('active');
       const chordsInSection = allChords.filter(c => c.sectionDisplayName.toLowerCase().replace(/\s+/g, '') === allChords[currentIdx].sectionDisplayName.toLowerCase().replace(/\s+/g, ''));
       const idxInSection = chordsInSection.findIndex(c => c === allChords[currentIdx]);
-      const pct = chordsInSection.length? ((idxInSection + 1) / chordsInSection.length) * 100 : 0;
+      const pct = chordsInSection.length ? ((idxInSection + 1) / chordsInSection.length) * 100 : 0;
       if (prog) prog.style.width = pct + '%';
     }
   });
 }
+
 function clearSectionHighlights(){
   if(activeSectionElement){activeSectionElement.classList.remove('current-section-highlight');activeSectionElement=null;activeSectionKey=null}
   if(nextSectionElement){nextSectionElement.classList.remove('next-section-highlight');nextSectionElement=null}
 }
+
 function updateActiveSectionAndScroll(el){
   if(activeSectionElement===el) return;
   if(activeSectionElement) activeSectionElement.classList.remove('current-section-highlight');
   el.classList.add('current-section-highlight'); activeSectionElement=el;
   el.scrollIntoView({behavior:'smooth',block:'center'});
 }
+
 function updateNextSectionNotifier(fromIndex){
   if(nextSectionElement){nextSectionElement.classList.remove('next-section-highlight');nextSectionElement=null}
   const curKey=allChords[fromIndex]?.sectionKey; if(!curKey) return;
   for(let i=fromIndex+1;i<allChords.length;i++){ if(allChords[i].sectionKey!==curKey){ const nxt=songSections[allChords[i].sectionKey]; if(nxt){nxt.element.classList.add('next-section-highlight');nextSectionElement=nxt.element;break;} } }
 }
+
 function updateChordDisplayBar(idx){
   const cur=document.getElementById('currentChord'),next=document.getElementById('nextChord');
   if(allChords[idx]){ const el=allChords[idx].element; cur.textContent=el.textContent.trim(); const col=getComputedStyle(el.parentElement).getPropertyValue('--bar-color')||'#EAB308'; cur.style.background=col; cur.style.color='#000'; }
   else { cur.textContent='END'; cur.style.background='#333'; cur.style.color='#fff' }
   if(next){ next.innerHTML=''; for(let i=1;i<=4;i++){ const n=allChords[idx+i]; if(n){ const sp=document.createElement('span'); sp.className='next-item'; sp.textContent=n.element.textContent.trim(); next.appendChild(sp);} } }
 }
+
 function resetHighlights(){
   document.querySelectorAll('.chord').forEach(c=>{c.style.background='';c.style.color='';c.style.padding='';c.style.borderRadius='';c.classList.remove('bouncing-chord');c.style.animation='';});
   document.querySelectorAll('.lyric').forEach(l=>{l.classList.remove('kara-active');l.style.backgroundImage='';l.style.webkitTextFillColor='';l.style.backgroundPosition='';l.style.transition='';l.style.webkitBackgroundClip='';});
@@ -622,13 +513,16 @@ function resetHighlights(){
   document.querySelectorAll('.pluck-note').forEach(e=>{e.classList.remove('active');e.classList.remove('played')});
   document.querySelectorAll('.pluck-box').forEach(e=>{e.classList.remove('active-box');e.classList.remove('completed')});
 }
-function getTempo(){
+
+function getTempo(){ 
   const v=parseInt(document.getElementById('tempoInput')?.value)||80; return (isNaN(v)||v<30)?80:v; }
+
 function startCountdown(onComplete){
   const overlay=document.getElementById('countdown-overlay'),txt=document.getElementById('countdown-text');
   let count=4; overlay.classList.remove('hidden'); txt.textContent=count;
   countdownInterval=setInterval(()=>{ count--; if(count>0) txt.textContent=count; else if(count===0) txt.textContent='Go!'; else {clearInterval(countdownInterval);countdownInterval=null;overlay.classList.add('hidden'); if(onComplete) onComplete();}},600);
 }
+
 function playStrumForBeats(beats, tempo, onDone){
   const stepsNeeded = beats * 4;
   const totalMs = (60/tempo)*1000*beats;
@@ -643,7 +537,7 @@ function playStrumForBeats(beats, tempo, onDone){
     if(arrow){ arrow.classList.add('active'); setTimeout(()=>{ arrow.classList.remove('active'); arrow.classList.add('played'); }, stepMs*0.8); }
     document.querySelectorAll('.pluck-note').forEach(e=>e.classList.remove('active'));
     const pNote = document.getElementById(`pluck-${pluckPos}`);
-    if (pNote &&!pNote.classList.contains('empty')) {
+    if (pNote && !pNote.classList.contains('empty')) {
       pNote.classList.remove('played');
       pNote.classList.add('active');
       setTimeout(() => { pNote.classList.remove('active'); }, stepMs * 0.9);
@@ -656,6 +550,7 @@ function playStrumForBeats(beats, tempo, onDone){
   doStep();
   setTimeout(()=>{globalStrumPos = (globalStrumPos + stepsNeeded) % 16;globalPluckPos = (globalPluckPos + stepsNeeded) % 16;}, totalMs);
 }
+
 function highlightAndScheduleNext(){
   if(isPaused) return;
   if(currentChordIndex>=0&&allChords[currentChordIndex]){
@@ -699,6 +594,7 @@ function highlightAndScheduleNext(){
   playStrumForBeats(beats, tempo, null);
   highlightInterval=setTimeout(highlightAndScheduleNext, totalMs);
 }
+
 function controlPlayback(){
   document.getElementById('about-overlay').classList.add('hidden');
   const btn=document.getElementById('btn-kara-play');
@@ -714,6 +610,7 @@ function controlPlayback(){
     else { isPaused=false; btn.innerHTML='<span class="material-symbols-rounded">pause</span>'; if(chordDisplayBar) chordDisplayBar.classList.add('active'); highlightAndScheduleNext(); }
   }
 }
+
 function stopPlayback(){
   if(countdownInterval){clearInterval(countdownInterval);countdownInterval=null;document.getElementById('countdown-overlay').classList.add('hidden')}
   clearTimeout(highlightInterval); clearSectionHighlights(); resetHighlights();
@@ -723,13 +620,14 @@ function stopPlayback(){
   if(walker) walker.style.display='none';
   window.lastActivePre=null;
 }
+
 document.getElementById('btn-kara-play').onclick=controlPlayback;
 document.getElementById('btn-kara-restart').onclick=stopPlayback;
 
 function toggleListFabMenu() {
   const menu = document.getElementById('list-fab-menu');
   if (menu) {
-    menu.style.display = (menu.style.display === 'none' ||!menu.style.display)? 'flex' : 'none';
+    menu.style.display = (menu.style.display === 'none' || !menu.style.display) ? 'flex' : 'none';
   }
 }
 
@@ -744,11 +642,14 @@ window.onload = ()=>{
 // ===== ဖောင့် စ =====
 const fontOverlay = document.getElementById('fontOverlay');
 const fontModal = document.getElementById('fontModal');
+
 function openFontModal(){
   const modal = document.getElementById('fontModal');
   const overlay = document.getElementById('fontOverlay');
   modal.style.display='block';
   overlay.style.display='block';
+  
+  // ရွေးထားတဲ့ ဖောင့်ကို အနီရောင် active ပြရန်
   const saved = localStorage.getItem('aaaUserFont');
   document.querySelectorAll('.font-item').forEach(i => {
     if(i.dataset.font === saved){
@@ -766,16 +667,22 @@ function changeGlobalFont(f, el){
   localStorage.setItem('aaaUserFont', f);
   let s = document.getElementById('global-font-style');
   if(!s){ s = document.createElement('style'); s.id='global-font-style'; document.head.appendChild(s); }
-  s.innerHTML = `body *:not(#fontModal):not(#fontModal *):not(.material-symbols-rounded) { font-family:'${f}'!important; }`;
+  // အရေးကြီး - #fontModal နဲ့ .font-item ကို ချန်ခဲ့မယ်
+  s.innerHTML = `
+    body *:not(#fontModal):not(#fontModal *):not(.material-symbols-rounded) { font-family:'${f}' !important; }
+  `;
   document.querySelectorAll('.font-item').forEach(i=>i.classList.remove('active'));
   if(el) el.classList.add('active');
   closeFontModal();
 }
-(function(){
+(function(){ 
   const saved = localStorage.getItem('aaaUserFont');
-  if(saved){
+  if(saved){ 
     let s = document.createElement('style'); s.id='global-font-style';
-    s.innerHTML = `body *:not(#fontModal):not(#fontModal *):not(.material-symbols-rounded) { font-family:'${saved}'!important; }`;
+    // ဒီမှာလဲ အတူတူပဲ ချန်ရမယ်
+    s.innerHTML = `
+      body *:not(#fontModal):not(#fontModal *):not(.material-symbols-rounded) { font-family:'${saved}' !important; }
+    `;
     document.head.appendChild(s);
   }
 })();
@@ -788,8 +695,11 @@ function applySavedFont() {
       styleTag.id = 'global-font-style';
       document.head.appendChild(styleTag);
     }
-    styleTag.innerHTML = `body *:not(.material-symbols-rounded):not(.font-item) { font-family: '${savedFont}'!important; }`;
+    styleTag.innerHTML = `body *:not(.material-symbols-rounded):not(.font-item) { font-family: '${savedFont}' !important; }`;
   }
-}
+} 
+
+
+// စာမျက်နှာစဖွင့်ချင်း ဖောင့်ကို ပြန်ခေါ်ရန်
 document.addEventListener('DOMContentLoaded', applySavedFont);
 // ===== ဖောင့် ဆုံး =====

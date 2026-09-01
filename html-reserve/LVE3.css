@@ -165,6 +165,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif!imp
 
 .view-section{display:none}
 .view-section.active{display:block}
+/*
 header{
   position:sticky;top:0;z-index:1100;display:flex;justify-content:space-between;align-items:center;background:#1E293B;padding:10px 14px;border-radius:12px;margin-bottom:12px;border:1px solid #334155}
 .nav-btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
@@ -176,8 +177,78 @@ header{
 .accordion-header{background:#1E293B;padding:12px;font-weight:bold;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:#E2E8F0}
 .accordion-content{display:none;background:#0F172A;padding:8px}
 .accordion.open .accordion-content{display:block}
-.song-item{display:flex;justify-content:space-between;align-items:center;padding:10px;background:#1E293B;margin-bottom:6px;border-radius:6px}
+.song-item{
+  display:flex;justify-content:space-between;align-items:center;padding:10px;background:#1E293B;margin-bottom:6px;border-radius:6px}
 .song-title-click{flex:1;cursor:pointer;font-weight:600;color:#E2E8F0}
+*/
+/* ===== LIST FIX - နေ့/ည ကွဲ၊ Group/Child ကွဲ ===== */
+header{
+  position:sticky;top:0;z-index:1100;
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--card); /* အသေမဟုတ်တော့ဘူး */
+  padding:10px 14px;border-radius:12px;margin-bottom:12px;
+  border:1px solid #E2E8F0;
+}
+.dark-mode header{ border-color:#334155; }
+#main-header{ gap:10px; }
+.nav-btns{ flex:1; display:flex; } /* ကျန်နေရာအကုန်ယူ */
+/* search  စ */
+#search-input{
+  width:100%;
+  padding:9px 12px;
+  border-radius:9px;
+  border:1px solid #E2E8F0;
+  background:var(--bg);
+  color:var(--text);
+  outline:none;
+  font-family:inherit;
+}
+.dark-mode #search-input{
+  border-color:#334155;
+  background:#0F172A;
+}
+#search-input::placeholder{ color:var(--muted); }
+/* search  ဆ */
+.accordion{
+  margin-bottom:8px;
+  border:1px solid #E2E8F0;
+  border-radius:10px;overflow:hidden;
+}
+.dark-mode .accordion{ border-color:#334155; }
+
+.accordion-header{
+  background:var(--card);
+  padding:12px;font-weight:bold;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;
+  color:var(--text);
+  border-left:4px solid #EAB308; /* Group မှန်းသိသာအောင် အဝါစည်း */
+}
+.accordion.open .accordion-header{
+  background: var(--bg);
+  border-bottom:1px solid #E2E8F0;
+}
+.dark-mode .accordion.open .accordion-header{ border-color:#334155; }
+
+.accordion-content{
+  display:none;
+  background:var(--bg);
+  padding:8px;
+}
+.accordion.open .accordion-content{display:block}
+
+.song-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px;
+  background:var(--card);
+  margin:6px 0 6px 14px; /* Child မို့ ထဲဝင်သွား */
+  border-radius:8px;
+  border:1px dashed #CBD5E1;
+}
+.dark-mode .song-item{ border-color:#475569; }
+.song-title-click{
+  flex:1;cursor:pointer;font-weight:600;color:var(--text);
+}
+
 .item-actions{display:flex;gap:6px}
 .icon-btn{background:none;border:none;color:white;cursor:pointer;padding:4px;border-radius:4px;font-size:16px}
 .icon-btn:hover{background:rgba(255,255,255,0.1)}
@@ -285,8 +356,41 @@ header{
 color: white !important;
 font-weight: bold;
   }
-/* font ဆုံး */
-
 /* font ဆ */
 
-
+/* အကောင့်မစ်ဆေ့ စ */
+/* AUTH MODAL လှလှလေး */
+#auth-modal{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,0.6);
+  display:grid;place-items:center;
+  z-index:9999;
+}
+#auth-modal.hidden{ display:none; }
+.auth-box{
+  width:90%;max-width:360px;
+  background:var(--card,#1E293B);
+  border:1px solid #334155;
+  border-radius:16px;
+  padding:18px;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+}
+.auth-header{
+  display:flex;gap:12px;align-items:center;
+  margin-bottom:16px;
+}
+.auth-actions{
+  display:flex;flex-direction:column;gap:8px;
+}
+.btn-auth{
+  display:flex;align-items:center;gap:8px;
+  width:100%;padding:10px 12px;
+  border-radius:10px;border:1px solid #334155;
+  background:#0F172A;color:#fff;cursor:pointer;
+  font-family:inherit;
+}
+.btn-auth.primary{ background:#2563eb; border-color:#2563eb; }
+.btn-auth.danger{ background:#1f2937; color:#f87171; }
+.btn-auth.secondary{ background:transparent; }
+.btn-auth:active{ transform:scale(0.98); }
+/* အကောင့်မစ်ဆေ့ ဆ */
