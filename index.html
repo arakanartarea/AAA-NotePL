@@ -1,210 +1,241 @@
 <!DOCTYPE html>
 <html lang="my">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flexible Vault Table</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
-    <style>
-        body { font-family: sans-serif; padding: 15px; background: #f0f4f8; }
-        .box { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); max-width: 1000px; margin: auto; }
-        input { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-        
-        /* Table Scroll CSS */
-        .table-container { width: 100%; overflow-x: auto; margin-top: 15px; border: 1px solid #ddd; border-radius: 8px; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; background: #fff; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; min-width: 120px; }
-        th { background-color: #007bff; color: white; white-space: nowrap; }
-        
-        .btn { padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin: 5px 0; font-size: 14px; }
-        .btn-blue { background: #007bff; color: white; }
-        .btn-green { background: #28a745; color: white; }
-        .btn-red { background: #dc3545; color: white; }
-        .btn-gray { background: #6c757d; color: white; }
-        .btn-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
-        #list-page, #token-tool-section { display: none; }
-        #status { font-size: 13px; text-align: center; margin-top: 10px; font-weight: bold; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Links</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root{
+    --bg: #0f1115;
+    --card: #1c1f27;
+    --card-hover: #252a36;
+    --text: #ffffff;
+    --text-sub: #9ca3af;
+    --border: #2a2f3d;
+    --fab-bg: #1c1f27;
+  }
+  body.light{
+    --bg: #f5f5f7;
+    --card: #ffffff;
+    --card-hover: #eef0f3;
+    --text: #111827;
+    --text-sub: #6b7280;
+    --border: #e5e7eb;
+    --fab-bg: #ffffff;
+  }
+  *{ box-sizing: border-box; margin:0; padding:0; }
+  body{
+    font-family: Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background 0.3s, color 0.3s;
+  }
+  /* အဓိက content ကို flex:1 ပေးပြီး footer ကို အောက်တွန်းချတာ */
+  .main-content{
+    flex: 1;
+    width: 100%;
+    padding: 40px 16px 20px 16px;
+  }
+  /* ပရိုဖိုင် စ */
+.profile{
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 600px;
+  margin: 0 auto 32px auto;
+  text-align: left;
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: 20px;
+}
+.profile-img{
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+}
+.profile-info{ flex: 1; min-width: 0; }
+.profile-name{ font-size: 20px; font-weight: 800; line-height: 1.2; }
+.profile-name-mm{ font-size: 16px; font-weight: 600; color: var(--text); opacity: 0.9; margin-top: 2px; }
+.profile-bio{ color: var(--text-sub); font-size: 13px; margin-top: 6px; }
+  /* ပရိုဖိုင် ဆ */
+  .links-container{ 
+    width: 100%; 
+    max-width: 1200px; 
+    margin: 0 auto; 
+    display: grid; gap: 16px; justify-content: center; transition: all 0.3s;
+  }
+  .links-container.is-grid{ grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .links-container.is-list{ grid-template-columns: 1fr; max-width: 600px; }
+
+  .link-item{ display: flex; align-items: center; gap: 14px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; text-decoration: none; color: inherit; transition: all 0.2s ease; }
+  .link-item:hover{ background: var(--card-hover); transform: translateY(-2px); }
+  .link-icon{ width: 44px; height: 44px; min-width: 44px; border-radius: 12px; background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 20px; border: 1px solid var(--border); }
+  .link-info{ flex: 1; min-width: 0; }
+  .link-name{ font-weight: 600; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .link-content{ font-size: 13px; color: var(--text-sub); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .link-arrow{ color: var(--text-sub); }
+
+  .settings-wrap{ position: fixed; right: 20px; bottom: 20px; z-index: 100; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .settings-panel{ display: flex; flex-direction: column; gap: 10px; background: var(--card); border: 1px solid var(--border); padding: 10px; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.2); opacity: 0; transform: translateY(10px) scale(0.95); pointer-events: none; transition: all 0.25s ease; }
+  .settings-wrap.open .settings-panel{ opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
+  .setting-btn, .fab-btn{ width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--border); background: var(--fab-bg); color: var(--text); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; transition: all 0.2s; }
+  .setting-btn:hover, .fab-btn:hover{ background: var(--card-hover); transform: scale(1.05); }
+  .fab-btn{ width: 56px; height: 56px; font-size: 22px; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+  .settings-wrap.open .fab-btn{ transform: rotate(90deg); }
+
+  .site-footer{
+    text-align: center;
+    padding: 24px 16px 20px 16px;
+    border-top: 1px solid var(--border);
+    color: var(--text-sub);
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+  .site-footer-sub{ margin-top: 4px; opacity: 0.7; }
+
+  @media (max-width: 600px){ .links-container.is-grid{ grid-template-columns: 1fr; } }
+  
+  /* about style စ */
+  /* --- About Modal --- */
+.about-modal{ position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 200; display: none; align-items: center; justify-content: center; padding: 16px; }
+.about-modal.open{ display: flex; }
+.about-content{ background: var(--card); border: 1px solid var(--border); border-radius: 24px; max-width: 420px; width: 100%; padding: 28px; position: relative; animation: pop 0.3s ease; }
+@keyframes pop{ from{transform: scale(0.9); opacity:0} to{transform: scale(1); opacity:1} }
+.about-close{ position: absolute; right: 16px; top: 16px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg); color: var(--text); cursor: pointer; }
+.about-header{ text-align: center; margin-bottom: 20px; }
+.about-header img{ width: 72px; height: 72px; border-radius: 50%; margin-bottom: 12px; border: 2px solid var(--border); }
+.about-header h2{ font-size: 20px; font-weight: 800; }
+.about-header p{ color: var(--text-sub); font-size: 14px; margin-top: 2px; }
+.about-body{ font-size: 14px; line-height: 1.7; color: var(--text-sub); display: grid; gap: 12px; }
+.about-body p{ color: var(--text); }
+.about-quote{ margin-top: 8px; text-align: center; padding: 12px; background: var(--bg); border: 1px dashed var(--border); border-radius: 12px; font-weight: 700; color: var(--text); font-style: italic; }
+  /* About Style ဆ */
+</style>
 </head>
 <body>
 
-<div id="login-page" class="box" style="max-width: 450px;">
-    <h2 style="text-align:center;"> 𝕶𝖍𝖆𝖎𝖓𝖌 𝕳𝖑𝖆 𝖂𝖔𝖗𝖓 📔 </h2>
-    <input type="password" id="p1" placeholder="💖လှ ဝင်း 💖">
-    <input type="password" id="p2" placeholder="MPY Day ">
-    <input type="password" id="p3" placeholder=" Name Original MM ">
-    <input type="password" id="p4" placeholder="MID">
-    <input type="password" id="p5" placeholder="ANNAME">
-    <button class="btn btn-blue" style="width:100%" onclick="unlock()">Unlock & Sync</button>
-    <button class="btn btn-gray" style="width:100%; margin-top:20px; font-size:11px;" onclick="toggleTokenTool()">🛠️ Tool</button>
-    <div id="token-tool-section" style="background:#f9f9f9; padding:15px; border-radius:10px; margin-top:10px; border: 1px dashed #ccc;">
-        <input type="text" id="rawToken" placeholder="GitHub Token">
-        <input type="text" id="rawPass" placeholder="5Pass">
-        <button class="btn btn-green" style="width:100%" onclick="generateEncryptedToken()">Generate</button>
-        <textarea id="tokenResult" rows="3" readonly style="width:100%; margin-top:10px; font-size:12px;"></textarea>
-    </div>
+  <main class="main-content">
+<div class="profile">
+  <img class="profile-img" src="https://arakanartarea.github.io/AAA-NotePL/Image/aaalogo.png" alt="Arakan Art Area">
+  <div class="profile-info">
+    <div class="profile-name">Arakan Art Area</div>
+    <div class="profile-name-mm">အာရက္ခ အနုပညာ ရပ်ဝန်း</div>
+    <div class="profile-bio">★★★★★★★</div>
+  </div>
 </div>
+    <div class="links-container is-grid" id="linksContainer"></div>
+  </main>
 
-<div id="list-page" class="box">
-    <h2 style="margin-top:0;">Flexible Data Table</h2>
+  <div class="settings-wrap" id="settingsWrap">
+<div class="settings-panel" id="settingsPanel">
+  <button class="setting-btn" id="aboutBtn" title="About"><i class="fa-solid fa-circle-info"></i></button>
+  <button class="setting-btn" id="themeBtn" title="Theme"><i id="themeIcon" class="fa-solid fa-sun"></i></button>
+  <button class="setting-btn" id="layoutBtn" title="Layout"><i id="layoutIcon" class="fa-solid fa-table-cells-large"></i></button>
+</div>
     
-    <div class="table-container">
-        <table id="mainTable">
-            <thead id="tableHead">
-                <tr>
-                    <th>ID</th>
-                    <th>Name </th>
-                    <th>Mail </th>
-                    <th style="min-width:50px;">Action</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
-    
-    <div class="btn-group">
-        <button class="btn btn-green" onclick="addRow()">🔽 Row </button>
-        <button class="btn btn-blue" onclick="addColumn()">▶️ Column </button>
-        <button class="btn btn-blue" style="background:#17a2b8;" onclick="saveToGitHub()">Cloud Sync (သိမ်းမည်)</button>
-    </div>
+    <button class="fab-btn" id="fabBtn" title="Settings"><i class="fa-solid fa-gear"></i></button>
+  </div>
 
-    <div id="status"></div>
-    <button class="btn btn-red" onclick="location.reload()" style="margin-top:20px; width:100px;">Logout</button>
+  <footer class="site-footer">
+    <div>© 2026 Khaing Hla Worn™. All Rights Reserved.</div>
+    <div class="site-footer-sub">Designed & Developed with Passion in Arakan ®</div>
+  </footer>
+
+<div class="about-modal" id="aboutModal">
+  <div class="about-content">
+    <button class="about-close" id="aboutClose"><i class="fa-solid fa-xmark"></i></button>
+    <div class="about-header">
+      <img src="https://raw.githubusercontent.com/arakanartarea/AAA-NotePL/main/Image/aaalogo.png" alt="logo">
+      <h2>Arakan Art Area</h2>
+      <p>အာရက္ခ အနုပညာ ရပ်ဝန်း</p>
+    </div>
+    <div class="about-body">
+<p>အနုပညာကိုလေ့ ချစ်တယ်၊ ရခိုင်ကိုလေ့ ချစ်တယ်။</p>
+<p>ဝါသနာအရ ကုဒ်ချေတိ ရီးကြည့်ယင်း၊ ကိုယ်ရို့ ရခိုင်အနုပညာ၊ ရခိုင်သာခြင်းတိနန့် ပတ်သက်တေ ဒေတာချေတိကို တတ်နိုင်သလောက် စုဆောင်း သိမ်းဆည်းထားစွာပါ။</p>
+<p>အေနီရာချေမှာ အမျိုးရို့အတွက် တေးခြင်းစာသားနဲ့ ဂစ်တာကော့ပြပီးနိုင်ရေအတွက် အသုံးပြုနိုင်ကတ်မေယူဆပါရေ။ ရခိုင်အနုပညာကို ချစ်‌ရေသူတိုင်း အသုံးဝင်မယ်လို့ မျှော်လင့်ပါ‌ရေ။</p>
+<div class="about-quote">"အနုပညာနန့် အမျိုးကို ကာကွယ်စောင့်ရှောက်မည်"</div>
+    </div>
+  </div>
 </div>
 
 <script>
-    const ENCRYPTED_TOKEN = 'U2FsdGVkX18L3QmAwQ5/34Dt9UW72Ni9dkwtvVSZKogQeoPRvIgFH5d9L0g73hAluZPluIG/JTgeu815BVZBwA=='; 
-    const USER = 'arakanartarea';
-    const REPO = 'AAA-NotePL';
-    const FILE = 'data.txt';
-    
-    let masterKey = "";
-    let realToken = "";
-    let fileSHA = "";
 
-    // Column အသစ်တိုးရန်
-    function addColumn(title = "အသစ်") {
-        const thead = document.querySelector('#tableHead tr');
-        const rows = document.querySelectorAll('#tableBody tr');
-        
-        // Header မှာ ကော်လံတိုး (Action column ရဲ့ အရှေ့မှာ ထည့်မယ်)
-        const th = document.createElement('th');
-        th.contentEditable = true; // ကော်လံခေါင်းစဉ်ကို ပြင်လို့ရအောင်
-        th.innerText = title;
-        thead.insertBefore(th, thead.children[thead.children.length - 1]);
+  // link item
+  const linksData = [
+  { icon: 'fa-solid fa-phone', name: 'Phone', content: 'Call me', link: 'tel:+66840724048' },
+  { icon: 'fa-brands fa-facebook-messenger', name: 'Messenger', content: 'Chat on Messenger', link: 'https://m.me/108511091826066?source=qr_link_share' },
+  { icon: 'fa-brands fa-viber', name: 'Viber', content: 'Chat on Viber', link: 'viber://chat?number=%2B959123456789' },
+  { icon: 'fa-solid fa-envelope', name: 'Email', content: 'Send me an email', link: 'mailto:arakanartarea@gmail.com' },
+  { icon: 'fa-brands fa-facebook', name: 'Facebook', content: 'Follow me on Facebook', link: 'https://www.facebook.com/share/1FJj2Q98Z6/' },
+  { icon: 'fa-brands fa-youtube', name: 'YouTube Channel', content: 'Subscribe my videos', link: 'https://youtube.com/@arakanartarea' },
+  { icon: 'fa-brands fa-telegram', name: 'Telegram', content: 'Join my channel', link: 'https://t.me/ArakanArtArea' },
+  { icon: 'fa-solid fa-guitar', name: 'Arakan Guiter Chord', content: 'ရခိုင်တေးခြင်းစာသား၊ ဂစ်တာကော့', link: 'https://arakanartarea.github.io/AAA-NotePL/html-reserve/LVE3.html' },
+ /* { icon: 'fa-solid fa-guitar', name: 'Arakan Guiter Chord', content: 'ရခိုင်တေးခြင်းစာသား၊ ဂစ်တာကော့', link: 'https://arakanartarea.github.io/AAA-NotePL/AAA/AAA_Index.html' },*/
+ {
+  icon: 'fa-solid fa-compact-disc',
+  name: 'All Arakan Songs(AAS)',
+  content: 'ရခိုင်တေးခြင်း ပေါင်းချုပ် 800+',
+  link: 'https://arakanartarea.github.io/AAA-NotePL/AAA/AAA_Index.html'
+},
+  
+  { icon: 'fa-solid fa-blog', name: 'Blog', content: 'ရခိုင်ဗဟုသုတ ဘလော့', link: 'https://arakanartareaaa.blogspot.com/?fbclid=IwVERDUAUE9g1wZG9mAWV4dG4DYWVtAjEwAHNydGMGYXBwX2lkDDM1MDY4NTUzMTcyOAABHgTmvaABRkhBG29K_mqyr9_-u8_bpnZnWAg_tN03jnEknZ4IVRjn5tIHhGar_aem_3J0v-ejyexfTzNLkrHnt2A' },
+  { icon: 'fa-brands fa-github', name: 'GitHub', content: 'Check my codes', link: 'https://github.com' }
+];
+//t.me/ArakanArtArea
 
-        // ရှိပြီးသား Row တွေမှာ အကွက်အသစ်တွေလိုက်ထည့်
-        rows.forEach(row => {
-            const td = row.insertCell(row.cells.length - 1);
-            td.innerHTML = `<input type="text" class="t-cell">`;
-        });
-    }
-
-    // Row အသစ်တိုးရန်
-    function addRow(dataArray = null) {
-        const tbody = document.getElementById('tableBody');
-        const colCount = document.querySelector('#tableHead tr').children.length;
-        const row = tbody.insertRow();
-
-        for (let i = 0; i < colCount - 1; i++) {
-            const td = row.insertCell();
-            const val = dataArray ? (dataArray[i] || "") : "";
-            td.innerHTML = `<input type="text" class="t-cell" value="${val}">`;
-        }
-        
-        // ဖျက်တဲ့ခလုတ်
-        const actionTd = row.insertCell();
-        actionTd.innerHTML = `<button class="btn btn-red" onclick="this.parentElement.parentElement.remove()" style="padding:2px 8px;">X</button>`;
-    }
-
-    async function unlock() {
-        masterKey = ["p1","p2","p3","p4","p5"].map(id => document.getElementById(id).value).join('');
-
-        try {
-            const bytes = CryptoJS.AES.decrypt(ENCRYPTED_TOKEN, masterKey);
-            realToken = bytes.toString(CryptoJS.enc.Utf8);
-            if (!realToken.startsWith('ghp_')) throw new Error();
-
-            const response = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`, {
-                headers: { 'Authorization': `token ${realToken}` }
-            });
-            const data = await response.json();
-            fileSHA = data.sha;
-            const encryptedContent = atob(data.content).trim();
-
-            if (encryptedContent !== "initial" && encryptedContent !== "") {
-                const contentBytes = CryptoJS.AES.decrypt(encryptedContent, masterKey);
-                const fullData = JSON.parse(contentBytes.toString(CryptoJS.enc.Utf8));
-                
-                // ၁။ Header ကို အရင်တည်ဆောက်မယ်
-                const headerRow = document.querySelector('#tableHead tr');
-                headerRow.innerHTML = "";
-                fullData.headers.forEach(h => {
-                    const th = document.createElement('th');
-                    th.contentEditable = true;
-                    th.innerText = h;
-                    headerRow.appendChild(th);
-                });
-                const actionTh = document.createElement('th');
-                actionTh.innerText = "Action";
-                headerRow.appendChild(actionTh);
-
-                // ၂။ ဒေတာတွေကို ထည့်မယ်
-                document.getElementById('tableBody').innerHTML = "";
-                fullData.rows.forEach(r => addRow(r));
-            } else {
-                addRow();
-            }
-            
-            document.getElementById('login-page').style.display = 'none';
-            document.getElementById('list-page').style.display = 'block';
-        } catch (e) { alert("ဝင်ရောက်ရန် မအောင်မြင်ပါ"); }
-    }
-
-    async function saveToGitHub() {
-        const status = document.getElementById('status');
-        status.innerText = "Syncing...";
-        
-        // Headers စုဆောင်းမယ်
-        const headers = [];
-        document.querySelectorAll('#tableHead th').forEach((th, index, arr) => {
-            if (index < arr.length - 1) headers.push(th.innerText);
-        });
-
-        // Rows စုဆောင်းမယ်
-        const rowsData = [];
-        document.querySelectorAll('#tableBody tr').forEach(row => {
-            const rowCells = [];
-            row.querySelectorAll('.t-cell').forEach(input => rowCells.push(input.value));
-            rowsData.push(rowCells);
-        });
-
-        const finalJSON = JSON.stringify({ headers: headers, rows: rowsData });
-        const encrypted = CryptoJS.AES.encrypt(finalJSON, masterKey).toString();
-
-        try {
-            const response = await fetch(`https://api.github.com/repos/${USER}/${REPO}/contents/${FILE}`, {
-                method: 'PUT',
-                headers: { 'Authorization': `token ${realToken}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: "Sync Flex Table", content: btoa(encrypted), sha: fileSHA })
-            });
-            const resData = await response.json();
-            fileSHA = resData.content.sha;
-            status.innerText = "အောင်မြင်စွာ သိမ်းဆည်းပြီးပါပြီ။";
-            status.style.color = "green";
-        } catch (e) { status.innerText = "Sync မအောင်မြင်ပါ"; status.style.color = "red"; }
-    }
-
-    function toggleTokenTool() {
-        const t = document.getElementById('token-tool-section');
-        t.style.display = t.style.display === 'none' ? 'block' : 'none';
-    }
-
-    function generateEncryptedToken() {
-        const t = document.getElementById('rawToken').value;
-        const p = document.getElementById('rawPass').value;
-        document.getElementById('tokenResult').value = CryptoJS.AES.encrypt(t, p).toString();
-    }
+  const container = document.getElementById('linksContainer');
+  linksData.forEach(function(item){
+    const a = document.createElement('a'); a.className = 'link-item'; a.href = item.link; a.target = '_blank'; a.rel = 'noopener';
+    const iconWrap = document.createElement('div'); iconWrap.className = 'link-icon';
+    const icon = document.createElement('i'); icon.className = item.icon; iconWrap.appendChild(icon);
+    const info = document.createElement('div'); info.className = 'link-info';
+    const nameEl = document.createElement('div'); nameEl.className = 'link-name'; nameEl.textContent = item.name;
+    const contentEl = document.createElement('div'); contentEl.className = 'link-content'; contentEl.textContent = item.content;
+    info.appendChild(nameEl); info.appendChild(contentEl);
+    const arrow = document.createElement('div'); arrow.className = 'link-arrow';
+    const arrowIcon = document.createElement('i'); arrowIcon.className = 'fa-solid fa-arrow-up-right-from-square'; arrow.appendChild(arrowIcon);
+    a.appendChild(iconWrap); a.appendChild(info); a.appendChild(arrow);
+    container.appendChild(a);
+  });
+  const body = document.body;
+  const settingsWrap = document.getElementById('settingsWrap');
+  const fabBtn = document.getElementById('fabBtn');
+  const themeBtn = document.getElementById('themeBtn');
+  const layoutBtn = document.getElementById('layoutBtn');
+  const themeIcon = document.getElementById('themeIcon');
+  const layoutIcon = document.getElementById('layoutIcon');
+  let currentTheme = localStorage.getItem('my-links-theme') || 'dark';
+  let currentLayout = localStorage.getItem('my-links-layout') || 'grid';
+  function applyTheme(theme){
+    if(theme === 'light'){ body.classList.add('light'); themeIcon.className = 'fa-solid fa-moon'; }
+    else { body.classList.remove('light'); themeIcon.className = 'fa-solid fa-sun'; }
+    localStorage.setItem('my-links-theme', theme); currentTheme = theme;
+  }
+  function applyLayout(layout){
+    if(layout === 'list'){ container.classList.remove('is-grid'); container.classList.add('is-list'); layoutIcon.className = 'fa-solid fa-table-cells-large'; }
+    else { container.classList.remove('is-list'); container.classList.add('is-grid'); layoutIcon.className = 'fa-solid fa-list'; }
+    localStorage.setItem('my-links-layout', layout); currentLayout = layout;
+  }
+  applyTheme(currentTheme); applyLayout(currentLayout);
+  fabBtn.addEventListener('click', function(){ settingsWrap.classList.toggle('open'); });
+  themeBtn.addEventListener('click', function(){ applyTheme(currentTheme === 'dark' ? 'light' : 'dark'); });
+  layoutBtn.addEventListener('click', function(){ applyLayout(currentLayout === 'grid' ? 'list' : 'grid'); });
+/* about စ */
+const aboutBtn = document.getElementById('aboutBtn');
+const aboutModal = document.getElementById('aboutModal');
+const aboutClose = document.getElementById('aboutClose');
+aboutBtn.addEventListener('click', () => { aboutModal.classList.add('open'); settingsWrap.classList.remove('open'); });
+aboutClose.addEventListener('click', () => aboutModal.classList.remove('open'));
+aboutModal.addEventListener('click', (e) => { if(e.target === aboutModal) aboutModal.classList.remove('open'); });
+/* about ဆ */
 </script>
 </body>
 </html>

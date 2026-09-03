@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Lyric Compact</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;700&family=Pyidaungsu&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;font-family:'Pyidaungsu','Noto Sans Myanmar',sans-serif}
+body{margin:0;background:#111;color:#ddd;padding:0 0 80px 0}
+textarea,input,button{font:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-thumb{background:#333;border-radius:10px}
+
+/* dock bottom */
+#dock{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(17,17,17,.96);backdrop-filter:blur(12px);border-top:1px solid #222;padding:8px 8px calc(8px + env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+#dock button{padding:11px 4px;border-radius:12px;border:1px solid #2a2a2a;background:#1e1e1e;color:#aaa;font-weight:700;font-size:12px}
+#dock button.active{background:#ffcc00;color:#000;border-color:#ffcc00}
+#dock button.danger{color:#ff6b6b}
+
+.wrap{max-width:760px;margin:0 auto;padding:8px}
+.view{display:none}.view.on{display:block}
+
+/* notepad */
+#notepad{width:100%;height:68vh;min-height:340px;background:#181818;border:1px solid #252525;border-radius:12px;padding:10px;color:#ddd;outline:none;resize:none;line-height:1.8;font-size:15px}
+
+/* verse card compact */
+.card{background:#181818;border:1px solid #242424;border-radius:12px;margin-bottom:8px;overflow:hidden}
+.card-head{display:flex;align-items:center;gap:6px;padding:6px 6px 6px 8px;background:#1e1e1e;border-bottom:1px solid #242424}
+.card-head input{flex:1;min-width:0;background:transparent;border:none;outline:none;color:#ffcc00;font-weight:700;font-size:13px;padding:4px 0}
+.card-actions{display:flex;gap:4px;flex-shrink:0}
+.card-actions button{padding:5px 9px;border-radius:20px;border:1px solid #2a2a2a;background:#252525;font-size:11px;font-weight:700}
+.card-actions button.paste{background:#2a2410;border-color:#3a3418;color:#ffcc00}
+.card-actions button.del{color:#ff6b6b}
+.card textarea{width:100%;min-height:72px;background:#121212;border:none;outline:none;resize:vertical;padding:8px 10px;color:#ddd;font-size:14px;line-height:1.65}
+.card.flash{outline:1px solid #ffcc00;animation:flash .7s ease}
+@keyframes flash{0%{box-shadow:0 0 0 0 rgba(255,204,0,.6)}100%{box-shadow:0 0 0 14px rgba(255,204,0,0)}}
+
+/* output */
+#output{width:100%;min-height:220px;background:#0a0a0a;border:1px solid #222;border-radius:12px;padding:10px;color:#7CFC00;font-family:monospace;font-size:12px;white-space:pre-wrap}
+#toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:#ffcc00;color:#000;padding:8px 14px;border-radius:20px;font-size:12px;font-weight:700;display:none;z-index:30}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- NOTEPAD VIEW -->
+  <div id="view-notepad" class="view on">
+    <textarea id="notepad" placeholder="သီချင်းစာသား + ကော့ ဒီမှာစု...&#10;F 4 F 4 Eb 1..."></textarea>
+    <div style="display:flex;gap:6px;margin-top:8px">
+      <button onclick="sendToEditor()" style="flex:1;padding:10px;border-radius:10px;border:none;background:#ffcc00;font-weight:700">Editor ထဲ ပို့မယ် →</button>
+      <button onclick="clearNote()" style="padding:10px 14px;border-radius:10px;border:1px solid #333;background:#1e1e1e;color:#ff6b6b">ရှင်း</button>
+    </div>
+  </div>
+
+  <!-- EDITOR VIEW -->
+  <div id="view-editor" class="view">
+    <div id="list"></div>
+    <div style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <b style="font-size:12px;color:#888">Output HTML • <span id="stat"></span></b>
+        <button onclick="copyOut()" id="copyBtn" style="padding:6px 12px;border-radius:20px;border:1px solid #333;background:#1e1e1e;color:#ffcc00;font-size:12px">Copy Output</button>
+      </div>
+      <textarea id="output" readonly placeholder="Output HTML ဒီမှာ ပေါ်မယ်"></textarea>
+    </div>
+  </div>
+</div>
+
+<div id="dock">
+  <button id="btn-note" class="active" onclick="switchView('notepad')">📝 Note</button>
+  <button id="btn-code" onclick="switchView('editor')">🎸 Code</button>
+  <button onclick="addVerse()">+ New</button>
+  <button class="danger" onclick="clearAll()">All Del</button>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// --- chord converter same as old ---
+function z0(e){
+  let n=[],t=e.replace(/\[[^\]]+\]/g,(l)=>{n.push(l);return `__CHORD_${n.length-1}__`});
+  let r=/\b([A-G][#b]?(?:m|maj|min)?(?:sus[24]?|dim|aug|add)?\d*(?:maj\d*|m\d*)?(?:\s+\d+)?)\b/g;
+  t=t.replace(r,(l)=>{let o=l.trim();if(/^[A-G]$/.test(o))return l;return `[${o}]`});
+  t=t.replace(/(?<!\[)(?<![A-Za-z])([A-G][#b]?)\s+(\d+)(?!\w)(?![^\[]*\])/g,"[$1 $2]");
+  n.forEach((l,o)=>{t=t.replace(`__CHORD_${o}__`,l)});
+  t=t.replace(/\[\[+/g,"[").replace(/\]\]+/g,"]");
+  return t;
+}
+
+let verses = [];
+let notepadEl = document.getElementById('notepad');
+let listEl = document.getElementById('list');
+let outEl = document.getElementById('output');
+
+// load
+let savedNote = localStorage.getItem('myanmar_lyric_notepad')||'';
+let savedVerses = localStorage.getItem('myanmar_lyric_sections');
+notepadEl.value = savedNote;
+if(savedVerses){
+  try{ verses = JSON.parse(savedVerses).map((v,i)=>({id:'v_'+Date.now()+'_'+i,label:v.label||`Verse ${i+1}`,content:v.content||''})); }catch{}
+}
+if(verses.length===0) verses=[{id:'default_1',label:'Intro',content:''}];
+
+function save(){
+  localStorage.setItem('myanmar_lyric_notepad', notepadEl.value);
+  localStorage.setItem('myanmar_lyric_sections', JSON.stringify(verses.map(v=>({label:v.label,content:v.content}))));
+  renderOutput();
+}
+
+function switchView(v){
+  document.querySelectorAll('.view').forEach(e=>e.classList.remove('on'));
+  document.getElementById('view-'+v).classList.add('on');
+  document.querySelectorAll('#dock button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('btn-'+v).classList.add('active');
+  if(v==='editor') render();
+}
+
+function toast(m){ let t=document.getElementById('toast'); t.textContent=m; t.style.display='block'; setTimeout(()=>t.style.display='none',2000); }
+
+function render(){
+  listEl.innerHTML='';
+  verses.forEach(v=>{
+    let d=document.createElement('div'); d.className='card'; d.id='card-'+v.id;
+    d.innerHTML=`
+      <div class="card-head">
+        <input value="${esc(v.label)}" placeholder="Verse 1" oninput="updateLabel('${v.id}',this.value)">
+        <div class="card-actions">
+          <button class="paste" onclick="pasteVerse('${v.id}')">📥 ကူးချရန်</button>
+          <button onclick="clearVerse('${v.id}')">🧹 ရှင်းမယ်</button>
+          <button class="del" onclick="delVerse('${v.id}')">🗑️ ဖျက်မယ်</button>
+        </div>
+      </div>
+      <textarea oninput="updateContent('${v.id}',this.value)" placeholder="တစ်ကြောင်း = <pre> တစ်ခု">${esc(v.content)}</textarea>
+    `;
+    listEl.appendChild(d);
+  });
+  renderOutput();
+}
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function renderOutput(){
+  let html='';
+  verses.forEach(v=>{
+    let c=v.content.trim(); if(!c) return;
+    html+=`<div class="verse">\n  <div class="section-label">${(v.label||'Verse').trim()}</div>\n  <div class="verse-content">\n`;
+    c.split('\n').forEach(line=>{ if(!line.trim()) return; html+=`    <pre class="resizable-text">${z0(line)}</pre>\n`; });
+    html+=`  </div>\n</div>\n\n`;
+  });
+  outEl.value=html.trim();
+  document.getElementById('stat').textContent = html.trim().split('\n').length+' lines';
+}
+
+function addVerse(){ verses.push({id:'v_'+Date.now(),label:`Verse ${verses.length+1}`,content:''}); save(); render(); switchView('editor'); }
+function updateLabel(id,val){ let v=verses.find(x=>x.id===id); if(v){v.label=val; save();} }
+function updateContent(id,val){ let v=verses.find(x=>x.id===id); if(v){v.content=val; save();} }
+function clearVerse(id){ let v=verses.find(x=>x.id===id); if(v){v.content=''; save(); render();} }
+function delVerse(id){ if(!confirm('ဖျက်မလား?'))return; verses=verses.filter(x=>x.id!==id); save(); render(); }
+function clearAll(){ if(!confirm('အကုန်ဖျက်မလား?'))return; verses=[]; save(); render(); }
+function clearNote(){ if(!confirm('Note ရှင်းမလား?'))return; notepadEl.value=''; save(); }
+function sendToEditor(){
+  if(!notepadEl.value.trim()){toast('Note အလွတ်ပဲ');return}
+  verses.push({id:'v_'+Date.now(),label:`Verse ${verses.length+1}`,content:notepadEl.value});
+  save(); render(); switchView('editor'); toast('Editor ထဲ ပို့ပြီးပြီ');
+}
+notepadEl.addEventListener('input', save);
+
+// --- paste only from clipboard ---
+async function pasteVerse(id){
+  let card=document.getElementById('card-'+id);
+  let v=verses.find(x=>x.id===id);
+  if(!v) return;
+  try{
+    let txt = await navigator.clipboard.readText();
+    if(!txt || !txt.trim()){ toast('Clipboard အလွတ်ပဲ'); return; }
+    v.content = v.content ? v.content + '\n' + txt : txt;
+    save(); render();
+    let newCard=document.getElementById('card-'+id);
+    if(newCard){ newCard.classList.add('flash'); setTimeout(()=>newCard.classList.remove('flash'),700); }
+    toast('✓ Clipboard ကနေ ကူးချပြီးပြီ');
+  }catch(e){
+    let manual = prompt('Browser က clipboard တိုက်ရိုက်ဖတ်ခွင့်မပေးလို့\nCtrl+V နဲ့ paste လုပ်ပါ:');
+    if(manual && manual.trim()){
+      v.content = v.content ? v.content + '\n' + manual : manual;
+      save(); render(); toast('✓ ကူးချပြီးပြီ');
+    }
+  }
+}
+
+function copyOut(){ navigator.clipboard.writeText(outEl.value).then(()=>toast('Output Copy ပြီးပြီ')).catch(()=>{ outEl.select(); document.execCommand('copy'); toast('Copy ပြီးပြီ'); }); }
+
+render(); renderOutput();
+</script>
+</body>
+</html>
