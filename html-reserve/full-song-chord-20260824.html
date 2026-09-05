@@ -41,17 +41,38 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif!imp
 .song-meta{padding:1px 1px;margin-bottom:3px;border-left:3px solid var(--text)}
 .song-title{margin:0 0 1px 0;font-size:19px;font-weight:700}
 .song-sub{font-size:15px;color:var(--muted);line-height:1.6}
-#top-right-stack{position:fixed;top:12px;right:12px;z-index:900;width:280px}
+/* #top-right-stack{position:fixed;top:12px;right:12px;z-index:900;width:280px} */
+#top-right-stack{
+  position:fixed;top:12px;right:12px;z-index:900;
+  width:clamp(118px, 27vw, 280px); /* ဖုန်း=27% | Tablet=280px အသေ */
+  container-type:inline-size; /* အထဲက စာလုံးတွေပါ အလိုလိုချုံ့ဖို့ */
+}
+/* Phone မှာ အထဲက အရာတွေ အလိုလိုသေးသွားအောင် */
+@container (max-width: 180px){
+  .strum-widget{padding:4px;border-radius:6px}
+  .svg-container svg{height:60px}
+  .pluck-box{height:20px}
+  .pluck-note{font-size:8px;width:14px;height:14px}
+  .bpm-box{font-size:9px}
+}
 #top-right-stack.hidden{display:none!important}
 .strum-widget{background:#1a1a1b;border:1px solid #333;border-radius:8px;padding:8px;box-shadow:0 4px 15px rgba(0,0,0,0.6);overflow:hidden}
 .widget-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
 .bpm-box{display:flex;align-items:center;gap:4px;font-size:11px;color:#ccc}
 .bpm-box input{width:42px;background:#000;border:1px solid #444;color:#fff;text-align:center;border-radius:3px;padding:2px;font-size:11px}
 .pattern-data{display:none!important}
-.staff-wrapper{display:flex;background:#101012;border-radius:4px;padding:4px 4px 4px 0}
+/* .staff-wrapper{display:flex;background:#101012;border-radius:4px;padding:4px 4px 4px 0} */
 .string-numbers{display:flex;flex-direction:column;justify-content:space-between;padding:4px 5px;font-size:10px;font-weight:bold;color:#aaa;text-align:center}
-.svg-container{flex-grow:1}
-.svg-container svg{width:100%;height:90px;display:block}
+/*.svg-container{flex-grow:1}*/
+/*.svg-container svg{width:100%;height:90px;display:block}*/
+.staff-wrapper{
+  display:flex;background:#101012;border-radius:4px;padding:4px 4px 4px 0;
+  aspect-ratio: 3.2 / 1; /* <-- ဒါက အဓိက, ဘယ်ညာသေးရင် အပေါ်အောက်ပါ လိုက်သေးမယ်, 9:3 ချိုးအတိုင်း */
+  height:auto;
+}
+.svg-container{flex-grow:1;min-width:0}
+.svg-container svg{width:100%;height:100%;display:block}
+
 .strum-arrow{
   transition:filter 0.08s,opacity 0.08s;
   opacity: 0.85; /* 0.35 ကနေ 0.85 ပြန်တင် - ရပ်ထားချိန်တောင် ထင်ထင်ရှားရှား မြင်ရမယ် */

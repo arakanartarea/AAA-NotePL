@@ -145,6 +145,7 @@ function doSwitchAccount(){
   closeAuthModal();
   auth.signOut().then(()=>setTimeout(doLogin,400));
 }
+/*
 function updateAuthUI() {
   const badge = document.getElementById('status-badge');
   const addBtn = document.querySelector('#list-fab-container button[onclick="openCreateForm()"]');
@@ -175,7 +176,46 @@ function updateAuthUI() {
   });
   
   // edit-fab ကို switchView ကပဲ ထိန်းမယ်၊ ဒီမှာ မထိန်းတော့ဘူး
-}
+}*/
+function updateAuthUI() {
+  const badge = document.getElementById('status-badge');
+  const addBtn = document.querySelector('#list-fab-container button[onclick="openCreateForm()"]');
+  const loginBtn = document.getElementById('btn-login');
+  
+  // ခလုတ် ၂ ခုကို ဖမ်းမယ်
+  const notepadBtn = document.getElementById('btn-notepad');
+  const lyricsCodeBtn = document.getElementById('btn-lyrics-code');
+  
+  if (badge) {
+    if (isAdminUser && currentUser) {
+      const name = currentUser.displayName || currentUser.email.split('@')[0];
+      badge.textContent = `Admin: ${name}`;
+      badge.style.background = '#16a34a';
+      badge.style.color = '#fff';
+    } else {
+      badge.textContent = currentUser ? `Viewer: ${currentUser.email.split('@')[0]}` : 'Viewer';
+      badge.style.background = '#eab308';
+      badge.style.color = '#000';
+    }
+  }
+  
+  // login/logout icon
+  if (loginBtn) {
+    const icon = loginBtn.querySelector('.material-symbols-rounded');
+    if (icon) icon.textContent = (currentUser ? 'logout' : 'login');
+  }
+  
+  if (addBtn) addBtn.style.display = isAdminUser ? '' : 'none';
+
+  // Admin ဖြစ်မှ ပေါ်မယ်
+  if (notepadBtn) notepadBtn.style.display = isAdminUser ? 'grid' : 'none';
+  if (lyricsCodeBtn) lyricsCodeBtn.style.display = isAdminUser ? 'grid' : 'none';
+
+  document.querySelectorAll('.item-actions').forEach(el => {
+    el.style.display = isAdminUser ? '' : 'none';
+  });
+} 
+
 // ခလုတ်တွေကို တစ်ခါတည်းပဲ ချိတ် - ထပ်မချိတ်နဲ့
 (function setupAuthOnce(){
   document.getElementById('btn-auth-cancel')?.addEventListener('click', closeAuthModal);

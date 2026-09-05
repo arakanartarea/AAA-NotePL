@@ -150,18 +150,60 @@ function renderOutput(){
   document.getElementById('stat').textContent = html.trim().split('\n').length+' lines';
 }
 
-function addVerse(){ verses.push({id:'v_'+Date.now(),label:`Verse ${verses.length+1}`,content:''}); save(); render(); switchView('editor'); }
+function addVerse(){ 
+  verses.push({id:'v_'+Date.now(),label:`Verse ${verses.length+1}`,content:''}); save(); render(); switchView('editor'); }
 function updateLabel(id,val){ let v=verses.find(x=>x.id===id); if(v){v.label=val; save();} }
 function updateContent(id,val){ let v=verses.find(x=>x.id===id); if(v){v.content=val; save();} }
 function clearVerse(id){ let v=verses.find(x=>x.id===id); if(v){v.content=''; save(); render();} }
-function delVerse(id){ if(!confirm('ဖျက်မလား?'))return; verses=verses.filter(x=>x.id!==id); save(); render(); }
+function delVerse(id){ 
+  if(!confirm('ဖျက်မလား?'))return; verses=verses.filter(x=>x.id!==id); save(); render(); }
 function clearAll(){ if(!confirm('အကုန်ဖျက်မလား?'))return; verses=[]; save(); render(); }
 function clearNote(){ if(!confirm('Note ရှင်းမလား?'))return; notepadEl.value=''; save(); }
+/*
 function sendToEditor(){
   if(!notepadEl.value.trim()){toast('Note အလွတ်ပဲ');return}
   verses.push({id:'v_'+Date.now(),label:`Verse ${verses.length+1}`,content:notepadEl.value});
   save(); render(); switchView('editor'); toast('Editor ထဲ ပို့ပြီးပြီ');
 }
+*/
+function sendToEditor(){
+  let text = notepadEl.value.trim();
+  if(!text){ toast('Note အလွတ်ပဲ'); return; }
+
+  // [[ ]] ခေါင်းစဉ် အမှတ်အသားတွေကို စောင့်ဖမ်းမယ်
+  let regex = /\[\[(.*?)\]\]/g;
+  let matches = [...text.matchAll(regex)];
+
+  if(matches.length === 0) {
+    // [[ ]] မပါရင် တစ်ထုပ်တည်း ပို့မယ်
+    verses.push({id:'v_'+Date.now(), label:`Verse ${verses.length+1}`, content:text});
+  } else {
+    // [[ ]] ပါရင် တစ်ပိုဒ်စီ အလိုအလျောက် ခွဲထုတ်မယ်
+    matches.forEach((match, index) => {
+      let label = match[1].trim();
+      let startPos = match.index + match[0].length;
+      let endPos = (index + 1 < matches.length) ? matches[index + 1].index : text.length;
+      let content = text.slice(startPos, endPos).trim();
+
+      // စာသားအပြင်မှာ [ ] အုပ်ထားရင်လည်း ဖယ်ပေးမယ်
+      if(content.startsWith('[') && content.endsWith(']')) {
+        content = content.slice(1, -1).trim();
+      }
+
+      if(label || content) {
+        verses.push({
+          id: 'v_' + Date.now() + '_' + index,
+          label: label || `Verse ${verses.length+1}`,
+          content: content
+        });
+      }
+    });
+  }
+
+  save(); render(); switchView('editor'); 
+  toast('✓ Verse တွေအဖြစ် အလိုအလျောက် ခွဲပို့ပြီးပြီ');
+}
+
 notepadEl.addEventListener('input', save);
 
 // --- paste only from clipboard ---
