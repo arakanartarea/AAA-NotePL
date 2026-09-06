@@ -50,6 +50,11 @@ function initFirebase(){
   }
 }
 
+//loading
+function hideLoading() {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
 // ===== AUTH UI LOGIC - အသစ်ထည့်တာ ဒါပဲ =====
 /*
 function updateAuthUI(){
@@ -271,6 +276,7 @@ function fetchSongs() {
       allSongsData.push(data);
     });
     filterSongs();
+    hideLoading();
   });
 }
 
@@ -500,7 +506,8 @@ function transposeNote(r,s,t){
   let i=(noteIndex(r)+s)%12; if(i<0)i+=12;
   return getScaleForKey(t)[i];
 }
-function simplifyChord(s){if(!isEasyMode) return s; return s.replace(/m7b5/g,'m').replace(/dim7/g,'dim').replace(/add9/g,'')}
+function simplifyChord(s){
+  if(!isEasyMode) return s; return s.replace(/m7b5/g,'m').replace(/dim7/g,'dim').replace(/add9/g,'')}
 function transposeChord(str,semi,targetKey){
   const m=str.match(/^([A-G][b#]?)(.*)$/);
   if(!m) return str;
@@ -780,7 +787,7 @@ window.onload = ()=>{
   switchView('list-view');
   document.getElementById('btn-easy-toggle').innerHTML=`<span class="material-symbols-rounded">${isEasyMode?'tune':'auto_awesome'}</span>`;
 };
-
+//hideLoading()
 // ===== ဖောင့် စ =====
 const fontOverlay = document.getElementById('fontOverlay');
 const fontModal = document.getElementById('fontModal');

@@ -42,18 +42,18 @@ textarea,input,button{font:inherit}
 </style>
 </head>
 <body>
-<div class="wrap">
+<!--<div class="wrap">
   <!-- NOTEPAD VIEW -->
   <div id="view-notepad" class="view on">
-    <textarea id="notepad" placeholder="သီချင်းစာသား + ကော့ ဒီမှာစု...&#10;F 4 F 4 Eb 1..."></textarea>
+    <textarea id="notepad" klw placeholder="သီချင်းစာသား + ကော့ ဒီမှာစု...&#10;F 4 F 4 Eb 1..."></textarea>
     <div style="display:flex;gap:6px;margin-top:8px">
       <button onclick="sendToEditor()" style="flex:1;padding:10px;border-radius:10px;border:none;background:#ffcc00;font-weight:700">Editor ထဲ ပို့မယ် →</button>
       <button onclick="clearNote()" style="padding:10px 14px;border-radius:10px;border:1px solid #333;background:#1e1e1e;color:#ff6b6b">ရှင်း</button>
     </div>
-  </div>
+  </div>-->
 
   <!-- EDITOR VIEW -->
-  <div id="view-editor" class="view">
+  <!--<div id="view-editor" class="view">
     <div id="list"></div>
     <div style="margin-top:12px">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -63,7 +63,30 @@ textarea,input,button{font:inherit}
       <textarea id="output" readonly placeholder="Output HTML ဒီမှာ ပေါ်မယ်"></textarea>
     </div>
   </div>
+</div>-->
+<div class="wrap">
+  <!-- NOTEPAD VIEW -->
+  <div id="view-notepad" class="view on">
+    <textarea id="notepad" spellcheck="false" autocorrect="off" autocomplete="off" autocapitalize="off" placeholder="သီချင်းစာသား + ကော့ ဒီမှာစု...&#10;F 4 F 4 Eb 1..."></textarea>
+    <div style="display:flex;gap:6px;margin-top:8px">
+      <button onclick="sendToEditor()" style="flex:1;padding:10px;border-radius:10px;border:none;background:#ffcc00;font-weight:700">Editor ထဲ ပို့မယ် →</button>
+      <button onclick="clearNote()" style="padding:10px 14px;border-radius:10px;border:1px solid #333;background:#1e1e1e;color:#ff6b6b">ရှင်း</button>
+    </div>
+  </div>
+  
+  <!-- EDITOR VIEW -->
+  <div id="view-editor" class="view">
+    <div id="list"></div>
+    <div style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <b style="font-size:12px;color:#888">Output HTML • <span id="stat"></span></b>
+        <button onclick="copyOut()" id="copyBtn" style="padding:6px 12px;border-radius:20px;border:1px solid #333;background:#1e1e1e;color:#ffcc00;font-size:12px">Copy Output</button>
+      </div>
+      <textarea id="output" spellcheck="false" readonly placeholder="Output HTML ဒီမှာ ပေါ်မယ်"></textarea>
+    </div>
+  </div>
 </div>
+
 
 <div id="dock">
   <button id="btn-note" class="active" onclick="switchView('notepad')">📝 Note</button>
@@ -114,7 +137,8 @@ function switchView(v){
   if(v==='editor') render();
 }
 
-function toast(m){ let t=document.getElementById('toast'); t.textContent=m; t.style.display='block'; setTimeout(()=>t.style.display='none',2000); }
+function toast(m){ 
+  let t=document.getElementById('toast'); t.textContent=m; t.style.display='block'; setTimeout(()=>t.style.display='none',2000); }
 
 function render(){
   listEl.innerHTML='';
