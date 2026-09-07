@@ -1,3 +1,5 @@
+/* ဘေးကိုလျံထွက်တာ (Scroll) မဖြစ်အောင် အပေါ်ဆုံးမှာထည့်ပါ */
+*, *::before, *::after { box-sizing: border-box; }
 @font-face {
   font-family: "Optimistic";
   font-style: normal;
@@ -171,20 +173,34 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif!imp
 .view-section.active{display:block}
 
 /* Header & Flex layout for phone */
+/* /* Search Box နဲ့ Login ဘေးချင်းကပ်ဖို့ 
+header { flex-wrap: nowrap; padding: 1.5vw; gap: 1.5vw; }
+#main-header { width: auto; flex: 1; display: flex; gap: 1vw; }
+
+#search-input { width: auto; flex: 1; min-width: 0; padding: 1.5vw 2vw; }
+.nav-btns { flex: 0 0 auto; gap: 1vw; }
+*/
 header{
+  flex-wrap: nowrap; 
   position:sticky;top:0;z-index:1100;
   display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;
   background:var(--card);
-  padding:2.5vw;border-radius:12px;margin-bottom:3vw;
+  padding:1.5vw;border-radius:12px;margin-bottom:3vw;
+  gap: 1.5vw; 
   border:1px solid #E2E8F0;gap:2vw;
 }
 .dark-mode header{ border-color:#334155; }
-#main-header{ gap:2vw; width:100%; justify-content:space-between; }
-.nav-btns{ flex:1 1 100%; display:flex; justify-content:space-around; gap:1.5vw; }
+#main-header{ 
+width: auto; flex: 1; display: flex;
+gap:1vw; justify-content:space-between; }
+
+.nav-btns{ flex:0 0 auto; display:flex; justify-content:space-around; gap:1vw; }
 
 #search-input{
-  width:100%;
-  padding:2.5vw 3vw;
+  width: auto;
+  flex: 1;
+  min-width: 0;
+  padding:1.5vw 2vw;
   border-radius:9px;
   border:1px solid #E2E8F0;
   background:var(--bg);
@@ -300,3 +316,27 @@ header{
 .btn-auth.danger{ background:#1f2937; color:#f87171; }
 .btn-auth.secondary{ background:transparent; }
 .btn-auth:active{ transform:scale(0.98); }
+
+
+
+
+/* ဘေးကိုလျံထွက်တာ (Scroll) မဖြစ်အောင် အပေါ်ဆုံးမှာထည့်ပါ */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Search Box နဲ့ Login ဘေးချင်းကပ်ဖို့ */
+header { flex-wrap: nowrap; padding: 1.5vw; gap: 1.5vw; }
+#main-header { width: auto; flex: 1; display: flex; gap: 1vw; }
+#search-input { width: auto; flex: 1; min-width: 0; padding: 1.5vw 2vw; }
+.nav-btns { flex: 0 0 auto; gap: 1vw; }
+
+/* List နဲ့ Edit ထဲက ခလုတ်တွေ ချုံ့ဖို့ */
+.song-item { padding: 1.5vw; margin: 1vw 0; }
+.item-actions { gap: 0.5vw; }
+.icon-btn { padding: 0.5vw; font-size: clamp(14px, 4vw, 18px); }
+
+/* Song Map ခလုတ်နဲ့ နေရာလွတ်တွေ ချုံ့ဖို့ */
+#song-timeline-bar { gap: 0.8vw; padding: 1vw 0.5vw; margin-bottom: 1vw; }
+.timeline-chip { padding: 1vw 1.5vw; font-size: clamp(8px, 2.5vw, 10px); }
+
+
+
