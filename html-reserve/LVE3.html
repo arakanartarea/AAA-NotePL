@@ -11,6 +11,14 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
+<!-- ?v= ပါချင်ရင် အပေါ်က ၃ကြောင်းအစား ဒါကိုထည့်လိုက် -->
+<script>
+  const t = new Date().getTime();
+  document.write(`<link rel="stylesheet" href="LVE3-common.css?v=${t}">`);
+  document.write(`<link rel="stylesheet" href="LVE3-phone.css?v=${t}" media="(max-width: 768px)">`);
+  document.write(`<link rel="stylesheet" href="LVE3-tablet.css?v=${t}" media="(min-width: 769px)">`);
+</script>
+
 
 </head>
 <body>
@@ -229,7 +237,7 @@
 <!-- Font ဆ  -->
 
  <script>
-    const uniqueTime = new Date().getTime();
+    /*const uniqueTime = new Date().getTime();
     
     // CSS အသစ်ဆွဲရန်
     const link = document.createElement('link');
@@ -240,7 +248,13 @@
     // JS အသစ်ဆွဲရန်
     const script = document.createElement('script');
     script.src = 'LVE3.js?v=1.0' + uniqueTime;
-    document.head.appendChild(script);
+    document.head.appendChild(script); */
+    
+  // အပေါ်က t ကိုပဲ ပြန်သုံးတယ်
+  const script = document.createElement('script');
+  script.src = 'LVE3.js?v=' + t;
+  document.body.appendChild(script);
+
 </script> 
 
 
