@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<title>Sheet to AAS - No Login One Time</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<style>
+body{background:#0f172a;color:#e2e8f0;font-family:monospace;padding:15px}
+input,button{padding:12px;margin:6px 0;width:100%;background:#1e293b;color:#fff;border:1px solid #334155;border-radius:6px;box-sizing:border-box}
+button{cursor:pointer;background:#16a34a;font-weight:bold}
+#log{white-space:pre-wrap;background:#020617;padding:10px;margin-top:12px;border-radius:6px;height:400px;overflow:auto;font-size:12px}
+small{color:#94a3b8}
+</style>
+</head>
+<body>
+<h3>Sheet Data -> AllArakanSongs (Login မပါ / တစ်ခါသုံး)</h3>
+<small>Firestore Rules ကို ခဏ allow write true ဖွင့်ထားပါ</small>
+<input id="sheet-url" placeholder="Data Sheet Link - https://docs.google.com/spreadsheets/d/ID/edit#gid=GID">
+<input id="gid-input" placeholder="gid (optional) - link ထဲက gid ကို auto ယူမယ်, မပါရင် 0">
+<button id="btn-fetch">1. Sheet ဖတ် (Data sheet ကိုပဲ)</button>
+<button id="btn-upload" disabled>2. AllArakanSongs ထဲ တင်မည် - title မရှိတဲ့ ရိုးကျော်မယ်</button>
+<div id="log">Ready...\n- Data sheet ရဲ့ link ကိုထည့်ပါ\n- View sheet မဟုတ်ဘူး, Data sheet ကိုတိုက်ရိုက်ထည့်ပါ\n</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U",
+  authDomain: "arakanartarea-note.firebaseapp.com",
+  projectId: "arakanartarea-note",
+  storageBucket: "arakanartarea-note.firebasestorage.app",
+  messagingSenderId: "695659736666",
+  appId: "1:695659736666:web:1e76494c0e6819609bf263"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let rows = [];
+function log(m){ const el=document.getElementById('log'); el.textContent += "\n" + m; el.scrollTop = el.scrollHeight; console.log(m); }
+
+function parseCSV(text){
+  const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="");
+  if(lines.length===0) return [];
+  const header = lines[0].split(',').map(h=>h.trim().replace(/^"|"$/g,''));
+  const out=[];
+  for(let i=1;i<lines.length;i++){
+    const cols = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+    let obj={};
+    header.forEach((h,idx)=>{
+      let v = cols[idx]||"";
+      v = v.replace(/^"|"$/g,'').trim();
+      obj[h]=v;
+    });
+    out.push(obj);
+  }
+  return out;
+}
+
+document.getElementById('btn-fetch').onclick = async ()=>{
+  let url = document.getElementById('sheet-url').value.trim();
+  let gid = document.getElementById('gid-input').value.trim();
+  if(!url) return alert("Sheet link ထည့်ပါ - Data sheet");
+  const idMatch = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  if(!idMatch) return alert("Sheet ID ရှာမတွေ့");
+  const sheetId = idMatch[1];
+  if(!gid){
+    const gidMatch = url.match(/[#&]gid=([0-9]+)/);
+    if(gidMatch) gid = gidMatch[1];
+  }
+  if(!gid) gid = "0";
+  const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
+  log("Fetching: "+csvUrl+" (Data sheet)");
+  try{
+    const res = await fetch(csvUrl);
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const txt = await res.text();
+    rows = parseCSV(txt);
+    log(`Parsed ${rows.length} rows from gid=${gid}`);
+    if(rows[0]) log("Cols: "+Object.keys(rows[0]).join(" | "));
+    // preview empty ID rows
+    const emptyTitle = rows.filter(r=>!(r['နာမယ်']||r['title']||"").trim()).length;
+    log(`ID ရှိပြီး နာမယ်မရှိတဲ့ ရိုး: ${emptyTitle} ခု -> တင်တဲ့အခါ skip မယ်`);
+    if(rows[0]) log("Sample: "+JSON.stringify(rows[0],null,2));
+    document.getElementById('btn-upload').disabled=false;
+  }catch(e){ log("Fetch error: "+e.message+" -> Sheet ကို Anyone with link - Viewer ပေးထားရမယ်"); }
+};
+
+document.getElementById('btn-upload').onclick = async ()=>{
+  if(rows.length===0) return alert("Row မရှိ");
+  log("Upload start to AllArakanSongs - Doc ID = စိုင်");
+  let ok=0, skip=0;
+  for(const r of rows){
+    const idRaw = r['စိုင်'] || r['id'] || r['ID'] || "";
+    const titleRaw = (r['နာမယ်'] || r['title'] || "").trim();
+    if(!titleRaw){ skip++; continue; } // ID ရှိပြီး သီချင်းမရှိတာ skip
+    if(!idRaw){ skip++; continue; }
+    const docId = String(idRaw).trim();
+
+    let voteRaw = r['Vote'] || r['ကြယ်ပွင့်'] || r['⭐'] || "0";
+    let vote = parseInt(voteRaw)||0;
+    if(vote<0) vote=0; if(vote>9) vote=9;
+
+    const payload = {
+      title: titleRaw,
+      singer: r['တေးဆို'] || "",
+      writer: r['တေးရွီး'] || "",
+      album: r['အယ်ဘမ်'] || "",
+      albumType: r['Album Type'] || "",
+      isNew: r['သစ်/ပြန်ဆို'] || "",
+      oc: r['O / C'] || r['O/C'] || "",
+      genre: r['သင်္ကြန်,ရိုးရာ'] || r['သင်္ကြန်'] || "",
+      year: r['ခုနှစ်'] || "",
+      studio: r['တေးဂီတ/စတူဒီယို'] || "",
+      language: r['ဘာသာစကား'] || "",
+      harmony: r['ဟာမိုနီ'] || "",
+      mixing: r['Music & Mixing'] || "",
+      director: r['ဒါရိုက်တာ'] || "",
+      guitar: r['ဂီတာကော့'] || "",
+      gender: r['Man,Woman'] || "",
+      karaoke: r['Karaoke'] || "",
+      remark: r['မှတ်ချက်'] || "",
+      vote: vote
+    };
+    Object.keys(payload).forEach(k=>{ if(payload[k]==="") delete payload[k]; });
+
+    try{
+      await db.collection('AllArakanSongs').doc(docId).set(payload, {merge:true});
+      ok++;
+      log(`OK ${ok} -> ${docId} | ${titleRaw}`);
+    }catch(e){ log(`ERR ${docId}: ${e.message}`); }
+  }
+  log(`DONE. Uploaded: ${ok}, Skipped (no title): ${skip}`);
+  log(`AllArakanSongs coll auto ဆောက်ပြီးပါပြီ`);
+};
+</script>
+</body>
+</html>

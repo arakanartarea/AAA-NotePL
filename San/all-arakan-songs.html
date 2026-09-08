@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Arakan Songs - AAS</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script>
+  const t = Date.now();
+  document.write(`<link rel="stylesheet" href="../html-reserve/LVE3-common.css?v=${t}">`);
+  document.write(`<link rel="stylesheet" href="../html-reserve/LVE3-phone.css?v=${t}" media="(max-width: 768px)">`);
+  document.write(`<link rel="stylesheet" href="../html-reserve/LVE3-tablet.css?v=${t}" media="(min-width: 769px)">`);
+  // AAS အတွက် ပိုတာလေးရှိရင် San ထဲမှာပဲ ထားလိုက်
+  document.write(`<link rel="stylesheet" href="AAS-override.css?v=${t}">`);
+</script>
+<style>
+.vote-badge{background:#eab308;color:#000;font-size:9px;padding:2px 6px;border-radius:10px;margin-left:6px}
+.fav-btn.active{color:#f59e0b !important}
+#sortModal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card);padding:16px;border-radius:12px;z-index:10000;width:85%;max-width:320px;max-height:70vh;overflow:auto;border:1px solid #334155}
+#sortOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999}
+.sort-item{padding:10px 12px;margin:6px 0;background:var(--bg);border:1px solid #334155;border-radius:8px;cursor:pointer}
+.sort-item.active{background:#E11D48;color:#fff}
+</style>
+</head>
+<body>
+<header id="main-header">
+  <div class="nav-btns" style="flex:1">
+    <input type="text" id="search-input" placeholder="သီချင်း / တေးဆို / တေးရေး ရှာရန်..." oninput="filterSongs()">
+  </div>
+  <div id="status-badge" class="status-badge">Viewer</div>
+</header>
+
+<div id="list-view" class="view-section active">
+  <div id="accordion-container">ခေါ်ယူနေသည်...</div>
+  <div id="list-fab-container" style="position:fixed;bottom:27px;right:27px;z-index:1000;display:flex;flex-direction:column-reverse;align-items:flex-end;gap:10px;">
+    <button onclick="openCreateForm()" id="btn-add" style="display:none;width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;cursor:pointer;"><span class="material-symbols-rounded">add</span></button>
+    <button onclick="toggleListFabMenu()" style="width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;cursor:pointer;"><span class="material-symbols-rounded">settings</span></button>
+    <div id="list-fab-menu" style="display:none;flex-direction:column-reverse;gap:10px;align-items:flex-end;">
+      <button id="btn-login" onclick="handleAuthClick()" style="width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;cursor:pointer;"><span class="material-symbols-rounded">login</span></button>
+      <button onclick="toggleTheme()" style="width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;cursor:pointer;"><span class="material-symbols-rounded">dark_mode</span></button>
+      <button onclick="openFontModal()" style="width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;cursor:pointer;"><span class="material-symbols-rounded">font_download</span></button>
+      <button onclick="openSortModal()" style="width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;cursor:pointer;"><span class="material-symbols-rounded">sort</span></button>
+      <button onclick="toggleFavFilter()" id="btn-fav-filter" style="width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;cursor:pointer;"><span class="material-symbols-rounded">star</span></button>
+    </div>
+  </div>
+</div>
+
+<div id="input-view" class="view-section">
+  <h2 id="form-title">သီချင်းထည့် / ပြင်</h2>
+  <div class="form-group"><label>စိုင် (ID) - သီချင်းနံပါတ်</label><input type="text" id="inp-id"></div>
+  <div class="form-group"><label>နာမယ် (Title)</label><input type="text" id="inp-title"></div>
+  <div class="form-group"><label>တေးဆို - ကော်မာခံရေး (ဥပမာ: ခိုင်ထူး, စိုးလွင်လွင်)</label><input type="text" id="inp-singer"></div>
+  <div class="form-group"><label>တေးရေး - ကော်မာခံရေး</label><input type="text" id="inp-writer"></div>
+  <div class="form-group"><label>အယ်ဘမ်</label><input type="text" id="inp-album"></div>
+  <div class="form-group"><label>Vote 0-9</label><input type="number" id="inp-vote" min="0" max="9" value="0"></div>
+  <div class="form-group"><label>Remark</label><textarea id="inp-remark"></textarea></div>
+  <button onclick="saveSong()" style="padding:10px 20px;background:#16a34a;color:#fff;border:0;border-radius:8px;cursor:pointer">Save</button>
+  <button onclick="switchView('list-view')" style="padding:10px 20px">Back</button>
+</div>
+
+<div id="auth-modal" class="hidden"><div class="auth-box"><div class="auth-header"><span class="material-symbols-rounded" style="font-size:28px;color:#eab308;">account_circle</span><div><div style="font-weight:700;color:#fff;" id="auth-modal-email"></div><div style="font-size:12px;color:var(--muted);">Admin အကောင့်ဝင်ထားသည်</div></div></div><div class="auth-actions"><button id="btn-auth-cancel" class="btn-auth secondary">မလုပ်တော့</button><button id="btn-auth-logout" class="btn-auth danger">ထွက်မယ်</button><button id="btn-auth-switch" class="btn-auth primary">ပြောင်းမယ်</button></div></div></div>
+<div class="overlay" id="fontOverlay" onclick="closeFontModal()"></div><div class="font-modal" id="fontModal"><h3>ဖောင့်ရွေး</h3><div class="font-item" onclick="changeGlobalFont('Noto Sans Myanmar',this)">Noto Sans Myanmar</div><div class="font-item" onclick="changeGlobalFont('Pyidaungsu',this)">Pyidaungsu</div></div>
+<div id="sortOverlay" onclick="closeSortModal()"></div><div id="sortModal"><h3>Sort ရွေး</h3><div class="sort-item active" data-sort="singer" onclick="setSort('singer',this)">တေးဆို A-Z</div><div class="sort-item" data-sort="writer" onclick="setSort('writer',this)">တေးရေး A-Z</div><div class="sort-item" data-sort="album" onclick="setSort('album',this)">အယ်ဘမ် A-Z</div><div class="sort-item" data-sort="title" onclick="setSort('title',this)">နာမယ် A-Z</div><div class="sort-item" data-sort="vote-desc" onclick="setSort('vote-desc',this)">Vote များကနေ နည်းကနေ</div><div class="sort-item" data-sort="vote-asc" onclick="setSort('vote-asc',this)">Vote နည်းကနေ များကနေ</div><div class="sort-item" data-sort="new" onclick="setSort('new',this)">ID အသစ်ကနေ အဟောင်း</div></div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U",
+  authDomain: "arakanartarea-note.firebaseapp.com",
+  projectId: "arakanartarea-note",
+  storageBucket: "arakanartarea-note.firebasestorage.app",
+  messagingSenderId: "695659736666",
+  appId: "1:695659736666:web:1e76494c0e6819609bf263"
+};
+if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+let allSongsData=[], filteredData=[], editingDocId=null, isAdminUser=false, currentUser=null;
+let sortBy = localStorage.getItem('aas-sort-by')||'singer';
+let showFavOnly = false;
+let favList = JSON.parse(localStorage.getItem('aas-fav')||'[]');
+
+function splitNames(str){
+  if(!str) return [];
+  if(Array.isArray(str)) return str;
+  return str.split(/[,၊/&+]+|နဲ့|and|with/gi).map(s=>s.trim()).filter(s=>s);
+}
+function initFirebase(){
+  auth.onAuthStateChanged(async (user)=>{
+    currentUser=user;
+    if(user){
+      try{
+        const email=user.email.toLowerCase();
+        const adminDoc=await db.collection('admins').doc(email).get();
+        isAdminUser=adminDoc.exists;
+      }catch(e){isAdminUser=false}
+    }else{isAdminUser=false}
+    updateAuthUI();
+  });
+  db.collection('AllArakanSongs').onSnapshot(snap=>{
+    allSongsData=[];
+    snap.forEach(doc=>{let d=doc.data();d._id=doc.id;d.singers=d.singers||splitNames(d.singer);d.writers=d.writers||splitNames(d.writer);allSongsData.push(d);});
+    filterSongs();
+  });
+}
+function updateAuthUI(){
+  const badge=document.getElementById('status-badge');
+  const loginIcon=document.querySelector('#btn-login .material-symbols-rounded');
+  const addBtn=document.getElementById('btn-add');
+  if(badge){
+    if(isAdminUser&&currentUser){badge.textContent='Admin: '+(currentUser.displayName||currentUser.email.split('@')[0]);badge.style.background='#16a34a';badge.style.color='#fff';}
+    else{badge.textContent=currentUser?'Viewer: '+currentUser.email.split('@')[0]:'Viewer';badge.style.background='#eab308';badge.style.color='#000';}
+  }
+  if(loginIcon) loginIcon.textContent=currentUser?'logout':'login';
+  if(addBtn) addBtn.style.display=isAdminUser?'grid':'none';
+  filterSongs();
+}
+function handleAuthClick(){
+  if(currentUser){
+    document.getElementById('auth-modal-email').textContent=currentUser.email;
+    document.getElementById('auth-modal').classList.remove('hidden');
+  }else{
+    const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});auth.signInWithPopup(provider);
+  }
+}
+document.getElementById('btn-auth-cancel').onclick=()=>document.getElementById('auth-modal').classList.add('hidden');
+document.getElementById('btn-auth-logout').onclick=()=>{document.getElementById('auth-modal').classList.add('hidden');auth.signOut();};
+document.getElementById('btn-auth-switch').onclick=()=>{document.getElementById('auth-modal').classList.add('hidden');auth.signOut().then(()=>{setTimeout(()=>{const p=new firebase.auth.GoogleAuthProvider();p.setCustomParameters({prompt:'select_account'});auth.signInWithPopup(p);},400);});};
+function switchView(id){document.querySelectorAll('.view-section').forEach(el=>el.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function toggleListFabMenu(){const m=document.getElementById('list-fab-menu');m.style.display=m.style.display==='flex'?'none':'flex';}
+function toggleTheme(){let isDark=document.body.classList.toggle('dark-mode');localStorage.setItem('theme',isDark?'dark':'light');}
+if(localStorage.getItem('theme')==='dark') document.body.classList.add('dark-mode');
+
+function filterSongs(){
+  const q=(document.getElementById('search-input').value||'').toLowerCase().trim();
+  let data=allSongsData.filter(s=>{
+    if(showFavOnly && !favList.includes(s._id)) return false;
+    if(!q) return true;
+    return (s.title||'').toLowerCase().includes(q)||(s.singer||'').toLowerCase().includes(q)||(s.writer||'').toLowerCase().includes(q)||(s.album||'').toLowerCase().includes(q);
+  });
+  // sort
+  data.sort((a,b)=>{
+    if(sortBy==='singer') return (a.singers[0]||'').localeCompare(b.singers[0]||'');
+    if(sortBy==='writer') return (a.writers[0]||'').localeCompare(b.writers[0]||'');
+    if(sortBy==='album') return (a.album||'').localeCompare(b.album||'');
+    if(sortBy==='title') return (a.title||'').localeCompare(b.title||'');
+    if(sortBy==='vote-desc') return (b.vote||0)-(a.vote||0);
+    if(sortBy==='vote-asc') return (a.vote||0)-(b.vote||0);
+    if(sortBy==='new') return parseInt(b._id)||0 - (parseInt(a._id)||0);
+    return 0;
+  });
+  filteredData=data;
+  renderAccordion();
+}
+function renderAccordion(){
+  const container=document.getElementById('accordion-container');
+  container.innerHTML='';
+  const grouped={};
+  filteredData.forEach(s=>{
+    let key='';
+    if(sortBy==='writer') key=s.writers[0]||'မသိ';
+    else if(sortBy==='album') key=s.album||'အယ်ဘမ် မသိ';
+    else key=s.singers[0]||'မသိ';
+    if(sortBy==='title' || sortBy.startsWith('vote') || sortBy==='new') key='All Songs';
+    if(!grouped[key]) grouped[key]=[];
+    grouped[key].push(s);
+  });
+  Object.keys(grouped).sort().forEach(gName=>{
+    const songs=grouped[gName];
+    const acc=document.createElement('div');acc.className='accordion';
+    const header=document.createElement('div');header.className='accordion-header';
+    header.innerHTML=`<span>🎤 ${gName} (${songs.length})</span><span>▼</span>`;
+    header.onclick=()=>acc.classList.toggle('open');
+    const content=document.createElement('div');content.className='accordion-content';
+    content.innerHTML=songs.map(song=>{
+      const isFav=favList.includes(song._id);
+      const stars='⭐'.repeat(song.vote||0);
+      return `<div class="song-item"><span class="song-title-click">${song.title||'-'}<span class="vote-badge">${song.vote||0}/9 ${stars}</span><br><small style="color:var(--muted)">${(song.singers||[]).join(', ')} | ရေး: ${(song.writers||[]).join(', ')}</small></span><div class="item-actions"><button class="icon-btn fav-btn ${isFav?'active':''}" onclick="toggleFav('${song._id}')" title="Fav">${isFav?'★':'☆'}</button><div style="display:${isAdminUser?'flex':'none'};gap:4px"><button class="icon-btn" onclick="editSong('${song._id}')">📝</button><button class="icon-btn" onclick="deleteSong('${song._id}')">🗑️</button></div></div></div>`;
+    }).join('');
+    acc.appendChild(header);acc.appendChild(content);container.appendChild(acc);
+  });
+}
+function toggleFav(id){
+  if(favList.includes(id)) favList=favList.filter(x=>x!==id);
+  else favList.push(id);
+  localStorage.setItem('aas-fav',JSON.stringify(favList));
+  renderAccordion();
+}
+function toggleFavFilter(){showFavOnly=!showFavOnly;document.getElementById('btn-fav-filter').style.background=showFavOnly?'#f59e0b':'';filterSongs();}
+function openSortModal(){document.getElementById('sortModal').style.display='block';document.getElementById('sortOverlay').style.display='block';document.querySelectorAll('.sort-item').forEach(el=>{el.classList.toggle('active',el.dataset.sort===sortBy);});}
+function closeSortModal(){document.getElementById('sortModal').style.display='none';document.getElementById('sortOverlay').style.display='none';}
+function setSort(s,el){sortBy=s;localStorage.setItem('aas-sort-by',s);document.querySelectorAll('.sort-item').forEach(e=>e.classList.remove('active'));el.classList.add('active');closeSortModal();filterSongs();}
+function openFontModal(){document.getElementById('fontModal').style.display='block';document.getElementById('fontOverlay').style.display='block';}
+function closeFontModal(){document.getElementById('fontModal').style.display='none';document.getElementById('fontOverlay').style.display='none';}
+function changeGlobalFont(f){localStorage.setItem('aaaUserFont',f);let s=document.getElementById('global-font-style');if(!s){s=document.createElement('style');s.id='global-font-style';document.head.appendChild(s);}s.innerHTML=`body *:not(.material-symbols-rounded){font-family:'${f}'!important;}`;closeFontModal();}
+(function(){const saved=localStorage.getItem('aaaUserFont');if(saved){let s=document.createElement('style');s.id='global-font-style';s.innerHTML=`body *:not(.material-symbols-rounded){font-family:'${saved}'!important;}`;document.head.appendChild(s);}})();
+
+//အိုင်ဒီပေး စ
+function findNextFreeId() {
+  // _id တွေက "1","2","10" လို string မို့ number ပြောင်း
+  const nums = allSongsData.map(s => parseInt(s._id)).filter(n => !isNaN(n)).sort((a, b) => a - b);
+  if (nums.length === 0) return "1";
+  
+  // 1 ကနေစပြီး လွတ်နေတာ ရှာ
+  for (let i = 1; i < nums.length; i++) {
+    if (nums[i] - nums[i - 1] > 1) {
+      return String(nums[i - 1] + 1); // ကြား ID ပြန်ပေး
+    }
+  }
+  // ရှေ့မှာလွတ်တာမရှိရင် 1 က လွတ်လား စစ်
+  if (nums[0] !== 1) return "1";
+  
+  // လွတ်တာမရှိတော့ရင် နောက်ဆုံး + 1
+  return String(nums[nums.length - 1] + 1);
+}
+
+function openCreateForm() {
+  if (!isAdminUser) { alert('Admin login လိုတယ်'); return; }
+  editingDocId = null;
+  const nextId = findNextFreeId();
+  document.getElementById('form-title').textContent = 'အသစ်ထည့် - Auto ID: ' + nextId;
+  document.getElementById('inp-id').value = nextId; // auto ဖြည့်
+  ['inp-title', 'inp-singer', 'inp-writer', 'inp-album', 'inp-remark'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('inp-vote').value = 0;
+  switchView('input-view');
+}
+
+/*function openCreateForm(){if(!isAdminUser){alert('Admin login လိုတယ်');return;}editingDocId=null;document.getElementById('form-title').textContent='အသစ်ထည့်';['inp-id','inp-title','inp-singer','inp-writer','inp-album','inp-remark'].forEach(id=>document.getElementById(id).value='');document.getElementById('inp-vote').value=0;switchView('input-view');}
+*/
+function editSong(id){if(!isAdminUser)return;db.collection('AllArakanSongs').doc(id).get().then(doc=>{if(!doc.exists)return;const d=doc.data();editingDocId=id;document.getElementById('inp-id').value=id;document.getElementById('inp-title').value=d.title||'';document.getElementById('inp-singer').value=d.singer||(d.singers||[]).join(', ');document.getElementById('inp-writer').value=d.writer||(d.writers||[]).join(', ');document.getElementById('inp-album').value=d.album||'';document.getElementById('inp-vote').value=d.vote||0;document.getElementById('inp-remark').value=d.remark||'';switchView('input-view');});}
+function saveSong(){
+  if(!isAdminUser)return;
+  const id=document.getElementById('inp-id').value.trim();
+  const title=document.getElementById('inp-title').value.trim();
+  if(!id||!title){alert('ID နဲ့ Title လိုတယ်');return;}
+  const singerStr=document.getElementById('inp-singer').value.trim();
+  const writerStr=document.getElementById('inp-writer').value.trim();
+  const payload={title,singer:singerStr,singers:splitNames(singerStr),writer:writerStr,writers:splitNames(writerStr),album:document.getElementById('inp-album').value.trim(),vote:parseInt(document.getElementById('inp-vote').value)||0,remark:document.getElementById('inp-remark').value.trim()};
+  db.collection('AllArakanSongs').doc(id).set(payload,{merge:true}).then(()=>switchView('list-view')).catch(e=>alert(e.message));
+}
+function deleteSong(id){if(!isAdminUser)return;if(confirm('ဖျက်မလား '+id+'?')) db.collection('AllArakanSongs').doc(id).delete();}
+initFirebase();
+</script>
+</body>
+</html>
