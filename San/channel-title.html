@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Channel Intro Animation</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #00FF00; /* Chroma green for easy background removal */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: sans-serif;
+        }
+        .widget-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 25px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .avatar-wrapper {
+            position: relative;
+            width: 64px;
+            height: 64px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .rotating-ring {
+            position: absolute;
+            width: 68px;
+            height: 68px;
+            border: 1px dashed #00f3ff;
+            border-radius: 50%;
+            animation: spin 36s linear infinite;
+        }
+        .avatar-wrapper img {
+            width: 63px;
+            height: 63px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+        }
+        .title-box h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+            white-space: nowrap;
+            background: linear-gradient(45deg, #ff007f, #00f3ff, #ffeb3b, #00ff88);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientText 4s ease infinite;
+            transition: opacity 0.3s ease;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes gradientText {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="widget-container">
+        <div class="avatar-wrapper">
+            <div class="rotating-ring"></div>
+            <img src="https://lh3.googleusercontent.com/d/1-k-biRtEHWKeb_tZKPXhZD2JCB6b9vds" alt="Channel Icon">
+        </div>
+        <div class="title-box">
+            <h2 id="rotatingTitle">Arakan Art Area</h2>
+        </div>
+    </div>
+
+    <script>
+        const titles = [
+            "Arakan Art Area",
+            "All Arakan Assets",
+            "အာရက္ခ အနုပညာ ရပ်ဝန်း"
+        ];
+        let index = 0;
+        const titleElement = document.getElementById("rotatingTitle");
+
+        setInterval(() => {
+            titleElement.style.opacity = 0;
+            setTimeout(() => {
+                index = (index + 1) % titles.length;
+                titleElement.innerText = titles[index];
+                titleElement.style.opacity = 1;
+            }, 300);
+        }, 3000);
+    </script>
+</body>
+</html>

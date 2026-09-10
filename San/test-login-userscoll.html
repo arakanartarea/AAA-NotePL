@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Login - users</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white p-4 min-h-screen">
+
+<div id="login-view" class="flex flex-col items-center justify-center min-h-[80vh]">
+  <h1 class="text-2xl font-bold">users collection Test</h1>
+  <p class="text-slate-400 text-sm mt-2">Login ဝင်တာနဲ့ users/{UID} auto သိမ်းမယ်</p>
+  <button id="btn-login" class="mt-6 bg-white text-black px-8 py-3 rounded-full font-bold">Google Login</button>
+  <div id="msg" class="mt-4 text-yellow-300 text-sm"></div>
+</div>
+
+<div id="user-view" class="hidden max-w-2xl mx-auto">
+  <div class="flex justify-between items-center">
+    <h1 class="text-xl font-bold">Login OK</h1>
+    <button id="btn-logout" class="bg-red-600 px-4 py-2 rounded">Logout</button>
+  </div>
+
+  <div class="bg-slate-800 p-4 rounded-xl mt-4 flex gap-4 items-center">
+    <img id="u-photo" class="w-16 h-16 rounded-full bg-slate-700">
+    <div>
+      <div id="u-name" class="font-bold text-lg"></div>
+      <div id="u-email" class="text-sm text-slate-400"></div>
+      <div id="u-aid" class="mt-1 font-mono text-green-400 text-lg"></div>
+      <div id="u-uid" class="text-[10px] text-slate-500"></div>
+    </div>
+  </div>
+
+  <div class="bg-slate-800 p-4 rounded-xl mt-4 text-sm space-y-2">
+    <div>firstLogin: <span id="u-first"></span></div>
+    <div>lastLogin: <span id="u-last"></span></div>
+    <div>loginCount: <span id="u-count"></span></div>
+    <div>device: <span id="u-device" class="text-xs"></span></div>
+  </div>
+
+  <div class="bg-black p-3 rounded mt-4 text-xs font-mono">
+    <div class="text-slate-500">Firestore Path:</div>
+    <div id="u-path" class="text-green-300"></div>
+  </div>
+
+  <div id="log" class="mt-4 text-xs text-slate-400 whitespace-pre-wrap"></div>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U",
+  authDomain: "arakanartarea-note.firebaseapp.com",
+  projectId: "arakanartarea-note",
+  storageBucket: "arakanartarea-note.firebasestorage.app",
+  messagingSenderId: "695659736666",
+  appId: "1:695659736666:web:1e76494c0e6819609bf263"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+function formatAID(n){ return `A-${String(n).padStart(7,'0')}`; }
+
+function log(t){ document.getElementById('log').innerText += t + "\n"; console.log(t); }
+
+document.getElementById('btn-login').onclick = ()=>{
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({prompt:'select_account'});
+  auth.signInWithPopup(provider).catch(e=>alert(e.message));
+};
+document.getElementById('btn-logout').onclick = ()=> auth.signOut();
+
+auth.onAuthStateChanged(async (user)=>{
+  if(!user){
+    document.getElementById('login-view').classList.remove('hidden');
+    document.getElementById('user-view').classList.add('hidden');
+    return;
+  }
+  document.getElementById('login-view').classList.add('hidden');
+  document.getElementById('user-view').classList.remove('hidden');
+
+  const uid = user.uid;
+  const userRef = db.collection('users').doc(uid);
+  const counterRef = db.collection('counters').doc('aid');
+
+  document.getElementById('msg').innerText = "Checking users/"+uid;
+  log(`Login: ${user.email} UID:${uid}`);
+
+  try{
+    const snap = await userRef.get();
+    let data;
+    if(!snap.exists){
+      log("→ လူသစ်, AID ထုတ်မယ်...");
+      // AID ထုတ်မယ် - transaction
+      const newAid = await db.runTransaction(async (tx)=>{
+        const counterSnap = await tx.get(counterRef);
+        let next = 1;
+        if(!counterSnap.exists){
+          next = 1001; // စစချင်း 1001 က စမယ်
+          tx.set(counterRef, { value: next });
+        }else{
+          next = (counterSnap.data().value || 1000) + 1;
+          tx.update(counterRef, { value: next });
+        }
+        return next;
+      });
+
+      const payload = {
+        AID: newAid,
+        aid_str: formatAID(newAid),
+        email: user.email.toLowerCase(),
+        displayName: user.displayName || '',
+        photoURL: user.photoURL || '',
+        uid: uid,
+        role: 'viewer',
+        firstLogin: firebase.firestore.FieldValue.serverTimestamp(),
+        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+        loginCount: 1,
+        device: navigator.userAgent.substring(0,120),
+        loginHistory: [new Date().toISOString()],
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      await userRef.set(payload);
+      data = payload;
+      log(`✓ သိမ်းပြီး AID=${newAid} (${formatAID(newAid)})`);
+    }else{
+      data = snap.data();
+      log(`→ လူဟောင်း AID=${data.AID}`);
+      await userRef.update({
+        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+        loginCount: firebase.firestore.FieldValue.increment(1),
+        device: navigator.userAgent.substring(0,120),
+        photoURL: user.photoURL || data.photoURL || '',
+        displayName: user.displayName || data.displayName || '',
+        loginHistory: firebase.firestore.FieldValue.arrayUnion(new Date().toISOString())
+      });
+      const updated = await userRef.get();
+      data = updated.data();
+    }
+
+    // UI ပြမယ်
+    document.getElementById('u-photo').src = data.photoURL || user.photoURL;
+    document.getElementById('u-name').innerText = data.displayName || user.displayName;
+    document.getElementById('u-email').innerText = data.email;
+    document.getElementById('u-aid').innerText = formatAID(data.AID) + ` (raw: ${data.AID})`;
+    document.getElementById('u-uid').innerText = "UID: "+uid;
+    document.getElementById('u-first').innerText = data.firstLogin?.toDate?.()?.toLocaleString() || data.firstLogin || '';
+    document.getElementById('u-last').innerText = data.lastLogin?.toDate?.()?.toLocaleString() || 'just now';
+    document.getElementById('u-count').innerText = data.loginCount || 1;
+    document.getElementById('u-device').innerText = data.device || '';
+    document.getElementById('u-path').innerText = `users/${uid}`;
+
+  }catch(e){
+    log("ERROR: "+e.message);
+    alert("Error: "+e.message+"\n\nRules မှာ users ကို ဖွင့်ထားလား စစ်ပါ");
+  }
+});
+</script>
+</body>
+</html>

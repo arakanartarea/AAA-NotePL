@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admins Editor - AAA</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>body{font-family: 'Pyidaungsu', sans-serif; background:#0f172a; color:#e2e8f0}</style>
+</head>
+<body class="p-4">
+
+<div id="login-view" class="min-h-screen flex flex-col items-center justify-center">
+  <h1 class="text-2xl font-bold mb-4">Admins Collection Editor</h1>
+  <p class="text-sm text-slate-400 mb-6">Admin email နဲ့ login ဝင်မှ ပြင်လို့ရမယ်</p>
+  <button id="btn-login" class="bg-white text-black px-6 py-3 rounded-full font-bold">Google Login</button>
+  <div id="login-msg" class="mt-4 text-yellow-400"></div>
+</div>
+
+<div id="admin-view" class="hidden max-w-6xl mx-auto">
+  <div class="flex justify-between items-center mb-4">
+    <h1 class="text-xl font-bold">admins / users Editor - <span id="cur-email" class="text-green-400"></span></h1>
+    <button id="btn-logout" class="bg-red-600 px-4 py-2 rounded">Logout</button>
+  </div>
+
+  <!-- Add Form -->
+  <div class="bg-slate-800 p-4 rounded-xl mb-6">
+    <h2 class="font-bold mb-3">+ လူသစ်ထည့်ရန် (ကိုယ်တိုင်ရိုက်ထည့်)</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <input id="f-email" placeholder="email (doc ID) - zaw@gmail.com" class="p-2 rounded bg-slate-900 border border-slate-600">
+      <input id="f-role" placeholder="role - admin / editor / viewer" value="viewer" class="p-2 rounded bg-slate-900 border border-slate-600">
+      <input id="f-aid" placeholder="AID - 1051" type="number" class="p-2 rounded bg-slate-900 border border-slate-600">
+      <input id="f-uid" placeholder="UID - Google UID" class="p-2 rounded bg-slate-900 border border-slate-600">
+      <input id="f-displayName" placeholder="DisplayName" class="p-2 rounded bg-slate-900 border border-slate-600">
+      <input id="f-photoURL" placeholder="photoURL - https://..." class="p-2 rounded bg-slate-900 border border-slate-600 md:col-span-2">
+      <input id="f-device" placeholder="device - Android - Chrome" class="p-2 rounded bg-slate-900 border border-slate-600">
+      <input id="f-loginCount" placeholder="loginCount - 1" type="number" value="1" class="p-2 rounded bg-slate-900 border border-slate-600">
+    </div>
+    <div class="flex gap-2 mt-3">
+      <button id="btn-save" class="bg-green-600 px-6 py-2 rounded font-bold">Save / Update</button>
+      <button id="btn-clear" class="bg-slate-600 px-4 py-2 rounded">Clear</button>
+      <span id="form-msg" class="text-sm ml-2"></span>
+    </div>
+  </div>
+
+  <!-- List -->
+  <div class="bg-slate-800 p-4 rounded-xl">
+    <div class="flex justify-between mb-3">
+      <h2 class="font-bold">admins collection (<span id="count">0</span>)</h2>
+      <button id="btn-reload" class="bg-slate-700 px-3 py-1 rounded text-sm">Reload</button>
+    </div>
+    <div id="list" class="space-y-2"></div>
+  </div>
+
+  <div class="mt-6 bg-slate-900 p-3 rounded text-xs text-slate-400">
+    <p>collection: <b>admins/{email}</b> ပုံစံ - doc ID က email ဖြစ်ရမယ်။</p>
+    <p>field များ: AID, role, UID, displayName, photoURL, email, firstLogin, lastLogin, loginCount, device, loginHistory[], admin(bool)</p>
+    <p>အခု Rules မဖွင့်ထားလို့ manual ထည့်နေတာ၊ နောက်ကျ auto AID system နဲ့ ချိတ်မယ်။</p>
+  </div>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U",
+  authDomain: "arakanartarea-note.firebaseapp.com",
+  projectId: "arakanartarea-note",
+  storageBucket: "arakanartarea-note.firebasestorage.app",
+  messagingSenderId: "695659736666",
+  appId: "1:695659736666:web:1e76494c0e6819609bf263"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+let curDocId = null;
+
+document.getElementById('btn-login').onclick = ()=>{
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.setCustomParameters({prompt:'select_account'});
+  auth.signInWithPopup(provider).catch(e=>alert(e.message));
+};
+document.getElementById('btn-logout').onclick = ()=> auth.signOut();
+
+auth.onAuthStateChanged(async (user)=>{
+  if(!user){
+    document.getElementById('login-view').classList.remove('hidden');
+    document.getElementById('admin-view').classList.add('hidden');
+    return;
+  }
+  // admin စစ် - admins collection ထဲမှာ ဒီ email ရှိလား?
+  try{
+    const email = user.email.toLowerCase();
+    const doc = await db.collection('admins').doc(email).get();
+    if(!doc.exists){
+      // ပထမဆုံး admin မရှိသေးရင် ခွင့်ပြုမယ်, ရှိရင် block
+      const all = await db.collection('admins').limit(1).get();
+      if(!all.empty){
+        document.getElementById('login-msg').innerText = `⛔ ${email} သည် admin မဟုတ်ပါ။ admins collection ထဲမှာ မရှိပါ။`;
+        await auth.signOut();
+        return;
+      }
+    }
+    // admin ဟုတ်ပြီ
+    document.getElementById('login-view').classList.add('hidden');
+    document.getElementById('admin-view').classList.remove('hidden');
+    document.getElementById('cur-email').innerText = user.email;
+    loadAdmins();
+  }catch(e){
+    alert("Auth check error: "+e.message);
+  }
+});
+
+async function loadAdmins(){
+  const snap = await db.collection('admins').get();
+  document.getElementById('count').innerText = snap.size;
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  snap.forEach(d=>{
+    const data = d.data();
+    const div = document.createElement('div');
+    div.className = 'bg-slate-900 p-3 rounded flex gap-3 items-start';
+    div.innerHTML = `
+      <img src="${data.photoURL||'https://ui-avatars.com/api/?name='+encodeURIComponent(data.displayName||d.id)}" class="w-10 h-10 rounded-full bg-slate-700">
+      <div class="flex-1">
+        <div class="font-bold">${data.displayName||'(no name)'} <span class="text-xs text-slate-400">${d.id}</span></div>
+        <div class="text-xs space-y-1 mt-1">
+          <div>role: <b class="text-green-300">${data.role||''}</b> | AID: <b>${data.AID||data.aid||''}</b> | UID: <span class="text-slate-500">${(data.uid||data.UID||'').substring(0,20)}</span></div>
+          <div>loginCount: ${data.loginCount||0} | device: ${data.device||''}</div>
+          <div>first: ${data.firstLogin? (data.firstLogin.toDate? data.firstLogin.toDate().toLocaleString(): data.firstLogin): ''} | last: ${data.lastLogin? (data.lastLogin.toDate? data.lastLogin.toDate().toLocaleString(): data.lastLogin): ''}</div>
+        </div>
+      </div>
+      <div class="flex flex-col gap-1">
+        <button class="bg-yellow-600 px-3 py-1 rounded text-xs" onclick="editDoc('${d.id}')">Edit</button>
+        <button class="bg-red-700 px-3 py-1 rounded text-xs" onclick="delDoc('${d.id}')">Del</button>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+window.editDoc = async (id)=>{
+  const doc = await db.collection('admins').doc(id).get();
+  if(!doc.exists) return;
+  const d = doc.data();
+  curDocId = id;
+  document.getElementById('f-email').value = id;
+  document.getElementById('f-role').value = d.role||'viewer';
+  document.getElementById('f-aid').value = d.AID||d.aid||'';
+  document.getElementById('f-uid').value = d.uid||d.UID||'';
+  document.getElementById('f-displayName').value = d.displayName||'';
+  document.getElementById('f-photoURL').value = d.photoURL||'';
+  document.getElementById('f-device').value = d.device||'';
+  document.getElementById('f-loginCount').value = d.loginCount||1;
+  document.getElementById('f-email').disabled = true;
+  window.scrollTo(0,0);
+}
+
+window.delDoc = async (id)=>{
+  if(!confirm(`Delete ${id}?`)) return;
+  await db.collection('admins').doc(id).delete();
+  loadAdmins();
+}
+
+document.getElementById('btn-clear').onclick = ()=>{
+  curDocId = null;
+  document.getElementById('f-email').disabled = false;
+  ['f-email','f-role','f-aid','f-uid','f-displayName','f-photoURL','f-device','f-loginCount'].forEach(i=>document.getElementById(i).value=i==='f-role'?'viewer':i==='f-loginCount'?'1':'');
+}
+
+document.getElementById('btn-reload').onclick = loadAdmins;
+
+document.getElementById('btn-save').onclick = async ()=>{
+  const email = document.getElementById('f-email').value.trim().toLowerCase();
+  if(!email){ alert('email လိုတယ်'); return; }
+  const payload = {
+    email: email,
+    role: document.getElementById('f-role').value.trim()||'viewer',
+    AID: parseInt(document.getElementById('f-aid').value)||0,
+    aid: parseInt(document.getElementById('f-aid').value)||0,
+    UID: document.getElementById('f-uid').value.trim(),
+    uid: document.getElementById('f-uid').value.trim(),
+    displayName: document.getElementById('f-displayName').value.trim(),
+    photoURL: document.getElementById('f-photoURL').value.trim(),
+    device: document.getElementById('f-device').value.trim()||navigator.userAgent.substring(0,100),
+    loginCount: parseInt(document.getElementById('f-loginCount').value)||1,
+    lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+    admin: true,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  // firstLogin မရှိရင် ထည့်
+  if(!curDocId){
+    payload.firstLogin = firebase.firestore.FieldValue.serverTimestamp();
+    payload.loginHistory = [new Date().toISOString()];
+  }
+  try{
+    await db.collection('admins').doc(email).set(payload, {merge:true});
+    document.getElementById('form-msg').innerText = '✅ Saved '+email;
+    document.getElementById('btn-clear').click();
+    loadAdmins();
+  }catch(e){
+    alert(e.message);
+  }
+}
+</script>
+</body>
+</html>

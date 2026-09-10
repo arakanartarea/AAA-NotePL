@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Users Admin</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-white p-4">
+
+<div id="login-box" class="min-h-[80vh] flex flex-col items-center justify-center">
+  <h1 class="text-xl font-bold">Users Collection Admin</h1>
+  <button id="btn-login" class="mt-4 bg-white text-black px-6 py-2 rounded-full">Admin Login</button>
+  <p id="login-msg" class="mt-3 text-sm text-yellow-300"></p>
+</div>
+
+<div id="main" class="hidden max-w-5xl mx-auto">
+  <div class="flex justify-between items-center mb-4">
+    <h1 class="text-xl font-bold">users (<span id="count">0</span>)</h1>
+    <div class="flex gap-2">
+      <a href="test-login-userscoll.html" class="bg-slate-800 px-3 py-1 rounded text-sm">Test Login</a>
+      <button id="btn-logout" class="bg-red-600 px-3 py-1 rounded text-sm">Logout</button>
+    </div>
+  </div>
+
+  <div id="list" class="space-y-2"></div>
+  <div id="empty" class="hidden text-slate-500 text-sm mt-10 text-center">users ထဲမှာ doc မရှိသေးဘူး, test-login.html နဲ့ တစ်ခါ login ဝင်ကြည့်</div>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U",
+  authDomain: "arakanartarea-note.firebaseapp.com",
+  projectId: "arakanartarea-note",
+  storageBucket: "arakanartarea-note.firebasestorage.app",
+  messagingSenderId: "695659736666",
+  appId: "1:695659736666:web:1e76494c0e6819609bf263"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+function formatAID(n){ if(!n) return "-"; return `A-${String(n).padStart(7,'0')}`; }
+
+document.getElementById('btn-login').onclick = ()=>{
+  const p = new firebase.auth.GoogleAuthProvider(); p.setCustomParameters({prompt:'select_account'});
+  auth.signInWithPopup(p).catch(e=>alert(e.message));
+};
+document.getElementById('btn-logout').onclick = ()=> auth.signOut();
+
+auth.onAuthStateChanged(async (user)=>{
+  if(!user){
+    document.getElementById('login-box').classList.remove('hidden');
+    document.getElementById('main').classList.add('hidden');
+    return;
+  }
+  document.getElementById('login-box').classList.add('hidden');
+  document.getElementById('main').classList.remove('hidden');
+  document.getElementById('login-msg').innerText = "";
+
+  // users list နားထောင်
+  db.collection('users').orderBy('AID').onSnapshot(snap=>{
+    const list = document.getElementById('list');
+    list.innerHTML = "";
+    document.getElementById('count').innerText = snap.size;
+    document.getElementById('empty').classList.toggle('hidden', snap.size>0);
+
+    snap.forEach(doc=>{
+      const d = doc.data();
+      const isUID = doc.id.length > 20; // UID က အရှည်
+      const card = document.createElement('div');
+      card.className = "bg-slate-800 p-3 rounded-xl flex gap-3 items-start";
+      card.innerHTML = `
+
+
+<!-- အသစ် - ပြောင်းရမှာ -->
+<img src="${d.photoURL || 'https://ui-avatars.com/api/?name='+encodeURIComponent(d.displayName||d.email||'A')+'&background=random'}" 
+     referrerpolicy="no-referrer"
+     onerror="this.src='https://ui-avatars.com/api/?name=A&background=random'"
+     class="w-12 h-12 rounded-full bg-slate-700 object-cover">
+     
+        <div class="flex-1 min-w-0">
+          <div class="flex gap-2 items-center flex-wrap">
+            <span class="font-mono text-green-400 font-bold">${formatAID(d.AID)} ${!isUID? '<span class=text-red-400 text-xs>(ID မမှန်)</span>':''}</span>
+            <span class="text-xs bg-slate-700 px-2 py-0.5 rounded">${d.role || 'viewer'}</span>
+            <span class="text-[10px] text-slate-500">loginCount: ${d.loginCount||1}</span>
+          </div>
+          <div class="font-bold truncate">${d.displayName||'No Name'}</div>
+          <div class="text-xs text-slate-400 truncate">${d.email||''}</div>
+          <div class="text-[10px] text-slate-500 break-all">docID: ${doc.id} ${isUID?'✓ UID မှန်':'✗ UID မဟုတ် - ဖျက်သင့်'}</div>
+          <div class="text-[10px] text-slate-500">device: ${(d.device||'').substring(0,80)}</div>
+          <div class="text-[10px] text-slate-500">first: ${d.firstLogin?.toDate?.()?.toLocaleString()||''} | last: ${d.lastLogin?.toDate?.()?.toLocaleString()||''}</div>
+          <div class="flex gap-2 mt-2">
+            <select data-role="${doc.id}" class="bg-slate-900 text-xs px-2 py-1 rounded">
+              <option value="viewer" ${d.role=='viewer'?'selected':''}>viewer</option>
+              <option value="editor" ${d.role=='editor'?'selected':''}>editor</option>
+              <option value="admin" ${d.role=='admin'?'selected':''}>admin</option>
+            </select>
+            <button data-save="${doc.id}" class="bg-blue-600 text-xs px-2 py-1 rounded">Save Role</button>
+            <button data-del="${doc.id}" class="bg-red-900 text-xs px-2 py-1 rounded">Delete</button>
+          </div>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+
+    // role save
+    list.querySelectorAll('[data-save]').forEach(btn=>{
+      btn.onclick = async ()=>{
+        const id = btn.getAttribute('data-save');
+        const sel = list.querySelector(`[data-role="${id}"]`);
+        await db.collection('users').doc(id).update({role: sel.value});
+        alert("Role updated to "+sel.value);
+      };
+    });
+    list.querySelectorAll('[data-del]').forEach(btn=>{
+      btn.onclick = async ()=>{
+        const id = btn.getAttribute('data-del');
+        if(!confirm(`Delete users/${id}?`)) return;
+        await db.collection('users').doc(id).delete();
+      };
+    });
+
+  }, err=>{
+    alert("Read error: "+err.message+"\nRules မှာ isAdmin() ဖြစ်ဖို့ admins collection ထဲမှာ email ရှိရမယ်");
+  });
+});
+</script>
+</body>
+</html>
