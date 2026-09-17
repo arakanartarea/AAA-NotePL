@@ -20,18 +20,47 @@ header{flex-wrap:nowrap;position:sticky;top:0;z-index:1100;display:flex;justify-
 /* Admin badge ကို သေးအောင်ချုံ့ */
 .nav-btns > *, [id*="admin"], [class*="admin"], #admin-info{max-width:78px!important;font-size:clamp(7px,2.2vw,9px)!important;padding:2px 4px!important;line-height:1.1!important;border-radius:4px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* ACCORDION / SONG LIST */
+/* ACCORDION / SONG LIST - PHONE */
 .accordion{margin-bottom:0.8vw;border:1px solid #E2E8F0;border-radius:6px;overflow:hidden}
 .dark-mode .accordion{border-color:#334155}
-.accordion-header{background:var(--card);padding:1.5vw 2vw;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;color:var(--text);border-left:3px solid #EAB308;font-size:clamp(12px,3.6vw,14px)}
-.accordion.open .accordion-header{background:var(--bg);border-bottom:1px solid #E2E8F0}
-.dark-mode .accordion.open .accordion-header{border-color:#334155}
+.accordion-header{
+  background:var(--card);
+  padding:1.5vw 2vw;
+  font-weight:600;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;
+  color:var(--text);
+  border-left:3px solid #EAB308; /* ပိတ်ထားရင် အဝါ */
+  font-size:clamp(12px,3.6vw,14px);
+  transition: border-color 0.2s ease;
+}
+.accordion.open .accordion-header{
+  background:var(--bg);
+  border-bottom:1px solid #E2E8F0;
+  border-left-color:#ef4444; /* ဖွင့်ထားရင် အနီ */
+}
+.dark-mode .accordion.open .accordion-header{ 
+  border-bottom-color:#334155;
+  border-left-color:#ef4444; /* dark မှာပါ အနီ */
+}
 .accordion-content{display:none;background:var(--bg);padding:0.8vw}
 .accordion.open .accordion-content{display:block}
 
-/* SONG ITEM - အရမ်းချုံ့ */
-.song-item{display:flex;justify-content:space-between;align-items:center;padding:1vw 1.2vw;background:var(--card);margin:0.6vw 0 0.6vw 0.4vw;border-radius:5px;border:1px dashed #CBD5E1;min-height:26px}
-.dark-mode .song-item{border-color:#475569}
+/* SONG ITEM - အစိမ်း */
+.song-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:1vw 1.2vw;
+  background:var(--card);
+  margin:0.6vw 0 0.6vw 0.4vw;
+  border-radius:5px;
+  border:1px solid #E2E8F0;
+  border-left:3px solid #22c55e; /* Child အစိမ်း */
+  min-height:26px
+}
+.dark-mode .song-item{
+  border-color:#475569;
+  border-left-color:#22c55e;
+}
+
 .song-title-click{flex:1;cursor:pointer;font-weight:500;color:var(--text);font-size:clamp(11px,3.4vw,13px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .item-actions{display:flex;gap:2px;flex-shrink:0;align-items:center}
 .icon-btn{background:none;border:none;color:inherit;cursor:pointer;padding:0;border-radius:3px;font-size:14px;width:20px;height:20px;display:grid;place-items:center;line-height:1}
@@ -81,7 +110,7 @@ header{flex-wrap:nowrap;position:sticky;top:0;z-index:1100;display:flex;justify-
 .pluck-note.played{background:#444;color:#aaa}
 .pluck-note.empty{opacity:0.3}
 
-.chord-wrap{display:inline-flex;flex-direction:column;align-items:flex-start;margin-right:1vw;vertical-align:bottom;position:relative}
+.chord-wrap{display:inline-flex;flex-direction:column;align-items:flex-start;margin-right:0.2vw;vertical-align:bottom;position:relative}
 .chord{font-size:var(--lyric-size);font-weight:700;color:var(--bar-color);font-family:inherit;line-height:1;padding:0;border:none;background:none;margin-bottom:0;position:relative;order:1;display:inline-block;transition:all 0.15s}
 .lyric{font-size:var(--lyric-size);font-family:inherit;line-height:1.5;order:1;margin-top:-2px!important}
 .hide-chords .chord{display:none!important}

@@ -1,98 +1,101 @@
 <!DOCTYPE html>
 <html lang="my">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AUL - All User List</title>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <script>
-  const t = Date.now();
+  const t=Date.now();
   document.write(`<link rel="stylesheet" href="../html-reserve/LVE3-common.css?v=${t}">`);
   document.write(`<link rel="stylesheet" href="../html-reserve/LVE3-phone.css?v=${t}" media="(max-width: 768px)">`);
   document.write(`<link rel="stylesheet" href="../html-reserve/LVE3-tablet.css?v=${t}" media="(min-width: 769px)">`);
 </script>
 <style>
 .aid-badge{background:#22c55e;color:#000;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:6px;font-family:monospace;font-weight:700}
-.role-badge{background:#eab308;color:#000;font-size:9px;padding:2px 6px;border-radius:10px;margin-left:6px}
-.role-badge.admin{background:#16a34a;color:#fff}
+.role-badge{background:#334155;color:#fff;font-size:9px;padding:2px 6px;border-radius:10px;margin-left:6px}
+.role-badge.admin{background:#16a34a}.role-badge.ban{background:#ef4444}.role-badge.editor{background:#3b82f6}
 .user-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#334155}
+.detail-card{background:var(--card);border:1px solid #334155;border-radius:12px;padding:16px;margin-bottom:12px}
+.detail-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px}
+.detail-row .form-group{flex:1;min-width:200px}
+.history-dropdown{max-height:0;overflow:hidden;transition:max-height 0.3s}
+.history-dropdown.open{max-height:300px;overflow:auto}
 </style>
 </head>
 <body>
 
 <header id="main-header">
-  <div class="nav-btns">
-    <input type="text" id="search-input" placeholder="AID / နာမည် / Email ရှာရန်..." oninput="filterUsers()">
-  </div>
+  <div class="nav-btns"><input type="text" id="search-input" placeholder="AID / နာမည် / Email ရှာ..." oninput="filterUsers()"></div>
   <div id="status-badge" class="status-badge">Checking...</div>
 </header>
 
+<!-- LIST VIEW - Group: Role -->
 <div id="list-view" class="view-section active">
   <div id="accordion-container">ခေါ်ယူနေသည်...</div>
   <div id="list-fab-container" style="position:fixed;bottom:27px;right:27px;z-index:1000;display:flex;flex-direction:column-reverse;align-items:flex-end;gap:10px;">
-    <button onclick="toggleListFabMenu()" style="width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;cursor:pointer;">
-      <span class="material-symbols-rounded">settings</span>
-    </button>
+    <button onclick="toggleListFabMenu()" style="width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;cursor:pointer;"><span class="material-symbols-rounded">settings</span></button>
     <div id="list-fab-menu" style="display:none;flex-direction:column-reverse;gap:10px;align-items:flex-end;">
-      <button id="btn-login" onclick="handleAuthClick()" style="width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;cursor:pointer;">
-        <span class="material-symbols-rounded">login</span>
-      </button>
-      <button onclick="toggleTheme()" style="width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;cursor:pointer;">
-        <span class="material-symbols-rounded">dark_mode</span>
-      </button>
+      <button id="btn-login" onclick="handleAuthClick()" style="width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;cursor:pointer;"><span class="material-symbols-rounded">login</span></button>
+      <button onclick="toggleTheme()" style="width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;cursor:pointer;"><span class="material-symbols-rounded">dark_mode</span></button>
     </div>
   </div>
 </div>
 
-<!-- EDIT VIEW -->
-<div id="input-view" class="view-section">
-  <h2 id="form-title">User ပြင်ရန် - Admin Only</h2>
-  <div class="form-row">
-    <div class="form-group"><label>AID</label><input type="text" id="inp-aid" disabled></div>
-    <div class="form-group"><label>UID (docID)</label><input type="text" id="inp-uid" disabled></div>
+<!-- DETAIL VIEW - LVE player-view လို အချက်အလက်အကုန်ပြ -->
+<div id="detail-view" class="view-section">
+  <div class="song-meta" style="display:flex;gap:16px;align-items:center">
+    <img id="d-photo" class="user-avatar" style="width:72px;height:72px">
+    <div><h1 class="song-title" id="d-name"></h1><div class="song-sub" id="d-email"></div><div id="d-aid" style="margin-top:6px"></div></div>
   </div>
-  <div class="form-row">
-    <div class="form-group"><label>Display Name</label><input type="text" id="inp-name"></div>
-    <div class="form-group"><label>Email</label><input type="text" id="inp-email" disabled></div>
-  </div>
-  <div class="form-row">
-    <div class="form-group"><label>Role</label>
-      <select id="inp-role"><option value="viewer">viewer</option><option value="editor">editor</option><option value="admin">admin</option></select>
+  <div class="detail-card">
+    <div class="detail-row">
+      <div class="form-group"><label>AID (formatted)</label><input id="d-aid2" disabled></div>
+      <div class="form-group"><label>UID (docID)</label><input id="d-uid" disabled></div>
     </div>
-    <div class="form-group"><label>LoginCount</label><input type="text" id="inp-count" disabled></div>
+    <div class="detail-row">
+      <div class="form-group"><label>Display Name</label><input id="d-display" disabled></div>
+      <div class="form-group"><label>Email</label><input id="d-email2" disabled></div>
+    </div>
+    <div class="detail-row">
+      <div class="form-group"><label>Role</label><select id="d-role" style="width:100%;padding:10px;border-radius:8px;background:var(--bg);color:var(--text)"><option value="viewer">viewer</option><option value="editor">editor</option><option value="admin">admin</option><option value="ban">ban</option></select></div>
+      <div class="form-group"><label>LoginCount</label><input id="d-count" disabled></div>
+    </div>
+    <div class="form-group"><label>Device</label><input id="d-device" disabled></div>
+    <div class="form-group"><label>photoURL</label><input id="d-photoURL" disabled style="font-size:11px"></div>
+    <div class="detail-row">
+      <div class="form-group"><label>firstLogin</label><input id="d-first" disabled></div>
+      <div class="form-group"><label>lastLogin (နောက်ဆုံး)</label><div style="display:flex;gap:6px"><input id="d-last" disabled style="flex:1"><button onclick="toggleHistory()" style="padding:6px 10px;border-radius:8px">▼</button></div></div>
+    </div>
+    <div id="history-box" class="history-dropdown detail-card" style="background:var(--bg)"></div>
+    <div class="detail-row">
+      <div class="form-group"><label>createdAt</label><input id="d-created" disabled></div>
+      <div class="form-group"><label>uid field</label><input id="d-uid2" disabled></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:12px">
+      <button onclick="saveRoleFromDetail()" style="background:#16a34a;color:#fff;padding:10px 20px;border:0;border-radius:8px">Save Role</button>
+      <button onclick="switchView('list-view')" style="padding:10px 20px">Back</button>
+      <button onclick="deleteCurrent()" style="background:#ef4444;color:#fff;padding:10px 20px;border:0;border-radius:8px;margin-left:auto">Delete User</button>
+    </div>
   </div>
-  <div class="form-group"><label>Device</label><input type="text" id="inp-device" disabled></div>
+</div>
 
+<!-- EDIT VIEW - အရင်အတိုင်း -->
+<div id="input-view" class="view-section">
+  <h2 id="form-title">User ပြင်ရန်</h2>
+  <div class="form-group"><label>Display Name</label><input id="inp-name"></div>
+  <div class="form-group"><label>Role - ရာထူးတိုး/ချ/ဘန်း</label><select id="inp-role" style="width:100%;padding:10px;border-radius:8px;background:var(--bg);color:var(--text)"><option value="viewer">viewer</option><option value="editor">editor</option><option value="admin">admin</option><option value="ban">ban</option></select></div>
   <div id="edit-fab-container" style="position:fixed;bottom:27px;right:27px;z-index:1000;display:flex;flex-direction:column-reverse;align-items:flex-end;gap:10px;">
     <button onclick="saveUser()" style="width:54px;height:54px;background:#16a34a;color:#fff;border:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;"><span class="material-symbols-rounded">save</span></button>
     <button onclick="switchView('list-view')" style="width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;cursor:pointer;"><span class="material-symbols-rounded">arrow_back</span></button>
   </div>
 </div>
 
-<!-- AUTH MODAL - LVE3 အတိုင်း -->
-<div id="auth-modal" class="hidden">
-  <div class="auth-box">
-    <div class="auth-header">
-      <span class="material-symbols-rounded" style="font-size:28px;color:#eab308;">account_circle</span>
-      <div><div style="font-weight:700;color:#fff;" id="auth-modal-email"></div><div style="font-size:12px;color:var(--muted);">Admin အကောင့်ဝင်ထားသည်</div></div>
-    </div>
-    <div class="auth-actions">
-      <button id="btn-auth-cancel" class="btn-auth secondary">မလုပ်တော့</button>
-      <button id="btn-auth-logout" class="btn-auth danger">ထွက်မယ်</button>
-      <button id="btn-auth-switch" class="btn-auth primary">ပြောင်းမယ်</button>
-    </div>
-  </div>
-</div>
+<div id="auth-modal" class="hidden"><div class="auth-box"><div class="auth-header"><span class="material-symbols-rounded" style="font-size:28px;color:#eab308;">account_circle</span><div><div style="font-weight:700;color:#fff;" id="auth-modal-email"></div><div style="font-size:12px;color:var(--muted);">Admin အကောင့်ဝင်ထားသည်</div></div></div><div class="auth-actions"><button id="btn-auth-cancel" class="btn-auth secondary">မလုပ်တော့</button><button id="btn-auth-logout" class="btn-auth danger">ထွက်မယ်</button><button id="btn-auth-switch" class="btn-auth primary">ပြောင်းမယ်</button></div></div></div>
 
-<script>
-  const ts = Date.now();
-  const s = document.createElement('script');
-  s.src = 'AUL.js?v='+ts;
-  document.body.appendChild(s);
-</script>
+<script src="AUL.js?v=2"></script>
 </body>
 </html>

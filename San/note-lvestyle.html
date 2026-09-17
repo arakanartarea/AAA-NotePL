@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LVE3 - Note</title>
+<!-- LVE ရဲ့ CSS ကို ဒီတိုင်းပြန်သုံးတာ - အသစ်မရေးဘူး -->
+<link rel="stylesheet" href=../html-reserve/LVE3-common.css">
+<link rel="stylesheet" href="../html-reserve/LVE3-phone.css" media="(max-width: 768px)">
+<link rel="stylesheet" href="../html-reserve/LVE3-tablet.css" media="(min-width: 769px)">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+<style>.material-symbols-rounded{font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24}</style>
+</head>
+<body>
+
+
+<!-- Login မရှိရင် ဒါပဲပြမယ် - Note အတွက် rule -->
+<div id="bigLoginScreen" class="big-login" style="height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
+  <h2>LVE3 Note</h2>
+  <p>Admin ဝင်မှသာ ကြည့်လို့ရမယ်</p>
+  <button id="bigLoginBtn" onclick="doLogin()" style="padding:12px 20px;border-radius:12px;">🔐 Login with Google</button>
+  <p id="bigLoginMsg"></p>
+</div>
+
+<!-- App - Login ပြီးမှ ပြမယ် -->
+<div id="app" class="hidden">
+  <div id="list-view" class="view-section active">
+    <header id="main-header">
+      <input id="search-input" type="text" placeholder="Group, SubGroup, Content ရှာရန်..." oninput="filterNotes()">
+      <span id="status-badge" class="status-badge" onclick="toggleAuthModal()">Login</span>
+    </header>
+    <div id="loading-overlay">Loading...</div>
+    <div id="accordion-container"></div>
+    <div id="list-fab-container">
+      <div id="fab-toggle" onclick="toggleListFab()"><span class="material-symbols-rounded">settings</span></div>
+      <div id="fab-menu">
+        <button class="fab-btn" onclick="openCreateForm()" title="အသစ်ထည့်"><span class="material-symbols-rounded">add</span></button>
+        <button class="fab-btn" id="btn-list-theme" onclick="toggleTheme()"><span class="material-symbols-rounded">dark_mode</span></button>
+        <button class="fab-btn" onclick="openFontModal()"><span class="material-symbols-rounded">text_fields</span></button>
+        <button class="fab-btn" id="btn-login" onclick="toggleAuthModal()"><span class="material-symbols-rounded">person</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input View - LVE3 input-view အတိုင်း -->
+  <div id="input-view" class="view-section">
+    <header><span>Note ထည့်ရန် / ပြင်ရန်</span></header>
+    <div style="padding:12px;display:flex;flex-direction:column;gap:8px;">
+      <div class="form-group"><label>Group (ဥပမာ - တေးချင်းကော့ထုတ်)</label><input id="inp-group" type="text"></div>
+      <div class="form-group"><label>SubGroup (ဥပမာ - ကိုကိုနိုင်း)</label><input id="inp-subgroup" type="text"></div>
+      <div class="form-group" style="flex:1;display:flex;flex-direction:column;"><label>Content</label><textarea id="inp-content" style="flex:1;min-height:400px;white-space:pre-wrap;"></textarea></div>
+    </div>
+    <div id="edit-fab-container">
+      <button class="fab-btn" onclick="saveNote()"><span class="material-symbols-rounded">save</span></button>
+      <button class="fab-btn" onclick="switchView('list-view')"><span class="material-symbols-rounded">close</span></button>
+    </div>
+  </div>
+
+  <!-- Player View - Note View အဖြစ် သုံးမယ် -->
+  <div id="player-view" class="view-section">
+    <header><button onclick="switchView('list-view')"><span class="material-symbols-rounded">arrow_back</span> Back</button></header>
+    <div id="about-box" style="margin:12px;">
+      <div class="about-banner"><div class="aaa-brand">AAA<br><span>NotePL</span></div></div>
+      <div class="about-content">
+        <div class="about-title-row"><div class="about-main-title" id="view-title"></div></div>
+        <div class="about-info-list">
+          <div class="about-info-row"><div class="about-info-label">Group</div><div class="about-info-value" id="view-writer"></div></div>
+          <div class="about-info-row"><div class="about-info-label">SubGroup</div><div class="about-info-value" id="view-singer"></div></div>
+        </div>
+        <div id="dynamic-verses"></div>
+      </div>
+    </div>
+    <div id="fab-container" style="display:flex;">
+      <div id="fab-toggle-player" onclick="togglePlayerFab()"><span class="material-symbols-rounded">settings</span></div>
+      <div id="fab-menu-player">
+        <button class="fab-btn" onclick="editCurrentNote()"><span class="material-symbols-rounded">edit</span></button>
+        <button class="fab-btn" onclick="switchView('list-view')"><span class="material-symbols-rounded">list</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Auth / Font Modal - LVE3 အတိုင်း -->
+<div id="auth-modal" class="hidden"><div class="auth-box"><div id="auth-logged-out"><button onclick="doLogin()">Login with Google</button></div><div id="auth-logged-in" class="hidden"><p id="user-email"></p><button onclick="doLogout()">Logout</button></div><button onclick="toggleAuthModal()">Close</button></div></div>
+<div id="fontOverlay" class="hidden" onclick="closeFontModal()"></div><div id="fontModal" class="hidden"></div>
+
+<script src="note-lvestyle.js"></script>
+</body>
+</html>

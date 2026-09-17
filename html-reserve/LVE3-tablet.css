@@ -86,7 +86,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif!imp
 .pluck-note.active{background:#FFFF00;color:#000;box-shadow:0 0 12px #FFFF00, 0 0 20px #e2b714;transform:scale(1.4);font-size:12px}
 .pluck-note.played{background:#444;color:#aaa}
 .pluck-note.empty{opacity:0.3}
-.chord-wrap{display:inline-flex;flex-direction:column;align-items:flex-start;margin-right:10px;vertical-align:bottom;position:relative}
+.chord-wrap{display:inline-flex;flex-direction:column;align-items:flex-start;margin-right:2px;vertical-align:bottom;position:relative}
 .chord{font-size:var(--lyric-size);font-weight:700;color:var(--bar-color);font-family:inherit;line-height:1;padding:0;border:none;background:none;margin-bottom:0;position:relative;order:1;display:inline-block;transition:all 0.15s}
 .lyric{font-size:var(--lyric-size);font-family:inherit;line-height:1.6;order:1;margin-top:-3px!important}
 .hide-chords .chord{display:none!important}
@@ -239,13 +239,13 @@ header{
   border-radius:10px;overflow:hidden;
 }
 .dark-mode .accordion{ border-color:#334155; }
-
+/*
 .accordion-header{
   background:var(--card);
   padding:12px;font-weight:bold;cursor:pointer;
   display:flex;justify-content:space-between;align-items:center;
   color:var(--text);
-  border-left:4px solid #EAB308; /* Group မှန်းသိသာအောင် အဝါစည်း */
+  border-left:4px solid #EAB308; /* Group မှန်းသိသာအောင် အဝါစည်း 
 }
 .accordion.open .accordion-header{
   background: var(--bg);
@@ -264,11 +264,52 @@ header{
   display:flex;justify-content:space-between;align-items:center;
   padding:10px;
   background:var(--card);
-  margin:6px 0 6px 14px; /* Child မို့ ထဲဝင်သွား */
+  margin:6px 0 6px 14px; /* Child မို့ ထဲဝင်သွား 
   border-radius:8px;
   border:1px dashed #CBD5E1;
 }
 .dark-mode .song-item{ border-color:#475569; }
+*/
+
+.accordion-header{
+  background:var(--card);
+  padding:12px;font-weight:bold;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;
+  color:var(--text);
+  border-left:4px solid #EAB308; /* ပိတ်ထားရင် အဝါ */
+  transition: border-color 0.2s ease;
+}
+.accordion.open .accordion-header{
+  background: var(--bg);
+  border-bottom:1px solid #E2E8F0;
+  border-left-color: #ef4444; /* ဖွင့်ထားရင် အနီ */
+}
+.dark-mode .accordion.open .accordion-header{ 
+  border-bottom-color:#334155; 
+  border-left-color: #ef4444; /* dark မှာပါ အနီဖြစ်အောင် */
+}
+
+.accordion-content{
+  display:none;
+  background:var(--bg);
+  padding:8px;
+}
+.accordion.open .accordion-content{display:block}
+
+.song-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px;
+  background:var(--card);
+  margin:6px 0 6px 14px;
+  border-radius:8px;
+  border:1px solid #E2E8F0;
+  border-left:3px solid #22c55e; /* Child - အစိမ်း */
+}
+.dark-mode .song-item{ 
+  border-color:#475569; 
+  border-left-color: #22c55e;
+}
+/* ဆ */
 .song-title-click{
   flex:1;cursor:pointer;font-weight:600;color:var(--text);
 }

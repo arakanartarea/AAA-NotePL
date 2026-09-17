@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rakhine Chord Converter - with Beat Class</title>
+<style>
+  *{box-sizing:border-box;font-family:'Noto Sans Myanmar','Myanmar Text',sans-serif;}
+  body{margin:0;background:#0f0f0f;color:#e5e5e5;display:flex;flex-direction:column;min-height:100vh;}
+  header{padding:16px 20px;border-bottom:1px solid #222;background:#121212;}
+  header h1{margin:0;font-size:18px;}
+  header p{margin:4px 0 0;color:#888;font-size:12px;}
+  .wrap{display:flex;flex:1;flex-direction:column;}
+  @media(min-width:900px){.wrap{flex-direction:row;}}
+  .panel{flex:1;display:flex;flex-direction:column;padding:12px;gap:8px;border-right:1px solid #222;}
+  .panel:last-child{border:none;}
+  label{font-size:12px;color:#aaa;text-transform:uppercase;letter-spacing:.08em;}
+  textarea{width:100%;flex:1;min-height:360px;background:#1a1a1a;color:#d6d6d6;border:1px solid #2a2a2a;border-radius:8px;padding:12px;font-family:ui-monospace,monospace;font-size:13px;line-height:1.5;resize:none;}
+  button{background:#fff;color:#000;border:none;border-radius:6px;padding:10px 14px;font-weight:700;cursor:pointer;font-size:13px;}
+  button.secondary{background:#2a2a2a;color:#eee;border:1px solid #333;}
+  .preview{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:12px;white-space:pre-wrap;min-height:100px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Chord Converter - class to beat</h1>
+  <p>cr=4, cg=3, cb=2, cp=1 ကို auto ဖတ်မယ် → [C 4] ပုံစံ</p>
+</header>
+<div class="wrap">
+  <div class="panel">
+    <label>Input HTML (span.cr / cg / cb / cp)</label>
+    <textarea id="input" placeholder='<span class="cr">C</span> <span class="cg">F</span>'></textarea>
+    <div style="display:flex;gap:8px"><button id="convert">Convert → Output</button><button class="secondary" id="clear">Clear</button></div>
+  </div>
+  <div class="panel">
+    <label>Output HTML</label>
+    <textarea id="output" readonly></textarea>
+    <div style="display:flex;gap:8px"><button id="copy">Copy</button></div>
+    <label>Preview</label>
+    <div id="preview" class="preview"></div>
+  </div>
+</div>
+<script>
+const BEAT_MAP = { cr: 4, cg: 3, cb: 2, cp: 1 };
+
+function getBeatFromClass(className){
+  if(!className) return 4;
+  const cls = className.toLowerCase();
+  if(cls.includes('cg')) return BEAT_MAP.cg;
+  if(cls.includes('cb')) return BEAT_MAP.cb;
+  if(cls.includes('cp')) return BEAT_MAP.cp;
+  if(cls.includes('cr')) return BEAT_MAP.cr;
+  return 4;
+}
+
+function parseChordLine(chordHtml){
+  const temp = document.createElement('div');
+  temp.innerHTML = chordHtml;
+  let pos = 0;
+  const chords = [];
+  temp.childNodes.forEach(node=>{
+    if(node.nodeType===3){
+      pos += node.textContent.length;
+    } else if(node.nodeType===1){
+      const chord = node.textContent.trim();
+      const beat = getBeatFromClass(node.className || node.getAttribute('class'));
+      if(chord) chords.push({chord, pos, beat});
+      pos += chord.length;
+    }
+  });
+  return {chords};
+}
+
+function processOnePre(preEl){
+  const rawHtml = preEl.innerHTML;
+  const rawLines = rawHtml.split('\n');
+  let chordHtml = '';
+  let lyric = '';
+  if(rawLines.length >= 2){
+    lyric = rawLines[rawLines.length-1].replace(/<[^>]*>/g,'').trim();
+    chordHtml = rawLines.slice(0,-1).join('\n');
+  } else {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = rawHtml;
+    const spans = tmp.querySelectorAll('span');
+    if(spans.length>0){
+      const clone = tmp.cloneNode(true);
+      clone.querySelectorAll('span').forEach(s=>s.remove());
+      const leftover = clone.textContent.trim();
+      if(leftover){ lyric = leftover; chordHtml = rawHtml; }
+      else { chordHtml = rawHtml; lyric=''; }
+    } else {
+      lyric = rawHtml.replace(/<[^>]*>/g,'').trim();
+    }
+  }
+  if(!chordHtml && !lyric) return '';
+  if(!lyric){
+    const {chords} = parseChordLine(chordHtml);
+    return chords.map(c=>`[${c.chord} ${c.beat}]`).join(' ');
+  }
+  const {chords} = parseChordLine(chordHtml);
+  if(chords.length===0) return lyric;
+  let out = lyric;
+  const sorted = [...chords].sort((a,b)=>b.pos-a.pos);
+  sorted.forEach(({chord,pos,beat})=>{
+    const insertAt = Math.min(Math.max(0,pos), out.length);
+    out = out.slice(0,insertAt) + `[${chord} ${beat}]` + out.slice(insertAt);
+  });
+  return out.trim();
+}
+
+function convert(){
+  const inputVal = document.getElementById('input').value.trim();
+  if(!inputVal) return;
+  const doc = new DOMParser().parseFromString(`<div id="root">${inputVal}</div>`,'text/html');
+  const verses = doc.querySelectorAll('.verse');
+  const outs=[];
+  verses.forEach(v=>{
+    const label = v.querySelector('.section-label')?.textContent.trim() || 'Verse';
+    const pres = v.querySelectorAll('pre');
+    const lines=[];
+    pres.forEach(pre=>{ const p=processOnePre(pre); if(p) lines.push(p); });
+    const merged = lines.join(' ').replace(/\s{2,}/g,' ').trim();
+    if(!merged) return;
+    outs.push(`<div class="verse">\n  <div class="section-label">${label}</div>\n  <div class="verse-content">\n    <pre class="resizable-text">${merged}</pre>\n  </div>\n</div>`);
+  });
+  const finalHtml = outs.join('\n\n');
+  document.getElementById('output').value = finalHtml;
+  document.getElementById('preview').innerHTML = finalHtml;
+}
+
+document.getElementById('convert').addEventListener('click',convert);
+document.getElementById('clear').addEventListener('click',()=>{input.value='';output.value='';preview.innerHTML='';});
+document.getElementById('copy').addEventListener('click',()=>{output.select();document.execCommand('copy');});
+</script>
+</body>
+</html>
