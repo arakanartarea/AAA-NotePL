@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="my">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Des Editor - ArakanArtArea</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans Myanmar',sans-serif;background:#101010;color:#ddd;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+.header{padding:10px 16px;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:center;background:#151515}
+.header b{font-size:13px;color:#f5c518;letter-spacing:1px}
+.header span{font-size:11px;color:#666}
+.main{flex:1;display:grid;grid-template-columns:380px 1fr;overflow:hidden}
+.left{background:#171717;border-right:1px solid #222;padding:12px;overflow:auto;display:flex;flex-direction:column;gap:10px}
+.group{border:1px solid #242424;border-radius:10px;padding:10px;background:#1c1c1c}
+.group-title{font-size:10px;color:#f5c518;letter-spacing:1px;margin-bottom:8px;font-weight:700}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.field{display:flex;flex-direction:column;gap:3px}
+.field.full{grid-column:span 2}
+.field label{font-size:10px;color:#888;text-transform:uppercase}
+.field input{width:100%;background:#101010;border:1px solid #333;border-radius:6px;padding:7px 9px;color:#fff;font-size:13px;outline:none;font-family:'Noto Sans Myanmar',sans-serif}
+.field input:focus{border-color:#f5c518}
+.right{display:flex;flex-direction:column;background:#0e0e0e}
+.preview-header{padding:10px 14px;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:center}
+.preview-header span{font-size:11px;color:#777}
+.btn{border:0;border-radius:7px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans Myanmar'}
+.btn-copy{background:#f5c518;color:#000}
+.btn-copy:active{transform:scale(0.97)}
+.btn-clear{background:#222;color:#999}
+#output{flex:1;white-space:pre-wrap;word-break:break-word;font-family:'JetBrains Mono','Noto Sans Myanmar',monospace;font-size:12.5px;line-height:1.7;padding:16px;overflow:auto;color:#e9e3d6;background:#0e0e0e}
+#output b{color:#fff}
+@media(max-width:900px){.main{grid-template-columns:1fr;overflow:auto}body{height:auto;overflow:auto}.left{overflow:visible}.right{height:60vh}}
+</style>
+</head>
+<body>
+<div class="header">
+<b>ARAKAN ART AREA - DES EDITOR</b>
+<span>Compact • No Scroll • Live</span>
+</div>
+<div class="main">
+<div class="left">
+<div class="group">
+<div class="group-title">SONG INFO</div>
+<div class="row">
+<div class="field full"><label>Artist (ကိုကိုနိုင်)</label><input id="artist" value="ကိုကိုနိုင်(ဗျာလ)"></div>
+<div class="field full"><label>Song Title (ဗျာလ)</label><input id="song" value="ဗျာလ"></div>
+<div class="field full"><label>Composer</label><input id="composer" value="သန်းမောင်(ဂီတစာဆို)"></div>
+<div class="field"><label>Original Link</label><input id="link" value="#" placeholder="# or link"></div>
+<div class="field"><label>Skip Intro</label><input id="skip" value="0:05"></div>
+</div>
+</div>
+<div class="group">
+<div class="group-title">GUITAR SETUP</div>
+<div class="row">
+<div class="field"><label>Key</label><input id="key" value="A"></div>
+<div class="field"><label>Tempo BPM</label><input id="tempo" value="91"></div>
+<div class="field"><label>Capo Fret (2)</label><input id="capoNum" value="2"></div>
+<div class="field"><label>Capo Shape (G)</label><input id="capoShape" value="G"></div>
+</div>
+</div>
+<div class="group" style="display:flex;gap:8px;">
+<button class="btn btn-clear" onclick="resetAll()" style="flex:1">Reset</button>
+<button class="btn btn-copy" onclick="copyDes()" style="flex:2">Copy Description</button>
+</div>
+<div style="font-size:10px;color:#555;text-align:center;">* Input ပြင်တာနဲ့ ညာဘက်မှာ Live ပြောင်းမယ်</div>
+</div>
+<div class="right">
+<div class="preview-header"><span>LIVE PREVIEW - YouTube Description</span><span id="charCount" style="color:#555">0 chars</span></div>
+<pre id="output"></pre>
+</div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+const inputs = ['artist','song','composer','link','skip','key','capoNum','capoShape','tempo'];
+function build(){
+const artist = $('artist').value || 'Artist';
+const song = $('song').value || 'Song';
+const composer = $('composer').value || 'Composer';
+const link = $('link').value || '#';
+const skip = $('skip').value || '0:05';
+const key = $('key').value || 'A';
+const capoNum = $('capoNum').value || '2';
+const capoShape = $('capoShape').value || 'G';
+const tempo = $('tempo').value || '91';
+
+const des = `${artist} သီဆိုထားရေ "${song}" ရခိုင်တေးခြင်း‌ချေကို ဂစ်တာတီး ချင်သူတိအတွက် Guitar Chords နဲ့ Lyrics တွေကို တစ်ခါတည်း ကြည့်ရလွယ်အောင် တင်ပီးထားပါရေ။
+
+[ 1 ] ORIGINAL MUSIC CREDIT
+• Song: ${song}
+• Artist: ${artist}
+• Lyrics/Composer: ${composer}
+• Original Link: ${link}
+• Skip Intro: ${skip}
+
+[ 2 ] GUITAR SETUP INFO (ArakanArtArea)
+• Version: Vocal & Chord (New Version)
+• Key: ${key}
+• Capo: ${capoNum} rd Fret (${capoShape} Key Shape)
+• Tempo: ${tempo} BPM
+• Chord Sheet Creator: ArakanArtArea
+
+[ 3 ] ABOUT & DISCLAIMER
+• Channel Purpose:
+ရခိုင်‌တေးခြင်း‌ကောင်းချေတိကို ဂစ်တာတီးလိုသူတိအတွက် ကော့ဒ် (Chords) နန့် စာသားတိကို အလွယ်တကူ လေ့လာနိုင်အောင် ArakanArtArea မှ ဖန်တီးပီးထားခြင်း ဖြစ်ပါသည်။
+• Copyright Disclaimer:
+I do not own the music/audio. I only provided the chords and lyrics for educational purposes. All credits go to the rightful owners.
+
+[ 4 ] CONNECT WITH US
+• TikTok: https://www.tiktok.com/@arakan.art.area?_r=1&_t=ZS-94ebS87R8WG
+• YouTube: https://www.youtube.com/@arakanartarea
+• Facebook: https://www.facebook.com/AAAarakanartarea
+
+#ရခိုင်‌သင်္ကြန်တေးခြင်း #ရခိုင်တေးခြင်း #GuitarChords #ArakanArtArea #ArakanSong #GuitarTutorial #${song}`;
+$('output').textContent = des;
+$('charCount').textContent = des.length + ' chars';
+}
+function copyDes(){
+const text = $('output').textContent;
+navigator.clipboard.writeText(text).then(()=>{
+const btn = document.querySelector('.btn-copy');
+const old = btn.textContent;
+btn.textContent = 'Copied! ✓';
+setTimeout(()=>btn.textContent=old,1200);
+});
+}
+function resetAll(){
+$('artist').value='ကိုကိုနိုင်(ဗျာလ)';
+$('song').value='ဗျာလ';
+$('composer').value='သန်းမောင်(ဂီတစာဆို)';
+$('link').value='#';
+$('skip').value='0:05';
+$('key').value='A';
+$('capoNum').value='2';
+$('capoShape').value='G';
+$('tempo').value='91';
+build();
+}
+inputs.forEach(id=>$(id).addEventListener('input',build));
+build();
+</script>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script></body>
+</html>

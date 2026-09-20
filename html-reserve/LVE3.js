@@ -308,8 +308,15 @@ function renderAccordion(groupedData){
       <div class="song-item">
         <span class="song-title-click" onclick="playSong('${song.id}')">🎵 ${song.title}</span>
         <div class="item-actions" style="display:${isAdminUser?'flex':'none'}">
-          <button class="icon-btn" onclick="editSong('${song.id}')" title="Edit (Private)">📝</button>
-          <button class="icon-btn" onclick="deleteSong('${song.id}','${song.title.replace(/'/g,"\\'")}')">🗑️</button>
+          <button class="icon-btn" onclick="copyYTDesById('${song.id}')" title="YouTube Des Copy">
+            <span class="material-symbols-rounded" style="font-size:20px">content_copy</span>
+          </button>
+          <button class="icon-btn" onclick="editSong('${song.id}')" title="Edit (Private)">
+            <span class="material-symbols-rounded" style="font-size:20px">edit</span>
+          </button>
+          <button class="icon-btn" onclick="deleteSong('${song.id}','${song.title.replace(/'/g,"\\'")}')" title="Delete">
+            <span class="material-symbols-rounded" style="font-size:20px">delete</span>
+          </button>
         </div>
       </div>
     `).join('');
@@ -317,7 +324,6 @@ function renderAccordion(groupedData){
     container.appendChild(acc);
   }
 }
-
 function openCreateForm(){
   if(!isAdminUser){ alert('Admin login ဝင်မှ ထည့်လို့ရမယ်'); return; }
   editingDocId=null;
@@ -376,6 +382,7 @@ function playSong(id){
   db.collection('AAASongs').doc(id).get().then(doc=>{
     if(!doc.exists) return;
     const data=doc.data();
+    window.currentSongData = data;//Youtube des copy
     const box=document.getElementById('about-box');
     box.setAttribute('data-title',data.title||'');
     box.setAttribute('data-writer',data.writer||'');
@@ -674,7 +681,7 @@ function getTempo(){
 function startCountdown(onComplete){
   const overlay=document.getElementById('countdown-overlay'),txt=document.getElementById('countdown-text');
   let count=4; overlay.classList.remove('hidden'); txt.textContent=count;
-  countdownInterval=setInterval(()=>{ count--; if(count>0) txt.textContent=count; else if(count===0) txt.textContent='Go!'; else {clearInterval(countdownInterval);countdownInterval=null;overlay.classList.add('hidden'); if(onComplete) onComplete();}},600);
+  countdownInterval=setInterval(()=>{ count--; if(count>0) txt.textContent=count; else if(count===0) txt.textContent='Go!'; else {clearInterval(countdownInterval);countdownInterval=null;overlay.classList.add('hidden'); if(onComplete) onComplete();}},1000);
 }
 function playStrumForBeats(beats, tempo, onDone){
   const stepsNeeded = beats * 4;
@@ -840,3 +847,123 @@ function applySavedFont() {
 }
 document.addEventListener('DOMContentLoaded', applySavedFont);
 // ===== ဖောင့် ဆုံး =====
+
+//Youtube Des Copy စ
+// ===== YouTube Des Generator - ArakanArtArea FINAL =====
+/*
+function generateYTDescription(data){
+  if(!data) return "";
+  const artist = data.singer || "Unknown";
+  const song = data.title || "Unknown";
+  const composer = data.writer || "-";
+  const key = data.key || "C";
+  const capo = data.capo ?? 0;
+  const tempo = data.bpm || 90;
+  const capoShape = "G"; // Capo 2 ဆို G shape လို့ ပုံသေ ယူဆမယ်, လိုရင် ပြင်လို့ရ
+
+  return `${artist} သီဆိုထားရေ "${song}" ရခိုင်တေးခြင်း‌ချေကို ဂစ်တာတီး ချင်သူတိအတွက် Guitar Chords နဲ့ Lyrics တွေကို တစ်ခါတည်း ကြည့်ရလွယ်အောင် တင်ပီးထားပါရေ။
+
+[ 1 ] ORIGINAL MUSIC CREDIT
+- Song: ${song}
+- Artist: ${artist}
+- Lyrics/Composer: ${composer}
+- Original Link: #
+- Skip Intro: 0:05
+
+[ 2 ] GUITAR SETUP INFO (ArakanArtArea)
+- Version: Vocal & Chord (New Version)
+- Key: ${key}
+- Capo: ${capo} rd Fret (${capoShape} Key Shape)
+- Tempo: ${tempo} BPM
+- Chord Sheet Creator: ArakanArtArea
+
+[ 3 ] ABOUT & DISCLAIMER
+- Channel Purpose:
+ရခိုင်‌တေးခြင်း‌ကောင်းချေတိကို ဂစ်တာတီးလိုသူတိအတွက် ကော့ဒ် (Chords) နန့် စာသားတိကို အလွယ်တကူ လေ့လာနိုင်အောင် ArakanArtArea မှ ဖန်တီးပီးထားခြင်း ဖြစ်ပါသည်။
+- Copyright Disclaimer:
+I do not own the music/audio. I only provided the chords and lyrics for educational purposes. All credits go to the rightful owners.
+
+[ 4 ] CONNECT WITH US
+- TikTok: https://www.tiktok.com/@arakan.art.area?_r=1&_t=ZS-94ebS87R8WG
+- YouTube: https://www.youtube.com/@arakanartarea
+- Facebook: https://www.facebook.com/AAAarakanartarea
+
+#ရခိုင်‌သင်္ကြန်တေးခြင်း #ရခိုင်တေးခြင်း #GuitarChords #ArakanArtArea #ArakanSong #GuitarTutorial #${song}`;
+}
+(function setupYTDesCopy(){
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest('#btn-ytdes-copy');
+    if(!btn) return;
+    const data = window.currentSongData;
+    if(!data){ alert('သီချင်း အရင်ရွေးပါ'); return; }
+    const des = generateYTDescription(data);
+    navigator.clipboard.writeText(des).then(()=>{
+      const oldHTML = btn.innerHTML;
+      btn.innerHTML = '<span class="material-symbols-rounded">check</span>';
+      btn.style.background = '#22c55e';
+      setTimeout(()=>{ btn.innerHTML = oldHTML; btn.style.background = '#f5c518'; }, 1500);
+    });
+  });
+})();*/
+// ===== YouTube Des Generator - FINAL for List View Admin =====
+function generateYTDescription(data){
+  if(!data) return "";
+  const artist = data.singer || "Unknown";
+  const song = data.title || "Unknown";
+  const composer = data.writer || "-";
+  const key = data.key || "C";
+  const capo = data.capo ?? 0;
+  const tempo = data.bpm || 90;
+  const capoShape = "G";
+
+  return `${artist} သီဆိုထားရေ "${song}" ရခိုင်တေးခြင်း‌ချေကို ဂစ်တာတီး ချင်သူတိအတွက် Guitar Chords နဲ့ Lyrics တွေကို တစ်ခါတည်း ကြည့်ရလွယ်အောင် တင်ပီးထားပါရေ။
+
+[ 1 ] ORIGINAL MUSIC CREDIT
+- Song: ${song}
+- Artist: ${artist}
+- Lyrics/Composer: ${composer}
+- Original Link: #
+- Skip Intro: 0:05
+
+[ 2 ] GUITAR SETUP INFO (ArakanArtArea)
+- Version: Vocal & Chord (New Version)
+- Key: ${key}
+- Capo: ${capo} rd Fret (${capoShape} Key Shape)
+- Tempo: ${tempo} BPM
+- Chord Sheet Creator: ArakanArtArea
+
+[ 3 ] ABOUT & DISCLAIMER
+- Channel Purpose:
+ရခိုင်‌တေးခြင်း‌ကောင်းချေတိကို ဂစ်တာတီးလိုသူတိအတွက် ကော့ဒ် (Chords) နန့် စာသားတိကို အလွယ်တကူ လေ့လာနိုင်အောင် ArakanArtArea မှ ဖန်တီးပီးထားခြင်း ဖြစ်ပါသည်။
+- Copyright Disclaimer:
+I do not own the music/audio. I only provided the chords and lyrics for educational purposes. All credits go to the rightful owners.
+
+[ 4 ] CONNECT WITH US
+- TikTok: https://www.tiktok.com/@arakan.art.area?_r=1&_t=ZS-94ebS87R8WG
+- YouTube: https://www.youtube.com/@arakanartarea
+- Facebook: https://www.facebook.com/AAAarakanartarea
+
+#ရခိုင်‌သင်္ကြန်တေးခြင်း #ရခိုင်တေးခြင်း #GuitarChords #ArakanArtArea #ArakanSong #GuitarTutorial #${song}`;
+}
+
+function copyYTDesById(id) {
+  const data = allSongsData.find(s => s.id === id);
+  if (!data) { alert('Data မတွေ့ပါ'); return; }
+  const des = generateYTDescription(data);
+  navigator.clipboard.writeText(des).then(() => {
+    const btn = document.querySelector(`button[onclick="copyYTDesById('${id}')"]`);
+    if (!btn) return;
+    
+    // မူလပုံစံကို သိမ်းထားမယ်
+    const oldHTML = btn.innerHTML;
+    
+    // အမှန်ခြစ်ကို Icon နဲ့ပြ
+    btn.innerHTML = `<span class="material-symbols-rounded" style="font-size:20px">check</span>`;
+    
+    // 1 စက္ကြာပြီးရင် မူလပုံစံ ပြန်ထား
+    setTimeout(() => {
+      btn.innerHTML = oldHTML;
+    }, 1000);
+  });
+}
+//Youtube Des Copy ဆ

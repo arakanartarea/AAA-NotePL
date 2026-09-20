@@ -459,3 +459,42 @@ font-weight: bold;
 .btn-auth.secondary{ background:transparent; }
 .btn-auth:active{ transform:scale(0.98); }
 /* အကောင့်မစ်ဆေ့ ဆ */
+
+/* Child ခလုတ်များ စ */
+/* ===== Child Icon Buttons Fix - Light/Dark both visible ===== */
+.item-actions{
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+
+.icon-btn{
+  width:34px;
+  height:34px;
+  background:var(--card);
+  color:var(--text); /* နေ့မုဒ်မှာ အနက်, ညမုဒ်မှာ အဖြူ အလိုလိုပြောင်းမယ် */
+  border:1px solid #E2E8F0;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+  transition: all 0.2s;
+}
+
+.icon-btn:hover{
+  background:var(--bg);
+  transform:scale(1.05);
+}
+
+.icon-btn .material-symbols-rounded{
+  font-size:20px;
+  color:inherit; /* button ရဲ့ color ကို လိုက်မယ် */
+}
+
+.dark-mode .icon-btn{
+  border-color:#334155;
+  background:#1E293B;
+}
+
+
+/* Child ခလုတ်များ ဈ */

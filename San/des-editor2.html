@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Des Editor - ArakanArtArea</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans Myanmar',sans-serif;background:#101010;color:#ddd;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+.header{padding:10px 16px;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:center;background:#151515}
+.header b{font-size:13px;color:#f5c518;letter-spacing:1px}
+.main{flex:1;display:grid;grid-template-columns:360px 1fr;overflow:hidden}
+.left{background:#171717;border-right:1px solid #222;padding:12px;display:flex;flex-direction:column;gap:10px;overflow:auto}
+.group{border:1px solid #242424;border-radius:10px;padding:10px;background:#1c1c1c}
+.group-title{font-size:10px;color:#f5c518;letter-spacing:1px;margin-bottom:8px;font-weight:700}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.field{display:flex;flex-direction:column;gap:3px}
+.field.full{grid-column:span 2}
+.field label{font-size:10px;color:#888}
+.field input{width:100%;background:#101010;border:1px solid #333;border-radius:6px;padding:7px 9px;color:#fff;font-size:13px;outline:none}
+.field input:disabled{opacity:0.3}
+.right{display:flex;flex-direction:column;background:#0e0e0e}
+.preview-header{padding:10px 14px;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.btn{border:0;border-radius:7px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer}
+.btn-copy{background:#f5c518;color:#000}
+.btn-free{background:#222;color:#ccc;border:1px solid #333}
+.btn-free.active{background:#f5c518;color:#000;border-color:#f5c518}
+#output{flex:1;white-space:pre-wrap;word-break:break-word;font-family:'JetBrains Mono','Noto Sans Myanmar',monospace;font-size:12.5px;line-height:1.7;padding:16px;overflow:auto;color:#e9e3d6;outline:none}
+#output.editable{background:#1a1a12;border:1px dashed #f5c518;box-shadow:inset 0 0 0 1px #f5c518;}
+#hint{font-size:10px;color:#666;padding:0 14px 8px}
+</style>
+</head>
+<body>
+<div class="header"><b>ARAKAN ART AREA - DES EDITOR v2</b><span id="modeText">LOCKED MODE</span></div>
+<div class="main">
+<div class="left">
+<div class="group">
+<div class="group-title">SONG INFO - 12x { } auto sync</div>
+<div class="row">
+<div class="field full"><label>Artist</label><input id="artist" value="ကိုကိုနိုင်(ဗျာလ)"></div>
+<div class="field full"><label>Song Title - 3နေရာလုံးပြောင်းမယ်</label><input id="song" value="ဗျာလ"></div>
+<div class="field full"><label>Composer</label><input id="composer" value="သန်းမောင်(ဂီတစာဆို)"></div>
+<div class="field"><label>Link</label><input id="link" value="#"></div>
+<div class="field"><label>Skip</label><input id="skip" value="0:05"></div>
+</div>
+</div>
+<div class="group">
+<div class="group-title">GUITAR SETUP</div>
+<div class="row">
+<div class="field"><label>Key {A}</label><input id="key" value="A"></div>
+<div class="field"><label>BPM {91}</label><input id="tempo" value="91"></div>
+<div class="field"><label>Capo Fret {2}</label><input id="capoNum" value="2"></div>
+<div class="field"><label>Capo Shape {G}</label><input id="capoShape" value="G"></div>
+</div>
+</div>
+<div class="group" style="display:flex;gap:6px;flex-wrap:wrap">
+<button class="btn btn-free" id="freeBtn" onclick="toggleFree()">✏️ Free Edit: OFF</button>
+<button class="btn btn-copy" onclick="copyDes()" style="flex:1">Copy All</button>
+</div>
+</div>
+<div class="right">
+<div class="preview-header">
+<span>Live Preview - တိုက်ရိုက်ပြင်လို့ရအောင် Free Edit ကိုဖွင့်ပါ</span>
+<span id="charCount">0 chars</span>
+</div>
+<pre id="output"></pre>
+<div id="hint">Free Edit ON ဆိုရင် ဒီနေရာမှာ တိုက်ရိုက်ရိုက်ပြင်လို့ရပြီ။ ပုံစံပြောင်းချင်တဲ့ သီချင်းအတွက် အဆင်ပြေမယ်။</div>
+</div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+let freeMode = false;
+const inputs = ['artist','song','composer','link','skip','key','capoNum','capoShape','tempo'];
+function build(){
+if(freeMode) return;
+const artist=$('artist').value||'Artist';
+const song=$('song').value||'Song';
+const composer=$('composer').value||'Composer';
+const link=$('link').value||'#';
+const skip=$('skip').value||'0:05';
+const key=$('key').value||'A';
+const capoNum=$('capoNum').value||'2';
+const capoShape=$('capoShape').value||'G';
+const tempo=$('tempo').value||'91';
+const des=`${artist} သီဆိုထားရေ "${song}" ရခိုင်တေးခြင်း‌ချေကို ဂစ်တာတီး ချင်သူတိအတွက် Guitar Chords နဲ့ Lyrics တွေကို တစ်ခါတည်း ကြည့်ရလွယ်အောင် တင်ပီးထားပါရေ။
+
+[ 1 ] ORIGINAL MUSIC CREDIT
+• Song: ${song}
+• Artist: ${artist}
+• Lyrics/Composer: ${composer}
+• Original Link: ${link}
+• Skip Intro: ${skip}
+
+[ 2 ] GUITAR SETUP INFO (ArakanArtArea)
+• Version: Vocal & Chord (New Version)
+• Key: ${key}
+• Capo: ${capoNum} rd Fret (${capoShape} Key Shape)
+• Tempo: ${tempo} BPM
+• Chord Sheet Creator: ArakanArtArea
+
+[ 3 ] ABOUT & DISCLAIMER
+• Channel Purpose:
+ရခိုင်‌တေးခြင်း‌ကောင်းချေတိကို ဂစ်တာတီးလိုသူတိအတွက် ကော့ဒ် (Chords) နန့် စာသားတိကို အလွယ်တကူ လေ့လာနိုင်အောင် ArakanArtArea မှ ဖန်တီးပီးထားခြင်း ဖြစ်ပါသည်။
+• Copyright Disclaimer:
+I do not own the music/audio. I only provided the chords and lyrics for educational purposes. All credits go to the rightful owners.
+
+[ 4 ] CONNECT WITH US
+• TikTok: https://www.tiktok.com/@arakan.art.area?_r=1&_t=ZS-94ebS87R8WG
+• YouTube: https://www.youtube.com/@arakanartarea
+• Facebook: https://www.facebook.com/AAAarakanartarea
+
+#ရခိုင်‌သင်္ကြန်တေးခြင်း #ရခိုင်တေးခြင်း #GuitarChords #ArakanArtArea #ArakanSong #GuitarTutorial #${song}`;
+$('output').textContent=des;
+$('charCount').textContent=des.length+' chars';
+}
+function toggleFree(){
+freeMode=!freeMode;
+const out=$('output');
+const btn=$('freeBtn');
+const modeText=$('modeText');
+if(freeMode){
+out.contentEditable=true;
+out.classList.add('editable');
+out.focus();
+btn.textContent='✏️ Free Edit: ON';
+btn.classList.add('active');
+modeText.textContent='FREE EDIT MODE - တိုက်ရိုက်ပြင်နေသည်';
+inputs.forEach(id=>$(id).disabled=true);
+}else{
+out.contentEditable=false;
+out.classList.remove('editable');
+btn.textContent='✏️ Free Edit: OFF';
+btn.classList.remove('active');
+modeText.textContent='LOCKED MODE';
+inputs.forEach(id=>$(id).disabled=false);
+build();
+}
+}
+function copyDes(){
+const text=$('output').textContent;
+navigator.clipboard.writeText(text);
+const btn=document.querySelector('.btn-copy');
+const old=btn.textContent;btn.textContent='Copied! ✓';setTimeout(()=>btn.textContent=old,1000);
+}
+inputs.forEach(id=>$(id).addEventListener('input',build));
+build();
+</script>
+</body>
+</html>

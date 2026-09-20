@@ -3,33 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rakhine Chord Converter - with Beat Class</title>
+<title>Rakhine Chord Converter - Fixed v2</title>
 <style>
   *{box-sizing:border-box;font-family:'Noto Sans Myanmar','Myanmar Text',sans-serif;}
   body{margin:0;background:#0f0f0f;color:#e5e5e5;display:flex;flex-direction:column;min-height:100vh;}
   header{padding:16px 20px;border-bottom:1px solid #222;background:#121212;}
   header h1{margin:0;font-size:18px;}
   header p{margin:4px 0 0;color:#888;font-size:12px;}
-  .wrap{display:flex;flex:1;flex-direction:column;}
+ .wrap{display:flex;flex:1;flex-direction:column;}
   @media(min-width:900px){.wrap{flex-direction:row;}}
-  .panel{flex:1;display:flex;flex-direction:column;padding:12px;gap:8px;border-right:1px solid #222;}
-  .panel:last-child{border:none;}
+ .panel{flex:1;display:flex;flex-direction:column;padding:12px;gap:8px;border-right:1px solid #222;}
+ .panel:last-child{border:none;}
   label{font-size:12px;color:#aaa;text-transform:uppercase;letter-spacing:.08em;}
   textarea{width:100%;flex:1;min-height:360px;background:#1a1a1a;color:#d6d6d6;border:1px solid #2a2a2a;border-radius:8px;padding:12px;font-family:ui-monospace,monospace;font-size:13px;line-height:1.5;resize:none;}
   button{background:#fff;color:#000;border:none;border-radius:6px;padding:10px 14px;font-weight:700;cursor:pointer;font-size:13px;}
   button.secondary{background:#2a2a2a;color:#eee;border:1px solid #333;}
-  .preview{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:12px;white-space:pre-wrap;min-height:100px;}
+ .preview{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:12px;white-space:pre-wrap;min-height:100px;}
 </style>
 </head>
 <body>
 <header>
-  <h1>Chord Converter - class to beat</h1>
-  <p>cr=4, cg=3, cb=2, cp=1 ကို auto ဖတ်မယ် → [C 4] ပုံစံ</p>
+  <h1>Chord Converter - Fixed v2</h1>
+  <p>cr=4, cg=3, cb=2, cp=1 / nested [] bug fixed</p>
 </header>
 <div class="wrap">
   <div class="panel">
-    <label>Input HTML (span.cr / cg / cb / cp)</label>
-    <textarea id="input" placeholder='<span class="cr">C</span> <span class="cg">F</span>'></textarea>
+    <label>Input HTML</label>
+    <textarea id="input"></textarea>
     <div style="display:flex;gap:8px"><button id="convert">Convert → Output</button><button class="secondary" id="clear">Clear</button></div>
   </div>
   <div class="panel">
@@ -42,7 +42,6 @@
 </div>
 <script>
 const BEAT_MAP = { cr: 4, cg: 3, cb: 2, cp: 1 };
-
 function getBeatFromClass(className){
   if(!className) return 4;
   const cls = className.toLowerCase();
@@ -52,7 +51,22 @@ function getBeatFromClass(className){
   if(cls.includes('cr')) return BEAT_MAP.cr;
   return 4;
 }
-
+function cleanChord(raw){
+  if(!raw) return '';
+  let s = raw.replace(/[-–—|]/g, ' ').trim();
+  s = s.replace(/\s+/g, ' ').trim();
+  if(!s) return '';
+  const m = s.match(/^([A-G][#b]?[m0-9dimajsusadd\/]*)/i);
+  if(m) return m[1].trim();
+  return s.split(' ')[0].trim();
+}
+function snapToWordBoundary(text, pos){
+  if(pos <= 0 || pos >= text.length) return pos;
+  if(text[pos] === ' ' || text[pos] === '\n' || text[pos-1] === ' ' || text[pos-1] === '\n') return pos;
+  let left = pos;
+  while(left > 0 && text[left-1]!== ' ' && text[left-1]!== '\n') left--;
+  return left;
+}
 function parseChordLine(chordHtml){
   const temp = document.createElement('div');
   temp.innerHTML = chordHtml;
@@ -62,15 +76,14 @@ function parseChordLine(chordHtml){
     if(node.nodeType===3){
       pos += node.textContent.length;
     } else if(node.nodeType===1){
-      const chord = node.textContent.trim();
+      const chord = cleanChord(node.textContent);
       const beat = getBeatFromClass(node.className || node.getAttribute('class'));
-      if(chord) chords.push({chord, pos, beat});
-      pos += chord.length;
+      if(chord) chords.push({chord, pos, beat, order: chords.length});
+      pos += node.textContent.length;
     }
   });
   return {chords};
 }
-
 function processOnePre(preEl){
   const rawHtml = preEl.innerHTML;
   const rawLines = rawHtml.split('\n');
@@ -87,28 +100,49 @@ function processOnePre(preEl){
       const clone = tmp.cloneNode(true);
       clone.querySelectorAll('span').forEach(s=>s.remove());
       const leftover = clone.textContent.trim();
-      if(leftover){ lyric = leftover; chordHtml = rawHtml; }
+      if(leftover){ lyric = clone.textContent.replace(/<[^>]*>/g,'').trim(); chordHtml = rawHtml; }
       else { chordHtml = rawHtml; lyric=''; }
     } else {
       lyric = rawHtml.replace(/<[^>]*>/g,'').trim();
     }
   }
-  if(!chordHtml && !lyric) return '';
+  if(!chordHtml &&!lyric) return '';
   if(!lyric){
     const {chords} = parseChordLine(chordHtml);
     return chords.map(c=>`[${c.chord} ${c.beat}]`).join(' ');
   }
   const {chords} = parseChordLine(chordHtml);
   if(chords.length===0) return lyric;
-  let out = lyric;
-  const sorted = [...chords].sort((a,b)=>b.pos-a.pos);
-  sorted.forEach(({chord,pos,beat})=>{
-    const insertAt = Math.min(Math.max(0,pos), out.length);
-    out = out.slice(0,insertAt) + `[${chord} ${beat}]` + out.slice(insertAt);
-  });
-  return out.trim();
-}
 
+  // pos ကို lyric အပေါ်မှာပဲ ဖြတ်မယ်၊ ကြီးလာတဲ့ out ပေါ်မှာမဟုတ်ဘူး
+  const mapped = chords.map(c=>{
+    let eff = c.pos;
+    if(eff > lyric.length) eff = lyric.length;
+    eff = snapToWordBoundary(lyric, eff);
+    return {...c, eff};
+  });
+
+  // eff တူတာတွေကို group လုပ်မယ်
+  mapped.sort((a,b)=> a.eff - b.eff || a.order - b.order);
+  const groups = new Map();
+  mapped.forEach(c=>{
+    if(!groups.has(c.eff)) groups.set(c.eff, []);
+    groups.get(c.eff).push(c);
+  });
+
+  let out = '';
+  let prev = 0;
+  const sortedPos = Array.from(groups.keys()).sort((a,b)=>a-b);
+  sortedPos.forEach(pos=>{
+    out += lyric.slice(prev, pos);
+    const g = groups.get(pos);
+    // တစ်နေရာတည်းမှာ chord 2ခုထက်ပိုရင် "[C 2] [Bb 2]" လို space နဲ့ပေါင်း
+    out += g.map(x=>`[${x.chord} ${x.beat}]`).join(' ');
+    prev = pos;
+  });
+  out += lyric.slice(prev);
+  return out.trim().replace(/\s{2,}/g,' ').trim();
+}
 function convert(){
   const inputVal = document.getElementById('input').value.trim();
   if(!inputVal) return;
@@ -122,13 +156,12 @@ function convert(){
     pres.forEach(pre=>{ const p=processOnePre(pre); if(p) lines.push(p); });
     const merged = lines.join(' ').replace(/\s{2,}/g,' ').trim();
     if(!merged) return;
-    outs.push(`<div class="verse">\n  <div class="section-label">${label}</div>\n  <div class="verse-content">\n    <pre class="resizable-text">${merged}</pre>\n  </div>\n</div>`);
+    outs.push(`<div class="verse">\n <div class="section-label">${label}</div>\n <div class="verse-content">\n <pre class="resizable-text">${merged}</pre>\n </div>\n</div>`);
   });
   const finalHtml = outs.join('\n\n');
   document.getElementById('output').value = finalHtml;
   document.getElementById('preview').innerHTML = finalHtml;
 }
-
 document.getElementById('convert').addEventListener('click',convert);
 document.getElementById('clear').addEventListener('click',()=>{input.value='';output.value='';preview.innerHTML='';});
 document.getElementById('copy').addEventListener('click',()=>{output.select();document.execCommand('copy');});
