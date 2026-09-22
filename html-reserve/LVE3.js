@@ -339,6 +339,7 @@ function editSong(id){
     if(!doc.exists) return;
     const data=doc.data();editingDocId=id;
     document.getElementById('form-title').textContent="သီချင်းပြင်ဆင်ရန် - Private";
+    document.getElementById('inp-id').value = data.songId || id; // ဒါကိုထည့်
     document.getElementById('inp-title').value=data.title||'';
     document.getElementById('inp-singer').value=data.singer||'';
     document.getElementById('inp-writer').value=data.writer||'';
@@ -354,23 +355,32 @@ function editSong(id){
   });
 }
 
-function saveSong(){
-  if(!isAdminUser) return;
-  const payload={
-    title:document.getElementById('inp-title').value,
-    singer:document.getElementById('inp-singer').value,
-    writer:document.getElementById('inp-writer').value,
-    album:document.getElementById('inp-album').value,
-    key:document.getElementById('inp-key').value,
-    capo:parseInt(document.getElementById('inp-capo').value)||0,
-    bpm:parseInt(document.getElementById('inp-bpm').value)||70,
-    strum:document.getElementById('inp-strum').value,
-    pluck:document.getElementById('inp-pluck').value,
-    songmap:document.getElementById('inp-songmap').value,
-    content:document.getElementById('inp-content').value
+function saveSong() {
+  if (!isAdminUser) return;
+  
+  // အရေးကြီးတာ ဒီမှာ - SongId ကို ID အဖြစ်ယူမယ်
+  const songId = document.getElementById('inp-id').value.trim(); // ဒါမှမဟုတ် inp-songId
+  if (!songId) { alert('Song ID ထည့်ပါ'); return; }
+  
+  const payload = {
+    songId: songId, // အထဲမှာလဲ သိမ်းထားမှ နောက်ရှာရလွယ်မယ်
+    title: document.getElementById('inp-title').value,
+    singer: document.getElementById('inp-singer').value,
+    writer: document.getElementById('inp-writer').value,
+    album: document.getElementById('inp-album').value,
+    key: document.getElementById('inp-key').value,
+    capo: parseInt(document.getElementById('inp-capo').value) || 0,
+    bpm: parseInt(document.getElementById('inp-bpm').value) || 70,
+    strum: document.getElementById('inp-strum').value,
+    pluck: document.getElementById('inp-pluck').value,
+    songmap: document.getElementById('inp-songmap').value,
+    content: document.getElementById('inp-content').value
   };
-  if(editingDocId){db.collection('AAASongs').doc(editingDocId).update(payload).then(()=>switchView('list-view')).catch(e=>alert(e.message))}
-  else{db.collection('AAASongs').add(payload).then(()=>switchView('list-view')).catch(e=>alert(e.message))}
+  
+  // add() မဟုတ်ဘဲ doc(songId).set()
+  db.collection('AAASongs').doc(songId).set(payload, { merge: true })
+    .then(() => switchView('list-view'))
+    .catch(e => alert(e.message))
 }
 
 function deleteSong(id,title){

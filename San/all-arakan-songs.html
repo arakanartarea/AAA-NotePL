@@ -175,11 +175,26 @@ function renderAccordion(){
     header.innerHTML=`<span>🎤 ${gName} (${songs.length})</span><span>▼</span>`;
     header.onclick=()=>acc.classList.toggle('open');
     const content=document.createElement('div');content.className='accordion-content';
-    content.innerHTML=songs.map(song=>{
-      const isFav=favList.includes(song._id);
-      const stars='⭐'.repeat(song.vote||0);
-      return `<div class="song-item"><span class="song-title-click">${song.title||'-'}<span class="vote-badge">${song.vote||0}/9 ${stars}</span><br><small style="color:var(--muted)">${(song.singers||[]).join(', ')} | ရေး: ${(song.writers||[]).join(', ')}</small></span><div class="item-actions"><button class="icon-btn fav-btn ${isFav?'active':''}" onclick="toggleFav('${song._id}')" title="Fav">${isFav?'★':'☆'}</button><div style="display:${isAdminUser?'flex':'none'};gap:4px"><button class="icon-btn" onclick="editSong('${song._id}')">📝</button><button class="icon-btn" onclick="deleteSong('${song._id}')">🗑️</button></div></div></div>`;
-    }).join('');
+    content.innerHTML = songs.map(song => {
+  const isFav = favList.includes(song._id);
+  const stars = '⭐'.repeat(song.vote || 0);
+  return `<div class="song-item">
+    <span class="song-title-click">
+<span class="id-badge" onclick="event.stopPropagation(); navigator.clipboard.writeText('${song._id}');">ID:${song._id}</span>
+      ${song.title||'-'}
+      <span class="vote-badge">${song.vote||0}/9 ${stars}</span>
+      <br>
+      <small style="color:var(--muted)">${(song.singers||[]).join(', ')} | ရေး: ${(song.writers||[]).join(', ')}</small>
+    </span>
+    <div class="item-actions">
+      <button class="icon-btn fav-btn ${isFav?'active':''}" onclick="toggleFav('${song._id}')" title="Fav">${isFav?'★':'☆'}</button>
+      <div style="display:${isAdminUser?'flex':'none'};gap:4px">
+        <button class="icon-btn" onclick="editSong('${song._id}')">📝</button>
+        <button class="icon-btn" onclick="deleteSong('${song._id}')">🗑️</button>
+      </div>
+    </div>
+  </div>`;
+}).join('');
     acc.appendChild(header);acc.appendChild(content);container.appendChild(acc);
   });
 }
