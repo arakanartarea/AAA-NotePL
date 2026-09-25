@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Link Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<style>
+  body { font-family: sans-serif; padding: 20px; max-width: 100%; margin: auto; background: #1e293b; color: #fff; }
+  .form-group { margin-bottom: 15px; }
+  label { display: block; margin-bottom: 5px; font-size: 14px; }
+  input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #fff; box-sizing: border-box; }
+  .btn-container { display: flex; gap: 10px; margin-top: 20px; }
+  button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .btn-save { background: #16a34a; color: white; }
+  .btn-clear { background: #475569; color: white; }
+  
+  /* Grid Layout ဖြင့် ပုံများပြရန် */
+  #image-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+    margin-top: 15px;
+  }
+  
+  .img-card {
+    background: #0f172a;
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #334155;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+  }
+  .img-card img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+  .img-info { flex: 1; min-width: 0; }
+  .img-info strong { display: block; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .img-info div { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+  /* Click နှိပ်မှ ပေါ်လာမည့် Edit / Delete ခလုတ်များ */
+  .action-btns {
+    display: none;
+    gap: 4px;
+    position: absolute;
+    right: 6px;
+    background: #0f172a;
+    padding: 2px;
+    border-radius: 6px;
+  }
+  .action-btns button {
+    padding: 6px 8px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<h2>🖼️ ImageLink Manager</h2>
+
+<div class="form-group">
+  <label>Image ID (doc ID - ဥပမာ: 0001)</label>
+  <input type="text" id="inp-img-id" placeholder="0001">
+</div>
+<div class="form-group">
+  <label>အမည် - Name (MM)</label>
+  <input type="text" id="inp-img-name" placeholder="မောင်မောင်">
+</div>
+<div class="form-group">
+  <label>ပုံလင့် - Link (URL)</label>
+  <input type="text" id="inp-img-link" placeholder="https://...">
+</div>
+
+<div class="btn-container">
+  <button class="btn-save" onclick="saveImageLink()">
+    <span class="material-symbols-rounded">save</span> သိမ်းမယ်
+  </button>
+  <button class="btn-clear" onclick="clearForm()">
+    <span class="material-symbols-rounded">refresh</span> ရှင်းမယ်
+  </button>
+</div>
+
+<h3 style="margin-top:30px;">သိမ်းထားသော ပုံများ</h3>
+<div id="image-list">ခေါ်ယူနေသည်...</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U",
+  authDomain: "arakanartarea-note.firebaseapp.com",
+  projectId: "arakanartarea-note",
+  storageBucket: "arakanartarea-note.firebasestorage.app",
+  messagingSenderId: "695659736666",
+  appId: "1:695659736666:web:1e76494c0e6819609bf263"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ImageLink collection မှ ဒေတာများကို Realtime ယူပြခြင်း
+db.collection('ImageLink').onSnapshot(snap => {
+  const container = document.getElementById('image-list');
+  container.innerHTML = '';
+  if (snap.empty) {
+    container.innerHTML = '<small style="color:#94a3b8">ပုံများ မရှိသေးပါ။</small>';
+    return;
+  }
+
+  // ID ကို ကြီးရာမှ ငယ်ရာသို့ စီပေးခြင်း
+  const sortedDocs = snap.docs.sort((a, b) => b.id.localeCompare(a.id));
+
+  sortedDocs.forEach(doc => {
+    const data = doc.data();
+    const id = doc.id;
+    const safeName = (data.name || '-').replace(/'/g, "\\'");
+    const safeLink = (data.link || '').replace(/'/g, "\\'");
+
+    container.innerHTML += `
+      <div class="img-card" onclick="toggleActions('${id}')">
+        <img src="${getDirectImageUrl(data.link || '')}" onerror="this.onerror=null; this.src='https://placehold.co/40x40/334155/ffffff?text=Img';">
+        <div class="img-info">
+          <strong>${data.name || '-'}</strong>
+          <div>ID: ${id}</div>
+        </div>
+        <div id="actions-${id}" class="action-btns" onclick="event.stopPropagation()">
+          <button onclick="editImg('${id}', '${safeName}', '${safeLink}')" style="background:#eab308;">✏️</button>
+          <button onclick="deleteImg('${id}')" style="background:#ef4444;">🗑️</button>
+        </div>
+      </div>
+    `;
+  });
+});
+
+// Toggle Edit/Delete Buttons
+function toggleActions(id) {
+  const actions = document.getElementById('actions-' + id);
+  if (actions) {
+    const isShown = actions.style.display === 'flex';
+    document.querySelectorAll('.action-btns').forEach(el => el.style.display = 'none');
+    actions.style.display = isShown ? 'none' : 'flex';
+  }
+}
+
+// Google Drive link ကို Direct Image URL ပြောင်းပေးသည့် Function
+function getDirectImageUrl(url) {
+  if (!url) return '';
+  if (url.includes('drive.google.com')) {
+    const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if (match && match[1]) {
+      return `https://lh3.googleusercontent.com/d/${match[1]}`;
+    }
+  }
+  return url;
+}
+
+function saveImageLink() {
+  const imgId = document.getElementById('inp-img-id').value.trim();
+  const name = document.getElementById('inp-img-name').value.trim();
+  let link = document.getElementById('inp-img-link').value.trim();
+
+  if (!imgId || !name || !link) {
+    alert('Image ID၊ Name နဲ့ Link အကုန်ဖြည့်ပေးပါ။');
+    return;
+  }
+
+  // Google Drive link ဖြစ်ရင် Direct Link သို့ Auto ပြောင်းမည်
+  link = getDirectImageUrl(link);
+
+  db.collection('ImageLink').doc(imgId).set({
+    name: name,
+    link: link,
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true })
+  .then(() => {
+    clearForm();
+  })
+  .catch(err => alert(err.message));
+}
+
+function editImg(id, name, link) {
+  document.getElementById('inp-img-id').value = id;
+  document.getElementById('inp-img-name').value = name;
+  document.getElementById('inp-img-link').value = link;
+}
+
+function deleteImg(id) {
+  if (confirm(id + ' ကို ဖျက်မှာ သေချာလား?')) {
+    db.collection('ImageLink').doc(id).delete();
+  }
+}
+
+function clearForm() {
+  document.getElementById('inp-img-id').value = '';
+  document.getElementById('inp-img-name').value = '';
+  document.getElementById('inp-img-link').value = '';
+}
+</script>
+</body>
+</html>

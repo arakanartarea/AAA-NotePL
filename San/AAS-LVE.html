@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AAS + LVE Combined</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script>
+  const t = Date.now();
+  document.write(`<link rel="stylesheet" href="../html-reserve/LVE3-common.css?v=${t}">`);
+  document.write(`<link rel="stylesheet" href="../html-reserve/LVE3-phone.css?v=${t}" media="(max-width: 768px)">`);
+  document.write(`<link rel="stylesheet" href="../html-reserve/LVE3-tablet.css?v=${t}" media="(min-width: 769px)">`);
+</script>
+<style>
+/* Detail View Layout */
+#detail-view{display:none}
+#detail-view.active{display:block}
+.detail-header{display:flex;align-items:center;gap:10px;padding:10px;background:var(--card);border-bottom:1px solid var(--border, #E2E8F0);position:sticky;top:0;z-index:5}
+.tab-bar{display:flex;gap:8px;padding:8px;background:var(--bg);border-bottom:1px solid var(--border, #E2E8F0)}
+.tab-btn{padding:8px 14px;border:1px solid var(--border,#334155);border-radius:20px;background:var(--card);cursor:pointer}
+.tab-btn.active{background:#16a34a;color:#fff;border-color:#16a34a}
+.detail-grid{display:block}
+#tab-info, #tab-lyrics{padding:12px}
+.id-badge{background:var(--bg);color:var(--muted);border:1px solid var(--border,#E2E8F0);font-size:10px;padding:2px 6px;border-radius:4px;margin-right:6px}
+/* PC/Tablet မှာ ၂ခြမ်း တစ်ပြိုင်တည်း */
+@media(min-width:769px){
+  .tab-bar{display:none}
+  .detail-grid{display:grid;grid-template-columns:380px 1fr;gap:12px}
+  #tab-info, #tab-lyrics{display:block !important}
+  #tab-info{border-right:1px solid var(--border,#E2E8F0)}
+}
+/* Phone မှာ Tab တစ်ခြမ်းပိတ် */
+@media(max-width:768px){
+  #tab-info.hidden, #tab-lyrics.hidden{display:none}
+}
+</style>
+</head>
+<body>
+
+<header id="main-header">
+  <div class="nav-btns" style="flex:1">
+    <input type="text" id="search-input" placeholder="သီချင်း / တေးဆို ရှာရန်..." oninput="filterSongs()">
+  </div>
+  <div id="status-badge" class="status-badge">Viewer</div>
+</header>
+
+<!-- LIST VIEW - မင်းရဲ့ AAS အတိုင်း -->
+<div id="list-view" class="view-section active">
+  <div id="accordion-container">ခေါ်ယူနေသည်...</div>
+</div>
+
+<!-- DETAIL VIEW - အသစ် ၂ခြမ်းပါတာ -->
+<div id="detail-view" class="view-section">
+  <div class="detail-header">
+    <button onclick="switchToList()" style="width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:var(--card);cursor:pointer"><span class="material-symbols-rounded">arrow_back</span></button>
+    <div>
+      <div id="detail-title" style="font-weight:700"></div>
+      <small id="detail-sub" style="color:var(--muted)"></small>
+    </div>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" id="btn-tab-info" onclick="showTab('info')">အချက်အလက်</button>
+    <button class="tab-btn" id="btn-tab-lyrics" onclick="showTab('lyrics')">စာသား + ကော့ 🎸</button>
+  </div>
+  <div class="detail-grid">
+    <div id="tab-info"></div>
+    <div id="tab-lyrics" class="hidden"></div>
+  </div>
+</div>
+
+<!-- LVE Player အတွက်လိုတဲ့ div တွေ -->
+<div id="player-helper" style="display:none">
+  <div id="about-box" data-title="" data-key="E" data-capo="0" data-bpm="70" data-strum="" data-pluck="" data-songmap=""></div>
+  <div id="strumPattern"></div><div id="pluckPattern"></div>
+</div>
+
+<script>
+// Firebase - မင်းရဲ့ config အတိုင်း
+const firebaseConfig = {
+  apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U",
+  authDomain: "arakanartarea-note.firebaseapp.com",
+  projectId: "arakanartarea-note",
+  storageBucket: "arakanartarea-note.firebasestorage.app",
+  messagingSenderId: "695659736666",
+  appId: "1:695659736666:web:1e76494c0e6819609bf263"
+};
+if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let allSongsData=[], filteredData=[];
+let currentDetailId=null;
+
+function splitNames(s){ if(!s) return []; if(Array.isArray(s)) return s; return s.split(/[,၊/&+]+/).map(x=>x.trim()).filter(x=>x); }
+
+function initFirebase(){
+  db.collection('AllArakanSongs').onSnapshot(snap=>{
+    allSongsData=[];
+    snap.forEach(doc=>{let d=doc.data();d._id=doc.id;d.singers=splitNames(d.singer);allSongsData.push(d);});
+    filterSongs();
+  });
+}
+function filterSongs(){
+  const q=(document.getElementById('search-input').value||'').toLowerCase().trim();
+  filteredData = allSongsData.filter(s=> !q || (s.title||'').toLowerCase().includes(q) || (s.singer||'').toLowerCase().includes(q) );
+  renderAccordion();
+}
+function renderAccordion(){
+  const c=document.getElementById('accordion-container'); c.innerHTML='';
+  const grouped={};
+  filteredData.forEach(s=>{let k=s.singers[0]||'မသိ'; if(!grouped[k]) grouped[k]=[]; grouped[k].push(s);});
+  Object.keys(grouped).sort().forEach(gName=>{
+    const songs=grouped[gName];
+    const acc=document.createElement('div'); acc.className='accordion';
+    const header=document.createElement('div'); header.className='accordion-header';
+    header.innerHTML=`<span>🎤 ${gName} (${songs.length})</span><span>▼</span>`;
+    header.onclick=()=>acc.classList.toggle('open');
+    const content=document.createElement('div'); content.className='accordion-content';
+    content.innerHTML=songs.map(song=>`
+      <div class="song-item">
+        <span class="song-title-click" onclick="openDetail('${song._id}')">
+          <span class="id-badge">ID:${song._id}</span> ${song.title||'-'}
+          <br><small style="color:var(--muted)">${(song.singers||[]).join(', ')}</small>
+        </span>
+      </div>`).join('');
+    acc.appendChild(header); acc.appendChild(content); c.appendChild(acc);
+  });
+}
+
+// View Switch
+function switchToList(){
+  document.getElementById('list-view').classList.add('active');
+  document.getElementById('detail-view').classList.remove('active');
+  document.getElementById('main-header').style.display='flex';
+}
+function switchToDetail(){
+  document.getElementById('list-view').classList.remove('active');
+  document.getElementById('detail-view').classList.add('active');
+  document.getElementById('main-header').style.display='none';
+  history.pushState({view:'detail'},'');
+}
+window.addEventListener('popstate',()=>switchToList());
+
+// Tab Logic
+function showTab(which){
+  const isMobile = window.innerWidth <= 768;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('btn-tab-'+which)?.classList.add('active');
+  if(isMobile){
+    document.getElementById('tab-info').classList.toggle('hidden', which!=='info');
+    document.getElementById('tab-lyrics').classList.toggle('hidden', which!=='lyrics');
+  }
+}
+
+// Detail Open - ၂ Collection ချိတ်တာ ဒီမှာ
+async function openDetail(id){
+  currentDetailId=id;
+  const metaDoc = await db.collection('AllArakanSongs').doc(id).get();
+  if(!metaDoc.exists){ alert('Meta မရှိ'); return; }
+  const meta = metaDoc.data();
+
+  // Info Tab
+  document.getElementById('detail-title').textContent = meta.title||'';
+  document.getElementById('detail-sub').textContent = (meta.singer||'') + ' | ID:'+id;
+  document.getElementById('tab-info').innerHTML = `
+    <div><b>ID:</b> ${id}</div>
+    <div><b>နာမယ်:</b> ${meta.title||''}</div>
+    <div><b>တေးဆို:</b> ${meta.singer||''}</div>
+    <div><b>တေးရေး:</b> ${meta.writer||''}</div>
+    <div><b>အယ်ဘမ်:</b> ${meta.album||''}</div>
+    <div><b>Vote:</b> ${meta.vote||0}/9</div>
+    <div style="margin-top:8px"><b>Remark:</b><br>${meta.remark||'-'}</div>
+  `;
+
+  // Lyrics Tab - AAASongs ကို ID တူတူတည်းနဲ့ ဆွဲ
+  const privDoc = await db.collection('AAASongs').doc(id).get();
+  if(privDoc.exists){
+    const p = privDoc.data();
+    document.getElementById('tab-lyrics').innerHTML = `
+      <div style="margin-bottom:10px">Key:${p.key||'E'} | Capo:${p.capo||0} | BPM:${p.bpm||70}</div>
+      <div id="dynamic-verses">${p.content||'Content မရှိ'}</div>
+    `;
+  }else{
+    document.getElementById('tab-lyrics').innerHTML = `<p style="color:var(--muted)">ID:${id} အတွက် AAASongs ထဲမှာ စာသား မရှိသေးပါ။ LVE3 မှာ ID တူတူတည်းနဲ့ ထည့်ပါ။</p>`;
+  }
+
+  switchToDetail();
+  if(window.innerWidth <= 768) showTab('info'); else { document.getElementById('tab-info').classList.remove('hidden'); document.getElementById('tab-lyrics').classList.remove('hidden'); }
+}
+
+initFirebase();
+</script>
+</body>
+</html>

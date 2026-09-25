@@ -624,7 +624,8 @@ function renderTimeline() {
     const chip = document.createElement('div');
     chip.className = 'timeline-chip';
     chip.id = `tl-${idx}`;
-    let shortName = name.replace('Intro','In').replace('Verse','V').replace('Chorus','Cho').replace('Pre Cho','Pre').replace('Bridge','Bri').replace('Outro','Out').replace('Solo','Solo').replace(/ /g,'');
+    /*let shortName = name.replace('Intro','In').replace('Verse','V').replace('Chorus','Cho').replace('Pre Cho','Pre').replace('Bridge','Bri').replace('Outro','Out').replace('Solo','Solo').replace(/ /g,'');*/
+    let shortName = name.replace('Intro','In').replace('Hook','Ho').replace('Skit','Sk').replace('Verse','V').replace('Chorus','Cho').replace('Pre Cho','Pre').replace('Bridge','Bri').replace('Outro','Out').replace('Solo','Solo').replace(/ /g,'');
     chip.innerHTML = `<span class="chip-progress"></span><span style="position:relative;z-index:1">${shortName}</span>`;
     chip.onclick = () => {
       const key = name.toLowerCase().replace(/\s+/g, '');
