@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All in One Green Screen - Final</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box; font-family: sans-serif;}
+body{background:#00FF00; width:100vw; height:100vh; overflow:hidden; position:relative;}
+
+/* Tab Switcher - မင်းပဲ မြင်ရမယ်၊ Record မှာ အပေါ်ထောင့်မှာ ထားလို့ရ */
+.switcher{position:fixed; top:10px; left:50%; transform:translateX(-50%); z-index:1000; background:#111; padding:6px; border-radius:100px; display:flex; gap:6px; border:1px solid #333;}
+.switcher button{padding:8px 18px; border-radius:100px; border:none; font-weight:900; cursor:pointer; opacity:0.6; color:white; transition:0.3s;}
+.switcher button.active{opacity:1; transform:scale(1.05);}
+.switcher.yt.active{background:#FF0000}.switcher.tt.active{background:#000; border:1px solid white}.switcher.fb.active{background:#1877F2}
+
+.stage{display:none; width:100%; height:100%; position:absolute; inset:0;}
+.stage.active{display:block;}
+
+/* Animations */
+@keyframes bounce {0%,100%{transform:scale(1)} 50%{transform:scale(1.12)}}
+@keyframes floatY {0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)}}
+@keyframes pulseShadow {0%{box-shadow:0 0 0 0 rgba(255,255,255,0.7)} 70%{box-shadow:0 0 0 20px rgba(255,255,255,0)} 100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+.btn-click{transform:scale(0.88)!important; filter:brightness(1.5);}
+
+/* ============ YOUTUBE ============ */
+.yt-bar{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  background:#F1F1F1; display:flex; align-items:center; gap:28px;
+  padding:16px 26px; border-radius:22px;
+  animation: bounce 1s infinite;
+}
+.yt-left{display:flex; align-items:center; gap:20px; border-bottom:3.5px solid #000; padding-bottom:5px;}
+.yt-left svg{width:50px; height:50px; fill:#111;}
+#yt-like, #yt-dislike{cursor:pointer; transition:0.15s;}
+#yt-sub{ background:#FF0000; color:white; padding:12px 30px; border-radius:12px; font-weight:900; font-size:22px; border:none; animation: pulseShadow 1.2s infinite;}
+#yt-bell{width:44px; height:44px; fill:none; stroke:#111; stroke-width:1.8;}
+
+/* ============ TIKTOK ============ */
+.tt-right{position:absolute; right:16px; bottom:100px; display:flex; flex-direction:column; align-items:center; gap:20px;}
+.tt-profile{position:relative; width:62px; height:62px;}
+.tt-profile img{width:62px; height:62px; border-radius:50%; border:3px solid white;}
+.tt-plus{position:absolute; bottom:-8px; left:50%; transform:translateX(-50%); background:#FE2C55; color:white; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:900; border:2px solid white;}
+.tt-icon{display:flex; flex-direction:column; align-items:center; color:white; font-weight:800; font-size:14px; text-shadow:0 2px 5px black; transition:0.15s;}
+.tt-icon svg{width:44px; height:44px; fill:white; filter:drop-shadow(0 2px 4px black);}
+.tt-bottom{position:absolute; left:14px; bottom:22px; color:white; text-shadow:0 2px 6px black;}
+.tt-bottom.name{font-weight:900; font-size:20px; margin-bottom:4px;}
+
+#tt-profile, #tt-heart, #tt-comment, #tt-bookmark, #tt-share{animation: floatY 1.6s infinite;}
+#tt-heart{animation-delay:0.1s} #tt-comment{animation-delay:0.2s} #tt-bookmark{animation-delay:0.3s} #tt-share{animation-delay:0.4s}
+
+/* ============ FACEBOOK ============ */
+.fb-left{position:absolute; left:14px; bottom:16px; display:flex; align-items:center; gap:10px; color:white; text-shadow:0 1px 4px black;}
+.fb-left img{width:50px; height:50px; border-radius:50%; border:2px solid white;}
+#fb-follow{background:#E4E6EB; color:#050505; padding:7px 16px; border-radius:8px; font-weight:900; border:none; font-size:15px; transition:0.15s; animation: bounce 1s infinite;}
+.fb-right{position:absolute; right:12px; bottom:16px; display:flex; flex-direction:column; gap:18px; align-items:center;}
+.fb-action{display:flex; flex-direction:column; align-items:center; color:white; font-size:13px; font-weight:700; text-shadow:0 1px 3px black; transition:0.15s;}
+.fb-action svg{width:34px; height:34px; fill:white; background:rgba(0,0,0,0.25); padding:7px; border-radius:50%; box-sizing:content-box;}
+#fb-like, #fb-comment, #fb-share, #fb-save{animation: floatY 1.5s infinite;}
+
+/* ============ FINGER CURSOR ============ */
+#finger{
+  position:absolute; font-size:68px; z-index:9999; pointer-events:none;
+  filter: drop-shadow(0 6px 10px rgba(0,0,0,0.6));
+  transition: left 0.7s cubic-bezier(0.7,-0.3,0.3,1.4), top 0.7s cubic-bezier(0.7,-0.3,0.3,1.4), transform 0.15s;
+}
+#finger.clicking{transform: scale(0.75) translateY(12px) rotate(-15deg);}
+.click-ripple{
+  position:absolute; width:50px; height:50px; border:5px solid white; border-radius:50%;
+  pointer-events:none; z-index:9998; animation: ripple 0.5s ease-out forwards;
+}
+@keyframes ripple{0%{transform:translate(-50%,-50%) scale(0.2); opacity:1} 100%{transform:translate(-50%,-50%) scale(2.8); opacity:0}}
+</style>
+</head>
+<body>
+
+<div class="switcher">
+  <button class="yt active" onclick="showTab('youtube')">YouTube</button>
+  <button class="tt" onclick="showTab('tiktok')">TikTok</button>
+  <button class="fb" onclick="showTab('facebook')">Facebook</button>
+</div>
+
+<!-- YOUTUBE TAB -->
+<div id="youtube" class="stage active">
+  <div class="yt-bar">
+    <div class="yt-left">
+      <div id="yt-like"><svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg></div>
+      <div id="yt-dislike"><svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0.41.17.79.44 1.06L9.83 23l6.58-6.59c.37-.36.59-.86.59-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg></div>
+    </div>
+    <button id="yt-sub">Subscribe</button>
+    <div id="yt-bell"><svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg></div>
+  </div>
+</div>
+
+<!-- TIKTOK TAB -->
+<div id="tiktok" class="stage">
+  <div class="tt-right">
+    <div class="tt-profile" id="tt-profile"><img src="https://i.pravatar.cc/200?img=12"><div class="tt-plus">+</div></div>
+    <div class="tt-icon" id="tt-heart"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span>4,661</span></div>
+    <div class="tt-icon" id="tt-comment"><svg viewBox="0 0 24 24"><path d="M21 6h-2v9H6v2c0.55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1.45-1 1v14l4-4h11c.55 0 1-.45 1-1z"/></svg><span>76</span></div>
+    <div class="tt-icon" id="tt-bookmark"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>344</span></div>
+    <div class="tt-icon" id="tt-share"><svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0.24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg><span>72</span></div>
+  </div>
+  <div class="tt-bottom"><div class="name">ရက္ခိုင် ရိုးမ ရင်သွီး @zawmyomurm</div><div>#လွမ်းသူ သီသာ</div></div>
+</div>
+
+<!-- FACEBOOK TAB -->
+<div id="facebook" class="stage">
+  <div class="fb-left">
+    <img src="https://i.pravatar.cc/200?img=12">
+    <div><div style="font-weight:900; font-size:16px;">ရက္ခိုင် ရိုးမ ရင်သွီး</div><div style="font-size:12px; opacity:0.9;">တင်ဆက်သူ</div></div>
+    <button id="fb-follow">Follow</button>
+  </div>
+  <div class="fb-right">
+    <div class="fb-action" id="fb-like"><svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg><span>6.3K</span></div>
+    <div class="fb-action" id="fb-comment"><svg viewBox="0 0 24 24"><path d="M21 6h-2v9H6v2c0.55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1.45-1 1v14l4-4h11c.55 0 1-.45 1-1z"/></svg><span>2K</span></div>
+    <div class="fb-action" id="fb-share"><svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0.24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg><span>Share</span></div>
+    <div class="fb-action" id="fb-save"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>Save</span></div>
+  </div>
+</div>
+
+<div id="finger">👆</div>
+
+<script>
+const finger = document.getElementById('finger');
+let currentTab = 'youtube';
+let loopTimer;
+
+const sequences = {
+  youtube: ['yt-like', 'yt-sub', 'yt-bell'],
+  tiktok: ['tt-profile', 'tt-heart', 'tt-comment', 'tt-share'],
+  facebook: ['fb-follow', 'fb-like', 'fb-share']
+};
+
+function showTab(id){
+  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.switcher button').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector('.switcher.'+id.slice(0,2)).classList.add('active');
+  currentTab = id;
+  clearTimeout(loopTimer);
+  startSequence(0);
+}
+
+function createRipple(x,y){
+  const r = document.createElement('div');
+  r.className='click-ripple';
+  r.style.left=x+'px'; r.style.top=y+'px';
+  document.body.appendChild(r);
+  setTimeout(()=>r.remove(), 500);
+}
+
+function startSequence(i){
+  const seq = sequences[currentTab];
+  if(i >= seq.length) { i = 0; } // loop
+  const el = document.getElementById(seq[i]);
+  if(!el){ loopTimer = setTimeout(()=>startSequence(i+1), 300); return; }
+  const rect = el.getBoundingClientRect();
+  const x = rect.left + rect.width/2 - 18;
+  const y = rect.top + rect.height/2 - 20;
+
+  finger.style.left = x + 'px';
+  finger.style.top = y + 'px';
+
+  setTimeout(()=>{
+    finger.classList.add('clicking');
+    el.classList.add('btn-click');
+    createRipple(rect.left + rect.width/2, rect.top + rect.height/2);
+    setTimeout(()=>{
+      finger.classList.remove('clicking');
+      el.classList.remove('btn-click');
+      loopTimer = setTimeout(()=>startSequence(i+1), 900);
+    }, 220);
+  }, 750);
+}
+
+window.onload = () => {
+  finger.style.left = '-100px';
+  finger.style.top = '50%';
+  setTimeout(()=>startSequence(0), 800);
+}
+</script>
+</body>
+</html>

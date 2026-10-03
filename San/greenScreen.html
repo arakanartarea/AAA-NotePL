@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Tabs - Green Screen Effect</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@700;900&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif;}
+  body{
+    background:#00FF00; /* ဒါက Green Screen - Record ဖမ်းပြီးရင် chroma key နဲ့ ဖျောက်ဖို့ */
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    overflow:hidden;
+  }
+  .container{
+    width:420px;
+    background: #111;
+    border-radius: 30px;
+    padding: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    position: relative;
+  }
+  /* Tabs */
+  .tabs{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+    background:#222;
+    padding:8px;
+    border-radius:100px;
+  }
+  .tab-btn{
+    flex:1;
+    padding:12px;
+    border:none;
+    border-radius:100px;
+    font-weight:900;
+    cursor:pointer;
+    transition:0.3s;
+    color:white;
+    opacity:0.6;
+  }
+  .tab-btn.active{opacity:1; transform:scale(1.05);}
+  .tab-btn.youtube.active{background:#FF0000; box-shadow:0 0 20px #FF0000;}
+  .tab-btn.tiktok.active{background:#000; border:1.5px solid #fff; box-shadow:0 0 20px #25F4EE;}
+  .tab-btn.facebook.active{background:#1877F2; box-shadow:0 0 20px #1877F2;}
+
+  /* Content Card */
+  .tab-content{display:none; animation: slideUp 0.5s ease;}
+  .tab-content.active{display:block;}
+  @keyframes slideUp{from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1}}
+
+  .channel-box{
+    text-align:center;
+    padding:25px 15px;
+    background: #1a1a1a;
+    border-radius:24px;
+    border:1px solid #333;
+  }
+  .avatar-wrap{
+    position:relative;
+    width:120px;
+    height:120px;
+    margin:0 auto 15px;
+    animation: float 2s ease-in-out infinite;
+  }
+  @keyframes float{
+    0%,100%{transform: translateY(0) rotate(-2deg);}
+    50%{transform: translateY(-12px) rotate(2deg);}
+  }
+  .avatar-wrap img{
+    width:100%; height:100%;
+    border-radius:50%;
+    object-fit:cover;
+    border:4px solid #fff;
+  }
+  .avatar-wrap::after{
+    content:'';
+    position:absolute;
+    inset:-8px;
+    border-radius:50%;
+    border:3px dashed;
+    animation: spin 4s linear infinite;
+  }
+  .youtube .avatar-wrap::after{border-color:#FF0000;}
+  .tiktok .avatar-wrap::after{border-color:#25F4EE #FE2C55;}
+  .facebook .avatar-wrap::after{border-color:#1877F2;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .channel-name{
+    font-size:26px;
+    font-weight:900;
+    color:white;
+    margin-bottom:5px;
+    animation: shake 0.5s ease-in-out infinite alternate;
+  }
+  @keyframes shake{
+    0%{transform:rotate(-1deg) scale(1);}
+    100%{transform:rotate(1deg) scale(1.03);}
+  }
+  .handle{color:#888; margin-bottom:20px; font-size:14px;}
+
+  /* Action Buttons - အဓိက လှုပ်ရှားမှု */
+  .actions{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .action-btn{
+    padding:16px;
+    border-radius:100px;
+    border:none;
+    font-size:18px;
+    font-weight:900;
+    color:white;
+    cursor:pointer;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    position:relative;
+    overflow:hidden;
+    animation: pulse 1s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%{transform:scale(1); box-shadow:0 0 0 0 rgba(255,255,255,0.7);}
+    50%{transform:scale(1.05);}
+    100%{transform:scale(1); box-shadow:0 0 0 15px rgba(255,255,255,0);}
+  }
+  .action-btn.youtube-btn{background:#FF0000;}
+  .action-btn.tiktok-btn{background: linear-gradient(90deg, #25F4EE, #FE2C55);}
+  .action-btn.facebook-btn{background:#1877F2;}
+  .action-btn.like-btn{background:#fff; color:#111; animation-delay:0.2s;}
+  .action-btn.share-btn{background:#333; border:2px solid #555; animation-delay:0.4s;}
+
+  .arrow{
+    display:inline-block;
+    animation: point 0.6s ease-in-out infinite alternate;
+  }
+  @keyframes point{
+    from{transform:translateX(-5px);}
+    to{transform:translateX(5px);}
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab-btn youtube active" onclick="openTab('youtube')">YouTube</button>
+    <button class="tab-btn tiktok" onclick="openTab('tiktok')">TikTok</button>
+    <button class="tab-btn facebook" onclick="openTab('facebook')">Facebook</button>
+  </div>
+
+  <!-- TAB 1: YOUTUBE -->
+  <div id="youtube" class="tab-content youtube active">
+    <div class="channel-box">
+      <div class="avatar-wrap">
+<img src="https://lh3.googleusercontent.com/d/1-k-biRtEHWKeb_tZKPXhZD2JCB6b9vds" alt="channel">
+      </div>
+      <div class="channel-name">ရက္ခိုင် ရိုးမ ရင်သွီး</div>
+      <div class="handle">@zawmyomurm</div>
+      <div class="actions">
+        <button class="action-btn youtube-btn"><span class="arrow">👉</span> SUBSCRIBE <span class="arrow">👈</span></button>
+        <button class="action-btn like-btn">❤️ LIKE</button>
+        <button class="action-btn share-btn">↗️ SHARE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: TIKTOK -->
+  <div id="tiktok" class="tab-content tiktok">
+    <div class="channel-box">
+      <div class="avatar-wrap">
+        <img src="https://lh3.googleusercontent.com/d/1-k-biRtEHWKeb_tZKPXhZD2JCB6b9vds" alt="channel">
+      </div>
+      <div class="channel-name">အာရက္ခ အနုပညာ ရပ်ဝန်း</div>
+      <div class="handle">@ArakanArtArea</div>
+      <div class="actions">
+        <button class="action-btn tiktok-btn"><span class="arrow">👉</span> FOLLOW <span class="arrow">👈</span></button>
+        <button class="action-btn like-btn">❤️ LIKE</button>
+        <button class="action-btn share-btn">↗️ SHARE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: FACEBOOK -->
+  <div id="facebook" class="tab-content facebook">
+    <div class="channel-box">
+      <div class="avatar-wrap">
+        <img src="https://lh3.googleusercontent.com/d/1-k-biRtEHWKeb_tZKPXhZD2JCB6b9vds" alt="channel">
+      </div>
+      <div class="channel-name">အာရက္ခ အနုပညာ ရပ်ဝန်း</div>
+      <div class="handle">@ArakanArtArea</div>
+      <div class="actions">
+        <button class="action-btn facebook-btn"><span class="arrow">👉</span> FOLLOW <span class="arrow">👈</span></button>
+        <button class="action-btn like-btn">👍 LIKE</button>
+        <button class="action-btn share-btn">↗️ SHARE</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function openTab(name){
+  document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  document.querySelector(`.tab-btn.${name}`).classList.add('active');
+}
+</script>
+</body>
+</html>

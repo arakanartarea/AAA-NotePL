@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Single Line Auto Shrink</title>
+<style>
+  body {
+    margin: 0;
+    padding: 20px;
+    background: #111;
+    font-family: sans-serif;
+  }
+  #input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+  #view-wrapper {
+    width: 100%;
+    background: white;
+    border-radius: 8px;
+    padding: 12px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  #view {
+    white-space: nowrap;
+    overflow: hidden;
+    display: block;
+    width: 100%;
+    line-height: 1;
+    font-size: 80px; /* စစပေါ်မယ့် အကြီးဆုံး size */
+    will-change: font-size;
+  }
+</style>
+</head>
+<body>
+
+<input id="input" type="text" placeholder="ဒီမှာစာရိုက်ပါ..." autocomplete="off">
+<div id="view-wrapper">
+  <div id="view"></div>
+</div>
+
+<script>
+  const input = document.getElementById('input');
+  const view = document.getElementById('view');
+  const wrapper = document.getElementById('view-wrapper');
+
+  const MAX_FONT = 80; // px
+  const MIN_FONT = 0.001; // px
+
+  function adjustFont() {
+    const text = view.textContent;
+    if (!text) {
+      view.style.fontSize = MAX_FONT + 'px';
+      return;
+    }
+
+    // အရင်ဆုံး အကြီးဆုံးထားပြီး တိုင်းမယ်
+    let low = MIN_FONT;
+    let high = MAX_FONT;
+    let best = MIN_FONT;
+
+    // binary search နဲ့ အံကိုက်ဆုံး size ကိုရှာ - သွက်တယ်
+    for (let i = 0; i < 30; i++) {
+      let mid = (low + high) / 2;
+      view.style.fontSize = mid + 'px';
+      
+      // scrollWidth က wrapper ထက်ကျော်နေလား စစ်
+      if (view.scrollWidth <= wrapper.clientWidth) {
+        best = mid;
+        low = mid; // နေသေးတယ်၊ ပိုကြီးလို့ရသေးတယ်
+      } else {
+        high = mid; // ကျော်နေပြီ၊ သေးရမယ်
+      }
+    }
+    
+    // နောက်ဆုံး best size ကို 0.001 အထိ သေးလို့ရအောင် တိုက်ရိုက်ပေး
+    if (best < MIN_FONT) best = MIN_FONT;
+    view.style.fontSize = best + 'px';
+  }
+
+  input.addEventListener('input', () => {
+    view.textContent = input.value;
+    adjustFont();
+  });
+
+  // window resize ဖြစ်ရင်လည်း ပြန်ချုံ့
+  window.addEventListener('resize', adjustFont);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ImageLink - Drive Stable</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<style>
+ body{font-family:sans-serif;padding:20px;background:#1e293b;color:#fff}
+ input{width:100%;padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#fff;box-sizing:border-box;margin-bottom:10px}
+ button{padding:10px 16px;border-radius:8px;border:none;font-weight:bold;cursor:pointer}
+.btn-save{background:#16a34a;color:#fff}.btn-clear{background:#475569;color:#fff}
+ #image-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:15px}
+.img-card{background:#0f172a;padding:8px;border-radius:8px;border:1px solid #334155;display:flex;align-items:center;gap:8px}
+.img-card img{width:40px;height:40px;border-radius:50%;object-fit:cover;background:#1e293b;flex-shrink:0}
+.img-info strong{font-size:13px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.img-info div{font-size:11px;color:#94a3b8}
+</style>
+</head>
+<body>
+<h3>Drive Stable Link Manager</h3>
+<input id="inp-id" placeholder="ID ဥပမာ 0001">
+<input id="inp-name" placeholder="အမည်">
+<input id="inp-drive" placeholder="Drive Link Paste ပါ - https://drive.google.com/file/d/...">
+<div style="display:flex;gap:10px;margin:10px 0">
+<button class="btn-save" onclick="saveLink()">သိမ်းမယ်</button>
+<button class="btn-clear" onclick="clearForm()">ရှင်းမယ်</button>
+</div>
+<div id="image-list"></div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U",
+  authDomain: "arakanartarea-note.firebaseapp.com",
+  projectId: "arakanartarea-note",
+  messagingSenderId: "695659736666",
+  appId: "1:695659736666:web:1e76494c0e6819609bf263"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// Drive Link ကနေ ID ထုတ်မယ့် Function
+function extractDriveId(url){
+  if(!url) return "";
+  let m = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  if(m) return m[1];
+  m = url.match(/id=([a-zA-Z0-9-_]+)/);
+  if(m) return m[1];
+  return url.trim(); // ID အတိုင်းထည့်ရင်လည်း ရတယ်
+}
+
+// အတည်ငြိမ်ဆုံး Thumbnail Link
+function getStableLink(driveId, size){
+  return `https://drive.google.com/thumbnail?id=${driveId}&sz=w${size||800}`;
+}
+
+function saveLink(){
+  const id = document.getElementById('inp-id').value.trim();
+  const name = document.getElementById('inp-name').value.trim();
+  const driveUrl = document.getElementById('inp-drive').value.trim();
+  if(!id ||!name ||!driveUrl){ alert('အကုန်ဖြည့်ပါ'); return; }
+  const driveId = extractDriveId(driveUrl);
+  if(!driveId){ alert('Drive Link မှားနေတယ်'); return; }
+
+  db.collection('ImageLink').doc(id).set({
+    name: name,
+    driveId: driveId,
+    link: getStableLink(driveId, 800), // အဟောင်းတွေအတွက်
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  },{merge:true}).then(()=>{ alert('သိမ်းပြီးပြီ'); clearForm(); });
+}
+
+function clearForm(){
+  document.getElementById('inp-id').value='';
+  document.getElementById('inp-name').value='';
+  document.getElementById('inp-drive').value='';
+}
+
+db.collection('ImageLink').onSnapshot(snap=>{
+  const list = document.getElementById('image-list');
+  list.innerHTML='';
+  snap.docs.sort((a,b)=>b.id.localeCompare(a.id)).forEach(doc=>{
+    const d = doc.data();
+    const driveId = d.driveId || extractDriveId(d.link||'');
+    const stableUrl = getStableLink(driveId, 400); // list မှာတော့ 400px နဲ့ပြ - ပိုမြန်တယ်
+    list.innerHTML += `
+      <div class="img-card">
+        <img loading="lazy" src="${stableUrl}" onerror="this.src='https://drive.google.com/thumbnail?id=${driveId}&sz=w200'">
+        <div class="img-info"><strong>${d.name||'-'}</strong><div>ID:${doc.id}</div></div>
+      </div>
+    `;
+  });
+});
+</script>
+</body>
+</html>

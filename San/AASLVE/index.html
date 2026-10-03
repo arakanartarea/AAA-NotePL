@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AAA v4</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+
+<script>
+  const t = Date.now();
+  document.write(`<link rel="stylesheet" href="css/style.css?v=${t}">`);
+  document.write(`<link rel="stylesheet" href="css/fabs.css?v=${t}">`);
+</script>
+
+
+</head>
+<body>
+
+<header id="main-header">
+  <div style="flex:1"><input type="text" id="search-input" placeholder="ရှာရန်..."></div>
+  <div id="status-badge"></div>
+</header>
+
+<main id="list-view" class="view active">
+  <div id="accordion-container">ခေါ်ယူနေသည်...</div>
+</main>
+
+<div class="fab-system" id="fabSystem"></div>
+
+<script>
+  const s1 = document.createElement('script');
+  s1.type = 'module';
+  s1.src = 'js/app.js?v=' + t;
+  document.body.appendChild(s1);
+</script>
+
+</body>
+</html>

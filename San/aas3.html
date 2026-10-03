@@ -51,6 +51,15 @@
 /* auto text ဆ */
 
 .sort-group-label{font-size:11px;opacity:0.6;margin:12px 0 4px 4px;letter-spacing:0.5px}
+
+/* content view စ */
+.detail-sec{border:1px solid #334155;background:var(--card);border-radius:12px;margin:10px;overflow:hidden}
+.detail-sec-header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--bg);cursor:pointer;font-weight:600}
+.detail-sec-body{padding:12px}
+.arrow{transition:0.2s} .arrow.open{transform:rotate(180deg)}
+.info-grid{display:grid;grid-template-columns:120px 1fr;gap:8px;font-size:13px}
+.info-grid b{opacity:0.6}
+/* content view ဆ */
 </style>
 </head>
 
@@ -178,6 +187,35 @@
   <div class="sort-item" data-sort="vote-asc">Vote နည်းကနေ များ</div>
   <div class="sort-item" data-sort="new">ID အသစ်ကနေ အဟောင်း</div>
 </div>
+
+<!-- AASLVE - Detail View (list ပျောက်ပြီး ဒါပေါ်လာမယ်) -->
+<div id="detail-view" class="view-section">
+
+
+  <!-- 1. အချက်အလက်အကုန် -->
+  <div class="detail-sec">
+    <div class="detail-sec-header" onclick="toggleSec('sec-info')"><span>အချက်အလက် အကုန်</span><span class="material-symbols-rounded arrow" id="arrow-sec-info">keyboard_arrow_down</span></div>
+    <div class="detail-sec-body" id="sec-info"></div>
+  </div>
+
+  <!-- 2. Youtube Video (ဗလာ) -->
+  <div class="detail-sec">
+    <div class="detail-sec-header" onclick="toggleSec('sec-video')"><span>Youtube / Video</span><span class="material-symbols-rounded arrow" id="arrow-sec-video">keyboard_arrow_down</span></div>
+    <div class="detail-sec-body" id="sec-video" style="display:none"><div style="background:#000;color:#555;padding:40px;text-align:center;border-radius:8px">Video div ဗလာ - နောက်မှ audioUrl / youtube link ချိတ်မယ်</div></div>
+  </div>
+
+  <!-- 3. စာသား + ကော့ -->
+  <div class="detail-sec">
+    <div class="detail-sec-header" onclick="toggleSec('sec-lyrics')"><span>စာသား + ဂစ်တာကော့</span><span class="material-symbols-rounded arrow" id="arrow-sec-lyrics">keyboard_arrow_down</span></div>
+    <div class="detail-sec-body" id="sec-lyrics" style="display:none"></div>
+  </div>
+    <div id="input-fab-container" class="fab-container">
+
+    <button id="btn-detail-back" class="fab-btn" title="Back"><span class="material-symbols-rounded">arrow_back</span></button>
+
+  </div>
+</div>
+
 
 <!-- ================= JS အကုန် အောက်မှာ ================= -->
 <script>
@@ -419,7 +457,7 @@ function renderAccordion(){
     content.innerHTML = songs.map(song => {
       const isFav = favList.includes(song._id);
       const stars = '⭐'.repeat(song.vote || 0);
-      return `<div class="song-item"><span class="song-title-click"><span class="id-badge" data-id="${song._id}">ID:${song._id}</span> ${song.title||'-'} <span class="vote-badge">${song.vote||0}/9 ${stars}</span><br><small style="color:var(--muted)">${(song.singers||[]).join(', ')} | ရေး: ${(song.writers||[]).join(', ')}</small></span><div class="item-actions"><button class="icon-btn fav-btn ${isFav?'active':''}" data-fav="${song._id}">${isFav?'★':'☆'}</button><div style="display:${isAdminUser?'flex':'none'};gap:4px"><button class="icon-btn" data-edit="${song._id}">📝</button><button class="icon-btn" data-del="${song._id}">🗑️</button></div></div></div>`;
+      return `<div class="song-item"><span class="song-title-click" onclick="openDetail('${song._id}')"><span class="id-badge" data-id="${song._id}">ID:${song._id}</span> ${song.title||'-'} <span class="vote-badge">${song.vote||0}/9 ${stars}</span><br><small style="color:var(--muted)">${(song.singers||[]).join(', ')} | ရေး: ${(song.writers||[]).join(', ')}</small></span><div class="item-actions"><button class="icon-btn fav-btn ${isFav?'active':''}" data-fav="${song._id}">${isFav?'★':'☆'}</button><div style="display:${isAdminUser?'flex':'none'};gap:4px"><button class="icon-btn" data-edit="${song._id}">📝</button><button class="icon-btn" data-del="${song._id}">🗑️</button></div></div></div>`;
     }).join('');
     content.addEventListener('click', (e)=>{
       const idBadge = e.target.closest('.id-badge');
@@ -568,6 +606,7 @@ document.getElementById('btn-sort').addEventListener('click', openSortModal);
 document.getElementById('btn-fav-filter').addEventListener('click', toggleFavFilter);
 document.getElementById('btn-save').addEventListener('click', saveSong);
 document.getElementById('btn-back').addEventListener('click', ()=>switchView('list-view'));
+document.getElementById('btn-detail-back').addEventListener('click', ()=>switchView('list-view'));
 document.getElementById('btn-auth-cancel').addEventListener('click', ()=>document.getElementById('auth-modal').classList.add('hidden'));
 document.getElementById('btn-auth-logout').addEventListener('click', ()=>{document.getElementById('auth-modal').classList.add('hidden'); auth.signOut();});
 document.getElementById('btn-auth-switch').addEventListener('click', ()=>{
@@ -580,6 +619,77 @@ document.querySelectorAll('.font-item').forEach(el=>el.addEventListener('click',
 document.querySelectorAll('.sort-item').forEach(el=>el.addEventListener('click', ()=>setSort(el.dataset.sort)));
 
 initFirebase();
+
+// content view စ
+function toggleSec(id) {
+  const body = document.getElementById(id);
+  const arrow = document.getElementById('arrow-' + id);
+  const isHide = body.style.display === 'none' || body.style.display === '';
+  body.style.display = isHide ? 'block' : 'none';
+  if (arrow) arrow.classList.toggle('open', isHide);
+}
+function openDetail(id) {
+  const meta = allSongsData.find(s => s._id === id);
+  if (!meta) return;
+  
+  
+  // အချက်အလက် အကုန် ပြမယ်
+  document.getElementById('sec-info').innerHTML = `
+    <div class="info-grid">
+      <b>ID</b><span>${meta._id||''}</span>
+      <b>နာမယ်</b><span>${meta.title||''}</span>
+      <b>တေးဆို</b><span>${(meta.singers||[]).join(', ')||meta.singer||''}</span>
+      <b>တေးရေး</b><span>${(meta.writers||[]).join(', ')||meta.writer||''}</span>
+      <b>အယ်ဘမ်</b><span>${meta.album||''}</span>
+      <b>အယ်ဘမ်အမျိုးအစား</b><span>${meta.albumType||''}</span>
+      <b>ဂီတအမျိုးအစား</b><span>${meta.genre||''}</span>
+      <b>အကြောင်းအရာ</b><span>${meta.songType||''}</span>
+      <b>ဘာသာစကား</b><span>${meta.language||''}</span>
+      <b>ထွက်ရှိချိန်</b><span>${meta.releaseDate||''}</span>
+      <b>Vote</b><span>${meta.vote||0}/9</span>
+      <b>Cover</b><span style="word-break:break-all">${meta.coverUrl||''}</span>
+      <b>Audio URL</b><span style="word-break:break-all">${meta.audioUrl||''}</span>
+      <b>Remark</b><span>${meta.remark||''}</span>
+    </div>
+  `;
+  
+  document.getElementById('list-view').classList.remove('active');
+  document.getElementById('detail-view').classList.add('active');
+  document.getElementById('sec-info').style.display = 'block';
+  document.getElementById('arrow-sec-info')?.classList.add('open');
+  history.pushState({ view: 'detail' }, '');
+  
+  // AAASongs ကိုပါ ဆွဲ
+  db.collection('AAASongs').doc(id).get().then(doc => {
+    if (doc.exists) {
+      const p = doc.data();
+      document.getElementById('sec-lyrics').innerHTML = `
+        <div class="info-grid" style="margin-bottom:12px">
+          <b>Key</b><span>${p.key||''}</span>
+          <b>Capo</b><span>${p.capo||0}</span>
+          <b>BPM</b><span>${p.bpm||''}</span>
+          <b>Strum</b><span>${p.strum||''}</span>
+          <b>Pluck</b><span>${p.pluck||''}</span>
+          <b>SongMap</b><span>${p.songmap||''}</span>
+        </div>
+        <div style="border-top:1px solid #334155;padding-top:12px">${p.content||''}</div>
+      `;
+    } else {
+      document.getElementById('sec-lyrics').innerHTML = 'AAASongs ထဲမှာ ID:' + id + ' မရှိသေးဘူး';
+    }
+  });
+}
+
+function closeDetail() {
+  document.getElementById('detail-view').classList.remove('active');
+  document.getElementById('list-view').classList.add('active');
+  history.pushState({ view: 'list' }, '');
+}
+window.addEventListener('popstate', () => {
+  document.getElementById('detail-view').classList.remove('active');
+  document.getElementById('list-view').classList.add('active');
+});
+// content view ဆ
 </script>
 </body>
 </html>

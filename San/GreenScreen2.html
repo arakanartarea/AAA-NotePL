@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Real Style Green Screen Buttons</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box; font-family: sans-serif;}
+body{background:#00FF00; width:100vw; height:100vh; overflow:hidden; position:relative;}
+
+/* Tab Switcher - Record လုပ်ရင် အပေါ်မှာပဲ ပေါ်မယ်၊ Video ထဲ မပါအောင် */
+.switcher{position:fixed; top:10px; left:50%; transform:translateX(-50%); z-index:999; background:#111; padding:6px; border-radius:100px; display:flex; gap:6px;}
+.switcher button{padding:8px 18px; border-radius:100px; border:none; font-weight:900; cursor:pointer; opacity:0.6; color:white;}
+.switcher button.active{opacity:1;}
+.switcher .yt.active{background:#FF0000} .switcher .tt.active{background:#000; border:1px solid white} .switcher .fb.active{background:#1877F2}
+
+/* Common Stage */
+.stage{display:none; width:100%; height:100%; position:absolute; inset:0;}
+.stage.active{display:block;}
+
+/* Animation */
+@keyframes bounce {0%,100%{transform:scale(1)} 50%{transform:scale(1.15)}}
+@keyframes floatY {0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)}}
+@keyframes pulseShadow {0%{box-shadow:0 0 0 0 rgba(255,255,255,0.7)} 70%{box-shadow:0 0 0 18px rgba(255,255,255,0)} 100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+
+/* ============ YOUTUBE STYLE ============ */
+.yt-bar{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  background:#E8E8E8; display:flex; align-items:center; gap:25px;
+  padding:14px 22px; border-radius:24px;
+  animation: bounce 0.8s ease-in-out infinite;
+}
+.yt-left{display:flex; align-items:center; gap:18px; border-bottom:3px solid #000; padding-bottom:4px;}
+.yt-left svg{width:48px; height:48px; cursor:pointer;}
+.yt-sub{ background:#FF0000; color:white; padding:12px 28px; border-radius:12px; font-weight:900; font-size:22px; border:none; animation: pulseShadow 1.2s infinite;}
+.yt-bell{width:42px; height:42px;}
+
+/* ============ TIKTOK STYLE ============ */
+.tt-right{
+  position:absolute; right:14px; bottom:90px;
+  display:flex; flex-direction:column; align-items:center; gap:18px;
+}
+.tt-profile{position:relative; width:60px; height:60px; animation: floatY 1.5s infinite;}
+.tt-profile img{width:60px; height:60px; border-radius:50%; border:3px solid white;}
+.tt-plus{position:absolute; bottom:-8px; left:50%; transform:translateX(-50%); background:#FE2C55; color:white; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:900; border:2px solid white;}
+.tt-icon{display:flex; flex-direction:column; align-items:center; color:white; font-weight:700; font-size:14px; filter:drop-shadow(0 2px 4px black); animation: bounce 0.9s infinite;}
+.tt-icon svg{width:44px; height:44px; fill:white;}
+.tt-bottom{position:absolute; left:12px; bottom:20px; color:white; text-shadow:0 2px 6px black;}
+.tt-bottom .name{font-weight:900; font-size:20px;}
+.tt-bottom .caption{font-size:15px; opacity:0.9;}
+
+/* ============ FACEBOOK STYLE ============ */
+.fb-left{position:absolute; left:14px; bottom:14px; display:flex; align-items:center; gap:10px; color:white; text-shadow:0 1px 4px black; animation: floatY 2s infinite;}
+.fb-left img{width:48px; height:48px; border-radius:50%; border:2px solid white;}
+.fb-follow{background:#E4E6EB; color:#050505; padding:6px 14px; border-radius:8px; font-weight:900; border:none; font-size:14px;}
+.fb-right{
+  position:absolute; right:10px; bottom:14px;
+  display:flex; flex-direction:column; gap:16px; align-items:center;
+}
+.fb-action{display:flex; flex-direction:column; align-items:center; color:white; font-size:13px; font-weight:700; text-shadow:0 1px 3px black; animation: bounce 1s infinite;}
+.fb-action svg{width:32px; height:32px; fill:white; background:rgba(0,0,0,0.3); padding:6px; border-radius:50%; box-sizing:content-box;}
+.fb-action:nth-child(2){animation-delay:0.2s} .fb-action:nth-child(3){animation-delay:0.4s}
+</style>
+</head>
+<body>
+
+<div class="switcher">
+  <button class="yt active" onclick="showTab('youtube')">YouTube</button>
+  <button class="tt" onclick="showTab('tiktok')">TikTok</button>
+  <button class="fb" onclick="showTab('facebook')">Facebook</button>
+</div>
+
+<!-- YOUTUBE -->
+<div id="youtube" class="stage active">
+  <div class="yt-bar">
+    <div class="yt-left">
+      <svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.58-6.59c.37-.36.59-.86.59-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/></svg>
+    </div>
+    <button class="yt-sub">Subscribe</button>
+    <svg class="yt-bell" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" fill="none" stroke="black" stroke-width="1.5"/></svg>
+  </div>
+</div>
+
+<!-- TIKTOK -->
+<div id="tiktok" class="stage">
+  <div class="tt-right">
+    <div class="tt-profile">
+      <img src="https://i.pravatar.cc/200?img=12">
+      <div class="tt-plus">+</div>
+    </div>
+    <div class="tt-icon"><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg><span>4,661</span></div>
+    <div class="tt-icon"><svg viewBox="0 0 24 24"><path d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h11c.55 0 1-.45 1-1z"/></svg><span>76</span></div>
+    <div class="tt-icon"><svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg><span>344</span></div>
+    <div class="tt-icon"><svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg><span>72</span></div>
+  </div>
+  <div class="tt-bottom">
+    <div class="name">ရက္ခိုင် ရိုးမ ရင်သွီး @zawmyomurm</div>
+    <div class="caption">#လွမ်းသူ သီသာ</div>
+  </div>
+</div>
+
+<!-- FACEBOOK -->
+<div id="facebook" class="stage">
+  <div class="fb-left">
+    <img src="https://i.pravatar.cc/200?img=12">
+    <div>
+      <div style="font-weight:900;">ရက္ခိုင် ရိုးမ ရင်သွီး</div>
+      <div style="font-size:13px; opacity:0.8;">မောင်မောင်လင်း</div>
+    </div>
+    <button class="fb-follow">တောင်ကြည့်မယ်</button>
+  </div>
+  <div class="fb-right">
+    <div class="fb-action"><svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg><span>6.3K</span></div>
+    <div class="fb-action"><svg viewBox="0 0 24 24"><path d="M21 6h-2v9H6v2c0 .55.45 1 1 1h11l4 4V7c0-.55-.45-1-1-1zm-4 6V3c0-.55-.45-1-1-1H3c-.55 0-1 .45-1 1v14l4-4h11c.55 0 1-.45 1-1z"/></svg><span>2.1K</span></div>
+    <div class="fb-action"><svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg><span>1.2K</span></div>
+    <div class="fb-action"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>Save</span></div>
+  </div>
+</div>
+
+<script>
+function showTab(id){
+  document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.switcher button').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelector('.switcher .'+id.slice(0,2)).classList.add('active');
+}
+</script>
+</body>
+</html>

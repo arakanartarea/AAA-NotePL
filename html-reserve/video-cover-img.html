@@ -142,21 +142,96 @@ body{background:#0a0a0c;color:#fff;font-family:Inter,'Noto Sans Myanmar',sans-se
 <div id="layH" class="layout-h" style="display:none"><div class="left"><div class="imgw-h"><img id="oImgH" src=""></div><div id="oTitleH" class="title-h my">—</div></div><div class="right"><ul id="oDetH" class="det"></ul></div></div>
 </div></div></div></div>
 </div></div>
-<div class="dock"><div class="dock-left"><button class="t on" data-tab="input">Data</button><button class="t" data-tab="image">View I</button><button class="t" data-tab="video">View V</button></div><div class="dock-right"><button class="btn" id="btnReplay">↻ Replay</button><button class="btn" id="btnAspect">9:16</button></div></div>
+
+<div class="dock">
+  <div class="dock-left">
+    <button class="t on" data-tab="input">Data</button>
+    <button class="t" id="btnClear">Clear</button>
+    <button class="t" data-tab="image">View I</button>
+    <button class="t" data-tab="video">View V</button>
+
+  </div>
+  <div class="dock-right">
+    <button class="btn" id="btnReplay">↻ Replay</button>
+    <button class="btn" id="btnAspect">9:16</button>
+  </div>
+</div>
 <script>
 const defaults=[
-  {k:'title',label:'Song Title (သီချင်းခေါင်းစဉ်)',v:'AAA',full:true},
+  {k:'title',label:'Song Title (သီချင်းခေါင်းစဉ်)',v:'',full:true},
   {k:'composer',label:'Composer',v:''},
   {k:'artist',label:'Artist',v:''},
   {k:'version',label:'Version',v:''},
-  {k:'key',label:'Key',v:'key'},
-  {k:'capo',label:'Capo',v:'0rd Fret (K Key Shape)'},
-  {k:'tempo',label:'Tempo',v:'0 BPM'},
+  {k:'key',label:'Key',v:''},
+  {k:'capo',label:'Capo',v:'0rd Fret ( Key Shape)'},
+  {k:'tempo',label:'Tempo',v:' BPM'},
   {k:'rating', label: 'Rating (0-9)', v: '6' },
   {k:'votes', label: 'Votes', v: '1' },
 ];
 let fields=JSON.parse(JSON.stringify(defaults));let customs=[];let cover=document.getElementById('iCover').src;let isLand=false;let tab='input';
 const fgrid=document.getElementById('fgrid');const clist=document.getElementById('clist');
+
+const SAVE_KEY = 'coverStudio_v3_autosave';
+const DEFAULT_COVER = "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=800&auto=format&fit=crop";
+//ယာယီသိမ်းထုတ် စ
+// သိမ်းမယ်
+function saveState() {
+  try {
+    const data = {
+      fields,
+      customs,
+      cover // ပုံက base64 ဖြစ်ရင် သိမ်းလို့ရမယ်
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+  } catch (e) { console.log('save fail', e) }
+}
+// ပြန်ထုတ်မယ်
+function loadState() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (data.fields) fields = data.fields;
+    if (data.customs) customs = data.customs;
+    if (data.cover) {
+      cover = data.cover;
+      document.getElementById('iCover').src = cover;
+    }
+    return true;
+  } catch (e) { return false }
+}
+function clearState() {
+  localStorage.removeItem(SAVE_KEY);
+  alert('ယာယီသိမ်းထားတာကို ဖျက်ပြီးပြီ');
+  location.reload();
+}
+function clearAllData() {
+  if (!confirm('ယာယီသိမ်းထားတာအကုန်ဖျက်ပြီး အသစ်ကနေ ပြန်စမလား?')) return;
+  
+  // 1. localStorage ကို ဖျက်
+  localStorage.removeItem(SAVE_KEY);
+  
+  // 2. fields တွေကို မူလအတိုင်း အလွတ်ပြန်လုပ်
+  fields = JSON.parse(JSON.stringify(defaults));
+  // composer, artist စတာတွေကို အလွတ်ဖြစ်စေချင်ရင်
+  fields.forEach(f => { if (f.k !== 'title') f.v = ''; });
+  
+  customs = []; // custom input တွေပါ ဖျက်
+  cover = DEFAULT_COVER;
+  document.getElementById('iCover').src = cover;
+  document.getElementById('fCover').value = '';
+  
+  // 3. UI ပြန်ဆွဲ
+  renderF();
+  upd();
+  
+  // Data tab ကို ပြန်ပို့
+  switchTab('input');
+}
+
+// ခလုတ်ကို ချိတ်
+
+//ယာယီ သိမ်းထုတ် ဆ
 
 function renderF(){
   fgrid.innerHTML='';fields.forEach(f=>{const d=document.createElement('div');d.className=f.full?'full':'';d.innerHTML=`<label class="lab">${f.label}</label><input class="inp" data-k="${f.k}" value="${f.v}">`;fgrid.appendChild(d);});fgrid.querySelectorAll('.inp').forEach(i=>{i.oninput=e=>{const o=fields.find(x=>x.k===e.target.dataset.k);if(o)o.v=e.target.value;upd();};});renderC();
@@ -201,7 +276,6 @@ function fitOne(el) {
     }
   });
 }
-
 function fitTitles() {
   // V နဲ့ H ၂ခုထဲက ပေါ်နေတာကိုပဲ ချုံ့
   const v = document.getElementById('oTitleV');
@@ -209,8 +283,6 @@ function fitTitles() {
   if (v && v.offsetParent) fitOne(v);
   if (h && h.offsetParent) fitOne(h);
 }
-
-
 function upd() {
   const title = fields.find(f => f.k === 'title')?.v || '—';
   document.getElementById('oTitleV').textContent = title;
@@ -240,10 +312,20 @@ function upd() {
     });
   });
   fitTitles();
+  saveState();
 }
 
 document.getElementById('boxImg').onclick=()=>document.getElementById('fCover').click();
-document.getElementById('fCover').onchange=e=>{const file=e.target.files[0];if(!file)return;cover=URL.createObjectURL(file);document.getElementById('iCover').src=cover;upd();};
+document.getElementById('fCover').onchange=e=>{
+  const file=e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    cover = ev.target.result; // base64 dataURL
+    document.getElementById('iCover').src = cover;
+    upd();
+  };
+  reader.readAsDataURL(file);
+};
 
 function switchTab(newTab){
   tab=newTab;
@@ -276,9 +358,10 @@ document.getElementById('btnAspect').onclick=()=>{
   document.getElementById('layH').style.display=isLand?'flex':'none';
   fitTitles();
 };
-function replay(){const s=document.getElementById('stage');s.classList.remove('video');void s.offsetWidth;s.classList.add('video');fitTitles();}
+function replay(){
+  const s=document.getElementById('stage');s.classList.remove('video');void s.offsetWidth;s.classList.add('video');fitTitles();}
 document.getElementById('btnReplay').onclick=replay;
-
+document.getElementById('btnClear').onclick = clearAllData;
 // resize ဖြစ်တိုင်း ပြန်ချုံ့
 window.addEventListener('resize', fitTitles);
 if(window.ResizeObserver){
@@ -287,7 +370,13 @@ if(window.ResizeObserver){
 }
 
 document.getElementById('layV').style.display='flex';document.getElementById('layH').style.display='none';
-renderF();upd();
+
+// စဖွင့်ရင် အရင်သိမ်းထားတာ ရှိလား စစ်
+loadState();
+renderF();
+upd();
+
+
 </script>
 </body>
 </html>

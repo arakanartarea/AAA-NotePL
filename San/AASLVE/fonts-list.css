@@ -1,0 +1,63 @@
+/* ============================================
+   fonts-list.css - AASLVE Modular
+   28 Myanmar + 1 English (Forced ENG)
+   ============================================ */
+
+/* --- 1. ENGLISH FORCED FONTS (28+1 ရဲ့ +1) --- */
+@font-face{
+  font-family:"Optimistic";
+  font-style:normal;
+  font-weight:400 700;
+  font-display:swap;
+  src:url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face{
+  font-family:"Optimistic Mono";
+  font-style:normal;
+  font-weight:400;
+  font-display:swap;
+  src:url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+
+/* အတင်းအင်္ဂလိပ်ဖြစ်အောင် - CAPO, BPM, KEY, chord နေရာတွေမှာ သုံးရန် */
+.font-eng{
+  font-family:"Optimistic", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+.font-eng-mono{
+  font-family:"Optimistic Mono", ui-monospace, SFMono-Regular, Menlo, monospace !important;
+}
+/* မြန်မာဖောင့်နဲ့ ရောသွားရင် CAPO ကို မြန်မာလို ဖတ်မိတာမျိုး မဖြစ်အောင် */
+#keyValue, #capoValue, #tempoInput, .bpm-box, .chord, .timeline-chip, .id-badge{
+  font-family:"Optimistic", system-ui, sans-serif !important;
+}
+
+/* --- 2. MYANMAR / RAKHINE FONTS (28) --- */
+@font-face{font-family:'Arakan_Danyawaddy';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Arakan_Danyawaddy.ttf');font-display:swap;}
+@font-face{font-family:'BeautiUNI-7';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/BeautiUNI-7.ttf');font-display:swap;}
+@font-face{font-family:'Hopone';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Hopone.ttf');font-display:swap;}
+@font-face{font-family:'Hsi-Hseng';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Hsi-Hseng.ttf');font-display:swap;}
+@font-face{font-family:'KyaungChee';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/KyaungChee.ttf');font-display:swap;}
+@font-face{font-family:'MM_Jasmine_v1.01';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/MM_Jasmine_v1.01.ttf');font-display:swap;}
+@font-face{font-family:'Myanmar_PhikselSmooth';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_PhikselSmooth.ttf');font-display:swap;}
+@font-face{font-family:'Myanmar_Bagan_v1.0';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Bagan_v1.0.ttf');font-display:swap;}
+@font-face{font-family:'Myanmar_Jojar_v2.0_2017';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Jojar_v2.0_2017.ttf');font-display:swap;}
+@font-face{font-family:'Myanmar_Kalay_v2.0_2017';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Kalay_v2.0_2017.ttf');font-display:swap;}
+@font-face{font-family:'Myanmar_Love_2.0_2017';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Love_2.0_2017.ttf');font-display:swap;}
+@font-face{font-family:'Myanmar_Pixel';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pixel.ttf');font-display:swap;}
+@font-face{font-family:'Myanmar_Ponenyet';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Ponenyet.ttf');font-display:swap;}
+@font-face{font-family:'Myanmar_Pyay_v2.0_2017';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pyay_v2.0_2017.ttf');font-display:swap;}
+@font-face{font-family:'Myanmar_Pyu_Pro_2.0_2017';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pyu_Pro_2.0_2017.ttf');font-display:swap;}
+@font-face{font-family:'Myanmar_Pyu_v2.0_2017';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pyu_v2.0_2017.ttf');font-display:swap;}
+@font-face{font-family:'Myanmar_Tagu';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Tagu.ttf');font-display:swap;}
+@font-face{font-family:'Myanmar_Taunggyi_v1.00';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Taunggyi_v1.00.ttf');font-display:swap;}
+@font-face{font-family:'Myanmar_Thuriya';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Thuriya.ttf');font-display:swap;}
+@font-face{font-family:'Myanmar_Waso';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Waso.ttf');font-display:swap;}
+@font-face{font-family:'Myanmar_Yinmar';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Yinmar.ttf');font-display:swap;}
+@font-face{font-family:'NK_SSmart_3';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/NK_SSmart_3.ttf');font-display:swap;}
+@font-face{font-family:'Roboto_Bold';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Roboto_Bold.ttf');font-display:swap;}
+@font-face{font-family:'Samsung_Myanmar';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Samsung_Myanmar.ttf');font-display:swap;}
+@font-face{font-family:'YoeYar_One_Bold';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/YoeYar_One_Bold.ttf');font-display:swap;}
+@font-face{font-family:'YoeYar_One_Light';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/YoeYar_One_Light.ttf');font-display:swap;}
+@font-face{font-family:'notosan_grand_pro';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/notosan_grand_pro.ttf');font-display:swap;}
+@font-face{font-family:'notosans_myanmar';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/notosans_myanmar.ttf');font-display:swap;}
+@font-face{font-family:'yaungki';src:url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/yaungki.ttf');font-display:swap;}

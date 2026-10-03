@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ImageLink Manager - Final Stable</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+<style>
+  body { font-family: sans-serif; padding: 20px; max-width: 100%; margin: auto; background: #1e293b; color: #fff; }
+ .form-group { margin-bottom: 15px; }
+  label { display: block; margin-bottom: 5px; font-size: 14px; color: #cbd5e1; }
+  input { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #fff; box-sizing: border-box; }
+  input:focus { outline: none; border-color: #22c55e; }
+ .btn-container { display: flex; gap: 10px; margin-top: 20px; }
+  button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+ .btn-save { background: #16a34a; color: white; }
+ .btn-save:disabled { background: #334155; opacity: 0.6; }
+ .btn-clear { background: #475569; color: white; }
+  #progress { font-size:13px; color:#22c55e; margin-top:10px; display:none; }
+  #image-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-top: 15px; }
+ .img-card { background: #0f172a; padding: 10px; border-radius: 8px; display: flex; align-items: center; gap: 10px; border: 1px solid #334155; position: relative; cursor: pointer; user-select: none; }
+ .img-card img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background:#1e293b; }
+ .img-info { flex: 1; min-width: 0; }
+ .img-info strong { display: block; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+ .img-info div { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+ .action-btns { display: none; gap: 4px; position: absolute; right: 6px; background: #0f172a; padding: 2px; border-radius: 6px; border: 1px solid #334155; }
+ .action-btns button { padding: 6px 8px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<h2>🖼️ ImageLink Manager</h2>
+
+<div class="form-group">
+  <label>Image ID (ဥပမာ: 0001)</label>
+  <input type="text" id="inp-img-id" placeholder="0001">
+</div>
+<div class="form-group">
+  <label>အမည် - Name</label>
+  <input type="text" id="inp-img-name" placeholder="မောင်မောင်">
+</div>
+<div class="form-group">
+  <label>ပုံရွေးမယ်</label>
+  <input type="file" id="inp-img-file" accept="image/*">
+</div>
+<div id="progress">တင်နေသည်... 0%</div>
+
+<div class="btn-container">
+  <button class="btn-save" id="btn-save" onclick="saveImageLink()">
+    <span class="material-symbols-rounded">save</span> သိမ်းမယ်
+  </button>
+  <button class="btn-clear" onclick="clearForm()">
+    <span class="material-symbols-rounded">refresh</span> ရှင်းမယ်
+  </button>
+</div>
+
+<h3 style="margin-top:30px;">သိမ်းထားသော ပုံများ</h3>
+<div id="image-list">ခေါ်ယူနေသည်...</div>
+
+<script>
+// Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyCdPFzE2_Rbg8Xi-9DGBvfoOA95c1R3S4U",
+  authDomain: "arakanartarea-note.firebaseapp.com",
+  projectId: "arakanartarea-note",
+  storageBucket: "arakanartarea-note.firebasestorage.app",
+  messagingSenderId: "695659736666",
+  appId: "1:695659736666:web:1e76494c0e6819609bf263"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+let editingOldLink = "";
+let editingOldStoragePath = "";
+
+// IndexedDB Cache System - ဖုန်းထဲမှာ ပုံသိမ်းထားမယ့်စနစ်
+const imageCacheDB = {
+  db: null,
+  async init() {
+    if (this.db) return;
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open('ImageCacheDB', 1);
+      request.onupgradeneeded = e => e.target.result.createObjectStore('images');
+      request.onsuccess = e => { this.db = e.target.result; resolve(); };
+      request.onerror = () => resolve();
+    });
+  },
+  async get(id) {
+    try {
+      if(!this.db) await this.init();
+      if(!this.db) return null;
+      return new Promise(res => {
+        const tx = this.db.transaction('images', 'readonly');
+        const req = tx.objectStore('images').get(id);
+        req.onsuccess = () => res(req.result || null);
+        req.onerror = () => res(null);
+      });
+    } catch(e) { return null; }
+  },
+  async set(id, blob) {
+    try {
+      if(!this.db) await this.init();
+      if(!this.db) return;
+      this.db.transaction('images', 'readwrite').objectStore('images').put(blob, id);
+    } catch(e) {}
+  },
+  async delete(id) {
+    try {
+      if(!this.db) await this.init();
+      if(this.db) this.db.transaction('images', 'readwrite').objectStore('images').delete(id);
+    } catch(e) {}
+  }
+};
+
+// ပုံကို 800px WebP အဖြစ် ချုံ့မယ် - 5GB မှာ ပုံ 30,000 ဆန့်အောင်
+async function compressImage(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxWidth = 800;
+        const scale = Math.min(1, maxWidth / img.width);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((blob) => resolve(blob), 'image/webp', 0.7);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// Cache နဲ့ ပုံပြမယ် - ပထမအကြိမ် Internet က၊ နောက်အကြိမ်တွေ ဖုန်းထဲက
+async function loadImageWithCache(id, url, imgEl) {
+  const cached = await imageCacheDB.get(id);
+  if (cached) {
+    imgEl.src = URL.createObjectURL(cached);
+    return;
+  }
+  try {
+    const response = await fetch(url);
+    if(!response.ok) throw new Error();
+    const blob = await response.blob();
+    await imageCacheDB.set(id, blob);
+    imgEl.src = URL.createObjectURL(blob);
+  } catch (err) {
+    imgEl.src = url; // Cache မရရင် မူရင်း Link ကို တိုက်ရိုက်ပြ
+  }
+}
+
+// Realtime Data Load
+db.collection('ImageLink').onSnapshot(snap => {
+  const container = document.getElementById('image-list');
+  container.innerHTML = '';
+  if (snap.empty) {
+    container.innerHTML = '<small style="color:#94a3b8">ပုံများ မရှိသေးပါ။</small>';
+    return;
+  }
+  const sortedDocs = snap.docs.sort((a, b) => b.id.localeCompare(a.id));
+  sortedDocs.forEach(doc => {
+    const data = doc.data();
+    const id = doc.id;
+    const safeName = (data.name || '-').replace(/'/g, "\\'");
+    container.innerHTML += `
+      <div class="img-card" onclick="toggleActions('${id}')">
+        <img id="img-${id}" loading="lazy" src="https://placehold.co/40x40/334155/ffffff?text=..." alt="${safeName}">
+        <div class="img-info"><strong>${data.name || '-'}</strong><div>ID: ${id}</div></div>
+        <div id="actions-${id}" class="action-btns" onclick="event.stopPropagation()">
+          <button onclick="editImg('${id}', '${safeName}')" style="background:#eab308;">✏️</button>
+          <button onclick="deleteImg('${id}')" style="background:#ef4444;">🗑️</button>
+        </div>
+      </div>
+    `;
+    setTimeout(() => {
+      const el = document.getElementById(`img-${id}`);
+      if(el && data.link) loadImageWithCache(id, data.link, el);
+    }, 50);
+  });
+});
+
+function toggleActions(id) {
+  const actions = document.getElementById('actions-' + id);
+  if(!actions) return;
+  const isShown = actions.style.display === 'flex';
+  document.querySelectorAll('.action-btns').forEach(el => el.style.display = 'none');
+  actions.style.display = isShown? 'none' : 'flex';
+}
+
+async function saveImageLink() {
+  const imgId = document.getElementById('inp-img-id').value.trim();
+  const name = document.getElementById('inp-img-name').value.trim();
+  const file = document.getElementById('inp-img-file').files[0];
+  const btn = document.getElementById('btn-save');
+  const progressEl = document.getElementById('progress');
+
+  if (!imgId ||!name) { alert('ID နဲ့ Name ဖြည့်ပါ'); return; }
+  if (!file &&!editingOldLink) { alert('ပုံရွေးပေးပါ'); return; }
+
+  btn.disabled = true;
+  progressEl.style.display = 'block';
+  progressEl.innerText = 'ပြင်ဆင်နေသည်...';
+
+  try {
+    let finalLink = editingOldLink;
+    let finalPath = editingOldStoragePath;
+
+    if (file) {
+      progressEl.innerText = 'ချုံ့နေသည်...';
+      const compressedBlob = await compressImage(file);
+      const fileName = `ImageLinks/${imgId}_${Date.now()}.webp`;
+      const storageRef = storage.ref(fileName);
+      const uploadTask = storageRef.put(compressedBlob);
+
+      finalLink = await new Promise((resolve, reject) => {
+        uploadTask.on('state_changed',
+          (snap) => {
+            const percent = Math.round((snap.bytesTransferred / snap.totalBytes) * 100);
+            progressEl.innerText = `တင်နေသည်... ${percent}%`;
+          },
+          (err) => reject(err),
+          async () => {
+            const url = await uploadTask.snapshot.ref.getDownloadURL();
+            resolve(url);
+          }
+        );
+      });
+      finalPath = fileName;
+      // ပုံအသစ်ဆို Cache အဟောင်းဖျက်
+      await imageCacheDB.delete(imgId);
+    }
+
+    await db.collection('ImageLink').doc(imgId).set({
+      name: name,
+      link: finalLink,
+      storagePath: finalPath,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+
+    progressEl.innerText = 'ပြီးပါပြီ ✓';
+    setTimeout(() => { progressEl.style.display = 'none'; }, 1000);
+    clearForm();
+  } catch (err) {
+    alert('Error: ' + err.message);
+    progressEl.style.display = 'none';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function editImg(id, name) {
+  document.getElementById('inp-img-id').value = id;
+  document.getElementById('inp-img-name').value = name;
+  // အဟောင်း Link ကို Firestore ကနေ ပြန်ယူမယ်
+  db.collection('ImageLink').doc(id).get().then(doc => {
+    if(doc.exists){
+      editingOldLink = doc.data().link || "";
+      editingOldStoragePath = doc.data().storagePath || "";
+    }
+  });
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+async function deleteImg(id) {
+  if (!confirm(id + ' ကို ဖျက်မှာ သေချာလား?')) return;
+  try {
+    const docSnap = await db.collection('ImageLink').doc(id).get();
+    if (docSnap.exists) {
+      const path = docSnap.data().storagePath;
+      if (path) { try { await storage.ref(path).delete(); } catch(e) {} }
+    }
+    await db.collection('ImageLink').doc(id).delete();
+    await imageCacheDB.delete(id);
+  } catch (e) { alert(e.message); }
+}
+
+function clearForm() {
+  document.getElementById('inp-img-id').value = '';
+  document.getElementById('inp-img-name').value = '';
+  document.getElementById('inp-img-file').value = '';
+  editingOldLink = "";
+  editingOldStoragePath = "";
+}
+</script>
+</body>
+</html>

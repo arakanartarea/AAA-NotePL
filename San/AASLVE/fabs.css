@@ -1,0 +1,56 @@
+.fab-system{
+  position:fixed;
+  bottom:9px;
+  left:9px;
+  display:flex;
+  flex-direction:row;
+  align-items:flex-end;
+  gap:0px;
+  z-index:1000;
+  transition: all 0.3s ease;
+}
+.fab-system.right{
+  left:auto;
+  right:3px;
+  flex-direction:row-reverse;
+}
+
+.fab-tier-1{ display:flex; flex-direction:column-reverse; gap:0.1px; }
+
+.fab-tier-2 {
+  display:flex;
+  flex-direction:column-reverse;
+  gap:0.1px;
+  padding:3px;
+  border-radius:18px;
+  background:var(--card);
+  border:1px solid var(--border);
+  opacity:0;
+  transform: translateX(0);   /* default spacing ကို 0 ထား */
+  pointer-events:none;
+  transition: all 0.25s ease;
+}
+
+.fab-system.right .fab-tier-2 {
+  transform: translateX(0);   /* ညာဘက်မှာလည်း overlap မဖြစ်အောင် 0 ထား */
+}
+
+.fab-tier-2.show {
+  opacity:1;
+  transform: translateX(0);   /* show ဖြစ်တဲ့အချိန်မှာလည်း 0 ထား */
+  pointer-events:auto;
+}
+
+.fab-btn{
+  width:45px; height:45px;
+  border-radius:50%;
+  border:1px solid var(--border);
+  background:var(--card);
+  color:#E2E8F0;
+  display:grid; place-items:center;
+  cursor:pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.fab-btn .material-symbols-rounded{ font-size:27px; }
+.fab-btn.small{ width:45px; height:45px; }
+.fab-btn.active{ background:#3B82F6; border-color:#3B82F6; color:white; }
