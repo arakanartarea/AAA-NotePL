@@ -1,0 +1,38 @@
+/* GitHub Direct Raw Links များ */
+@font-face { font-family: 'Arakan_Danyawaddy'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Arakan_Danyawaddy.ttf'); }
+@font-face { font-family: 'BeautiUNI-7'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/BeautiUNI-7.ttf'); }
+@font-face { font-family: 'Hopone'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Hopone.ttf'); }
+@font-face { font-family: 'Hsi-Hseng'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Hsi-Hseng.ttf'); }
+@font-face { font-family: 'KyaungChee'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/KyaungChee.ttf'); }
+
+@font-face { font-family: 'MM_Jasmine_v1.01'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/MM_Jasmine_v1.01.ttf'); }
+@font-face { font-family: 'Myanmar_PhikselSmooth'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_PhikselSmooth.ttf'); }
+@font-face { font-family: 'Myanmar_Bagan_v1.0'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Bagan_v1.0.ttf'); }
+@font-face { font-family: 'Myanmar_Jojar_v2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Jojar_v2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Kalay_v2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Kalay_v2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Love_2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Love_2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Pixel'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pixel.ttf'); }
+@font-face { font-family: 'Myanmar_Ponenyet'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Ponenyet.ttf'); }
+@font-face { font-family: 'Myanmar_Pyay_v2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pyay_v2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Pyu_Pro_2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pyu_Pro_2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Pyu_v2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pyu_v2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Tagu'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Tagu.ttf'); }
+@font-face { font-family: 'Myanmar_Taunggyi_v1.00'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Taunggyi_v1.00.ttf'); }
+@font-face { font-family: 'Myanmar_Thuriya'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Thuriya.ttf'); }
+@font-face { font-family: 'Myanmar_Waso'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Waso.ttf'); }
+@font-face { font-family: 'Myanmar_Yinmar'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Yinmar.ttf'); }
+
+@font-face { font-family: 'NK_SSmart_3'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/NK_SSmart_3.ttf'); }
+@font-face { font-family: 'Roboto_Bold'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Roboto_Bold.ttf'); }
+@font-face { font-family: 'Samsung_Myanmar'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Samsung_Myanmar.ttf'); }
+@font-face { font-family: 'YoeYar_One_Bold'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/YoeYar_One_Bold.ttf'); }
+@font-face { font-family: 'YoeYar_One_Light'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/YoeYar_One_Light.ttf'); }
+@font-face { font-family: 'notosan_grand_pro'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/notosan_grand_pro.ttf'); }
+@font-face { font-family: 'notosans_myanmar'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/notosans_myanmar.ttf'); }
+@font-face { font-family: 'yaungki'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/yaungki.ttf'); }
+
+
+/* Dynamic Font ပြောင်းလဲမှုတွင် ချောမွေ့စေရန် */
+* {
+    transition: font-family 0.2s ease;
+}

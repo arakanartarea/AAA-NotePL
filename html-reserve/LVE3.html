@@ -83,40 +83,34 @@
 
 <!-- EDIT VIEW -->
 <div id="input-view" class="view-section">
-  <h2 id="form-title">သီချင်းသစ် ထည့်ရန် - Private</h2>
-
-  
-  <!-- ဒါကို အသစ်ထည့် - အရေးကြီးတယ် -->
-  <div class="form-group">
-    <label>Song ID (AllArakanSongs နဲ့ တူရမယ် - ဥပမာ 12)</label>
-    <input type="text" id="inp-id" placeholder="ဥပမာ: 12">
+  <div id="form-compact">
+    <div class="form-row">
+      <div class="form-group"><input type="text" id="inp-id" placeholder="ID: 12"></div>
+      <div class="form-group"><input type="text" id="inp-title" placeholder="သီချင်းအမည်"></div>
+      <div class="form-group"><input type="text" id="inp-singer" placeholder="အဆိုတော်"></div>
+      <div class="form-group"><input type="text" id="inp-writer" placeholder="တေးရေး"></div>
+      <div class="form-group"><input type="text" id="inp-album" placeholder="အယ်ဘမ်"></div>
+      <div class="form-group"><input type="text" id="inp-key" placeholder="Key: E"></div>
+      <div class="form-group"><input type="text" id="inp-capo" placeholder="Capo: 0"></div>
+      <div class="form-group"><input type="text" id="inp-bpm" placeholder="BPM: 70"></div>
+      <div class="form-group"><input type="text" id="inp-strum" placeholder="Strum Pattern"></div>
+      <div class="form-group"><input type="text" id="inp-pluck" placeholder="Pluck Pattern"></div>
+    </div>
+    
+    <!-- Song Map က တစ်တန်းတည်း အပြည့် -->
+    <div class="form-row full-row">
+      <div class="form-group grow"><input type="text" id="inp-songmap" placeholder="Song Map - Intro, Verse 1, Chorus 1, Outro"></div>
+    </div>
+    
+    <!-- Verse က နေရာအပြည့်၊ ကန့်သတ်မရှိ -->
+    <div class="form-group verse-group">
+      <textarea id="inp-content" placeholder="Verses HTML Content - <div class=&quot;verse&quot;>...</div>"></textarea>
+    </div>
   </div>
   
-  <div class="form-row">
-    <div class="form-group"><label>သီချင်းအမည်</label><input type="text" id="inp-title"></div>
-    <div class="form-group"><label>အဆိုတော်</label><input type="text" id="inp-singer"></div>
-  </div>
-  <div class="form-row">
-    <div class="form-group"><label>တေးရေး</label><input type="text" id="inp-writer"></div>
-    <div class="form-group"><label>အယ်ဘမ်</label><input type="text" id="inp-album"></div>
-  </div>
-  <div class="form-row">
-    <div class="form-group"><label>Key</label><input type="text" id="inp-key" value="E"></div>
-    <div class="form-group"><label>Capo</label><input type="number" id="inp-capo" value="0"></div>
-    <div class="form-group"><label>BPM</label><input type="number" id="inp-bpm" value="70"></div>
-  </div>
-  <div class="form-group"><label>Strum Pattern</label><input type="text" id="inp-strum" value="D . . . D . . . UHB  DHB  UHB  DHB . D . ."></div>
-  <div class="form-group"><label>Pluck Pattern</label><input type="text" id="inp-pluck" value="4 . 3 . 2 . 3 . 1 . 3 . 2 . 3"></div>
-  <div class="form-group"><label>Song Map (Comma separated)</label><input type="text" id="inp-songmap" value="Intro, Verse 1, Chorus 1, Outro"></div>
-  <div class="form-group"><label>Verses HTML Content</label><textarea id="inp-content" rows="12" placeholder='<div class="verse"><div class="section-label">Intro</div><div class="verse-content"><pre class="resizable-text">[E 4] [B 4]</pre></div></div>'></textarea></div>
-
-  <div id="edit-fab-container" style="position:fixed;bottom:27px;right:27px;z-index:1000;display:none;flex-direction:column-reverse;align-items:flex-end;gap:10px;">
-    <button class="fab-btn" onclick="saveSong()" style="width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;">
-      <span class="material-symbols-rounded">save</span>
-    </button>
-    <button class="fab-btn" onclick="switchView('list-view')" style="width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;">
-      <span class="material-symbols-rounded">arrow_back</span>
-    </button>
+  <div id="edit-fab-container" style="position:fixed;bottom:2cqi;right:2cqi;z-index:1000;display:flex;flex-direction:column-reverse;gap:1.5cqi">
+    <button class="fab-btn" onclick="saveSong()" style="width:12cqi;height:12cqi;max-width:3.5em;max-height:3.5em;border-radius:50%"><span class="material-symbols-rounded">save</span></button>
+    <button class="fab-btn" onclick="switchView('list-view')" style="width:12cqi;height:12cqi;max-width:3.5em;max-height:3.5em;border-radius:50%"><span class="material-symbols-rounded">arrow_back</span></button>
   </div>
 </div>
 
