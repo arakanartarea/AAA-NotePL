@@ -1,0 +1,45 @@
+/* #region BODY - မူလ အခြေခံ */
+:root{
+  --primary:#3B82F6;
+  --bg:#F8FAFC;
+  --card:#FFFFFF;
+  --text:#1E293B;
+  --border:#E2E8F0;
+  --radius:10px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  padding:12px;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui}
+/* #endregion */
+
+/* #region BUTTON - ခလုတ် မူလ ပုံစံ */
+.btn{
+  height:40px;
+  padding:0 14px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--card);
+  cursor:pointer}
+  
+.btn-primary{
+  background:var(--primary);color:#fff}
+/* #endregion */
+
+/* #region LIST - စာရင်း မူလ ပုံစံ */
+.list-item{padding:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px}
+/* #endregion */
+
+/* #region CONTENT - အကြောင်းအရာ မူလ ပုံစံ */
+.accordion{border:1px solid var(--border);border-radius:var(--radius);background:var(--card);overflow:hidden}
+.accordion-body{display:none}
+.accordion.open>.accordion-body{display:block}
+/* #endregion */
+
+/* #region EDIT - တည်းဖြတ် မူလ ပုံစံ */
+#edit-view{display:none}
+#edit-view.active{display:block}
+/* #endregion */

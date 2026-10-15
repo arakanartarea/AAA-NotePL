@@ -1,0 +1,76 @@
+/* #region TOOLBAR - အဝိုင်း ခလုတ်များ (Reusable) */
+:root{
+  --fab-size: 52px;
+  --fab-small: 40px;
+  --fab-gap: 10px;
+  --fab-bg: #FFFFFF;
+  --fab-color: #1E293B;
+  --fab-border: #E2E8F0;
+  --fab-shadow: 0 4px 15px rgba(0,0,0,.15);
+  --fab-z: 9999;
+}
+
+.fab-toolbar{
+  position: fixed;
+  bottom: 27px;
+  z-index: var(--fab-z);
+  display: flex;
+  flex-direction: column;
+  gap: var(--fab-gap);
+  align-items: center;
+}
+/* ဘယ်ညာ ရွေးလို့ရအောင် */
+.fab-toolbar.bottom-right{ right: 27px; }
+.fab-toolbar.bottom-left{ left: 27px; }
+
+/* အဝိုင်း ခလုတ် အခြေခံ */
+.fab-btn{
+  width: var(--fab-size);
+  height: var(--fab-size);
+  border-radius: 9999px;
+  border: 1px solid var(--fab-border);
+  background: var(--fab-bg);
+  color: var(--fab-color);
+  display: grid;
+  place-items: center;
+  box-shadow: var(--fab-shadow);
+  cursor: pointer;
+  transition: transform .2s, background .2s;
+  font-size: 18px; /* icon size */
+}
+.fab-btn:active{ transform: scale(.92); }
+
+/* Outer tier - အကြီး */
+.fab-btn.outer{ background: var(--fab-bg); }
+.fab-btn.outer.active{ background: #3B82F6; color: #fff; border-color: #3B82F6; }
+
+/* Inner tier - အသေး, မူလ ဖျောက်ထား */
+.fab-group{
+  display: flex;
+  flex-direction: column;
+  gap: var(--fab-gap);
+  align-items: center;
+}
+.fab-inner-wrap{
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.fab-group.open .fab-inner-wrap{
+  display: flex;
+  animation: fabPop .25s ease;
+}
+.fab-btn.inner{
+  width: var(--fab-small);
+  height: var(--fab-small);
+  font-size: 15px;
+  background: #F1F5F9;
+}
+
+@keyframes fabPop{
+  from{ opacity:0; transform: translateY(10px) scale(.8); }
+  to{ opacity:1; transform: translateY(0) scale(1); }
+}
+/* #endregion */

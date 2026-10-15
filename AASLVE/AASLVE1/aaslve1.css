@@ -1,0 +1,23 @@
+:root {
+  /* အရောင် */
+  --primary: #E11D48;
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --text: #1E293B;
+  --muted: #94A3B8;
+  
+  /* စာလုံး */
+  --lyric-size: 14px;
+  --font-main: system-ui, sans-serif;
+  
+  /* အရွယ်အစား */
+  --radius: 10px;
+  --radius-full: 50%;
+  --fab-size: 54px;
+  --gap: 8px;
+  
+  /* အလွှာ */
+  --z-fab: 1000;
+  --z-modal: 2000;
+  --z-loading: 9999;
+}

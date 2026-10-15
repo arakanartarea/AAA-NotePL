@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New App</title>
+<link rel="stylesheet" href="note-style.css">
+
+</head>
+<body>
+
+<!-- #region BODY -->
+<div id="app"></div>
+<!-- #endregion -->
+
+<!-- #region BUTTON -->
+<!-- Font Awesome (icon အတွက်) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="toolbar.css">
+
+<!-- #region TOOLBAR -->
+<div class="fab-toolbar bottom-right" id="fabToolbar">
+  
+  <!-- Group 1: Settings -->
+  <div class="fab-group" data-group="settings">
+    <div class="fab-inner-wrap">
+      <button class="fab-btn inner" onclick="onLogin()"><i class="fa-solid fa-right-to-bracket"></i></button>
+      <button class="fab-btn inner" onclick="onLogout()"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+    <button class="fab-btn outer" onclick="toggleGroup(this)"><i class="fa-solid fa-gear"></i></button>
+  </div>
+  
+  <!-- Group 2: Mode -->
+  <div class="fab-group" data-group="mode">
+    <div class="fab-inner-wrap">
+      <button class="fab-btn inner" onclick="setMode('day')"><i class="fa-solid fa-sun"></i></button>
+      <button class="fab-btn inner" onclick="setMode('night')"><i class="fa-solid fa-moon"></i></button>
+      <button class="fab-btn inner" onclick="setMode('auto')"><i class="fa-solid fa-circle-half-stroke"></i></button>
+    </div>
+    <button class="fab-btn outer" onclick="toggleGroup(this)"><i class="fa-solid fa-palette"></i></button>
+  </div>
+  
+  <!-- Group 3: Sort -->
+  <div class="fab-group" data-group="sort">
+    <div class="fab-inner-wrap">
+      <button class="fab-btn inner" onclick="setSort('Singer')"><i class="fa-solid fa-microphone"></i></button>
+      <button class="fab-btn inner" onclick="setSort('Composer')"><i class="fa-solid fa-pen"></i></button>
+      <button class="fab-btn inner" onclick="setSort('Album')"><i class="fa-solid fa-circle-dick"></i></button>
+    </div>
+    <button class="fab-btn outer" onclick="toggleGroup(this)"><i class="fa-solid fa-arrow-down-wide-short"></i></button>
+  </div>
+  
+  <!-- Single: Back -->
+  <button class="fab-btn outer" onclick="onBack()"><i class="fa-solid fa-arrow-left"></i></button>
+  
+</div>
+<!-- #endregion -->
+
+<!-- #region LIST -->
+<div id="list-container"></div>
+<!-- #endregion -->
+
+<!-- #region CONTENT -->
+<div id="content-view"></div>
+<!-- #endregion -->
+
+<!-- #region EDIT -->
+<div id="edit-view"></div>
+<!-- #endregion -->
+
+<script src="note-app.js"></script>
+</body>
+</html>

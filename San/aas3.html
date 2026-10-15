@@ -66,9 +66,15 @@
 <body>
 <!-- ================= HTML အကုန် အလယ်မှာ ================= -->
 <header id="main-header">
+  <!--
   <div class="nav-btns" style="flex:1">
     <input type="text" id="search-input" placeholder="သီချင်း / တေးဆို / တေးရေး ရှာရန်...">
-  </div>
+  </div> -->
+  
+  <div class="nav-btns" style="flex:1; position:relative; display:flex; align-items:center;">
+  <input type="text" id="search-input" placeholder="သီချင်း / တေးဆို / တေးရေး ရှာရန်..." style="flex:1; padding-right:32px;">
+  <button id="clear-search" style="position:absolute; right:8px; background:none; border:none; font-size:20px; cursor:pointer; display:none;">×</button>
+</div>
   <div id="status-badge" class="status-badge">Viewer</div>
 </header>
 
@@ -388,6 +394,7 @@ function switchView(id){
   document.getElementById(id).classList.add('active');
 }
 
+/* 
 function filterSongs(){
   const q=(document.getElementById('search-input').value||'').toLowerCase().trim();
   let data=allSongsData.filter(s=>{
@@ -418,7 +425,34 @@ function filterSongs(){
 
   filteredData=data;
   renderAccordion();
+} */
+function filterSongs() {
+  const q = (document.getElementById('search-input').value || '').toLowerCase().trim();
+  let data = allSongsData.filter(s => {
+    if (showFavOnly && !favList.includes(s._id)) return false;
+    if (!q) return true;
+    return (s.title || '').toLowerCase().includes(q) || (s.singer || '').toLowerCase().includes(q) || (s.writer || '').toLowerCase().includes(q) || (s.album || '').toLowerCase().includes(q);
+  });
+  // ... sort logic မင်းဟာအတိုင်း ...
+  filteredData = data;
+  renderAccordion();
 }
+
+// === ဒီနေရာမှာ ထည့် ===
+const searchInput = document.getElementById('search-input');
+const clearBtn = document.getElementById('clear-search');
+
+searchInput?.addEventListener('input', () => {
+  if (clearBtn) clearBtn.style.display = searchInput.value ? 'block' : 'none';
+  filterSongs();
+});
+
+clearBtn?.addEventListener('click', () => {
+  searchInput.value = '';
+  clearBtn.style.display = 'none';
+  filterSongs();
+  searchInput.focus();
+});
 
 function renderAccordion(){
   const container=document.getElementById('accordion-container');
