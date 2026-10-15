@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arakan Songs App - V2</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/toolbar.css">
+  <link rel="stylesheet" href="css/list.css">
+  <link rel="stylesheet" href="css/lyrics.css">
+</head>
+<body>
+  <!-- Header -->
+  <header id="appHeader" class="header-default">
+    <div class="header-main" id="headerMain">
+      <h1 class="app-title">အာရက္ခတေးများ</h1>
+      <div class="header-actions">
+        <button id="searchToggleBtn" class="icon-btn" aria-label="Search">🔍</button>
+        <div id="profileContainer" class="profile-container">
+          <img id="profileImg" src="assets/default-avatar.png" alt="Profile" class="profile-img">
+          <span id="profileName" class="profile-name"></span>
+        </div>
+      </div>
+    </div>
+    <div class="search-bar-container hidden" id="searchBarContainer">
+      <input type="text" id="searchInput" placeholder="သီချင်း သို့မဟုတ် တေးဆို ရှာရန်...">
+      <button id="searchCloseBtn" class="icon-btn">✕</button>
+    </div>
+  </header>
+
+  <!-- Main 3-Tier App Container -->
+  <main class="app-container">
+    <!-- Group Pane -->
+    <section class="pane group-pane" id="groupPane">
+      <h2>တေးဆိုများ</h2>
+      <div id="groupList" class="list-container"></div>
+    </section>
+    
+    <!-- Child Pane -->
+    <section class="pane child-pane" id="childPane">
+      <h2>တေးသီချင်းများ</h2>
+      <div id="childList" class="list-container">
+        <p class="placeholder">တေးဆိုတစ်ဦးကို ရွေးချယ်ပါ</p>
+      </div>
+    </section>
+    
+    <!-- Content Pane -->
+    <section class="pane content-pane" id="contentPane">
+      <h2>တေးစာသား</h2>
+      <div id="lyricsContainer" class="lyrics-container">
+        <p class="placeholder">သီချင်းတစ်ပုဒ်ကို ရွေးချယ်ပါ</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- Floating Vertical Toolbar -->
+  <nav class="floating-toolbar bottom-right" id="floatingToolbar">
+    <div class="outer-buttons">
+      <button class="tool-btn" data-target="authMenu" title="Auth">👤</button>
+      <button class="tool-btn" data-target="modeMenu" title="Mode">🌓</button>
+      <button class="tool-btn" data-target="sortMenu" title="Sort">📶</button>
+      <button class="tool-btn admin-only hidden" data-target="adminMenu" title="Admin">⚙️</button>
+      <button class="tool-btn" id="backBtn" title="Back">⬅️</button>
+    </div>
+    <div class="inner-menus">
+      <div id="authMenu" class="sub-menu hidden">
+        <button id="loginBtn">Login</button>
+        <button id="logoutBtn" class="hidden">Logout</button>
+      </div>
+      <div id="modeMenu" class="sub-menu hidden">
+        <button data-mode="day">Day</button>
+        <button data-mode="night">Night</button>
+        <button data-mode="auto">Auto</button>
+      </div>
+      <div id="sortMenu" class="sub-menu hidden">
+        <button data-sort="singer">By Singer</button>
+        <button data-sort="composer">By Composer</button>
+        <button data-sort="album">By Album</button>
+        <button data-sort="genre">By Genre</button>
+        <button data-sort="feeling">By Feeling</button>
+      </div>
+      <div id="adminMenu" class="sub-menu hidden">
+        <button onclick="location.href='admin-new.html'">New</button>
+        <button onclick="location.href='admin-note.html'">Note</button>
+        <button onclick="location.href='admin-ex1.html'">Ex1</button>
+        <button onclick="location.href='admin-ex2.html'">Ex2</button>
+        <button onclick="location.href='admin-ex3.html'">Ex3</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- JS Modules -->
+  <script type="module" src="js/firebase.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/header.js"></script>
+  <script type="module" src="js/toolbar.js"></script>
+  <script type="module" src="js/sort.js"></script>
+  <script type="module" src="js/list.js"></script>
+  <script type="module" src="js/lyrics.js"></script>
+  <script type="module" src="js/fav.js"></script>
+</body>
+</html>

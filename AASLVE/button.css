@@ -1,0 +1,38 @@
+.fab-dock{
+  position:fixed;
+  right:16px;
+  bottom:16px;
+  display:flex;
+  flex-direction:row;
+  align-items:flex-end;
+  gap:12px;
+  z-index:50; /* 999 မထားနဲ့ - list ကို ဖုံးလို့မပြသလိုဖြစ်မယ် */
+  pointer-events:none; /* dock ကိုယ်တိုင်က click မယူ */
+}
+.fab-row{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  align-items:center;
+  pointer-events:auto;
+}
+.fab-row.row2{display:none}
+.fab-row.row2.show{display:flex}
+
+.icon-btn.fab{
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid var(--border);
+  background:var(--panel2);
+  box-shadow:0 6px 18px rgba(0,0,0,.4);
+  cursor:pointer;
+}
+.icon-btn.fab.fab-big{width:52px;height:52px;font-size:18px}
+.icon-btn.fab.fab-small{width:40px;height:40px;font-size:14px;background:var(--panel)}
+.hidden{display:none!important}
+
+/* list ကို ဖုံးမထားအောင် padding ချန် */
+.list-pane{padding-bottom:80px}
+.view-pane{padding-bottom:80px}

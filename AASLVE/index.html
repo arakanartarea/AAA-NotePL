@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AllArakanSongs</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<script type="importmap">
+{
+ "imports": {
+  "firebase/app": "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js",
+  "firebase/auth": "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js",
+  "firebase/firestore": "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"
+ }
+}
+</script>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="group-select">
+    <button data-group="singer" class="g-btn active"><i class="fa-solid fa-microphone"></i></button>
+    <button data-group="writer" class="g-btn"><i class="fa-solid fa-pen-nib"></i></button>
+    <button data-group="composer" class="g-btn"><i class="fa-solid fa-guitar"></i></button>
+    <button data-group="album" class="g-btn"><i class="fa-solid fa-compact-disc"></i></button>
+    <button data-group="titleLetter" class="g-btn"><i class="fa-solid fa-arrow-down-a-z"></i></button>
+  </div>
+  <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input id="searchInput" placeholder="ရှာရန်..."></div>
+</div>
+
+<main class="layout" id="mainLayout">
+  <aside id="listPane" class="list-pane">
+    <div id="groupPane" class="group-pane"></div>
+    <div id="childPane" class="child-pane"></div>
+  </aside>
+  <section id="viewPane" class="view-pane hidden">
+    <div id="viewContent"></div>
+  </section>
+</main>
+
+
+<!-- လော့အင် Modal -->
+<div id="loginModal" class="modal hidden">
+  <div class="modal-overlay"></div>
+  <div class="modal-card">
+    <button id="closeModal" class="icon-btn close-x"><i class="fa-solid fa-xmark"></i></button>
+    <div id="loginStatus" class="login-status">အကောင့်ဝင်ပါ</div>
+    <button id="googleLogin" class="btn google-btn"><i class="fa-brands fa-google"></i> Google ဖြင့်ဝင်ရန်</button>
+    <div class="login-divider"></div>
+    <div class="field"><input id="email" type="email" class="field-input" placeholder="Email"></div>
+    <div class="field"><input id="pass" type="password" class="field-input" placeholder="Password"></div>
+    <div class="login-actions">
+      <button id="primaryBtn" class="btn primary">ဝင်မယ်</button>
+      <button id="switchBtn" class="btn hidden">ပြောင်းမယ်</button>
+    </div>
+  </div>
+</div>
+
+<template id="group-template">
+  <div class="group-head" data-g="">
+    <span class="group-name"></span>
+    <span class="group-count"></span>
+  </div>
+</template>
+
+<template id="child-template">
+  <div class="child" data-id="">
+    <span class="child-title"></span>
+    <div class="right">
+      <button class="icon-btn fav" data-fav=""><i class="fa-regular fa-heart"></i></button>
+      <button class="icon-btn edit-icon" data-edit=""><i class="fa-solid fa-pen"></i></button>
+    </div>
+  </div>
+</template>
+
+<template id="view-template">
+  <div class="view-wrap player-view">
+    <div class="song-meta">
+      <h1 class="song-title view-title" id="view-title"></h1>
+      <div class="song-sub">တေးရေး — <span class="view-writer" id="view-writer"></span></div>
+      <div class="song-sub">တေးဆို — <span class="view-singer" id="view-singer"></span></div>
+      <span class="view-id hidden"></span>
+    </div>
+    <div id="top-right-stack">
+      <div class="strum-widget">
+        <div class="widget-header">
+          <div class="bpm-box"><span>KEY</span><span id="keyValue"></span></div>
+          <div class="bpm-box"><span>CAPO</span><span id="capoValue"></span></div>
+          <div class="bpm-box"><span>BPM</span><input id="tempoInput" type="number"></div>
+        </div>
+        <div id="strumPattern" class="pattern-data"></div>
+        <div id="pluckPattern" class="pattern-data"></div>
+        <div class="staff-wrapper">
+          <div class="string-numbers"><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span></div>
+          <div class="svg-container" id="staffContainer"></div>
+        </div>
+      </div>
+      <div class="pluck-wrapper" id="pluckContainer"></div>
+    </div>
+    <div id="song-timeline-bar"></div>
+    <pre class="view-content hidden"></pre>
+    <div id="dynamic-verses"></div>
+    <div class="view-meta"></div>
+  </div>
+</template>
+
+<template id="editTemplate">
+  <div class="edit-header"><h3><i class="fa-solid fa-pen"></i> Edit <span data-bind="editId"></span></h3><button id="cancelEdit" class="icon-btn"><i class="fa-solid fa-xmark"></i></button></div>
+  <div class="edit-grid">
+    <div class="field"><label>album</label><input id="edit_album"></div>
+    <div class="field"><label>bpm</label><input id="edit_bpm" type="number"></div>
+    <div class="field"><label>capo</label><input id="edit_capo" type="number"></div>
+    <div class="field"><label>key</label><input id="edit_key"></div>
+    <div class="field"><label>pluck</label><input id="edit_pluck"></div>
+    <div class="field"><label>singer</label><input id="edit_singer"></div>
+    <div class="field"><label>songId</label><input id="edit_songId" disabled></div>
+    <div class="field"><label>songmap</label><input id="edit_songmap"></div>
+    <div class="field"><label>strum</label><input id="edit_strum"></div>
+    <div class="field"><label>title</label><input id="edit_title"></div>
+    <div class="field"><label>writer</label><input id="edit_writer"></div>
+    <div class="field full"><label>content</label><textarea id="edit_content" rows="10"></textarea></div>
+  </div>
+  <button id="saveEditBtn" class="btn save-btn"><i class="fa-solid fa-floppy-disk"></i> Save</button>
+</template>
+
+<div class="fab-dock" id="fabDock">
+  <!-- တန်း2 - ဘယ်ဘက် (ပုံမှန်ပျောက်) -->
+  <div class="fab-row row2" id="row2-mode">
+    <button class="icon-btn fab fab-small"><i class="fa-solid fa-sun"></i></button>
+    <button class="icon-btn fab fab-small"><i class="fa-solid fa-moon"></i></button>
+    <button class="icon-btn fab fab-small"><i class="fa-solid fa-circle-half-stroke"></i></button>
+  </div>
+  
+  <!-- တန်း1 - ညာအောက် (အမြဲပေါ်) -->
+  <div class="fab-row row1">
+    <button id="searchBtn" class="icon-btn fab fab-big"><i class="fa-solid fa-magnifying-glass"></i></button>
+    <button id="favFilterBtn" class="icon-btn fab fab-big"><i class="fa-solid fa-heart"></i></button>
+    <button id="modeBtn" class="icon-btn fab fab-big"><i class="fa-solid fa-palette"></i></button>
+    <button id="settingsBtn" class="icon-btn fab fab-big"><i class="fa-solid fa-gear"></i></button>
+    <!-- View Full ရောက်မှ ပေါ်မယ့် Back - အခု hidden -->
+    <button id="backToList" class="icon-btn fab fab-big hidden"><i class="fa-solid fa-arrow-left"></i></button>
+  </div>
+</div> 
+
+<script type="module">
+  const t = Date.now();
+  
+  const link1 = document.createElement('link');
+  link1.rel = 'stylesheet';
+  link1.href = `main-style.css?v=${t}`;
+  document.head.appendChild(link1);
+  
+  const link2 = document.createElement('link');
+  link2.rel = 'stylesheet';
+  link2.href = `list.css?v=${t}`;
+  document.head.appendChild(link2);
+  
+  const link3 = document.createElement('link');
+  link3.rel = 'stylesheet';
+  link3.href = `button.css?v=${t}`;
+  document.head.appendChild(link3);
+  
+  await import(`./firebase.js?v=${t}`);
+  await import(`./login.js?v=${t}`);
+  await import(`./view.js?v=${t}`);
+  await import(`./main-app.js?v=${t}`);
+</script>
+</body>
+</html>

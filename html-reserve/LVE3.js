@@ -308,15 +308,8 @@ function renderAccordion(groupedData){
       <div class="song-item">
         <span class="song-title-click" onclick="playSong('${song.id}')">🎵 ${song.title}</span>
         <div class="item-actions" style="display:${isAdminUser?'flex':'none'}">
-          <button class="icon-btn" onclick="copyYTDesById('${song.id}')" title="YouTube Des Copy">
-            <span class="material-symbols-rounded" style="font-size:20px">content_copy</span>
-          </button>
-          <button class="icon-btn" onclick="editSong('${song.id}')" title="Edit (Private)">
-            <span class="material-symbols-rounded" style="font-size:20px">edit</span>
-          </button>
-          <button class="icon-btn" onclick="deleteSong('${song.id}','${song.title.replace(/'/g,"\\'")}')" title="Delete">
-            <span class="material-symbols-rounded" style="font-size:20px">delete</span>
-          </button>
+          <button class="icon-btn" onclick="editSong('${song.id}')" title="Edit (Private)">📝</button>
+          <button class="icon-btn" onclick="deleteSong('${song.id}','${song.title.replace(/'/g,"\\'")}')">🗑️</button>
         </div>
       </div>
     `).join('');
@@ -324,63 +317,59 @@ function renderAccordion(groupedData){
     container.appendChild(acc);
   }
 }
-function openCreateForm(){
-  if(!isAdminUser){ alert('Admin login ဝင်မှ ထည့်လို့ရမယ်'); return; }
-  editingDocId=null;
-  document.getElementById('form-title').textContent="သီချင်းသစ် ထည့်ရန် - Private";
-  document.querySelectorAll('#input-view input, #input-view textarea').forEach(i=>{if(i.id!=='inp-key'&&i.id!=='inp-capo'&&i.id!=='inp-bpm') i.value=''});
-  document.getElementById('inp-key').value='E';document.getElementById('inp-capo').value=0;document.getElementById('inp-bpm').value=70;
+
+function openCreateForm() {
+  if (!isAdminUser) { alert('Admin login ဝင်မှ ထည့်လို့ရမယ်'); return; }
+  editingDocId = null;
+  // form-title ဆိုတာ HTML မှာ မရှိတော့ မလိုတော့ဘူး - ဖျက်ပစ်
+  document.querySelectorAll('#input-view input, #input-view textarea').forEach(i => {
+    if (i.id !== 'inp-key' && i.id !== 'inp-capo' && i.id !== 'inp-bpm') i.value = '';
+  });
+  document.getElementById('inp-key').value = 'E';
+  document.getElementById('inp-capo').value = '0';
+  document.getElementById('inp-bpm').value = '70';
   switchView('input-view');
 }
 
-function editSong(id){
-  if(!isAdminUser){ alert('Admin login လိုအပ်သည်'); return; }
-  db.collection('AAASongs').doc(id).get().then(doc=>{
-    if(!doc.exists) return;
-    const data=doc.data();editingDocId=id;
-    document.getElementById('form-title').textContent="သီချင်းပြင်ဆင်ရန် - Private";
-    document.getElementById('inp-id').value = data.songId || id; // ဒါကိုထည့်
-    document.getElementById('inp-title').value=data.title||'';
-    document.getElementById('inp-singer').value=data.singer||'';
-    document.getElementById('inp-writer').value=data.writer||'';
-    document.getElementById('inp-album').value=data.album||'';
-    document.getElementById('inp-key').value=data.key||'E';
-    document.getElementById('inp-capo').value=data.capo||0;
-    document.getElementById('inp-bpm').value=data.bpm||70;
-    document.getElementById('inp-strum').value=data.strum||'';
-    document.getElementById('inp-pluck').value=data.pluck||'';
-    document.getElementById('inp-songmap').value=data.songmap||'';
-    document.getElementById('inp-content').value=data.content||'';
+function editSong(id) {
+  if (!isAdminUser) { alert('Admin login လိုအပ်သည်'); return; }
+  db.collection('AAASongs').doc(id).get().then(doc => {
+    if (!doc.exists) return;
+    const data = doc.data();
+    editingDocId = id;
+    // document.getElementById('form-title').textContent= ... ဒါကိုလဲ ဖျက်
+    document.getElementById('inp-title').value = data.title || '';
+    document.getElementById('inp-singer').value = data.singer || '';
+    document.getElementById('inp-writer').value = data.writer || '';
+    document.getElementById('inp-album').value = data.album || '';
+    document.getElementById('inp-key').value = data.key || 'E';
+    document.getElementById('inp-capo').value = data.capo || 0;
+    document.getElementById('inp-bpm').value = data.bpm || 70;
+    document.getElementById('inp-strum').value = data.strum || '';
+    document.getElementById('inp-pluck').value = data.pluck || '';
+    document.getElementById('inp-songmap').value = data.songmap || '';
+    document.getElementById('inp-content').value = data.content || '';
     switchView('input-view');
   });
 }
 
-function saveSong() {
-  if (!isAdminUser) return;
-  
-  // အရေးကြီးတာ ဒီမှာ - SongId ကို ID အဖြစ်ယူမယ်
-  const songId = document.getElementById('inp-id').value.trim(); // ဒါမှမဟုတ် inp-songId
-  if (!songId) { alert('Song ID ထည့်ပါ'); return; }
-  
-  const payload = {
-    songId: songId, // အထဲမှာလဲ သိမ်းထားမှ နောက်ရှာရလွယ်မယ်
-    title: document.getElementById('inp-title').value,
-    singer: document.getElementById('inp-singer').value,
-    writer: document.getElementById('inp-writer').value,
-    album: document.getElementById('inp-album').value,
-    key: document.getElementById('inp-key').value,
-    capo: parseInt(document.getElementById('inp-capo').value) || 0,
-    bpm: parseInt(document.getElementById('inp-bpm').value) || 70,
-    strum: document.getElementById('inp-strum').value,
-    pluck: document.getElementById('inp-pluck').value,
-    songmap: document.getElementById('inp-songmap').value,
-    content: document.getElementById('inp-content').value
+function saveSong(){
+  if(!isAdminUser) return;
+  const payload={
+    title:document.getElementById('inp-title').value,
+    singer:document.getElementById('inp-singer').value,
+    writer:document.getElementById('inp-writer').value,
+    album:document.getElementById('inp-album').value,
+    key:document.getElementById('inp-key').value,
+    capo:parseInt(document.getElementById('inp-capo').value)||0,
+    bpm:parseInt(document.getElementById('inp-bpm').value)||70,
+    strum:document.getElementById('inp-strum').value,
+    pluck:document.getElementById('inp-pluck').value,
+    songmap:document.getElementById('inp-songmap').value,
+    content:document.getElementById('inp-content').value
   };
-  
-  // add() မဟုတ်ဘဲ doc(songId).set()
-  db.collection('AAASongs').doc(songId).set(payload, { merge: true })
-    .then(() => switchView('list-view'))
-    .catch(e => alert(e.message))
+  if(editingDocId){db.collection('AAASongs').doc(editingDocId).update(payload).then(()=>switchView('list-view')).catch(e=>alert(e.message))}
+  else{db.collection('AAASongs').add(payload).then(()=>switchView('list-view')).catch(e=>alert(e.message))}
 }
 
 function deleteSong(id,title){
@@ -392,7 +381,6 @@ function playSong(id){
   db.collection('AAASongs').doc(id).get().then(doc=>{
     if(!doc.exists) return;
     const data=doc.data();
-    window.currentSongData = data;//Youtube des copy
     const box=document.getElementById('about-box');
     box.setAttribute('data-title',data.title||'');
     box.setAttribute('data-writer',data.writer||'');
@@ -624,8 +612,7 @@ function renderTimeline() {
     const chip = document.createElement('div');
     chip.className = 'timeline-chip';
     chip.id = `tl-${idx}`;
-    /*let shortName = name.replace('Intro','In').replace('Verse','V').replace('Chorus','Cho').replace('Pre Cho','Pre').replace('Bridge','Bri').replace('Outro','Out').replace('Solo','Solo').replace(/ /g,'');*/
-    let shortName = name.replace('Intro','In').replace('Hook','Ho').replace('Skit','Sk').replace('Verse','V').replace('Chorus','Cho').replace('Pre Cho','Pre').replace('Bridge','Bri').replace('Outro','Out').replace('Solo','Solo').replace(/ /g,'');
+    let shortName = name.replace('Intro','In').replace('Verse','V').replace('Chorus','Cho').replace('Pre Cho','Pre').replace('Bridge','Bri').replace('Outro','Out').replace('Solo','Solo').replace(/ /g,'');
     chip.innerHTML = `<span class="chip-progress"></span><span style="position:relative;z-index:1">${shortName}</span>`;
     chip.onclick = () => {
       const key = name.toLowerCase().replace(/\s+/g, '');
@@ -692,7 +679,7 @@ function getTempo(){
 function startCountdown(onComplete){
   const overlay=document.getElementById('countdown-overlay'),txt=document.getElementById('countdown-text');
   let count=4; overlay.classList.remove('hidden'); txt.textContent=count;
-  countdownInterval=setInterval(()=>{ count--; if(count>0) txt.textContent=count; else if(count===0) txt.textContent='Go!'; else {clearInterval(countdownInterval);countdownInterval=null;overlay.classList.add('hidden'); if(onComplete) onComplete();}},1000);
+  countdownInterval=setInterval(()=>{ count--; if(count>0) txt.textContent=count; else if(count===0) txt.textContent='Go!'; else {clearInterval(countdownInterval);countdownInterval=null;overlay.classList.add('hidden'); if(onComplete) onComplete();}},600);
 }
 function playStrumForBeats(beats, tempo, onDone){
   const stepsNeeded = beats * 4;
@@ -858,123 +845,3 @@ function applySavedFont() {
 }
 document.addEventListener('DOMContentLoaded', applySavedFont);
 // ===== ဖောင့် ဆုံး =====
-
-//Youtube Des Copy စ
-// ===== YouTube Des Generator - ArakanArtArea FINAL =====
-/*
-function generateYTDescription(data){
-  if(!data) return "";
-  const artist = data.singer || "Unknown";
-  const song = data.title || "Unknown";
-  const composer = data.writer || "-";
-  const key = data.key || "C";
-  const capo = data.capo ?? 0;
-  const tempo = data.bpm || 90;
-  const capoShape = "G"; // Capo 2 ဆို G shape လို့ ပုံသေ ယူဆမယ်, လိုရင် ပြင်လို့ရ
-
-  return `${artist} သီဆိုထားရေ "${song}" ရခိုင်တေးခြင်း‌ချေကို ဂစ်တာတီး ချင်သူတိအတွက် Guitar Chords နဲ့ Lyrics တွေကို တစ်ခါတည်း ကြည့်ရလွယ်အောင် တင်ပီးထားပါရေ။
-
-[ 1 ] ORIGINAL MUSIC CREDIT
-- Song: ${song}
-- Artist: ${artist}
-- Lyrics/Composer: ${composer}
-- Original Link: #
-- Skip Intro: 0:05
-
-[ 2 ] GUITAR SETUP INFO (ArakanArtArea)
-- Version: Vocal & Chord (New Version)
-- Key: ${key}
-- Capo: ${capo} rd Fret (${capoShape} Key Shape)
-- Tempo: ${tempo} BPM
-- Chord Sheet Creator: ArakanArtArea
-
-[ 3 ] ABOUT & DISCLAIMER
-- Channel Purpose:
-ရခိုင်‌တေးခြင်း‌ကောင်းချေတိကို ဂစ်တာတီးလိုသူတိအတွက် ကော့ဒ် (Chords) နန့် စာသားတိကို အလွယ်တကူ လေ့လာနိုင်အောင် ArakanArtArea မှ ဖန်တီးပီးထားခြင်း ဖြစ်ပါသည်။
-- Copyright Disclaimer:
-I do not own the music/audio. I only provided the chords and lyrics for educational purposes. All credits go to the rightful owners.
-
-[ 4 ] CONNECT WITH US
-- TikTok: https://www.tiktok.com/@arakan.art.area?_r=1&_t=ZS-94ebS87R8WG
-- YouTube: https://www.youtube.com/@arakanartarea
-- Facebook: https://www.facebook.com/AAAarakanartarea
-
-#ရခိုင်‌သင်္ကြန်တေးခြင်း #ရခိုင်တေးခြင်း #GuitarChords #ArakanArtArea #ArakanSong #GuitarTutorial #${song}`;
-}
-(function setupYTDesCopy(){
-  document.addEventListener('click', (e)=>{
-    const btn = e.target.closest('#btn-ytdes-copy');
-    if(!btn) return;
-    const data = window.currentSongData;
-    if(!data){ alert('သီချင်း အရင်ရွေးပါ'); return; }
-    const des = generateYTDescription(data);
-    navigator.clipboard.writeText(des).then(()=>{
-      const oldHTML = btn.innerHTML;
-      btn.innerHTML = '<span class="material-symbols-rounded">check</span>';
-      btn.style.background = '#22c55e';
-      setTimeout(()=>{ btn.innerHTML = oldHTML; btn.style.background = '#f5c518'; }, 1500);
-    });
-  });
-})();*/
-// ===== YouTube Des Generator - FINAL for List View Admin =====
-function generateYTDescription(data){
-  if(!data) return "";
-  const artist = data.singer || "Unknown";
-  const song = data.title || "Unknown";
-  const composer = data.writer || "-";
-  const key = data.key || "C";
-  const capo = data.capo ?? 0;
-  const tempo = data.bpm || 90;
-  const capoShape = "G";
-
-  return `${artist} သီဆိုထားရေ "${song}" ရခိုင်တေးခြင်း‌ချေကို ဂစ်တာတီး ချင်သူတိအတွက် Guitar Chords နဲ့ Lyrics တွေကို တစ်ခါတည်း ကြည့်ရလွယ်အောင် တင်ပီးထားပါရေ။
-
-[ 1 ] ORIGINAL MUSIC CREDIT
-- Song: ${song}
-- Artist: ${artist}
-- Lyrics/Composer: ${composer}
-- Original Link: #
-- Skip Intro: 0:05
-
-[ 2 ] GUITAR SETUP INFO (ArakanArtArea)
-- Version: Vocal & Chord (New Version)
-- Key: ${key}
-- Capo: ${capo} rd Fret (${capoShape} Key Shape)
-- Tempo: ${tempo} BPM
-- Chord Sheet Creator: ArakanArtArea
-
-[ 3 ] ABOUT & DISCLAIMER
-- Channel Purpose:
-ရခိုင်‌တေးခြင်း‌ကောင်းချေတိကို ဂစ်တာတီးလိုသူတိအတွက် ကော့ဒ် (Chords) နန့် စာသားတိကို အလွယ်တကူ လေ့လာနိုင်အောင် ArakanArtArea မှ ဖန်တီးပီးထားခြင်း ဖြစ်ပါသည်။
-- Copyright Disclaimer:
-I do not own the music/audio. I only provided the chords and lyrics for educational purposes. All credits go to the rightful owners.
-
-[ 4 ] CONNECT WITH US
-- TikTok: https://www.tiktok.com/@arakan.art.area?_r=1&_t=ZS-94ebS87R8WG
-- YouTube: https://www.youtube.com/@arakanartarea
-- Facebook: https://www.facebook.com/AAAarakanartarea
-
-#ရခိုင်‌သင်္ကြန်တေးခြင်း #ရခိုင်တေးခြင်း #GuitarChords #ArakanArtArea #ArakanSong #GuitarTutorial #${song}`;
-}
-
-function copyYTDesById(id) {
-  const data = allSongsData.find(s => s.id === id);
-  if (!data) { alert('Data မတွေ့ပါ'); return; }
-  const des = generateYTDescription(data);
-  navigator.clipboard.writeText(des).then(() => {
-    const btn = document.querySelector(`button[onclick="copyYTDesById('${id}')"]`);
-    if (!btn) return;
-    
-    // မူလပုံစံကို သိမ်းထားမယ်
-    const oldHTML = btn.innerHTML;
-    
-    // အမှန်ခြစ်ကို Icon နဲ့ပြ
-    btn.innerHTML = `<span class="material-symbols-rounded" style="font-size:20px">check</span>`;
-    
-    // 1 စက္ကြာပြီးရင် မူလပုံစံ ပြန်ထား
-    setTimeout(() => {
-      btn.innerHTML = oldHTML;
-    }, 1000);
-  });
-}
-//Youtube Des Copy ဆ

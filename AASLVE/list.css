@@ -1,0 +1,55 @@
+/* list.css - 35% Group | 65% Child */
+.list-pane{
+  display:grid;
+  grid-template-columns:35% 65%;
+  border-right:1px solid var(--border);
+  background:var(--panel);
+  overflow:hidden;
+  height:100%;
+}
+.group-pane{
+  border-right:1px solid var(--border);
+  overflow:auto;
+  background:var(--panel);
+}
+.child-pane{
+  overflow:auto;
+  background:var(--bg);
+}
+
+/* Group */
+.group{border-bottom:1px solid var(--border)}
+.group-head{height:48px;display:flex;align-items:center;gap:8px;padding:0 12px;cursor:pointer;user-select:none}
+.group-head:hover{background:var(--panel2)}
+.group-head.active{background:var(--panel2);border-left:2px solid var(--accent)}
+.group-name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.group-count{opacity:.5;font-size:12px}
+.group-chevron{font-size:12px;opacity:.6}
+
+/* Child - 65% မှာ နေရာကျယ်တော့ fav/edit မဖုံးတော့ဘူး */
+.child{
+  display:flex;
+  flex-direction:row;
+  justify-content:space-between;
+  align-items:center;
+  min-height:52px;
+  padding:8px 12px;
+  cursor:pointer;
+  border-bottom:1px solid var(--border);
+  border-left:2px solid transparent;
+  gap:10px;
+}
+.child:hover{background:var(--panel2)}
+.child.active{border-left-color:var(--accent);background:var(--panel2)}
+.child-title{
+  flex:1;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  line-height:1.4;
+}
+.right{display:flex;flex-direction:row;gap:6px;align-items:center;flex-shrink:0}
+.right .icon-btn{width:32px;height:32px;display:inline-flex}
+.edit-icon{display:none}
+.edit-icon.show{display:inline-flex}
+.fav.active{color:var(--accent)}

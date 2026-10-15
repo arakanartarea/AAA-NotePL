@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Maker</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #000000;
+    --border: #2563eb;
+    --red-border: #dc2626;
+    --q-size: 18px;
+    --opt-size: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+  body { background: var(--bg); color: var(--text); padding: 8px; }
+
+  /* Edit View */
+  #edit-view { max-width: 450px; margin: 0 auto; padding-bottom: 70px; display: flex; flex-direction: column; gap: 8px; }
+  
+  .top-edit-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .img-in-btn {
+    width: 80px; height: 80px; border: 2px solid var(--red-border); border-radius: 12px;
+    display: grid; place-items: center; background: #fff; cursor: pointer; font-weight: bold; font-size: 14px; color: #000;
+  }
+  .edit-title { font-size: 32px; font-weight: bold; letter-spacing: 1px; }
+
+  .box-blue { border: 2px solid var(--border); border-radius: 12px; padding: 10px; background: #fff; }
+  .box-red { border: 2px solid var(--red-border); border-radius: 12px; padding: 8px; background: #fff; margin-bottom: 6px; }
+  
+  textarea, input[type="text"] {
+    width: 100%; border: none; outline: none; font-size: 16px; background: transparent; resize: none; color: #000;
+  }
+  textarea { height: 70px; }
+
+  /* Bottom Toolbar */
+  .bottom-toolbar {
+    position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; border: 2px solid var(--border);
+    border-radius: 12px 12px 0 0; padding: 8px; display: flex; justify-content: space-around; align-items: center; z-index: 100;
+  }
+  .tool-btn {
+    border: 2px solid var(--border); background: #fff; border-radius: 8px; padding: 8px 6px;
+    font-size: 13px; font-weight: bold; cursor: pointer; text-align: center; flex: 1; margin: 0 3px;
+  }
+
+  /* 9:16 Full View */
+  #full-view {
+    display: none; position: fixed; inset: 0; background: #fff; z-index: 200;
+    justify-content: center; align-items: center;
+  }
+  .screen-916 {
+    position: relative; width: 100%; height: 100%; max-width: 405px; max-height: 720px;
+    aspect-ratio: 9/16; background: #fff; border: 2px solid #000;
+    display: flex; flex-direction: column; justify-content: space-between; padding: 12px; overflow: hidden;
+  }
+  
+  .v-title-box { border: 2px solid var(--border); border-radius: 8px; text-align: center; padding: 6px; font-weight: bold; font-size: 18px; }
+  .v-img-box { border: 2px solid var(--red-border); border-radius: 8px; height: 180px; display: grid; place-items: center; overflow: hidden; }
+  .v-img-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+  
+  .v-q-box { border: 2px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; font-size: var(--q-size); font-weight: bold; min-height: 80px; display: grid; place-items: center; }
+  
+  .v-options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .v-opt-item {
+    border: 2px solid var(--border); border-radius: 10px; padding: 8px; display: flex; align-items: center; gap: 8px;
+    font-size: var(--opt-size); font-weight: bold; background: #fff; min-height: 50px;
+  }
+  .circle-badge {
+    width: 32px; height: 32px; border: 2px solid var(--red-border); border-radius: 50%;
+    display: grid; place-items: center; flex-shrink: 0; font-size: 14px;
+  }
+
+  .v-timer-box {
+    align-self: center; width: 60px; height: 60px; border: 2px solid var(--red-border); border-radius: 50%;
+    display: grid; place-items: center; font-weight: bold; font-size: 18px;
+  }
+
+  /* Result States */
+  .v-opt-item.correct { background: #22c55e !important; border-color: #16a34a; color: #fff; }
+  .v-opt-item.correct .circle-badge { border-color: #fff; color: #fff; }
+  .v-opt-item.wrong { background: #ef4444 !important; border-color: #dc2626; color: #fff; }
+  .v-opt-item.wrong .circle-badge { border-color: #fff; color: #fff; }
+</style>
+</head>
+<body>
+
+<!-- EDIT VIEW -->
+<div id="edit-view">
+  <div class="top-edit-row">
+    <label class="img-in-btn">
+      image in
+      <input type="file" id="imgInput" accept="image/*" style="display:none">
+    </label>
+    <div class="edit-title">Edit</div>
+  </div>
+
+  <div class="box-blue">
+    <textarea id="questionInput" placeholder="မေးခွန်းထည့်ရန်..." oninput="saveData()"></textarea>
+  </div>
+
+  <div class="box-red"><input type="text" id="opt1Input" placeholder="အဖြေ ၁ ထည့်ရန်" oninput="saveData()"></div>
+  <div class="box-red"><input type="text" id="opt2Input" placeholder="အဖြေ ၂ ထည့်ရန်" oninput="saveData()"></div>
+  <div class="box-red"><input type="text" id="opt3Input" placeholder="အဖြေ ၃ ထည့်ရန်" oninput="saveData()"></div>
+  <div class="box-red"><input type="text" id="opt4Input" placeholder="အဖြေ ၄ ထည့်ရန်" oninput="saveData()"></div>
+  <div class="box-red"><input type="text" id="correctInput" placeholder="အဖြေမှန် နံပါတ် (1-4) ထည့်ရန်" oninput="saveData()"></div>
+</div>
+
+<!-- BOTTOM TOOLBAR -->
+<div class="bottom-toolbar">
+  <button class="tool-btn" onclick="changeQSize()">မေးခွန်း:size</button>
+  <button class="tool-btn" onclick="changeOptSize()">အဖြေများ:size</button>
+  <button class="tool-btn" onclick="openView()">View</button>
+  <button class="tool-btn" onclick="changeTime()">time</button>
+  <button class="tool-btn" onclick="clearData()">Clear</button>
+</div>
+
+<!-- 9:16 FULL VIEW -->
+<div id="full-view">
+  <div class="screen-916">
+    <div class="v-title-box" id="viewTitle">ကျွန်းနယ် အမည်</div>
+    <div class="v-img-box" id="viewImgBox"><span>ပုံ</span></div>
+    <div class="v-q-box" id="viewQuestion">မေးခွန်း</div>
+    
+    <div class="v-options-grid">
+      <div class="v-opt-item" id="vOpt1"><div class="circle-badge"></div><span id="vText1">အဖြေ 1</span></div>
+      <div class="v-opt-item" id="vOpt2"><div class="circle-badge"></div><span id="vText2">အဖြေ 2</span></div>
+      <div class="v-opt-item" id="vOpt3"><div class="circle-badge"></div><span id="vText3">အဖြေ 3</span></div>
+      <div class="v-opt-item" id="vOpt4"><div class="circle-badge"></div><span id="vText4">အဖြေ 4</span></div>
+    </div>
+
+    <div class="v-timer-box" id="timerDisplay">အချိန်</div>
+  </div>
+</div>
+
+<script>
+  let savedImage = "";
+  let quizTime = 10;
+  let qSize = 18;
+  let optSize = 16;
+  let timerInterval = null;
+
+  window.onload = function() {
+    loadData();
+    window.addEventListener('popstate', function(e) {
+      if (e.state && e.state.view === 'full') {
+        document.getElementById('full-view').style.display = 'flex';
+        startTimer();
+      } else {
+        document.getElementById('full-view').style.display = 'none';
+        stopTimer();
+      }
+    });
+  };
+
+  function saveData() {
+    const data = {
+      q: document.getElementById('questionInput').value,
+      o1: document.getElementById('opt1Input').value,
+      o2: document.getElementById('opt2Input').value,
+      o3: document.getElementById('opt3Input').value,
+      o4: document.getElementById('opt4Input').value,
+      corr: document.getElementById('correctInput').value,
+      time: quizTime,
+      qs: qSize,
+      os: optSize,
+      img: savedImage
+    };
+    localStorage.setItem('simple_quiz_data', JSON.stringify(data));
+  }
+
+  function loadData() {
+    const raw = localStorage.getItem('simple_quiz_data');
+    if (!raw) return;
+    try {
+      const d = JSON.parse(raw);
+      document.getElementById('questionInput').value = d.q || '';
+      document.getElementById('opt1Input').value = d.o1 || '';
+      document.getElementById('opt2Input').value = d.o2 || '';
+      document.getElementById('opt3Input').value = d.o3 || '';
+      document.getElementById('opt4Input').value = d.o4 || '';
+      document.getElementById('correctInput').value = d.corr || '';
+      if(d.time) quizTime = parseInt(d.time);
+      if(d.qs) { qSize = d.qs; document.documentElement.style.setProperty('--q-size', qSize + 'px'); }
+      if(d.os) { optSize = d.os; document.documentElement.style.setProperty('--opt-size', optSize + 'px'); }
+      if(d.img) savedImage = d.img;
+    } catch(e){}
+  }
+
+  document.getElementById('imgInput').addEventListener('change', function(e) {
+    const f = e.target.files[0];
+    if(f) {
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        savedImage = evt.target.result;
+        saveData();
+      };
+      reader.readAsDataURL(f);
+    }
+  });
+
+  function openView() {
+    document.getElementById('viewQuestion').textContent = document.getElementById('questionInput').value || 'မေးခွန်း';
+    document.getElementById('vText1').textContent = document.getElementById('opt1Input').value || 'အဖြေ ၁';
+    document.getElementById('vText2').textContent = document.getElementById('opt2Input').value || 'အဖြေ ၂';
+    document.getElementById('vText3').textContent = document.getElementById('opt3Input').value || 'အဖြေ ၃';
+    document.getElementById('vText4').textContent = document.getElementById('opt4Input').value || 'အဖြေ ၄';
+
+    for(let i=1; i<=4; i++) {
+      let el = document.getElementById('vOpt' + i);
+      el.classList.remove('correct', 'wrong');
+    }
+
+    const imgBox = document.getElementById('viewImgBox');
+    imgBox.innerHTML = '';
+    if(savedImage) {
+      const img = document.createElement('img');
+      img.src = savedImage;
+      imgBox.appendChild(img);
+    } else {
+      imgBox.innerHTML = '<span>ပုံ</span>';
+    }
+
+    history.pushState({view: 'full'}, '', '#view');
+    document.getElementById('full-view').style.display = 'flex';
+    startTimer();
+  }
+
+  function startTimer() {
+    stopTimer();
+    let sec = quizTime;
+    const display = document.getElementById('timerDisplay');
+    display.textContent = sec;
+
+    timerInterval = setInterval(() => {
+      sec--;
+      if(sec >= 0) display.textContent = sec;
+      if(sec <= 0) {
+        clearInterval(timerInterval);
+        highlightAnswers();
+      }
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if(timerInterval) clearInterval(timerInterval);
+  }
+
+  function highlightAnswers() {
+    const corr = document.getElementById('correctInput').value.trim();
+    for(let i=1; i<=4; i++) {
+      let el = document.getElementById('vOpt' + i);
+      if(i.toString() === corr) {
+        el.classList.add('correct');
+      } else {
+        el.classList.add('wrong');
+      }
+    }
+  }
+
+  function changeQSize() {
+    let val = prompt("မေးခွန်း စာသားဆိုဒ် (Font Size) ထည့်ပါ:", qSize);
+    if(val && !isNaN(val)) {
+      qSize = parseInt(val);
+      document.documentElement.style.setProperty('--q-size', qSize + 'px');
+      saveData();
+    }
+  }
+
+  function changeOptSize() {
+    let val = prompt("အဖြေများ စာသားဆိုဒ် (Font Size) ထည့်ပါ:", optSize);
+    if(val && !isNaN(val)) {
+      optSize = parseInt(val);
+      document.documentElement.style.setProperty('--opt-size', optSize + 'px');
+      saveData();
+    }
+  }
+
+  function changeTime() {
+    let val = prompt("အချိန် (စက္ကန့်) ထည့်ပါ:", quizTime);
+    if(val && !isNaN(val)) {
+      quizTime = parseInt(val);
+      saveData();
+    }
+  }
+
+  function clearData() {
+    if(confirm("ဒေတာအားလုံး ရှင်းလင်းမှာ သေချာပါသလား?")) {
+      localStorage.removeItem('simple_quiz_data');
+      savedImage = "";
+      document.getElementById('questionInput').value = '';
+      document.getElementById('opt1Input').value = '';
+      document.getElementById('opt2Input').value = '';
+      document.getElementById('opt3Input').value = '';
+      document.getElementById('opt4Input').value = '';
+      document.getElementById('correctInput').value = '';
+      document.getElementById('viewImgBox').innerHTML = '<span>ပုံ</span>';
+      alert("ရှင်းလင်းပြီးပါပြီ။");
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ဉာဏ်စမ်း - ပုံအတိုင်း</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans Myanmar',Pyidaungsu,system-ui,sans-serif;background:#fff;color:#111;min-height:100dvh}
+button,input,textarea,select{font-family:inherit}
+.wrap{max-width:480px;margin:0 auto;padding-bottom:100px;background:#fff;min-height:100dvh}
+.edit-header{display:flex;align-items:center;gap:12px;padding:12px;border-bottom:2px solid #111}
+.img-in-btn{width:88px;height:88px;border:2px solid #ff0000;border-radius:16px;background:#fff;display:grid;place-items:center;cursor:pointer;font-weight:800;font-size:18px;text-align:center;position:relative;overflow:hidden}
+.img-in-btn img{width:100%;height:100%;object-fit:cover;display:none}
+.img-in-btn.has-img img{display:block}
+.img-in-btn.has-img span{display:none}
+.edit-title{flex:1;text-align:center;font-size:48px;font-weight:900;letter-spacing:-1px}
+.q-box{margin:14px;border:2.5px solid #2a2aff;border-radius:22px;padding:18px;min-height:140px}
+.q-box textarea{width:100%;border:none;outline:none;font-size:24px;font-weight:800;text-align:center;resize:none;min-height:100px;background:transparent}
+.a-list{display:flex;flex-direction:column;gap:10px;margin:0 14px}
+.a-item{border:2px solid #e11;border-radius:14px;padding:12px 14px;display:flex;align-items:center}
+.a-item input{flex:1;border:none;outline:none;font-size:18px;font-weight:700;background:transparent}
+.correct-box{margin:12px 14px 0 14px;width:260px;border:2px solid #e11;border-radius:12px;padding:10px 12px}
+.correct-box input{width:100%;border:none;outline:none;font-size:16px;font-weight:700}
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;max-width:480px;margin:0 auto;background:#fff;border:2.5px solid #111;border-radius:12px;padding:8px;display:flex;gap:6px;z-index:10}
+.bottom-bar button{flex:1;border:2px solid #2a2aff;border-radius:14px;padding:14px 4px;font-weight:800;font-size:13px;background:#fff;cursor:pointer}
+.bottom-bar button:active{background:#eee}
+/* VIEW */
+#viewPage{display:none;position:fixed;inset:0;background:#000;z-index:20;justify-content:center}
+.view-frame{width:100%;max-width:420px;height:100dvh;max-height:900px;background:#fff;aspect-ratio:9/16;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.channel-bar{border:2.5px solid #2a2aff;border-radius:12px;margin:8px;padding:10px;text-align:center;font-weight:800;font-size:18px;background:#f9f9f9}
+.img-area{margin:0 8px;border:2.5px solid; border-color: #2a2aff #ff0000 #ff0000 #2a2aff;min-height:180px;display:grid;place-items:center;background:#fff;position:relative;overflow:hidden}
+.img-area img{width:100%;height:100%;object-fit:contain;max-height:200px;display:none}
+.img-area.has-img img{display:block}
+.img-area.ph{font-size:32px;font-weight:900}
+.q-view{margin:12px 8px;border:2.5px solid #2a2aff;border-radius:28px;padding:20px;min-height:160px;display:grid;place-items:center;background:#fff}
+.q-view p{font-weight:900;text-align:center;line-height:1.3;word-wrap:break-word;white-space:pre-wrap;overflow-wrap:anywhere}
+.answers-view{margin:0 8px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ans{border:2px solid #2a2aff;border-radius:12px;padding:10px;display:flex;align-items:center;gap:8px;background:#fff;transition:all 0.3s}
+.ans.circle{width:36px;height:36px;border:2px solid; border-color:#2a2aff #ff0000; border-radius:50%;flex-shrink:0}
+.ans.txt{font-weight:800;font-size:15px;flex:1;word-wrap:break-word;white-space:pre-wrap;overflow-wrap:anywhere}
+.ans.correct{background:#22c55e;color:#fff;border-color:#22c55e}
+.ans.wrong{background:#ef4444;color:#fff;border-color:#ef4444}
+.timer-view{margin:auto 0 20px 0;display:flex;justify-content:center}
+.timer-circle{width:110px;height:110px;border:2.5px solid #2a2aff;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:28px;background:#fff;position:relative}
+.timer-circle span{font-size:32px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;place-items:center;z-index:30}
+.modal-box{background:#fff;border:3px solid #111;border-radius:16px;padding:18px;width:90%;max-width:320px}
+.modal-box h3{font-size:18px;margin-bottom:10px}
+.modal-box input{width:100%;padding:12px;border:2px solid #111;border-radius:10px;font-size:18px;font-weight:700}
+.modal-actions{display:flex;gap:8px;margin-top:12px}
+.modal-actions button{flex:1;padding:12px;border-radius:10px;border:2px solid #111;font-weight:800;cursor:pointer}
+</style>
+</head>
+<body>
+
+<div id="inputPage" class="wrap">
+  <div class="edit-header">
+    <label class="img-in-btn" id="imgBtn"><span>image in</span><img id="imgPreview"><input type="file" id="imgFile" accept="image/*" hidden></label>
+    <div class="edit-title">Edit</div>
+  </div>
+
+  <div class="q-box"><textarea id="qText" placeholder="မေးခွန်း"></textarea></div>
+
+  <div class="a-list">
+    <div class="a-item"><input id="a1" placeholder="အဖြေ ၁ ထည့်ရန်"></div>
+    <div class="a-item"><input id="a2" placeholder="အဖြေ ၂ ထည့်ရန်"></div>
+    <div class="a-item"><input id="a3" placeholder="အဖြေ ၃ ထည့်ရန်"></div>
+    <div class="a-item"><input id="a4" placeholder="အဖြေ ၄ ထည့်ရန်"></div>
+  </div>
+
+  <div class="correct-box"><input id="correctNum" type="text" inputmode="numeric" placeholder="အဖြေမှန် နံပါတ်ထည့်ရန် (1-4)"></div>
+
+  <div class="bottom-bar">
+    <button id="btnQSize">မေးခွန်း size</button>
+    <button id="btnASize">အဖြေများ size</button>
+    <button id="btnView">View</button>
+    <button id="btnTime">time</button>
+    <button id="btnClear">Clear</button>
+  </div>
+</div>
+
+<div id="viewPage">
+  <div class="view-frame">
+    <div class="channel-bar" id="channelName">ချန်နယ် အမည်</div>
+    <div class="img-area" id="vImgArea"><div class="ph">ပုံ</div><img id="vImg"></div>
+    <div class="q-view"><p id="vQ">မေးခွန်း</p></div>
+    <div class="answers-view" id="vAns"></div>
+    <div class="timer-view"><div class="timer-circle"><span id="vTimer">30</span></div></div>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <h3 id="modalTitle">Size</h3>
+    <input id="modalInput" type="text" inputmode="numeric">
+    <div class="modal-actions"><button id="modalCancel">Cancel</button><button id="modalOk" style="background:#111;color:#fff">OK</button></div>
+  </div>
+</div>
+
+<script>
+const KEY='quiz_v3_sketch';
+const els={
+  qText:document.getElementById('qText'),
+  a1:document.getElementById('a1'),a2:document.getElementById('a2'),a3:document.getElementById('a3'),a4:document.getElementById('a4'),
+  correctNum:document.getElementById('correctNum'),
+  imgFile:document.getElementById('imgFile'),imgPreview:document.getElementById('imgPreview'),imgBtn:document.getElementById('imgBtn'),
+  vImgArea:document.getElementById('vImgArea'),vImg:document.getElementById('vImg'),vQ:document.getElementById('vQ'),vAns:document.getElementById('vAns'),vTimer:document.getElementById('vTimer'),
+  channelName:document.getElementById('channelName'),
+  inputPage:document.getElementById('inputPage'),viewPage:document.getElementById('viewPage'),
+  modal:document.getElementById('modal'),modalTitle:document.getElementById('modalTitle'),modalInput:document.getElementById('modalInput')
+};
+let imageData=null;
+let qSize=28, aSize=16, timeVal=30, channel='ချန်နယ် အမည်';
+let timerInt=null;
+let modalCb=null;
+function parseN(s,fb){ if(s.trim()==='') return fb; const n=parseInt(s,10); return isNaN(n)?fb:n; }
+function save(){
+  localStorage.setItem(KEY, JSON.stringify({
+    q:els.qText.value, a1:els.a1.value, a2:els.a2.value, a3:els.a3.value, a4:els.a4.value,
+    correct:els.correctNum.value, imageData, qSize, aSize, timeVal, channel
+  }));
+}
+function load(){
+  const r=localStorage.getItem(KEY); if(!r) return;
+  try{
+    const d=JSON.parse(r);
+    els.qText.value=d.q||''; els.a1.value=d.a1||''; els.a2.value=d.a2||''; els.a3.value=d.a3||''; els.a4.value=d.a4||'';
+    els.correctNum.value=d.correct||''; imageData=d.imageData||null; qSize=d.qSize||28; aSize=d.aSize||16; timeVal=d.timeVal||30; channel=d.channel||'ချန်နယ် အမည်';
+    if(imageData){ els.imgPreview.src=imageData; els.imgPreview.style.display='block'; els.imgBtn.classList.add('has-img'); }
+    els.channelName.textContent=channel;
+  }catch(e){}
+}
+els.imgBtn.addEventListener('click',()=>els.imgFile.click());
+els.imgFile.addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader(); rd.onload=()=>{ imageData=rd.result; els.imgPreview.src=imageData; els.imgPreview.style.display='block'; els.imgBtn.classList.add('has-img'); save(); }; rd.readAsDataURL(f);
+});
+['input','change'].forEach(ev=>{
+  [els.qText,els.a1,els.a2,els.a3,els.a4,els.correctNum].forEach(el=>el.addEventListener(ev,save));
+});
+function openModal(title,val,cb){
+  els.modalTitle.textContent=title; els.modalInput.value=val; els.modal.style.display='grid'; els.modalInput.focus(); modalCb=cb;
+}
+document.getElementById('modalCancel').onclick=()=>{ els.modal.style.display='none'; };
+document.getElementById('modalOk').onclick=()=>{
+  const v=els.modalInput.value; els.modal.style.display='none'; if(modalCb) modalCb(v);
+};
+els.modal.addEventListener('click',e=>{ if(e.target===els.modal) els.modal.style.display='none'; });
+document.getElementById('btnQSize').onclick=()=>{ openModal('မေးခွန်း size (px)', qSize, v=>{ qSize=parseN(v,28); save(); }); };
+document.getElementById('btnASize').onclick=()=>{ openModal('အဖြေများ size (px)', aSize, v=>{ aSize=parseN(v,16); save(); }); };
+document.getElementById('btnTime').onclick=()=>{ openModal('အချိန် စက္ကန့်', timeVal, v=>{ timeVal=parseN(v,30); save(); }); };
+els.channelName.onclick=()=>{ openModal('ချန်နယ်အမည်', channel, v=>{ channel=v||'ချန်နယ် အမည်'; els.channelName.textContent=channel; save(); }); };
+document.getElementById('btnClear').onclick=()=>{
+  if(!confirm('အကုန်ရှင်းမလား?')) return;
+  localStorage.removeItem(KEY); els.qText.value=''; els.a1.value=''; els.a2.value=''; els.a3.value=''; els.a4.value=''; els.correctNum.value=''; imageData=null; els.imgPreview.src=''; els.imgPreview.style.display='none'; els.imgBtn.classList.remove('has-img'); qSize=28; aSize=16; timeVal=30;
+};
+document.getElementById('btnView').onclick=()=>{ history.pushState({view:true},'','#view'); openView(); };
+function openView(){
+  const correctIdx=parseN(els.correctNum.value,1)-1;
+  els.vQ.textContent=els.qText.value||'မေးခွန်း';
+  els.vQ.style.fontSize=qSize+'px';
+  if(imageData){ els.vImg.src=imageData; els.vImg.style.display='block'; els.vImgArea.classList.add('has-img'); els.vImgArea.querySelector('.ph').style.display='none'; }
+  else{ els.vImg.style.display='none'; els.vImgArea.classList.remove('has-img'); els.vImgArea.querySelector('.ph').style.display='block'; }
+  const arr=[els.a1.value||'အဖြေ 1', els.a2.value||'အဖြေ 2', els.a3.value||'အဖြေ 3', els.a4.value||'အဖြေ 4'];
+  els.vAns.innerHTML=arr.map((t,i)=>`<div class="ans" data-i="${i}"><div class="circle"></div><div class="txt" style="font-size:${aSize}px">${t}</div></div>`).join('');
+  els.inputPage.style.display='none'; els.viewPage.style.display='flex';
+  let rem=timeVal; els.vTimer.textContent=rem;
+  clearInterval(timerInt);
+  timerInt=setInterval(()=>{
+    rem--; els.vTimer.textContent=rem;
+    if(rem<=0){ clearInterval(timerInt);
+      document.querySelectorAll('.ans').forEach(el=>{
+        const i=parseInt(el.dataset.i,10);
+        if(i===correctIdx) el.classList.add('correct'); else el.classList.add('wrong');
+      });
+    }
+  },1000);
+}
+function closeView(){ els.viewPage.style.display='none'; els.inputPage.style.display='block'; clearInterval(timerInt); }
+window.addEventListener('popstate',()=>{ if(location.hash!=='#view') closeView(); });
+load();
+if(location.hash==='#view') openView();
+</script>
+</body>
+</html>
