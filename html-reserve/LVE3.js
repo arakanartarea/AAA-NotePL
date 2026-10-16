@@ -679,7 +679,7 @@ function getTempo(){
 function startCountdown(onComplete){
   const overlay=document.getElementById('countdown-overlay'),txt=document.getElementById('countdown-text');
   let count=4; overlay.classList.remove('hidden'); txt.textContent=count;
-  countdownInterval=setInterval(()=>{ count--; if(count>0) txt.textContent=count; else if(count===0) txt.textContent='Go!'; else {clearInterval(countdownInterval);countdownInterval=null;overlay.classList.add('hidden'); if(onComplete) onComplete();}},600);
+  countdownInterval=setInterval(()=>{ count--; if(count>0) txt.textContent=count; else if(count===0) txt.textContent='Go!'; else {clearInterval(countdownInterval);countdownInterval=null;overlay.classList.add('hidden'); if(onComplete) onComplete();}},1000);
 }
 function playStrumForBeats(beats, tempo, onDone){
   const stepsNeeded = beats * 4;
