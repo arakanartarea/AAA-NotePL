@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arakan Art Area - Green Screen</title>
+
+<!-- ===== FONTS ===== -->
+<style>
+@font-face { font-family: 'Arakan_Danyawaddy'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Arakan_Danyawaddy.ttf'); }
+@font-face { font-family: 'BeautiUNI-7'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/BeautiUNI-7.ttf'); }
+@font-face { font-family: 'Hopone'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Hopone.ttf'); }
+@font-face { font-family: 'Hsi-Hseng'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Hsi-Hseng.ttf'); }
+@font-face { font-family: 'KyaungChee'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/KyaungChee.ttf'); }
+@font-face { font-family: 'MM_Jasmine_v1.01'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/MM_Jasmine_v1.01.ttf'); }
+@font-face { font-family: 'Myanmar_PhikselSmooth'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_PhikselSmooth.ttf'); }
+@font-face { font-family: 'Myanmar_Bagan_v1.0'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Bagan_v1.0.ttf'); }
+@font-face { font-family: 'Myanmar_Jojar_v2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Jojar_v2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Kalay_v2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Kalay_v2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Love_2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Love_2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Pixel'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pixel.ttf'); }
+@font-face { font-family: 'Myanmar_Ponenyet'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Ponenyet.ttf'); }
+@font-face { font-family: 'Myanmar_Pyay_v2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pyay_v2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Pyu_Pro_2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pyu_Pro_2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Pyu_v2.0_2017'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Pyu_v2.0_2017.ttf'); }
+@font-face { font-family: 'Myanmar_Tagu'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Tagu.ttf'); }
+@font-face { font-family: 'Myanmar_Taunggyi_v1.00'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Taunggyi_v1.00.ttf'); }
+@font-face { font-family: 'Myanmar_Thuriya'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Thuriya.ttf'); }
+@font-face { font-family: 'Myanmar_Waso'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Waso.ttf'); }
+@font-face { font-family: 'Myanmar_Yinmar'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Myanmar_Yinmar.ttf'); }
+@font-face { font-family: 'NK_SSmart_3'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/NK_SSmart_3.ttf'); }
+@font-face { font-family: 'Roboto_Bold'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Roboto_Bold.ttf'); }
+@font-face { font-family: 'Samsung_Myanmar'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/Samsung_Myanmar.ttf'); }
+@font-face { font-family: 'YoeYar_One_Bold'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/YoeYar_One_Bold.ttf'); }
+@font-face { font-family: 'YoeYar_One_Light'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/YoeYar_One_Light.ttf'); }
+@font-face { font-family: 'notosan_grand_pro'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/notosan_grand_pro.ttf'); }
+@font-face { font-family: 'notosans_myanmar'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/notosans_myanmar.ttf'); }
+@font-face { font-family: 'yaungki'; src: url('https://raw.githubusercontent.com/arakanartarea/ArakanArtArea/main/Font/yaungki.ttf'); }
+</style>
+
+<style>
+  :root{
+    --text: #1a1a1a;
+    --bg: #f4f5f7;
+    --accent: #0d6efd;
+    --green: #00FF00;
+    --current-font: 'notosans_myanmar';
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'notosans_myanmar', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  /* ============ MAIN INPUT PANEL ============ */
+  .main-panel {
+    max-width: 680px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 28px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .main-panel h1 {
+    font-size: 22px;
+    margin-bottom: 22px;
+    text-align: center;
+    color: #111;
+  }
+  .form-group {
+    margin-bottom: 18px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #333;
+  }
+  .form-group input[type="text"],
+  .form-group input[type="file"],
+  .form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #dde1e7;
+    border-radius: 9px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .2s;
+    background: #fafbfc;
+  }
+  .form-group input:focus,
+  .form-group select:focus {
+    border-color: var(--accent);
+    background: #fff;
+  }
+
+  /* Image preview */
+  #imgPreview {
+    margin-top: 10px;
+    display: none;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #e2e6ea;
+  }
+
+  /* Font trigger button */
+  .font-trigger {
+    width: 100%;
+    padding: 12px;
+    background: #f0f4ff;
+    border: 1.5px solid #c9d7ff;
+    color: var(--accent);
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .font-trigger:hover { background: #e0e9ff; }
+
+  /* Start button */
+  .start-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: background .2s, transform .1s;
+  }
+  .start-btn:hover { background: #0b5ed7; }
+  .start-btn:active { transform: scale(.99); }
+
+  /* ============ FONT MODAL ============ */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 100;
+  }
+  .overlay.show { display: block; }
+
+  .font-modal {
+    display: none;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 520px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 16px;
+    padding: 22px;
+    z-index: 101;
+    box-shadow: 0 10px 50px rgba(0,0,0,0.25);
+  }
+  .font-modal.show { display: block; }
+  .font-modal h3 {
+    font-size: 17px;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  .font-item {
+    padding: 12px 14px;
+    border: 1.5px solid #eceff3;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 17px;
+    transition: background .15s, border-color .15s;
+    background: #fafbfc;
+  }
+  .font-item:hover {
+    background: #f0f4ff;
+    border-color: #c9d7ff;
+  }
+  .font-item.selected {
+    background: #e7f0ff;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(13,110,253,0.15);
+  }
+
+  /* ============ VIEW (Green Screen) ============ */
+  #viewScreen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--green);
+    z-index: 200;
+    overflow: hidden;
+  }
+  #viewScreen.show { display: block; }
+
+  /* 9:16 stage centered */
+  .stage {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    background: var(--green);
+    overflow: hidden;
+  }
+
+  /* Profile image top-left */
+  .profile-wrap {
+    position: absolute;
+    top: 60px;
+    left: 60px;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    padding: 8px;              /* ring thickness */
+    background: conic-gradient(
+      #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000
+    );
+    animation: spinRing 3s linear infinite;
+    -webkit-mask: none;
+  }
+  @keyframes spinRing {
+    to { transform: rotate(360deg); }
+  }
+  .profile-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--green);
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .profile-inner img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+  .profile-placeholder {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #666;
+  }
+
+  /* Name display right of image */
+  .name-display {
+    position: absolute;
+    top: 60px;
+    left: 400px;       /* image left 60 + width 300 + gap 40 */
+    width: calc(100% - 460px);
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+  }
+  .name-text {
+    font-size: 60px;
+    font-weight: 700;
+    color: #ffffff;
+    text-shadow: 0 3px 12px rgba(0,0,0,0.55), 0 0 2px rgba(0,0,0,0.4);
+    white-space: nowrap;
+    line-height: 1.2;
+    font-family: var(--current-font);
+  }
+
+  /* ---- Animation styles for name transitions ---- */
+  .anim-fade {
+    animation: fadeInOut 4s ease-in-out;
+  }
+  @keyframes fadeInOut {
+    0%   { opacity: 0; }
+    15%  { opacity: 1; }
+    85%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  .anim-slide {
+    animation: slideUp 4s ease-in-out;
+  }
+  @keyframes slideUp {
+    0%   { transform: translateY(60px); opacity: 0; }
+    15%  { transform: translateY(0);    opacity: 1; }
+    85%  { transform: translateY(0);    opacity: 1; }
+    100% { transform: translateY(-60px); opacity: 0; }
+  }
+
+  .anim-scale {
+    animation: scaleUp 4s ease-in-out;
+  }
+  @keyframes scaleUp {
+    0%   { transform: scale(0.3); opacity: 0; }
+    15%  { transform: scale(1);   opacity: 1; }
+    85%  { transform: scale(1);   opacity: 1; }
+    100% { transform: scale(1.4); opacity: 0; }
+  }
+
+  .anim-typewriter {
+    animation: typewriterBlink 4s steps(1) infinite;
+  }
+  /* Typewriter handled via JS char-by-char */
+
+  .anim-color {
+    animation: colorShift 4s ease-in-out;
+  }
+  @keyframes colorShift {
+    0%   { color: #ffffff; opacity: 0; }
+    15%  { color: #ffe066; opacity: 1; }
+    40%  { color: #ffffff; }
+    65%  { color: #ff9f43; }
+    85%  { color: #ffffff; opacity: 1; }
+    100% { color: #ffffff; opacity: 0; }
+  }
+
+  /* Close button for view */
+  .view-close {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 210;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 22px;
+    cursor: pointer;
+    display: none;
+  }
+  #viewScreen.show ~ .view-close,
+  .view-close.show { display: flex; align-items: center; justify-content: center; }
+</style>
+</head>
+
+<body>
+
+<!-- ============ MAIN PANEL ============ -->
+<div class="main-panel" id="mainPanel">
+  <h1>🎬 Arakan Art Area — Green Screen</h1>
+
+  <div class="form-group">
+    <label>ပုံ တင်ရန် (ပုံအစစ်)</label>
+    <input type="file" id="imageInput" accept="image/*">
+    <img id="imgPreview" alt="preview">
+  </div>
+
+  <div class="form-group">
+    <label>ချန်နယ်အမည် ၁</label>
+    <input type="text" id="name1" placeholder="Arakan Art Area" value="Arakan Art Area">
+  </div>
+
+  <div class="form-group">
+    <label>ချန်နယ်အမည် ၂</label>
+    <input type="text" id="name2" placeholder="ရခိုင် အနုပညာ ရပ်ဝန်း" value="ရခိုင် အနုပညာ ရပ်ဝန်း">
+  </div>
+
+  <div class="form-group">
+    <label>ချန်နယ်အမည် ၃</label>
+    <input type="text" id="name3" placeholder="အာရက္ခ အနုပညာ နယ်မြေ" value="အာရက္ခ အနုပညာ နယ်မြေ">
+  </div>
+
+  <div class="form-group">
+    <label>အမည်ပြသစတိုင်</label>
+    <select id="styleSelect">
+      <option value="1">စတိုင် ၁ — Fade</option>
+      <option value="2">စတိုင် ၂ — Slide Up</option>
+      <option value="3">စတိုင် ၃ — Scale Up</option>
+      <option value="4">စတိုင် ၄ — Typewriter</option>
+      <option value="5">စတိုင် ၅ — Color Change</option>
+      <option value="6" selected>အစုံကျပန်း (၅ မျိုးလုံး)</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <button class="font-trigger" id="fontTrigger">🔤 ဖောင့်ရွေးရန်</button>
+  </div>
+
+  <button class="start-btn" id="startBtn">▶ View စတင်ပြသရန်</button>
+</div>
+
+<!-- ============ FONT MODAL ============ -->
+<div class="overlay" id="fontOverlay"></div>
+<div class="font-modal" id="fontModal">
+  <h3>အသုံးပြုမည့် ဖောင့်ကို ရွေးပါ</h3>
+  <div id="fontList"></div>
+</div>
+
+<!-- ============ VIEW ============ -->
+<div id="viewScreen">
+  <div class="stage">
+    <div class="profile-wrap" id="profileWrap">
+      <div class="profile-inner" id="profileInner">
+        <div class="profile-placeholder" id="profilePlaceholder">ပုံမရှိ</div>
+      </div>
+    </div>
+    <div class="name-display">
+      <div class="name-text" id="nameText"></div>
+    </div>
+  </div>
+</div>
+<button class="view-close" id="viewClose">✕</button>
+
+<script>
+/* ============================================================
+   FONT LIST & MODAL
+   ============================================================ */
+const FONTS = [
+  'Arakan_Danyawaddy','BeautiUNI-7','Hopone','Hsi-Hseng','KyaungChee',
+  'MM_Jasmine_v1.01','Myanmar_PhikselSmooth','Myanmar_Bagan_v1.0',
+  'Myanmar_Jojar_v2.0_2017','Myanmar_Kalay_v2.0_2017','Myanmar_Love_2.0_2017',
+  'Myanmar_Pixel','Myanmar_Ponenyet','Myanmar_Pyay_v2.0_2017',
+  'Myanmar_Pyu_Pro_2.0_2017','Myanmar_Pyu_v2.0_2017','Myanmar_Tagu',
+  'Myanmar_Taunggyi_v1.00','Myanmar_Thuriya','Myanmar_Waso','Myanmar_Yinmar',
+  'NK_SSmart_3','Roboto_Bold','Samsung_Myanmar','YoeYar_One_Bold',
+  'YoeYar_One_Light','notosan_grand_pro','notosans_myanmar','yaungki'
+];
+
+let currentFont = 'notosans_myanmar';
+
+const fontOverlay = document.getElementById('fontOverlay');
+const fontModal   = document.getElementById('fontModal');
+const fontList    = document.getElementById('fontList');
+const fontTrigger = document.getElementById('fontTrigger');
+
+// Build font list
+FONTS.forEach(f => {
+  const div = document.createElement('div');
+  div.className = 'font-item';
+  div.dataset.font = f;
+  div.style.fontFamily = `'${f}'`;
+  div.textContent = `${f} — စမ်းသပ်စာသား`;
+  if (f === currentFont) div.classList.add('selected');
+  div.addEventListener('click', () => selectFont(f, div));
+  fontList.appendChild(div);
+});
+
+function openFontModal() {
+  fontOverlay.classList.add('show');
+  fontModal.classList.add('show');
+}
+function closeFontModal() {
+  fontOverlay.classList.remove('show');
+  fontModal.classList.remove('show');
+}
+function selectFont(fontName, el) {
+  currentFont = fontName;
+  document.documentElement.style.setProperty('--current-font', `'${fontName}'`);
+  document.body.style.fontFamily = `'${fontName}', sans-serif`;
+  document.querySelectorAll('.font-item').forEach(i => i.classList.remove('selected'));
+  if (el) el.classList.add('selected');
+  closeFontModal();
+}
+
+fontTrigger.addEventListener('click', openFontModal);
+fontOverlay.addEventListener('click', closeFontModal);
+
+/* ============================================================
+   IMAGE UPLOAD PREVIEW
+   ============================================================ */
+const imageInput = document.getElementById('imageInput');
+const imgPreview = document.getElementById('imgPreview');
+let uploadedImageURL = null;
+
+imageInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  uploadedImageURL = URL.createObjectURL(file);
+  imgPreview.src = uploadedImageURL;
+  imgPreview.style.display = 'block';
+});
+
+/* ============================================================
+   VIEW LOGIC
+   ============================================================ */
+const mainPanel   = document.getElementById('mainPanel');
+const viewScreen  = document.getElementById('viewScreen');
+const viewClose   = document.getElementById('viewClose');
+const profileInner= document.getElementById('profileInner');
+const nameText    = document.getElementById('nameText');
+
+let rotationTimer = null;
+
+const NAME_INTERVAL = 4000;   // 4 seconds per name
+const ANIM_DURATION = 4000;
+
+function getNames() {
+  return [
+    document.getElementById('name1').value.trim() || 'Name 1',
+    document.getElementById('name2').value.trim() || 'Name 2',
+    document.getElementById('name3').value.trim() || 'Name 3'
+  ];
+}
+function getStyleChoice() {
+  return document.getElementById('styleSelect').value;
+}
+
+// Set profile image
+function setProfileImage() {
+  profileInner.innerHTML = '';
+  if (uploadedImageURL) {
+    const img = document.createElement('img');
+    img.src = uploadedImageURL;
+    profileInner.appendChild(img);
+  } else {
+    const ph = document.createElement('div');
+    ph.className = 'profile-placeholder';
+    ph.textContent = 'ပုံမရှိ';
+    profileInner.appendChild(ph);
+  }
+}
+
+// Animation style map
+const STYLE_CLASSES = {
+  '1': 'anim-fade',
+  '2': 'anim-slide',
+  '3': 'anim-scale',
+  '4': 'anim-typewriter',
+  '5': 'anim-color'
+};
+
+// Apply animation to name element
+function applyAnimation(styleKey) {
+  // remove all
+  nameText.className = 'name-text';
+  nameText.style.opacity = '1';
+  nameText.style.transform = 'none';
+  nameText.style.color = '#ffffff';
+
+  const cls = STYLE_CLASSES[styleKey];
+  if (cls && cls !== 'anim-typewriter') {
+    // force reflow
+    void nameText.offsetWidth;
+    nameText.classList.add(cls);
+  } else if (cls === 'anim-typewriter') {
+    // handled separately
+  }
+}
+
+// Typewriter effect (grapheme-safe for Myanmar)
+async function typewriterEffect(text, duration) {
+  nameText.className = 'name-text';
+  nameText.style.opacity = '1';
+  nameText.style.transform = 'none';
+  nameText.style.color = '#ffffff';
+  nameText.textContent = '';
+
+  // Use Intl.Segmenter if available for grapheme splitting
+  let graphemes = [];
+  if (window.Intl && Intl.Segmenter) {
+    const seg = new Intl.Segmenter('my', { granularity: 'grapheme' });
+    graphemes = [...seg.segment(text)].map(s => s.segment);
+  } else {
+    graphemes = [...text];
+  }
+
+  const perChar = Math.max(60, (duration * 0.6) / graphemes.length);
+  for (let i = 0; i < graphemes.length; i++) {
+    nameText.textContent += graphemes[i];
+    await new Promise(r => setTimeout(r, perChar));
+  }
+  // hold
+  await new Promise(r => setTimeout(r, duration * 0.25));
+  // fade out
+  nameText.style.transition = 'opacity .3s';
+  nameText.style.opacity = '0';
+  await new Promise(r => setTimeout(r, 300));
+  nameText.style.transition = '';
+}
+
+// Main rotation
+let nameIndex = 0;
+let styleIndex = 0;
+let typewriterToken = 0;
+
+async function showNextName() {
+  const names = getNames();
+  const styleChoice = getStyleChoice();
+
+  const text = names[nameIndex % 3];
+
+  let styleKey;
+  if (styleChoice === '6') {
+    // rotate through 5 styles
+    styleKey = String((styleIndex % 5) + 1);
+    styleIndex++;
+  } else {
+    styleKey = styleChoice;
+  }
+
+  const myToken = ++typewriterToken;
+
+  if (styleKey === '4') {
+    await typewriterEffect(text, ANIM_DURATION);
+  } else {
+    nameText.textContent = text;
+    applyAnimation(styleKey);
+    await new Promise(r => setTimeout(r, ANIM_DURATION));
+  }
+
+  // If token changed (stop requested), bail
+  if (myToken !== typewriterToken) return;
+
+  nameIndex++;
+}
+
+function startRotation() {
+  // Initial
+  nameIndex = 0;
+  styleIndex = 0;
+  typewriterToken = 0;
+  showNextName();
+  rotationTimer = setInterval(() => {
+    showNextName();
+  }, ANIM_DURATION);
+}
+
+function stopRotation() {
+  if (rotationTimer) {
+    clearInterval(rotationTimer);
+    rotationTimer = null;
+  }
+  typewriterToken++;
+  nameText.className = 'name-text';
+  nameText.textContent = '';
+}
+
+/* ============================================================
+   START / CLOSE VIEW
+   ============================================================ */
+document.getElementById('startBtn').addEventListener('click', () => {
+  setProfileImage();
+  mainPanel.style.display = 'none';
+  viewScreen.classList.add('show');
+  viewClose.classList.add('show');
+  startRotation();
+});
+
+viewClose.addEventListener('click', () => {
+  stopRotation();
+  viewScreen.classList.remove('show');
+  viewClose.classList.remove('show');
+  mainPanel.style.display = 'block';
+});
+
+// ESC to close
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (fontModal.classList.contains('show')) closeFontModal();
+    if (viewScreen.classList.contains('show')) viewClose.click();
+  }
+});
+</script>
+</body>
+</html>

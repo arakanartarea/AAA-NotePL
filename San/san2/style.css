@@ -1,0 +1,22 @@
+.vote-badge{background:#eab308;color:#000;font-size:9px;padding:2px 6px;border-radius:10px;margin-left:6px}
+.fav-btn.active{color:#f59e0b!important}
+#sortModal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card);padding:16px;border-radius:12px;z-index:10000;width:85%;max-width:320px;max-height:70vh;overflow:auto;border:1px solid #334155}
+#sortOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999}
+.sort-item{padding:10px 12px;margin:6px 0;background:var(--bg);border:1px solid #334155;border-radius:8px;cursor:pointer}
+.sort-item.active{background:#E11D48;color:#fff}
+.fab-container{position:fixed;bottom:27px;right:27px;z-index:1000;display:flex;flex-direction:column-reverse;align-items:flex-end;gap:10px}
+.fab-btn{width:54px;height:54px;background:var(--card);color:var(--text);border:1px solid #E2E8F0;border-radius:50%;display:grid;place-items:center;cursor:pointer}
+.fab-btn.save{background:#16a34a;color:#fff}
+#list-fab-menu{display:none;flex-direction:column-reverse;gap:10px;align-items:flex-end}
+#btn-add{display:none}
+.suggest-box{position:absolute; top:100%; left:0; right:0;background:var(--card); border:1px solid #334155;border-radius:8px; z-index:2000;max-height:180px; overflow:auto; display:none;box-shadow:0 8px 20px rgba(0,0,0,0.3)}
+.suggest-item{padding:8px 12px; cursor:pointer;display:flex; justify-content:space-between;}
+.suggest-item:hover{background:#334155}
+.suggest-count{font-size:10px; opacity:0.6}
+.sort-group-label{font-size:11px;opacity:0.6;margin:12px 0 4px 4px;letter-spacing:0.5px}
+.detail-sec{border:1px solid #334155;background:var(--card);border-radius:12px;margin:10px;overflow:hidden}
+.detail-sec-header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--bg);cursor:pointer;font-weight:600}
+.detail-sec-body{padding:12px}
+.arrow{transition:0.2s} .arrow.open{transform:rotate(180deg)}
+.info-grid{display:grid;grid-template-columns:120px 1fr;gap:8px;font-size:13px}
+.info-grid b{opacity:0.6}

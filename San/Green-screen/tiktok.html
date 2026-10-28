@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green Screen + Finger Tap</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+  html, body {
+    width: 100%;
+    height: 100%;
+    background-color: #00FF00;
+    overflow: hidden;
+  }
+
+  /* တန်း - မင်းမှန်သွားတဲ့ ပုံစံအတိုင်း */
+  .sidebar {
+    position: fixed;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 110px;
+    height: auto;
+    background-color: transparent;
+    border: 4px solid #000000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    gap: 28px;
+    border-radius: 18px;
+  }
+
+  .icon-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background-color: #00FF00;
+    width: 90px;
+    transition: transform 0.15s;
+  }
+  .icon-btn.active {
+    transform: scale(1.2);
+  }
+  .icon-btn i {
+    font-size: 44px;
+    color: white;
+    -webkit-text-stroke: 2px black;
+  }
+  .icon-btn .count {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    -webkit-text-stroke: 1px black;
+    font-family: Arial, sans-serif;
+  }
+  .channel-wrap {
+    position: relative;
+    width: 70px;
+    height: 70px;
+    background-color: #00FF00;
+  }
+  .channel-img {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 3px solid black;
+    object-fit: cover;
+  }
+  .plus-icon {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 30px;
+    background-color: #fe2c55;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid black;
+  }
+  .plus-icon i { font-size: 14px; color: white; }
+
+  /* လက်အိုင်ကွန် */
+  #finger {
+    position: fixed;
+    font-size: 70px;
+    z-index: 999;
+    pointer-events: none;
+    transition: top 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), left 0.6s ease, transform 0.2s;
+    filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.5));
+    line-height: 1;
+  }
+  #finger.tapping {
+    transform: scale(0.85) translateY(10px);
+  }
+</style>
+</head>
+<body>
+
+  <div class="sidebar" id="sidebar">
+    <div class="icon-btn" id="btn-0">
+      <div class="channel-wrap">
+        <img class="channel-img" src="https://picsum.photos/seed/channel/200/200" alt="">
+        <div class="plus-icon"><i class="fa-solid fa-plus"></i></div>
+      </div>
+    </div>
+    <div class="icon-btn" id="btn-1"><i class="fa-solid fa-heart"></i><span class="count">1.8k</span></div>
+    <div class="icon-btn" id="btn-2"><i class="fa-solid fa-comment-dots"></i><span class="count">1.8k</span></div>
+    <div class="icon-btn" id="btn-3"><i class="fa-solid fa-bookmark"></i><span class="count">1.8k</span></div>
+    <div class="icon-btn" id="btn-4"><i class="fa-solid fa-share"></i><span class="count">1.8k</span></div>
+    <img class="bottom-channel" style="width:60px;height:60px;border-radius:50%;border:2px solid black;" src="https://picsum.photos/seed/channel/200/200" alt="">
+  </div>
+
+
+
+  <!-- လက်အိုင်ကွန် / အီမိုဂျီ -->
+  <div id="finger">👆</div>
+
+<script>
+  const finger = document.getElementById('finger');
+  const buttons = [
+    document.getElementById('btn-0'),
+    document.getElementById('btn-1'),
+    document.getElementById('btn-2'),
+    document.getElementById('btn-3'),
+    document.getElementById('btn-4'),
+  ];
+
+  let current = 0;
+
+  function moveFingerTo(index) {
+    const btn = buttons[index];
+    const rect = btn.getBoundingClientRect();
+    // လက်ကို ခလုတ်ရဲ့ ဘယ်ဘက်အောက်နားလေးမှာ ထားမယ်
+    const fingerX = rect.left - 3;
+    const fingerY = rect.top + rect.height / 2 - 3;
+    
+    finger.style.left = fingerX + 'px';
+    finger.style.top = fingerY + 'px';
+  }
+
+  function tap() {
+    const btn = buttons[current];
+    finger.classList.add('tapping');
+    btn.classList.add('active');
+
+    // Follow ခလုတ်ဆိုရင် plus ကို check ပြောင်း
+    if(current === 0){
+      const plus = btn.querySelector('.plus-icon');
+      plus.innerHTML = '<i class="fa-solid fa-check"></i>';
+      plus.style.background = 'white';
+      plus.querySelector('i').style.color = '#fe2c55';
+    }
+    // Like ဆိုရင် အနီပြောင်း
+    if(current === 1){
+      btn.querySelector('i').style.color = '#fe2c55';
+    }
+
+    setTimeout(() => {
+      finger.classList.remove('tapping');
+      btn.classList.remove('active');
+      current = (current + 1) % buttons.length;
+      
+      // နောက်တစ်ခု ခဏနားပြီး သွား
+      setTimeout(() => {
+        moveFingerTo(current);
+      }, 400);
+
+    }, 300);
+  }
+
+  // စတင်
+  window.onload = () => {
+    moveFingerTo(0);
+    setInterval(tap, 1200); // 1.2 စက္ကန့်ခြားတစ်ခါ နှိပ်မယ်
+  };
+
+  // Window resize ရင် ပြန်တွက်
+  window.onresize = () => moveFingerTo(current);
+</script>
+</body>
+</html>

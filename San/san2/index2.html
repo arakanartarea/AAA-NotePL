@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All Arakan Songs - AAS</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<link rel="stylesheet" id="css-common" href="../html-reserve/LVE3-common.css">
+<link rel="stylesheet" id="css-phone" href="../html-reserve/LVE3-phone.css" media="(max-width: 768px)">
+<link rel="stylesheet" id="css-tablet" href="../html-reserve/LVE3-tablet.css" media="(min-width: 769px)">
+<link rel="stylesheet" id="css-override" href="AAS-override.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header id="main-header">
+  <div class="nav-btns" style="flex:1; position:relative; display:flex; align-items:center;">
+    <input type="text" id="search-input" placeholder="သီချင်း / တေးဆို / တေးရေး ရှာရန်..." style="flex:1; padding-right:32px;">
+    <button id="clear-search" style="position:absolute; right:8px; background:none; border:none; font-size:20px; cursor:pointer; display:none;">×</button>
+  </div>
+  <div id="status-badge" class="status-badge">Viewer</div>
+</header>
+<div id="list-view" class="view-section active">
+  <div id="accordion-container">ခေါ်ယူနေသည်...</div>
+  <div id="list-fab-container" class="fab-container">
+    <button id="btn-add" class="fab-btn"><span class="material-symbols-rounded">add</span></button>
+    <button id="btn-settings" class="fab-btn"><span class="material-symbols-rounded">settings</span></button>
+    <div id="list-fab-menu">
+      <button id="btn-login" class="fab-btn"><span class="material-symbols-rounded">login</span></button>
+      <button id="btn-theme" class="fab-btn"><span class="material-symbols-rounded">dark_mode</span></button>
+      <button id="btn-font" class="fab-btn"><span class="material-symbols-rounded">font_download</span></button>
+      <button id="btn-sort" class="fab-btn"><span class="material-symbols-rounded">sort</span></button>
+      <button id="btn-fav-filter" class="fab-btn"><span class="material-symbols-rounded">star</span></button>
+    </div>
+  </div>
+</div>
+<div id="input-view" class="view-section">
+  <h2 id="form-title">သီချင်းထည့် / ပြင်</h2>
+  <div class="form-group"><label>စိုင် (ID)</label><input type="text" id="inp-id"></div>
+  <div class="form-group"><label>နာမယ်</label><input type="text" id="inp-title"></div>
+  <div class="form-group" style="position:relative"><label>တေးဆို</label><input type="text" id="inp-singer" autocomplete="off" oninput="showSuggest(this,'singer',true)"><div id="suggest-singer" class="suggest-box"></div></div>
+  <div class="form-group" style="position:relative"><label>တေးရေး</label><input type="text" id="inp-writer" autocomplete="off" oninput="showSuggest(this,'writer',true)"><div id="suggest-writer" class="suggest-box"></div></div>
+  <div class="form-group" style="position:relative"><label>အယ်ဘမ်</label><input type="text" id="inp-album" autocomplete="off" oninput="showSuggest(this,'album',false)"><div id="suggest-album" class="suggest-box"></div></div>
+  <div class="form-group" style="position:relative"><label>အယ်ဘမ်အမျိုးအစား</label><input type="text" id="inp-albumType" autocomplete="off" oninput="showSuggest(this,'albumType',false)"><div id="suggest-albumType" class="suggest-box"></div></div>
+  <div class="form-group" style="position:relative"><label>ဂီတအမျိုးအစား</label><input type="text" id="inp-genre" autocomplete="off" oninput="showSuggest(this,'genre',false)"><div id="suggest-genre" class="suggest-box"></div></div>
+  <div class="form-group" style="position:relative"><label>သီချင်းအကြောင်းအရာ</label><input type="text" id="inp-songType" autocomplete="off" oninput="showSuggest(this,'songType',false)"><div id="suggest-songType" class="suggest-box"></div></div>
+  <div class="form-group" style="position:relative"><label>ဘာသာစကား</label><input type="text" id="inp-language" autocomplete="off" oninput="showSuggest(this,'language',false)"><div id="suggest-language" class="suggest-box"></div></div>
+  <div class="form-group"><label>ထွက်ရှိချိန် (Release Date / Year)</label><input type="text" id="inp-releaseDate" placeholder="2026 သို့မဟုတ် 2026-05-10"></div>
+  <div class="form-group"><label>Cover Art URL</label><input type="text" id="inp-coverUrl" placeholder="https://..."></div>
+  <div class="form-group"><label>Audio / Video URL</label><input type="text" id="inp-audioUrl" placeholder="https://..."></div>
+  <div class="form-group"><label>Vote 0-9</label><input type="number" id="inp-vote" min="0" max="9" value="0"></div>
+  <div class="form-group"><label>Remark</label><textarea id="inp-remark"></textarea></div>
+  <div id="input-fab-container" class="fab-container">
+    <button id="btn-save" class="fab-btn save" title="Save"><span class="material-symbols-rounded">save</span></button>
+    <button id="btn-back" class="fab-btn" title="Back"><span class="material-symbols-rounded">arrow_back</span></button>
+  </div>
+</div>
+<div id="auth-modal" class="hidden"><div class="auth-box"><div class="auth-header"><span class="material-symbols-rounded" style="font-size:28px;color:#eab308;">account_circle</span><div><div style="font-weight:700;color:#fff;" id="auth-modal-email"></div><div style="font-size:12px;color:var(--muted);">Admin အကောင့်ဝင်ထားသည်</div></div></div><div class="auth-actions"><button id="btn-auth-cancel" class="btn-auth secondary">မလုပ်တော့</button><button id="btn-auth-logout" class="btn-auth danger">ထွက်မယ်</button><button id="btn-auth-switch" class="btn-auth primary">ပြောင်းမယ်</button></div></div></div>
+<div class="overlay" id="fontOverlay"></div><div class="font-modal" id="fontModal"><h3>ဖောင့်ရွေး</h3><div class="font-item" data-font="Noto Sans Myanmar">Noto Sans Myanmar</div><div class="font-item" data-font="Pyidaungsu">Pyidaungsu</div></div>
+<div id="sortOverlay"></div><div id="sortModal"><h3>Sort ရွေး</h3><div class="sort-group-label">တေးဆို</div><div class="sort-item active" data-sort="singer-asc">တေးဆို A → Z</div><div class="sort-item" data-sort="singer-desc">တေးဆို Z → A</div><div class="sort-group-label">တေးရေး</div><div class="sort-item" data-sort="writer-asc">တေးရေး A → Z</div><div class="sort-item" data-sort="writer-desc">တေးရေး Z → A</div><div class="sort-group-label">အယ်ဘမ်</div><div class="sort-item" data-sort="album-asc">အယ်ဘမ် A → Z</div><div class="sort-item" data-sort="album-desc">အယ်ဘမ် Z → A</div><div class="sort-group-label">အခြား</div><div class="sort-item" data-sort="vote-desc">Vote များကနေ နည်း</div><div class="sort-item" data-sort="vote-asc">Vote နည်းကနေ များ</div><div class="sort-item" data-sort="new">ID အသစ်ကနေ အဟောင်း</div></div>
+<div id="detail-view" class="view-section"><div class="detail-sec"><div class="detail-sec-header" onclick="toggleSec('sec-info')"><span>အချက်အလက် အကုန်</span><span class="material-symbols-rounded arrow" id="arrow-sec-info">keyboard_arrow_down</span></div><div class="detail-sec-body" id="sec-info"></div></div><div class="detail-sec"><div class="detail-sec-header" onclick="toggleSec('sec-video')"><span>Youtube / Video</span><span class="material-symbols-rounded arrow" id="arrow-sec-video">keyboard_arrow_down</span></div><div class="detail-sec-body" id="sec-video" style="display:none"><div style="background:#000;color:#555;padding:40px;text-align:center;border-radius:8px">Video div ဗလာ</div></div></div><div class="detail-sec"><div class="detail-sec-header" onclick="toggleSec('sec-lyrics')"><span>စာသား + ဂစ်တာကော့</span><span class="material-symbols-rounded arrow" id="arrow-sec-lyrics">keyboard_arrow_down</span></div><div class="detail-sec-body" id="sec-lyrics" style="display:none"></div></div><div id="input-fab-container" class="fab-container"><button id="btn-detail-back" class="fab-btn" title="Back"><span class="material-symbols-rounded">arrow_back</span></button></div></div>
+<script src="script.js"></script>
+</body>
+</html>

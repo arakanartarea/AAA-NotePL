@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <title>All Arakan Songs</title>
+</head>
+<body>
+
+  <div id="app">klw</div>
+
+  <script>
+    const t = new Date().getTime(); // တစ်ခါတည်း သတ်မှတ်
+
+    // 1. CSS တွေ အကုန် အသစ်ဆွဲချမယ့် Script
+    (function() {
+      const cssFiles = [
+        'css/base.css', 'css/list.css', 'css/button.css', 'css/view.css', 'css/edit.css', 'LVE3.css'
+      ];
+      
+      cssFiles.forEach(file => {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = `${file}?v=${t}`;
+        document.head.appendChild(link);
+      });
+    })();
+
+    // 2. JS တွေ အကုန် အသစ်ဆွဲချမယ့် Script
+    (function() {
+      const jsFiles = [
+        'js/fire.js', 'js/app.js', 'js/list.js', 'js/edit.js', 'js/view.js', 'js/button.js', 'LVE3.js'
+      ];
+
+      jsFiles.forEach(file => {
+        const script = document.createElement('script');
+        script.src = `${file}?v=${t}`;
+        document.body.appendChild(script);
+      });
+    })();
+  </script>
+
+</body>
+</html>

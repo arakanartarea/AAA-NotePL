@@ -1,0 +1,53 @@
+/* list.css */
+
+#app {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#app h2 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 10px;
+}
+
+/* ကော်လံ တစ်ခုချင်းစီအတွက် သေတ္တာ */
+.col-group {
+  background: white;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-left: 5px solid #3498db;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.col-group h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.2rem;
+  color: #2980b9;
+}
+
+.col-group p {
+  margin: 0;
+  font-size: 1rem;
+  color: #555;
+}
+
+.count-badge {
+  display: inline-block;
+  background: #e74c3c;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  margin-left: 10px;
+}
