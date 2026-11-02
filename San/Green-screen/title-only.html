@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arakan Art Area - Green Screen</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@500;700&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:#00FF00; /* Green Screen */
+    width:100vw; height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .container{
+    text-align:center;
+    padding: 20px;
+  }
+  /* မြန်မာစာ အပြည့်ပေါ်အောင် */
+  #textDisplay{
+    font-size: clamp(32px, 6vw, 72px);
+    font-weight:700;
+    line-height:1.6;
+    letter-spacing:0.02em;
+    display:inline-block;
+    /* တစ်လုံးချင်းစီကို span ထဲ ထည့်မယ် */
+    font-family: 'Montserrat', 'Noto Sans Myanmar', 'Pyidaungsu', 'Myanmar Text', sans-serif;
+    min-height: 1.8em;
+    white-space: pre-wrap;
+    word-break: keep-all;
+  }
+  #textDisplay.mm{
+    font-family: 'Noto Sans Myanmar', 'Pyidaungsu', sans-serif;
+    font-weight:700;
+  }
+  /* တစ်လုံးချင်းစီ အရောင် */
+  .char{
+    display:inline-block;
+    background-clip:text;
+    -webkit-background-clip:text;
+    color:transparent;
+    background-size: 300% 100%;
+    background-image: linear-gradient(90deg, #ff0000 0%, #ffffff 35%, #0080ff 70%, #ff0000 100%);
+    transition: background-position 0.1s;
+    /* မြန်မာစာ မပြတ်အောင် */
+    padding-bottom: 0.1em;
+  }
+  .char.space{ width:0.4em; }
+
+  /* Gradient ပြေးတဲ့ animation */
+  .animating .char{
+    animation: gradientShift 2.5s linear;
+  }
+  @keyframes gradientShift{
+    0%{ background-position: 0% 0%; }
+    100%{ background-position: 300% 0%; }
+  }
+
+  /* Typewriter Cursor */
+  .cursor{
+    display:inline-block;
+    width:4px; height:1em;
+    background:#000;
+    margin-left:4px;
+    animation: blink 0.7s infinite;
+    vertical-align:middle;
+  }
+  @keyframes blink{ 0%,50%{opacity:1} 51%,100%{opacity:0} }
+
+  /* Pause ချိန်မှာ အရောင်ရပ်ထားမယ် */
+  .paused .char{
+    animation: none !important;
+    background-position: 150% 0%;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div id="textDisplay"></div><span class="cursor"></span>
+  </div>
+
+<script>
+  const display = document.getElementById('textDisplay');
+  const texts = [
+    { lang: 'en', text: 'Arakan Art Area', class: '' },
+    { lang: 'mm', text: 'အာရက္ခ အနုပညာ ရပ်ဝန်း', class: 'mm' }
+  ];
+
+  let textIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+  let isPaused = false;
+
+  function createSpans(text){
+    display.innerHTML = '';
+    [...text].forEach(c=>{
+      const span = document.createElement('span');
+      span.className = c === ' ' ? 'char space' : 'char';
+      span.textContent = c === ' ' ? '\u00A0' : c;
+      span.style.opacity = '0';
+      display.appendChild(span);
+    });
+  }
+
+  function typeLoop(){
+    const current = texts[textIndex];
+    const fullText = current.text;
+
+    if(!isDeleting && charIndex === 0){
+      display.className = current.class;
+      createSpans(fullText);
+    }
+
+    const chars = display.querySelectorAll('.char');
+
+    if(!isDeleting){
+      // ရိုက်နေတုန်း
+      if(charIndex < chars.length){
+        chars[charIndex].style.opacity = '1';
+        charIndex++;
+        setTimeout(typeLoop, current.lang === 'mm' ? 120 : 90);
+      } else {
+        // ရိုက်ပြီးပြီ -> အရောင်ပြေး
+        display.classList.remove('paused');
+        display.classList.add('animating');
+        setTimeout(()=>{
+          // အရောင်ပြေးပြီးရင် ခဏရပ်
+          display.classList.remove('animating');
+          display.classList.add('paused');
+          setTimeout(()=>{
+            isDeleting = true;
+            typeLoop();
+          }, 1500); // ခဏရပ်ချိန်
+        }, 2500); // Gradient Shift ကြာချိန်
+      }
+    } else {
+      // ပြန်ဖျက်နေတုန်း
+      if(charIndex > 0){
+        charIndex--;
+        chars[charIndex].style.opacity = '0';
+        setTimeout(typeLoop, 40);
+      } else {
+        isDeleting = false;
+        display.classList.remove('paused','animating');
+        textIndex = (textIndex + 1) % texts.length;
+        setTimeout(typeLoop, 500);
+      }
+    }
+  }
+
+  // စတင်
+  typeLoop();
+
+  // တစ်လုံးချင်းစီ အရောင်သတ်မှတ်လို့ရလားဆိုတာအတွက်
+  // ဥပမာ - char[0].style.backgroundImage = 'linear-gradient(red,red)' လို့ JS ထဲက သတ်မှတ်လို့ရတယ်
+  // အခု code က auto gradient ဖြစ်နေတာ
+</script>
+</body>
+</html>

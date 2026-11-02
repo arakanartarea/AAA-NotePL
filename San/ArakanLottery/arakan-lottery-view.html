@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArakanLottery - View + Header</title>
+<style>
+body{font-family:Pyidaungsu,sans-serif;max-width:500px;margin:0 auto;padding:0;background:#fffbe6}
+.card{background:#fff;padding:14px;border-radius:12px;margin:10px;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+/* အပေါ်က Banner */
+.header-banner{
+  background:#0a5c36;
+  color:#fff;
+  padding:10px 8px;
+  text-align:center;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+}
+.header-banner img{
+  width:58px;height:58px;border-radius:50%;
+  background:#fff;object-fit:cover;
+  border:2px solid #fff;flex-shrink:0;
+}
+.header-center{flex:1;line-height:1.4}
+.header-center .title1{font-size:15px;font-weight:bold}
+.header-center .title2{font-size:17px;font-weight:bold}
+.header-center .title3{font-size:16px}
+.header-center .title4{font-size:14px}
+
+input,select{width:100%;padding:12px;border:2px solid #ffcc00;border-radius:10px;box-sizing:border-box;font-size:15px;margin-top:6px}
+.group{border:1px solid #eee;border-radius:10px;margin-top:8px;overflow:hidden}
+.group-header{padding:12px;background:#fff8dc;font-weight:bold;cursor:pointer;display:flex;justify-content:space-between}
+.group-header.active{background:#ffec99}
+.children{display:none;padding:6px}.children.open{display:block}
+.child{padding:10px 14px;margin:4px 0;background:#fafafa;border-radius:8px;display:flex;justify-content:space-between;border-left:4px solid #ffcc00}
+.child.hit{background:#d4edda;border-left-color:#2e7d32;font-weight:bold}
+.badge{font-size:11px;background:#ffcc00;padding:3px 8px;border-radius:10px}
+#resultBox{text-align:center;padding:14px;border-radius:10px;margin-top:10px;display:none}
+.win{background:#d4edda;color:#155724}.lose{background:#f8d7da;color:#721c24}
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;display:none;z-index:99}
+</style>
+</head>
+<body>
+<canvas id="confetti"></canvas>
+
+<!-- ====== အပေါ် Banner - ဒါကိုထည့်ထားတာ ====== -->
+<div class="header-banner">
+  <!-- မင်းပုံထည့်ချင်ရင် ဒီ src ကိုပြောင်းလိုက် -->
+  <img id="logo1" src="arakan-lottery.png">
+  <div class="header-center">
+    <div class="title1">ဗဟိုအကောက်ခွန်နှင့်အခွန်ဌာန</div>
+    <div class="title2">အာရက္ခလောင်းပေါ်ပေါက်စဉ်</div>
+    <div class="title3" id="weekText">(၄) ကြိမ်မြောက်</div>
+    <div class="title4" id="dateText">၂၀၂၆ ခုနှစ်၊ အောက်တိုဘာ (၁) ရက်၊ ကြာသပတေးနေ့</div>
+  </div>
+  <img id="logo2" src="arakan-Customs.png">
+</div>
+
+<div class="card">
+  <select id="docSelect"></select>
+  <div style="display:flex;gap:6px;margin-top:8px">
+    <input type="text" id="searchInput" placeholder="နံပါတ် ရှာ - 383328" inputmode="numeric">
+    <button id="btnSearch" style="padding:12px 16px;background:#2e7d32;color:#fff;border:none;border-radius:10px">ရှာ</button>
+  </div>
+  <div id="resultBox"></div>
+</div>
+<div class="card"><div id="groupList">နိစိုင် / အမှတ်စိုင် ရွီးပါ...</div></div>
+
+<!-- မှတ်ချက် - အသစ်ထည့်တာ -->
+<div class="card" style="background:#fff9db;border:1px solid #ffec99;margin-top:0">
+  <div style="font-size:13px;color:#5a4a00;line-height:1.7;text-align:center">
+    ⚠️ <b>မှတ်ချက်။</b><br>
+    လောင်ဘော်ပေါက်စိုင်တိကို အကောင်းဆုံးစီစစ်ဖော်ပြပီးထားပါသည်။<br>
+    ပေါက်သည်၊ မပေါက်သည်ကို အတိအကျသိရှိရန် တရားဝင် <b>အာရက္ခအစိုးရ(ဗဟိုအခွန်ဌာန၏ ထုတ်ပြန်ချက်</b> ဖြင့်သာ ပြန်လည်စစ်ဆေးကတ်ပါရန် အသိပီးပါသည်။
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyDqAgzneT19Vm41ce85qlFJoqefIufcAYc",
+  authDomain: "allarakanassets.firebaseapp.com",
+  projectId: "allarakanassets",
+  storageBucket: "allarakanassets.firebasestorage.app",
+  messagingSenderId: "285007716175",
+  appId: "1:285007716175:web:cb565efcc09dd9d99caf3a"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const COL = "ArakanLottery";
+let currentPrizes = [];
+let docMeta = {};
+
+// ========= လအမည် / နေ့အမည် - မင်းရခိုင်လိုပြန်ပြင်လို့ရတယ် =========
+const MONTHS_MY = {
+  1:"ဇန်နဝါရီ",2:"ဖေဖော်ဝါရီ",3:"မတ်",4:"ဧပြီ",5:"မေ",6:"ဂျုန်",
+  7:"ဇူလိုင်",8:"ဩဂုတ်",9:"စပ်တမ်ဘာ",10:"အောက်တိုဘာ",11:"နိုဘမ်ဘာ",12:"ဒီဇမ်ဘာ"
+};
+const DAYS_MY = ["တနင်္ဂနွေ","တနင်္လာ","အင်္ဂါ","ဗုဒ္ဓဟူး","ကြာသပတေး","သောကြာ","စနေ"];
+
+// မြန်မာဂဏန်းပြောင်းရန်
+function toMyanmarNumber(numStr){
+  const map = {"0":"၀","1":"၁","2":"၂","3":"၃","4":"၄","5":"၅","6":"၆","7":"၇","8":"၈","9":"၉"};
+  return numStr.toString().split("").map(c=>map[c]||c).join("");
+}
+
+function updateHeader(dateId, weekNo){
+  // dateId = 2026-11-01
+  try{
+    const parts = dateId.split("-");
+    const y = parseInt(parts[0]), m = parseInt(parts[1]), d = parseInt(parts[2]);
+    const dt = new Date(y, m-1, d);
+    const monthName = MONTHS_MY[m] || m;
+    const dayName = DAYS_MY[dt.getDay()];
+    
+    // (၄) ကြိမ်မြောက် -> weekNo က 4/26 ဆို 4 ကိုယူမယ်
+    let weekDisplay = "";
+    if(weekNo){
+      const w = weekNo.split("/")[0];
+      weekDisplay = `(${toMyanmarNumber(w)}) ကြိမ်မြောက်`;
+    }
+    document.getElementById("weekText").textContent = weekDisplay;
+
+    // ၂၀၂၆ ခုနှစ်၊ အောက်တိုဘာ (၁) ရက်၊ ကြာသပတေးနေ့
+    const text = `${toMyanmarNumber(y)} ခုနှစ်၊ ${monthName} (${toMyanmarNumber(d)}) ရက်၊ ${dayName}နေ့`;
+    document.getElementById("dateText").textContent = text;
+  }catch(e){
+    console.log("date parse error", e);
+  }
+}
+
+async function loadDocList(){
+  const snap = await getDocs(collection(db, COL));
+  const sel = document.getElementById("docSelect");
+  sel.innerHTML = ""; docMeta = {};
+  let dates = [];
+  snap.forEach(d=>{ dates.push(d.id); docMeta[d.id]=d.data().week_no||""; });
+  dates.sort().reverse();
+  dates.forEach(dateId=>{
+    const week = docMeta[dateId];
+    const opt=document.createElement("option");
+    opt.value=dateId;
+    opt.textContent = week ? `${dateId} (${week})` : dateId;
+    sel.appendChild(opt);
+  });
+  if(dates.length) loadDoc(dates[0]);
+}
+
+async function loadDoc(dateId){
+  const snap = await getDoc(doc(db, COL, dateId));
+  if(!snap.exists()){ document.getElementById("groupList").innerHTML="မရှိသေးဘူး"; return; }
+  currentPrizes = snap.data().prizes || [];
+  const week = snap.data().week_no || docMeta[dateId] || "";
+  updateHeader(dateId, week); // Header ကို Auto ပြောင်းမယ်
+  renderGroups("");
+}
+
+function renderGroups(highlightNum){
+  const container = document.getElementById("groupList"); container.innerHTML = "";
+  const groups = {};
+  currentPrizes.forEach(p=>{
+    if(!groups[p.type]) groups[p.type]={amount_text:p.amount_text, numbers:[]};
+    groups[p.type].numbers.push(p.number);
+  });
+  Object.keys(groups).forEach(type=>{ groups[type].numbers.sort((a,b)=>Number(a)-Number(b)); });
+  Object.keys(groups).forEach(type=>{
+    const g=groups[type];
+    const div=document.createElement("div"); div.className="group";
+    div.innerHTML=`<div class="group-header"><span>${type} - ${g.amount_text}</span><span class="badge">${g.numbers.length}</span></div><div class="children"></div>`;
+    const header=div.querySelector(".group-header"); const childBox=div.querySelector(".children");
+    g.numbers.forEach(num=>{
+      const c=document.createElement("div"); c.className="child"; if(highlightNum && num===highlightNum) c.classList.add("hit");
+      c.innerHTML=`<span>${num}</span>`; childBox.appendChild(c);
+    });
+    header.onclick=()=>{ childBox.classList.toggle("open"); header.classList.toggle("active"); };
+    if(highlightNum && g.numbers.includes(highlightNum)){ childBox.classList.add("open"); header.classList.add("active"); }
+    container.appendChild(div);
+  });
+}
+
+function showResult(found,type,amountText){
+  const box=document.getElementById("resultBox"); box.style.display="block";
+  if(found){ box.className="win"; box.innerHTML=`🎉 ပေါက်တယ်! ${type} - ${amountText} 🎉`; fireConfetti(); }
+  else{ box.className="lose"; box.innerHTML=`😔 ကံမကောင်းသေးပါဘူး၊ နောက်တစ်ကြိမ် ကံကောင်းပါစေ 🙏`; }
+}
+function fireConfetti(){
+  const canvas=document.getElementById("confetti"); canvas.style.display="block";
+  const ctx=canvas.getContext("2d"); canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  let pieces=[]; for(let i=0;i<120;i++) pieces.push({x:Math.random()*canvas.width,y:Math.random()*-canvas.height,r:Math.random()*6+2,c:`hsl(${Math.random()*360},100%,50%)`,vy:Math.random()*3+2});
+  function draw(){ ctx.clearRect(0,0,canvas.width,canvas.height); pieces.forEach(p=>{ ctx.fillStyle=p.c; ctx.fillRect(p.x,p.y,p.r,p.r); p.y+=p.vy; }); pieces=pieces.filter(p=>p.y<canvas.height); if(pieces.length) requestAnimationFrame(draw); else canvas.style.display="none"; } draw();
+}
+
+document.getElementById("docSelect").addEventListener("change", e=>loadDoc(e.target.value));
+document.getElementById("btnSearch").onclick=()=>{
+  const q=document.getElementById("searchInput").value.trim();
+  if(!q) return;
+  const found=currentPrizes.find(p=>p.number===q);
+  if(found){ renderGroups(q); showResult(true,found.type,found.amount_text); }else{ renderGroups(""); showResult(false); }
+};
+loadDocList();
+</script>
+</body>
+</html>

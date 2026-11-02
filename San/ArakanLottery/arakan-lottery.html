@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArakanLottery - Input V3 Sheet</title>
+<style>
+  body{font-family:Pyidaungsu,sans-serif;max-width:600px;margin:0 auto;padding:8px;background:#f2f2f2;font-size:14px}
+  .card{background:#fff;padding:12px;border-radius:10px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,0.1)}
+  .row{display:flex;gap:6px}
+  .row>div{flex:1}
+  input{width:100%;padding:10px;border:1px solid #bbb;border-radius:8px;box-sizing:border-box}
+  button{padding:10px;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
+  .btn-add{width:100%;background:#e3f2fd;color:#1565c0;margin-top:8px}
+  .btn-save{width:100%;background:#2e7d32;color:#fff;margin-top:10px}
+  .btn-del{background:#ff5252;color:#fff;padding:6px 10px}
+  #dateList{max-height:160px;overflow-y:auto;border:1px solid #ddd;border-radius:8px;display:none;background:#fff}
+  .date-item{padding:9px;border-bottom:1px solid #eee;cursor:pointer}
+  .date-item:hover{background:#eef6ff}
+  table{width:100%;border-collapse:collapse;margin-top:8px}
+  th,td{border:1px solid #ccc;padding:4px;text-align:left}
+  th{background:#f5f5f5;font-size:12px}
+  td input{border:none;padding:6px;width:100%;background:transparent}
+  td input:focus{background:#fffbe6;outline:1px solid #ffb300}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="row">
+    <div>
+      <input type="text" id="in1_doc" placeholder="date (doc) - YYYY-MM-DD" autocomplete="off">
+      <div id="dateList"></div>
+    </div>
+    <div><input type="text" id="in2_week" placeholder="week - 5/260" inputmode="text"></div>
+  </div>
+  <input type="text" id="in_date_display" placeholder="date - Doc က နေ့စွဲယူမည်" style="margin-top:6px">
+</div>
+
+<div class="card">
+  <div class="row">
+    <div><input type="text" id="in3_type" placeholder="ဆုအမျိုးအစား" list="typeHistory"></div>
+    <div><input type="text" id="in4_numbers" placeholder="နံပါတ် - 000001,000002"></div>
+  </div>
+  <div class="row" style="margin-top:6px">
+    <div><input type="text" id="in5_amt_num" placeholder="ဆုတန်ဖိုး - 500000"></div>
+    <div><input type="text" id="in6_amt_text" placeholder="ဆုတန်ဖိုး(စာ) - ငါးသိန်း"></div>
+  </div>
+  <datalist id="typeHistory"></datalist>
+  <button class="btn-add" id="btnAdd">List ထဲထည့်မည် (ကော်မာခွဲသိမ်းမည်)</button>
+</div>
+
+<div class="card">
+  <div style="display:flex;justify-content:space-between"><b>Google Sheet ပုံစံ - ဇယားထဲမှာပဲ ပြင်လို့ရ</b><span id="count">0 ခု</span></div>
+  <table>
+    <thead><tr><th>အမျိုးအစား</th><th>နံပါတ်</th><th>တန်ဖိုး</th><th>တန်ဖိုးစာ</th><th>ဖျက်</th></tr></thead>
+    <tbody id="sheetBody"></tbody>
+  </table>
+  <button class="btn-save" id="btnSave">Doc သိမ်းမည် (Array နည်းနဲ့)</button>
+  <p id="status" style="text-align:center;color:green;font-size:13px"></p>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDqAgzneT19Vm41ce85qlFJoqefIufcAYc",
+  authDomain: "allarakanassets.firebaseapp.com",
+  projectId: "allarakanassets",
+  storageBucket: "allarakanassets.firebasestorage.app",
+  messagingSenderId: "285007716175",
+  appId: "1:285007716175:web:cb565efcc09dd9d99caf3a",
+  measurementId: "G-4M967Q88TN"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const COL = "ArakanLottery";
+
+let localPrizes = [];
+let allDates = [];
+let typeCache = {};
+
+async function loadDates(){
+  const snap = await getDocs(collection(db, COL));
+  allDates = []; typeCache = {};
+  snap.forEach(d=>{
+    allDates.push(d.id);
+    (d.data().prizes||[]).forEach(p=>{
+      if(!typeCache[p.type]) typeCache[p.type] = {amount_number:p.amount_number, amount_text:p.amount_text};
+    });
+  });
+  allDates.sort().reverse();
+  updateTypeHistory();
+}
+function updateTypeHistory(){
+  const dl=document.getElementById("typeHistory"); dl.innerHTML="";
+  Object.keys(typeCache).forEach(t=>{ const o=document.createElement("option"); o.value=t; dl.appendChild(o); });
+}
+function renderDateList(filter){
+  const box=document.getElementById("dateList"); box.innerHTML="";
+  let filtered = filter? allDates.filter(d=>d.includes(filter)) : allDates.slice(0,20);
+  filtered.slice(0,20).forEach(d=>{
+    const div=document.createElement("div"); div.className="date-item"; div.textContent=d;
+    div.onclick=()=>selectDoc(d); box.appendChild(div);
+  });
+  box.style.display=filtered.length?"block":"none";
+}
+async function selectDoc(dateId){
+  document.getElementById("in1_doc").value=dateId;
+  document.getElementById("dateList").style.display="none";
+  document.getElementById("in_date_display").value=dateId;
+  const snap=await getDoc(doc(db,COL,dateId));
+  if(snap.exists()){
+    const data=snap.data();
+    document.getElementById("in2_week").value=data.week_no||"";
+    localPrizes=data.prizes||[];
+    document.getElementById("status").textContent=dateId+" ရှိပြီးသား - ဇယားထဲပြင်လို့ရ";
+  }else{
+    localPrizes=[]; document.getElementById("status").textContent="Doc အသစ်";
+  }
+  renderSheet();
+}
+function renderSheet(){
+  const tbody=document.getElementById("sheetBody"); tbody.innerHTML="";
+  document.getElementById("count").textContent=localPrizes.length+" ခု";
+  if(localPrizes.length===0){ tbody.innerHTML='<tr><td colspan=5 style="text-align:center;color:#999">Doc ဗလာဆို ဗလာပြမည်</td></tr>'; return; }
+  localPrizes.forEach((p,i)=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td><input value="${p.type}" data-i="${i}" data-k="type"></td>
+      <td><input value="${p.number}" data-i="${i}" data-k="number"></td>
+      <td><input value="${p.amount_number}" data-i="${i}" data-k="amount_number"></td>
+      <td><input value="${p.amount_text}" data-i="${i}" data-k="amount_text"></td>
+      <td><button class="btn-del" data-del="${i}">X</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  // inline edit
+  tbody.querySelectorAll("input").forEach(inp=>{
+    inp.addEventListener("change", e=>{
+      const idx=Number(e.target.dataset.i); const key=e.target.dataset.k;
+      let val=e.target.value;
+      if(key==="amount_number") val=Number(val)||0;
+      localPrizes[idx][key]=val;
+      if(key==="type"){ // type ပြင်ရင် cache update
+        if(!typeCache[val]) typeCache[val]={amount_number:localPrizes[idx].amount_number, amount_text:localPrizes[idx].amount_text};
+      }
+    });
+  });
+  tbody.querySelectorAll("[data-del]").forEach(btn=>{
+    btn.onclick=()=>{ localPrizes.splice(Number(btn.dataset.del),1); renderSheet(); };
+  });
+}
+
+document.getElementById("in1_doc").addEventListener("input", e=>renderDateList(e.target.value.trim()));
+document.getElementById("in1_doc").addEventListener("focus", e=>renderDateList(e.target.value.trim()));
+
+// Auto-fill တန်ဖိုး
+document.getElementById("in3_type").addEventListener("change", e=>{
+  const t=e.target.value.trim();
+  if(typeCache[t]){
+    document.getElementById("in5_amt_num").value=typeCache[t].amount_number;
+    document.getElementById("in6_amt_text").value=typeCache[t].amount_text;
+  }
+});
+document.getElementById("in3_type").addEventListener("input", e=>{
+  const t=e.target.value.trim();
+  if(typeCache[t]){
+    if(!document.getElementById("in5_amt_num").value) document.getElementById("in5_amt_num").value=typeCache[t].amount_number;
+    if(!document.getElementById("in6_amt_text").value) document.getElementById("in6_amt_text").value=typeCache[t].amount_text;
+  }
+});
+
+document.getElementById("btnAdd").onclick=()=>{
+  const type=document.getElementById("in3_type").value.trim();
+  const numsRaw=document.getElementById("in4_numbers").value.trim();
+  let amtNum=document.getElementById("in5_amt_num").value.trim();
+  let amtText=document.getElementById("in6_amt_text").value.trim();
+  if(!type||!numsRaw){ alert("အမျိုးအစား+နံပါတ် ထည့်"); return; }
+  if(!amtNum && typeCache[type]) amtNum=typeCache[type].amount_number;
+  if(!amtText && typeCache[type]) amtText=typeCache[type].amount_text;
+  const nums=numsRaw.split(",").map(s=>s.trim()).filter(Boolean);
+  nums.forEach(n=>{
+    localPrizes.push({type, number:n, amount_number:Number(amtNum)||0, amount_text:amtText||""});
+  });
+  typeCache[type]={amount_number:Number(amtNum)||0, amount_text:amtText||""};
+  updateTypeHistory();
+  document.getElementById("in4_numbers").value="";
+  renderSheet();
+};
+
+document.getElementById("btnSave").onclick=async()=>{
+  const dateId=document.getElementById("in1_doc").value.trim();
+  const week=document.getElementById("in2_week").value.trim();
+  if(!dateId){ alert("Doc date ထည့်"); return; }
+  await setDoc(doc(db,COL,dateId), {date:dateId, week_no:week, prizes:localPrizes, updatedAt:new Date()}, {merge:true});
+  document.getElementById("status").textContent="✓ "+dateId+" သိမ်းပြီးပြီ";
+  loadDates();
+};
+
+loadDates();
+</script>
+</body>
+</html>

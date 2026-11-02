@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arakan Art Area - Red Blue</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{
+    background:#00FF00;
+    width:100vw; height:100vh;
+    display:flex; align-items:center; justify-content:flex-start;
+    padding-left:5vw;
+    overflow:hidden;
+  }
+  .container{ text-align:left; width:90vw; }
+  #textDisplay{
+    font-family:'Montserrat', sans-serif;
+    font-size: clamp(32px, 7vw, 80px);
+    font-weight:800;
+    line-height:1.2;
+    display:flex;
+    flex-wrap:wrap;
+  }
+  .char-wrapper{
+    position:relative;
+    display:inline-block;
+    margin-right:0.05em;
+  }
+  /* ရွှေရောင်အနားကွပ် */
+  .char-gold{
+    position:absolute;
+    top:0; left:0;
+    color:#FFD700;
+    -webkit-text-stroke: 8px #FFD700;
+    z-index:1;
+  }
+  /* အနီ - အပြာ ၂ ရောင်ပဲ ပြေးမယ် */
+  .char-fill{
+    position:relative;
+    z-index:2;
+    background-image: linear-gradient(90deg, #FF0000 0%, #FF0000 30%, #004AFF 70%, #004AFF 100%);
+    background-size:300% 100%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    -webkit-text-fill-color:transparent;
+    animation: gradientRun 2s linear infinite;
+  }
+  @keyframes gradientRun{
+    0%{ background-position:0% 0%; }
+    100%{ background-position:300% 0%; }
+  }
+  .char-wrapper.hidden{ opacity:0; }
+  .char-wrapper.visible{ opacity:1; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div id="textDisplay"></div>
+  </div>
+
+<script>
+  const display = document.getElementById('textDisplay');
+  const text = "Arakan Art Area";
+  let index = 0;
+
+  function typeFromLeft(){
+    display.innerHTML = '';
+    [...text].forEach((c)=>{
+      const wrapper = document.createElement('div');
+      wrapper.className = 'char-wrapper hidden';
+      if(c === ' '){
+        wrapper.style.width = '0.5em';
+        wrapper.innerHTML = '&nbsp;';
+      } else {
+        const gold = document.createElement('span');
+        gold.className = 'char-gold';
+        gold.textContent = c;
+        const fill = document.createElement('span');
+        fill.className = 'char-fill';
+        fill.textContent = c;
+        wrapper.appendChild(gold);
+        wrapper.appendChild(fill);
+      }
+      display.appendChild(wrapper);
+    });
+
+    const chars = display.querySelectorAll('.char-wrapper');
+    function showNext(){
+      if(index < chars.length){
+        chars[index].classList.remove('hidden');
+        chars[index].classList.add('visible');
+        index++;
+        setTimeout(showNext, 110);
+      } else {
+        setTimeout(()=>{
+          index = 0;
+          typeFromLeft();
+        }, 3000);
+      }
+    }
+    showNext();
+  }
+  typeFromLeft();
+</script>
+</body>
+</html>
